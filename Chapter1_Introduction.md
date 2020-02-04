@@ -83,15 +83,15 @@ Cuando se abra Compass, verá una página titulada "Connect to Host".
 
 4. Use la siguiente información para completar este formulario, pero no haga clic en "Connect" todavía.
 
-**Hostname**: cluster0-shard-00-00-jxeqq.mongodb.net
+   **Hostname**: cluster0-shard-00-00-jxeqq.mongodb.net
 
-**Username**: m001-student
+   **Username**: m001-student
 
-**Password**: m001-mongodb-basics
+   **Password**: m001-mongodb-basics
 
-**Replica Set Name**: Cluster0-shard-0
+   **Replica Set Name**: Cluster0-shard-0
 
-**Read Preference**: Primary Preferred
+   **Read Preference**: Primary Preferred
 
 5. Haga clic en "Add to Favorites" e ingrese `M001 RS` como el **Favorite Name**. Agregar esta conexión como favorita le permitirá volver a conectarse fácilmente a nuestra implementación MongoDB de clase después de cerrar y reiniciar Compass.
 
