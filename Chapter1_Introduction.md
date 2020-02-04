@@ -66,3 +66,113 @@ telnet cluster0-shard-00-00-jxeqq.mongodb.net 27017
 ping cluster0-shard-00-00-jxeqq.mongodb.net
 ```
 
+## Lecture: Connecting to MongoDB Using Compass
+
+### Lecture Notes
+
+En este curso haremos un uso extensivo de MongoDB Compass para aprender a usar MongoDB.
+
+1. Descargue Compass del [MongoDB Download Center](https://www.mongodb.com/download-center/compass). Si ya instaló Compass, asegúrese de estar utilizando la **última versión (estable) de Compass** y actualice si es necesario. Asegúrese de **no** descargar la versión "Community Edition Stable".
+
+2. Instale Compass en su computadora desde la descarga.
+3. Lance Compass.
+
+Cuando se abra Compass, verá una página titulada "Connect to Host".
+
+<img src="/images/compass_connect_screen.png">
+
+4. Use la siguiente información para completar este formulario, pero no haga clic en "Connect" todavía.
+
+**Hostname**: cluster0-shard-00-00-jxeqq.mongodb.net
+
+**Username**: m001-student
+
+**Password**: m001-mongodb-basics
+
+**Replica Set Name**: Cluster0-shard-0
+
+**Read Preference**: Primary Preferred
+
+5. Haga clic en "Add to Favorites" e ingrese `M001 RS` como el **Favorite Name**. Agregar esta conexión como favorita le permitirá volver a conectarse fácilmente a nuestra implementación MongoDB de clase después de cerrar y reiniciar Compass.
+
+6. Ahora, haga clic en "Connect" y cargue las bases de datos en la implementación de MongoDB clase M001.
+
+### Transcript
+
+En esta lección, comenzaremos nuestra exploración de MongoDB.
+
+Para hacer esto, usaremos Compass, que es el cliente MongoDB GUI.
+
+Si aún no lo ha hecho, abra Compass y siga mientras avanzamos en esta lección.
+
+He incluido instrucciones para descargar y lanzar Compass en las notas de esta lección.
+
+Compass proporciona una interfaz de usuario para ver las bases de datos MongoDB y los documentos que contienen.
+
+También es compatible con el lenguaje de consulta MongoDB, y nos permite leer y escribir datos utilizando una serie de comodidades para crear consultas.
+
+Aquí estamos mirando la pantalla de conexión de Compass.
+
+<img src="images/compass.png">
+
+En el lado izquierdo, debería ver una barra de navegación, con secciones para Favoritos y Conexiones recientes.
+
+En la vista central aquí, debería ver un formulario que podemos usar para establecer una conexión a un clúster MongoDB.
+
+Tenga en cuenta que Compass se desarrolla activamente.
+
+Puede haber diferencias entre la IU que muestro aquí y lo que está viendo ahora.
+
+En un momento, nos conectaremos a un clúster MongoDB que hemos configurado para esta clase.
+
+Este clúster se ejecuta en Atlas, que es MongoDB alojado en MongoDB como plataforma de servicio.
+
+<img src="/images/mongodb-atlas.png">
+
+Consulte las notas de la conferencia para obtener más información sobre MongoDB Atlas.
+
+Tampoco se preocupe por mi uso del término clúster.
+
+Si no te es familiar.
+
+Por ahora, no es importante.
+
+En una lección posterior, profundizaremos en lo que es un clúster MongoDB.
+
+Bien, ahora estamos listos para conectarnos.
+
+Puede ver el nombre de host de nuestro clúster aquí.
+
+También lo he incluido en las notas de clase a continuación.
+
+Nos conectaremos en el puerto predeterminado de 27017.
+
+Como método de autenticación, utilizaremos la contraseña del nombre de usuario.
+
+Utilice el nombre de usuario m001-student.
+
+Y la contraseña m001-mongodb-basics Utilizaremos admin como la base de datos de autenticación y especificaremos Usar el sistema CA slash Atlas Deployment para el campo SSL.
+
+Esto simplemente significa que encriptaremos el tráfico entre Compass y nuestro clúster Atlas.
+
+Finalmente, antes de presionar el botón de conexión, cree un favorito para esta conexión al que pueda volver fácilmente.
+
+Ahora haga clic en Conectar y cargue las bases de datos en la implementación de MongoDB clase M001.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
