@@ -277,7 +277,7 @@ Si aún no ha descargado Compass, siga estas instrucciones antes de responder la
    Asegúrese de estar utilizando la **última versión (estable) de Compass** y actualice si es necesario. Asegúrese de **no** descargar la versión "Community Edition Stable".
 3. Lance Compass.
 
-<img src="/images/compass_connect_screen-2.png">
+<img src="/images/compass_connect_screen.png">
 
 4. Use la siguiente información para completar este formulario, pero no haga clic en "Connect" todavía.
 
