@@ -191,7 +191,7 @@ Cada combinación de base de datos y colección define un espacio de nombres.
 
 Por lo general, hacemos referencia a una colección específica expresando el nombre de la base de datos, seguido de un punto, seguido del nombre de la colección.
 
-<img src="/images/database.png">
+<img src="/images/database-notation.png">
 
 Volviendo a Compass, aquí tenemos una lista de todas las bases de datos en este clúster.
 
@@ -230,7 +230,7 @@ Como ejemplo, echemos un vistazo a la colección de movies (películas) de la ba
 
 Al hacer clic en esta colección, debería ver una vista de esquema para la colección que aparece en el panel principal.
 
-<img src="/images/videos-movies-schema.png">
+<img src="/images/videos-movies-schemas.png">
 
 La vista de esquema proporciona una lista de los campos encontrados en documentos dentro de esta colección.
 
@@ -238,9 +238,8 @@ Como es de esperar para las películas, tenemos campos para director, género, t
 
 A medida que avanzamos, podemos ver todos los campos encontrados en los documentos de esta colección.
 
-<img src="/images/videos-movies-schema.png">
-<img src="/images/videos-movies-schema.png">
-<img src="/images/videos-movies-schema.png">
+<img src="/images/videos-movies-schemas-2.png">
+
 
 Nuevamente, esta vista proporciona un resumen del esquema, o modelo de datos, para los documentos de esta colección.
 
