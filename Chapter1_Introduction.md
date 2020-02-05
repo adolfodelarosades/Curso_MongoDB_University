@@ -337,8 +337,6 @@ Inmediatamente a continuación hay una descripción del tipo de valor para este 
 
 A lo largo de la vista de esquema de Compass, al pasar el cursor sobre los elementos se proporcionan más detalles.
 
-
-
 Si pasamos el cursor sobre la barra inmediatamente debajo del especificador de tipo de valor, debería ver el valor 100%.
 
 Esto nos dice que el 100% de los documentos en esta colección contienen un valor de cadena para este campo.
@@ -439,7 +437,98 @@ Completamos una revisión más completa de los tipos de datos de MongoDB en otra
 
 ## Lecture: MongoDB Documents: Fields with Documents as Values
 
+En esta lección, veremos los tipos de valores agregados que admite MongoDB y también analizaremos el soporte para datos geoespaciales.
+
+En Compass, veamos el conjunto de datos meteorológicos de 100 años, navegando al espacio de nombre de datos de punto de 100 años en nuestro clúster Atlas.
+
+Podemos hacer eso de la siguiente manera.
+
+Primero hacemos clic en la base de datos, y luego en la colección.
+
+Veamos la vista de esquema para esta colección.
+
+Ahora, este conjunto de datos proporciona lecturas del clima para ubicaciones en todo el mundo.
+
+Para este conjunto de datos, es importante comprender que todas las lecturas se registran tanto con una evaluación de valor como de calidad, para dar una idea de cuán confiable se determinó que era la medición cuando se tomó.
+
+Como ejemplo, vamos a desplazarnos hacia abajo y mirar el campo de temperatura del aire.
+
+Tenga en cuenta que el tipo especificado para este campo en la interfaz de usuario de Compass es documento.
+
+A la derecha del nombre del campo, debería ver una descripción que dice documento con dos campos anidados.
+
+Además de los valores escalares, como cadenas, enteros y dobles, MongoDB admite anidar un documento como el valor de un campo dentro de otro documento.
+
+La temperatura del aire es un ejemplo.
+
+Cuando se expande, podemos ver los campos anidados para la calidad y el valor de la temperatura del aire.
+
+Así que aquí he expandido la temperatura del aire haciendo clic en este cursor.
+
+El valor de la temperatura del aire es en realidad un documento anidado con dos campos, calidad y valor.
+
+La calidad es una cadena y el valor es un número.
+
+Para muchas aplicaciones, es importante poder modelar datos, no solo como un conjunto plano de claves y valores, sino como estructuras de datos jerárquicas que reflejan la forma en que un desarrollador necesita trabajar con los datos en su aplicación.
+
+Si es apropiado para su aplicación, puede anidar documentos con dos o más niveles de profundidad.
+
+Como ejemplo, echemos un vistazo al campo de observación de la presión atmosférica.
+
+La presión atmosférica nos dice el peso del aire en un lugar determinado.
+
+Por otro lado, la presión atmosférica afecta la forma en que los sistemas climáticos se mueven a través de la superficie de la Tierra.
+
+Es un factor que usan los meteorólogos para predecir el clima del día siguiente.
+
+Si ampliamos el campo de observación de la presión atmosférica, podemos ver que este campo tiene un valor que es un documento con dos campos.
+
+Cada uno de esos campos son documentos anidados, como podemos ver aquí por el tipo que Compass nos proporciona.
+
+Si ampliamos cada uno de ellos, vemos una lectura y una medida de calidad para la altura sobre el nivel del mar a la que se tomó la medida, designada como la configuración del altímetro, y la lectura real de la presión atmosférica y la medida de calidad.
+
+Con estos documentos expandidos de esta manera, podemos ver que la presión atmosférica se modela utilizando dos niveles de documentos anidados.
+
+El lenguaje de consulta de MongoDB proporciona soporte completo para filtrar documentos en función de los valores de los campos en documentos anidados.
+
+MongoDB está diseñado para proporcionar una gran flexibilidad en el modelado de sus datos, para que pueda diseñar un esquema que sea eficaz para los patrones de acceso a datos de su aplicación.
+
+Su modelo de datos debe admitir un manejo eficiente de las lecturas y escrituras que requiere su aplicación.
+
+Ahora, abordamos estos aspectos del modelado de datos y el lenguaje de consulta MongoDB en detalle en otras lecciones.
+
+En este punto, simplemente estoy sentando las bases para la flexibilidad que tiene en el diseño de modelos de datos.
+
 ## Lecture: MongoDB Documents: Fields with Arrays as Values
+
+Además de los documentos anidados, MongoDB también admite valores de array para campos.
+
+En este conjunto de datos, podemos ver un ejemplo de array en el campo de la sección.
+
+Para este ejemplo, será mejor si miramos la pestaña Documentos, en Compass.
+
+En esta pestaña, no solo vemos una vista resumida del esquema de los documentos de una colección, sino que también podemos ver los documentos reales que contiene nuestra colección de 100 años.
+
+Los documentos en este conjunto de datos contienen mediciones para un conjunto consistente de lecturas meteorológicas.
+
+Estos incluyen temperatura del aire, presión, viento, etc.
+
+Pero también hay más de 100 lecturas disponibles, según la estación meteorológica.
+
+Los valores suplementarios, como estos, se etiquetan utilizando un código de tres a cuatro caracteres siguiendo un estándar establecido para datos meteorológicos.
+
+Como MongoDB tiene un modelo de datos flexible, todos los documentos no tienen que contener exactamente los mismos campos.
+
+Entonces, en este conjunto de datos, las lecturas complementarias disponibles en un documento específico se almacenan en el campo de la sección en este conjunto de datos.
+
+Dado que las lecturas disponibles variarán de un documento a otro, tiene sentido proporcionar una lista resumida de las lecturas complementarias disponibles en un documento determinado.
+
+Una matriz es una buena opción para esto en MongoDB.
+
+El lenguaje de consulta MongoDB admite consultas en campos de matriz que nos facilitan el filtrado de documentos que contienen un conjunto particular de campos suplementarios.
+
+Y la ventaja de observar los datos suplementarios de esta manera es que simplemente necesitamos construir un índice en las secciones, y luego podemos buscar rápidamente documentos que contienen un conjunto específico de datos complementarios.
+
 
 ## Lab 1.2: Determine the Value Type, Part 1
 
