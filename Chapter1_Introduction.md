@@ -207,7 +207,6 @@ Por cierto, si la lista de bases de datos que está viendo difiere un poco de lo
 
 Actualizamos este clúster de vez en cuando con nuevos conjuntos de datos.
 
-
 ## Lecture: Exploring Datasets in Compass
 
 Bien, ahora examinemos algunas de las colecciones en este clúster.
@@ -269,7 +268,174 @@ Y luego, pase a la siguiente lección.
 
 ## Lab 1.1: Install Compass and Connect
 
+Problema:
+
+Si aún no ha descargado Compass, siga estas instrucciones antes de responder la siguiente pregunta.
+
+1. Descargue Compass del [MongoDB Download Center](https://www.mongodb.com/download-center/compass).
+2. Instale Compass en su computadora desde la descarga.
+   Asegúrese de estar utilizando la **última versión (estable) de Compass** y actualice si es necesario. Asegúrese de **no** descargar la versión "Community Edition Stable".
+3. Lance Compass.
+
+<img src="/images/compass_connect_screen-2.png">
+
+4. Use la siguiente información para completar este formulario, pero no haga clic en "Connect" todavía.
+
+   **Hostname**: cluster0-shard-00-00-jxeqq.mongodb.net
+
+   **Username**: m001-student
+
+   **Password**: m001-mongodb-basics
+
+   **Replica Set Name**: Cluster0-shard-0
+
+   **Read Preference**: Primary Preferred
+
+5. Ingrese `M001 RS` como **Favorite Name** y haga clic en "CREATE FAVORITE". Agregar esta conexión como favorita le permitirá volver a conectarse fácilmente a nuestra implementación MongoDB de clase después de cerrar y reiniciar Compass.
+
+6. Ahora, haga clic en "Connect".
+
+Pregunta ¿Cuál de los siguientes nombres de campo aparecen en los documentos de la colección de **movies** de la base de datos de video? Marque todo lo que corresponda.
+
+Intentos restantes: quedan 3 intentos
+
+Marque todas las respuestas que apliquen:
+
+Cuando se abra Compass, verá una página titulada "Connect to Host".
+
 ## Lecture: Documents: Scalar Value Types (Quiz)
+
+### Lecture Notes
+
+**Nota** : Tenga en cuenta que el campo `lastUpdated` es mencionado por Shannon en el video pero no está presente en el conjunto de datos.
+
+### Transcript
+
+En esta lección, exploraremos algunos de los tipos de datos escalares que admite MongoDB y cómo determinar el tipo de valor de un campo en particular utilizando la vista de esquema de Compass.
+
+Observamos el array, el documento y lo que a menudo llamo tipos de valores especiales en otras lecciones.
+
+Aquí, estamos viendo la vista de esquema para la colección movies de video.
+
+<img src="/images/videos-movies-schemas.png">
+
+Ahora, he colapsado el panel de navegación a la izquierda usando este control para que tengamos un poco más de espacio en pantalla para trabajar.
+
+<img src="/images/compass-colapse.png">
+
+A medida que nos desplazamos por el panel principal, debería ver una serie de campos aquí.
+
+En la vista de esquema, un campo está representado por su nombre (**genre**), su tipo (**string**) y un gráfico que refleja el rango de valores para ese campo en esta colección y qué fracción de documentos tiene un valor dado.
+
+<img src="/images/compass-graph.png">
+
+Como ejemplo, echemos un vistazo con más detalle al campo de género.
+
+Para este campo, vemos el nombre **genre*.
+
+Inmediatamente a continuación hay una descripción del tipo de valor para este campo **string** según lo determinado por los documentos de muestra en esta colección.
+
+A lo largo de la vista de esquema de Compass, al pasar el cursor sobre los elementos se proporcionan más detalles.
+
+
+
+Si pasamos el cursor sobre la barra inmediatamente debajo del especificador de tipo de valor, debería ver el valor 100%.
+
+Esto nos dice que el 100% de los documentos en esta colección contienen un valor de cadena para este campo.
+
+A la derecha del nombre y tipo hay un gráfico que muestra un rango de valores para este campo y qué fracción de documentos en esta colección contiene valores específicos.
+
+Examinar los valores nos da una idea de todos los valores que tiene este campo en los documentos de esta colección.
+
+Y si pasamos el cursor sobre cualquier elemento específico de este gráfico, podemos ver qué fracción de documentos tiene un valor específico.
+
+Aquí podemos ver que el 5% de los documentos de esta colección describen películas en el género de comedia.
+
+<img src="/images/compass-graph-detail.png">
+
+Es importante tener en cuenta que el rango de valores y la fracción de documentos con un valor dado, según lo informado por Compass, se basa en una muestra de documentos en la colección.
+
+En este ejemplo, la muestra es lo suficientemente grande como para que vea un resumen preciso, pero existe la posibilidad de que el resumen cambie ligeramente de una vista a otra.
+
+A medida que nos desplazamos por el resto de la vista de esquema para esta colección, puede ver que Compass proporciona el nombre, una descripción del tipo de valor y un resumen del rango y fracción de documentos que tienen un valor específico para todos los campos encontrados dentro de los documentos en un colección.
+
+Además de las strings, otros valores comunes para documentos MongoDB incluyen integers, floating point values, y dates.
+
+Veamos el campo **year**.
+
+<img src="/images/compass-year.png">
+
+Puede ver desde la vista de esquema que los valores para este campo son int32, lo que significa que son enteros de 32 bits.
+
+Mirando el gráfico de valores, podemos ver que el valor mínimo es 1.897 y el valor máximo es 2.017.
+
+También podemos ver que la cantidad de películas en esta colección para los años más recientes es mucho mayor que para los períodos de hace 100 años o más.
+
+Mientras hojeamos las barras aquí, podemos ver que cada una representa un período de aproximadamente cinco años.
+
+<img src="/images/compass-year-5.png">
+
+Ahora veamos algunos valores de coma flotante por ejemplo el campo **viewerRating**.
+
+<img src="/images/compass-viewerRating.png">
+
+Si nos desplazamos hacia el campo de calificación del espectador, verá un rango de valores de 1.4 a 9.6, lo que parece razonable para una escala de calificación del espectador para películas.
+
+Y nuevamente, podemos ver que la mayoría de los valores están en algún lugar en este rango mediocre, con muchas menos calificaciones extremadamente bajas o muy, muy altas.
+
+El tipo de datos double es una opción para representar valores de coma flotante.
+
+Como probablemente sepa, la aritmética de coma flotante, aunque es lo suficientemente buena para muchas aplicaciones, es imprecisa.
+
+MongoDB también proporciona un **tipo de datos decimales** para transacciones financieras y otras aplicaciones que requieren aritmética de coma flotante precisa.
+
+Ahora puede que se pregunte por qué estamos viendo varios tipos de valores listados para la calificación del espectador.
+
+De hecho, tenemos algunos valores dobles y algunos valores int32, así como una proporción de documentos para los que este campo no está definido (**undefined**).
+
+<img src="/images/compass-undefined.png">
+
+Una de las ventajas reales de la vista de esquema de Compass es que le da una idea de qué valores tienen realmente los campos en su colección.
+
+Y para una colección que es tan grande, esto puede ser extremadamente útil cuando realiza tareas como la limpieza de datos.
+
+Esto indica que podríamos tener un poco de trabajo por hacer para asegurarnos de que todas las calificaciones de los espectadores sean del mismo tipo de datos.
+
+El hecho de que, para muchas películas, la calificación del espectador no esté definida, no es necesariamente un problema porque simplemente podríamos no tener datos sobre las calificaciones del espectador para una fracción considerable de nuestro conjunto de datos.
+
+La conclusión importante aquí es que Compass identifica campos para los que hay una combinación de tipos de valores.
+
+Esto es valioso para los desarrolladores o administradores que podrían estar tratando de depurar un problema que tiene que ver con el tipo de datos para un campo en particular.
+
+También es útil para considerar lo que se debe hacer desde un punto de vista de secuencias de comandos, por ejemplo, cuando se hace necesario migrar un modelo de datos de un esquema a otro.
+
+En esta lección, hemos analizado los tipos de valores escalares en MongoDB y cómo usar Compass para determinar los tipos de valores para un campo y tener una idea del rango de valores en ese campo para documentos en una colección.
+
+Los ejemplos que hemos visto en la lección no brindan una descripción completa de los tipos de valores escalares que admite MongoDB.
+
+Sin embargo, son los más comunes.
+
+Antes de cerrar esta lección, echemos un vistazo a un tipo de valor adicional.
+
+Me gustaría ver un campo que nos muestra un ejemplo de fechas.
+
+El campo **last updated** proporciona un registro de cuándo se actualizaron por última vez los datos (clasificaciones y demás) de un documento de película determinado, es decir, cuándo se escribió por última vez un documento en la colección.
+
+<img src="/images/compass-date.png">
+
+Para los valores de fecha, Compass hace algo realmente valioso.
+
+Puede ver aquí que Compass proporciona el rango de valores de fecha de una manera que indica algo así como la densidad de valores en cada fecha del rango.
+
+Justo encima de esto, puede ver un informe de qué fracción de valores de fecha para el campo en cuestión cae cada día, aquí y a qué hora del día, aquí.
+
+En esta lección, hemos analizado los tipos de valores escalares en MongoDB y cómo usar Compass para determinar los tipos de valores para un campo y tener una idea del rango de valores en ese campo para documentos en una colección.
+
+Los ejemplos que hemos visto en esta lección no proporcionan una descripción general completa de los tipos de valores escalares que admite MongoDB.
+
+Sin embargo, estos son los más comunes: int32, double, string y date.
+
+Completamos una revisión más completa de los tipos de datos de MongoDB en otra lección sobre el formato binario en el que MongoDB almacena documentos.
 
 ## Lecture: MongoDB Documents: Fields with Documents as Values
 
