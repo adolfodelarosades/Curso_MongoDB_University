@@ -1,8 +1,8 @@
 # Chapter 1: Introduction
 
-## Lecture:  Welcome!
+## Lecture:  Welcome! (Quiz)
 
-## Lecture: Granding and Logistics
+## Lecture: Granding and Logistics (Quiz)
 
 A medida que comenzamos con este curso, me gustaría hablar sobre la calificación y algunos otros aspectos logísticos solo para asegurarme de que sepa cómo funciona este curso.
 
@@ -157,12 +157,137 @@ Esto simplemente significa que encriptaremos el tráfico entre Compass y nuestro
 
 Finalmente, antes de presionar el botón `CONNECT`, cree un favorito para esta conexión al que pueda volver fácilmente.
 
-Ahora haga clic en el botón `CONNECT`
+Ahora haga clic en el botón `CONNECT` y cargue las bases de datos en la implementación de MongoDB clase M001.
 
 <img src="images/compass-0.png">
 
 <img src="images/compass-1.png">
 
-y cargue las bases de datos en la implementación de MongoDB clase M001.
+## Lecture: Databases, Collections, and Documents (Quiz)
+
+### Transcript
+
+Una vez conectado, debería ver una pantalla que se ve así.
 
 <img src="images/compass-2.png">
+
+Aquí en el panel principal, podemos ver una lista de las bases de datos contenidas en este clúster.
+
+En MongoDB, una **base de datos** sirve como espacio de nombres para **colecciones**.
+
+Las colecciones almacenan registros individuales llamados **documentos**.
+
+Este gráfico ilustra la relación entre bases de datos, colecciones y documentos.
+
+<img src="/images/database.png">
+
+Esta jerarquía nos permite agrupar registros de elementos similares dentro de colecciones, y agrupar colecciones requeridas para la misma aplicación dentro de la misma base de datos.
+
+También podemos establecer políticas de seguridad que autoricen a los usuarios con diferentes roles y diferentes niveles de acceso a la base de datos, o nivel de recopilación.
+
+MongoDB actualmente no admite configuraciones de autorización específicas para documentos individuales.
+
+Cada combinación de base de datos y colección define un espacio de nombres.
+
+Por lo general, hacemos referencia a una colección específica expresando el nombre de la base de datos, seguido de un punto, seguido del nombre de la colección.
+
+<img src="/images/database.png">
+
+Volviendo a Compass, aquí tenemos una lista de todas las bases de datos en este clúster.
+
+<img src="images/compass-2.png">
+
+Con un poco de información sobre el tamaño de la base de datos, la cantidad de colecciones que contiene y la cantidad de índices en estas colecciones.
+
+No diremos demasiado sobre los índices en este curso.
+
+Querrás tomar el curso de **MongoDB performance course** (rendimiento MongoDB) para eso. Simplemente busque **M201** en el sitio web de la universidad MongoDB.
+
+Por cierto, si la lista de bases de datos que está viendo difiere un poco de lo que estoy mostrando aquí, no se preocupe por eso.
+
+Actualizamos este clúster de vez en cuando con nuevos conjuntos de datos.
+
+
+## Lecture: Exploring Datasets in Compass
+
+Bien, ahora examinemos algunas de las colecciones en este clúster.
+
+Si mira a la izquierda en la interfaz de Compass, verá un panel de navegación que contiene una lista de todas las bases de datos en el clúster al que estamos conectados, con las colecciones que esas bases de datos contienen anidadas debajo de ellas.
+
+Tenga en cuenta que puede volver a esta vista en cualquier momento haciendo clic en el icono de Inicio.
+
+Sin embargo, ahora queremos sumergirnos en las colecciones aquí.
+
+Tenemos bastantes bases de datos aquí.
+
+Estas son las colecciones que usaremos a lo largo del curso.
+
+Contienen una variedad de tipos de datos y una gama de modelos de datos, para que podamos ilustrar diferentes características de MongoDB.
+
+Para acceder a los documentos dentro de cualquier colección, simplemente ubique la colección en este panel de navegación y haga clic.
+
+Como ejemplo, echemos un vistazo a la colección de movies (películas) de la base de datos de videos.
+
+Al hacer clic en esta colección, debería ver una vista de esquema para la colección que aparece en el panel principal.
+
+<img src="/images/videos-movies-schema.png">
+
+La vista de esquema proporciona una lista de los campos encontrados en documentos dentro de esta colección.
+
+Como es de esperar para las películas, tenemos campos para director, género, trama y una serie de otras características relevantes para las películas.
+
+A medida que avanzamos, podemos ver todos los campos encontrados en los documentos de esta colección.
+
+<img src="/images/videos-movies-schema.png">
+<img src="/images/videos-movies-schema.png">
+<img src="/images/videos-movies-schema.png">
+
+Nuevamente, esta vista proporciona un resumen del esquema, o modelo de datos, para los documentos de esta colección.
+
+Tenemos la lista de campos, sus tipos de datos y un resumen del rango de valores para cada campo que se encuentra en todos los documentos de la colección.
+
+Volveremos a un tutorial más detallado de esta información en una lección posterior.
+
+Por ahora, profundicemos un poco en esta colección y veamos algunos documentos específicos.
+
+Si hacemos clic en la pestaña Documentos, debería ver una lista de documentos dentro de esta colección.
+
+<img src="/images/videos-movies.png">
+
+Esta vista nos brinda la posibilidad de examinar los datos reales encontrados en esta colección.
+
+Aquí podemos ver un documento que registra los detalles de una película de un minuto de duración llamada Carmencita que se produjo en 1894.
+
+A medida que nos desplazamos por esta vista, podemos ver otros documentos en esta colección.
+
+En lecciones posteriores, veremos cómo consultar estos datos para encontrar documentos que coincidan con un conjunto específico de criterios de filtro.
+
+También aprenderemos cómo insertar nuevos documentos y actualizar los existentes, con nuevos datos.
+
+Continúe y explore un poco estos datos y eche un vistazo a las otras colecciones en este grupo de Atlas.
+
+Y luego, pase a la siguiente lección.
+
+## Lab 1.1: Install Compass and Connect
+
+## Lecture: Documents: Scalar Value Types (Quiz)
+
+## Lecture: MongoDB Documents: Fields with Documents as Values
+
+## Lecture: MongoDB Documents: Fields with Arrays as Values
+
+## Lab 1.2: Determine the Value Type, Part 1
+
+## Lab 1.3: Determine the Value Type, Part 2
+
+## Lab 1.4: Determine the Value Type, Part 3
+
+## Lecture: MongoDB Documents: Geospatial Data (Quiz)
+
+## Lecture: Filtering Collections with Queries (Quiz)
+
+## Lab 1.5: Scavenger Hunt, Part 1
+
+## Lab 1.6: Scavenger Hunt, Part 2
+
+## Lecture: Understanding JSON (Quiz)
