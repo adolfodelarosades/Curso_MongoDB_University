@@ -125,19 +125,15 @@ Puede haber diferencias entre la IU que muestro aquí y lo que está viendo ahor
 
 En un momento, nos conectaremos a un clúster MongoDB que hemos configurado para esta clase.
 
-Este clúster se ejecuta en Atlas, que es MongoDB alojado en MongoDB como plataforma de servicio.
+Este clúster se ejecuta en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas), alojado en MongoDB como plataforma de servicio.
 
 <img src="/images/mongodb-atlas.png">
 
 Consulte las notas de la conferencia para obtener más información sobre MongoDB Atlas.
 
-Tampoco se preocupe por mi uso del término clúster.
+Tampoco se preocupe por mi uso del término clúster,  si no te es familiar. Por ahora, no es importante.
 
-Si no te es familiar.
-
-Por ahora, no es importante.
-
-En una lección posterior, profundizaremos en lo que es un clúster MongoDB.
+En una lección posterior, profundizaremos en lo que es un clúster MongoDB. 
 
 Bien, ahora estamos listos para conectarnos.
 
@@ -149,30 +145,24 @@ Nos conectaremos en el puerto predeterminado de 27017.
 
 Como método de autenticación, utilizaremos la contraseña del nombre de usuario.
 
-Utilice el nombre de usuario m001-student.
+Utilice el nombre de usuario **`m001-student`**.
 
-Y la contraseña m001-mongodb-basics Utilizaremos admin como la base de datos de autenticación y especificaremos Usar el sistema CA slash Atlas Deployment para el campo SSL.
+Y la contraseña **`m001-mongodb-basics`
+
+Utilizaremos **`admin`** como la base de datos de autenticación.
+
+Y especificaremos para el campo SSL la opción **`System CA / Atlas Deployment`** .
 
 Esto simplemente significa que encriptaremos el tráfico entre Compass y nuestro clúster Atlas.
 
-Finalmente, antes de presionar el botón de conexión, cree un favorito para esta conexión al que pueda volver fácilmente.
+Finalmente, antes de presionar el botón `CONNECT`, cree un favorito para esta conexión al que pueda volver fácilmente.
 
-Ahora haga clic en Conectar y cargue las bases de datos en la implementación de MongoDB clase M001.
+Ahora haga clic en el botón `CONNECT`
 
+<img src="images/compass-0.png">
 
+<img src="images/compass-1.png">
 
+y cargue las bases de datos en la implementación de MongoDB clase M001.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<img src="images/compass-2.png">
