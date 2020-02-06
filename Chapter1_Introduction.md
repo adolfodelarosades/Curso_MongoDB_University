@@ -546,11 +546,166 @@ Y la ventaja de observar los datos suplementarios de esta manera es que simpleme
 
 ## Lab 1.2: Determine the Value Type, Part 1
 
+**Problem:**
+
+What is the value type of the ts field for documents in the **100YWeatherSmall.data** collection?
+
+Choose the best answer:
+
+
+* array
+
+* coordinates
+
+* date :+1:
+
+* document
+
+* double
+
+* int32
+
+* mixed string and int32
+
+* mixed string and double
+
+* string
+
 ## Lab 1.3: Determine the Value Type, Part 2
+
+**Problem:**
+
+What is the value type of the **airTemperature** field for documents in the **100YWeatherSmall.data** collection?
+
+Choose the best answer:
+
+* array
+
+* coordinates
+
+* date
+
+* document :+1:
+
+* double
+
+* int32
+
+* mixed string and int32
+
+* mixed string and double
+
+* string
 
 ## Lab 1.4: Determine the Value Type, Part 3
 
+**Problem:**
+
+What is the value type of the **year** field for documents in the **video.movies** collection?
+
+Choose the best answer:
+
+* array
+
+* coordinates
+
+* date
+
+* document
+
+* double
+
+* int32 :+1:
+
+* mixed string and int32
+
+* mixed string and double
+
+* string
+
 ## Lecture: MongoDB Documents: Geospatial Data (Quiz)
+
+### Lecture Notes
+
+**Habilitar visualizaciones geográficas**
+
+MongoDB Compass utiliza un complemento de terceros para la visualización geográfica de campos geoespaciales en sus documentos.
+
+Si no puede ver un cuadro de mapa en la pestaña Schema, al analizar el campo de coordenadas de **ships.shipwrecks** naves naufragadas, debe marcar la opción para habilitar la visualización geográfica.
+
+Para hacerlo, deberá hacer clic en el menú:
+
+```
+Help -> Privacy Settings
+```
+
+y luego habilite esta función.
+
+<img src="/images/coordinates.png">
+
+### Transcript
+
+Bien, hasta ahora hemos examinado los campos con valor de documento y los campos con valor de array.
+
+Una última cosa que me gustaría mostrar, con respecto a este tipo de estructuras de datos agregados, es un ejemplo de mezclar los dos.
+
+Para hacer eso, veamos este documento.
+
+Y quiero señalar que este documento contiene un campo llamado **skyCoverLayer** capa de cobertura del cielo.
+
+Este es uno de esos datos complementarios que pueden aparecer en nuestros documentos en esta colección.
+
+**skyCoverLayer** es un campo con valor de array.
+
+Pero en contraste con nuestro ejemplo anterior, si expandimos **skyCoverLayer**, vemos que este array contiene, como sus elementos, documentos anidados.
+
+<img src="/images/sky-cover-layer.png">
+
+Entonces, para este documento en particular, **skyCoverLayer** tiene un valor que es una array que contiene tres elementos, donde cada elemento es un **document**.
+
+Y cada uno de esos **documents** contiene un valor y una medida de calidad.
+
+<img src="/images/sky-cover-layer-2.png">
+
+Algo que debe tener en cuenta al trabajar con Compass, y en general con MongoDB, es que tendemos a **usar los términos objeto y documento de manera intercambiable**.
+
+La razón de esta terminología es algo en lo que nos sumergimos en otras lecciones.
+
+Como otro ejemplo de mezcla de documentos y array, echemos un vistazo al campo **position** de posición para este documento.
+
+Ahora aquí, tenemos un documento anidado que tiene dos campos, y uno de esos campos es un array.
+
+<img src="/images/position.png">
+
+Entonces, en el ejemplo anterior, vimos un campo array que tenía documentos anidados como sus elementos.
+
+En este caso, tenemos un objeto anidado que tiene un array como el valor de uno de sus campos.
+
+Para este documento, el campo **type** tiene un tipo string.
+
+Y como hemos dicho, **coordinates** son un array que contiene dos elementos.
+
+MongoDB admite una variedad de tipos de valores escalares, que incluyen **string**, **null**, **integer**, **double**, y **decimal**, así como valores de **document* y valores de array.
+
+Puede usar cualquier tipo de valor compatible para cualquier valor de campo o elemento de array en un document MongoDB.
+
+Una última cosa antes de concluir esta lección.
+
+Como probablemente haya adivinado, el campo de posición en este ejemplo almacena un punto en un sistema de coordenadas geoespaciales.
+
+Si bien el geoespacial no es un tipo de valor per se, el uso de estructuras de documentos, como el que estamos viendo aquí, MongoDB proporciona un amplio soporte para datos geoespaciales, lo que le permite almacenar una variedad de formas, calcular la distancia entre puntos , filtre los documentos que se encuentren dentro de un radio especificado de otro punto y realice otras operaciones.
+
+Compass proporciona algunas conveniencias agradables para trabajar con datos geoespaciales.
+
+Podemos ver un ejemplo con esta colección, si visitamos la pestaña Schema y nos desplazamos hacia abajo hasta el campo de posición.
+
+Volviendo a la pestaña Esquema, si nos desplazamos hacia abajo a la posición, podemos ver que Compass traza las posiciones de las lecturas en un mapa de la Tierra.
+
+<img src="/images/position-2.png">
+
+Tenemos la funcionalidad de panorámica completa, zoom aquí.
+
+En otras lecciones, consideramos el uso de esta interfaz de usuario para filtrar colecciones de documentos que expresan ubicaciones dentro de una distancia especificada de un punto de referencia.
 
 ## Lecture: Filtering Collections with Queries (Quiz)
 
