@@ -514,9 +514,13 @@ En este punto, simplemente estoy sentando las bases para la flexibilidad que tie
 
 Además de los documentos anidados, MongoDB también admite valores de array para campos.
 
-En este conjunto de datos, podemos ver un ejemplo de array en el campo de la sección.
+En este conjunto de datos, podemos ver un ejemplo de array en el campo de la **sections** secciones.
+
+<img src="/images/sections.png">
 
 Para este ejemplo, será mejor si miramos la pestaña Documentos, en Compass.
+
+<img src="/images/sections-documents.png">
 
 En esta pestaña, no solo vemos una vista resumida del esquema de los documentos de una colección, sino que también podemos ver los documentos reales que contiene nuestra colección de 100 años.
 
@@ -534,12 +538,11 @@ Entonces, en este conjunto de datos, las lecturas complementarias disponibles en
 
 Dado que las lecturas disponibles variarán de un documento a otro, tiene sentido proporcionar una lista resumida de las lecturas complementarias disponibles en un documento determinado.
 
-Una matriz es una buena opción para esto en MongoDB.
+Un array es una buena opción para esto en MongoDB.
 
-El lenguaje de consulta MongoDB admite consultas en campos de matriz que nos facilitan el filtrado de documentos que contienen un conjunto particular de campos suplementarios.
+El lenguaje de consulta MongoDB admite consultas en campos de array que nos facilitan el filtrado de documentos que contienen un conjunto particular de campos suplementarios.
 
 Y la ventaja de observar los datos suplementarios de esta manera es que simplemente necesitamos construir un índice en las secciones, y luego podemos buscar rápidamente documentos que contienen un conjunto específico de datos complementarios.
-
 
 ## Lab 1.2: Determine the Value Type, Part 1
 
