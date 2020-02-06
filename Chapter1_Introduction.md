@@ -884,3 +884,162 @@ En otras lecciones de este curso, profundizamos mucho en JSON, consultas y una s
 ## Lab 1.6: Scavenger Hunt, Part 2
 
 ## Lecture: Understanding JSON (Quiz)
+
+### Lecture Notes
+
+Revise la [especificación JSON](https://www.json.org/json-en.html) para obtener más detalles sobre los tipos de datos directamente compatibles con JSON.
+
+A las 4:50, el campo de conversión contiene una array de strings y object como valor. Sin embargo, tenga en cuenta que el nuevo conjunto de datos proporcionado en el clúster de atlas de clase solo tiene un Array of Strings.
+
+### Transcript
+
+Gran parte de nuestra interacción con MongoDB requerirá una comprensión de JSON.
+
+MongoDB es una base de datos de documentos, y con frecuencia discutimos modelos de datos mirando representaciones JSON de documentos.
+
+Además, el lenguaje de consulta MongoDB, y gran parte de la administración de MongoDB, requiere cierto nivel de comprensión de JSON.
+
+JSON, que es un acrónimo de JavaScript Object Notation, es un formato popular para representar documentos.
+
+Como ejemplo, aquí hay un documento que representa una película popular.
+
+```js
+{
+   "title": "Titanic",
+   "year": 1997,
+   "imdbId": "tt0120338",
+   "mpaaRating": "PG-13",
+   "genre": "Drama, Romance",
+   "viewerRating": 7.7,
+   "viewerVotes": 716392,
+   "runtime": 194,
+   "director": "James Cameron",
+   "cast": [
+      "Leonardo DiCaprio",
+      "Kate Winslet",
+      "Billy Zane",
+      "Kathy Bates",
+      {
+         "name": "Billy Zane",
+         "birthName": "William George Zane, Jr."
+      }
+   ],
+   "plot: "A seventeen-year-old aristocrat falls in love with a kind, but poor ar..."
+   "language": "English, French, German, Swedish, Italian, Russian",
+   "lastUpdated": "2015-09-13 00:41:42.117"
+}
+```
+
+Cuando hablamos de MongoDB, generalmente usamos el término documento JSON para referirnos a tales estructuras.
+
+Pero el objeto JSON es igualmente correcto.
+
+JSON es un formato de datos ampliamente utilizado porque es fácil de leer y editar para los humanos y fácil de analizar y generar para las computadoras.
+
+Los documentos JSON comienzan y terminan con llaves.
+
+Están compuestos de campos, y cada campo tiene una clave y un valor.
+
+En otros lenguajes de programación, los documentos JSON son análogos a objetos, estructuras, mapas o diccionarios.
+
+Una gran ventaja de usar MongoDB es que el modelo de datos utilizado por la base de datos se parece mucho a las estructuras de datos con las que trabaja en el lenguaje de programación que elija.
+
+Esto tiene una serie de ventajas, que discutimos con cierta extensión en otras lecciones.
+
+Volviendo a nuestro documento de ejemplo, podemos ver que hay campos para título, año, reparto, calificación del espectador y gráfico, además de varios otros.
+
+Este ejemplo ilustra algunos requisitos adicionales de la gramática JSON.
+
+La primera es que todas las claves deben estar entre comillas dobles.
+
+Puede ver que todas las claves aquí tienen comillas dobles alrededor de ellas.
+
+Las claves y los valores deben estar separados por dos puntos.
+
+Y nuevamente, vemos eso para cada campo aquí.
+
+Los campos están separados entre sí por comas, como vemos al final de cada campo en este documento.
+
+Los documentos JSON admiten varios tipos de valores.
+
+Hay string que deben estar entre comillas dobles.
+
+Además, tenga en cuenta que las cadenas internas es el único momento en que el espacio en blanco es significativo dentro de un documento JSON.
+
+Las nuevas líneas y otros espacios en blanco fuera de las comillas no son realmente parte del documento JSON.
+
+Además de los strings, los valores JSON pueden ser números de coma flotante, valores booleanos y el valor null.
+
+Finalmente, los arrays y los objetos pueden ser valores y anidados en cualquier combinación.
+
+Los arrays JSON se definen entre corchetes.
+
+Los arrays contienen una lista ordenada de valores separados por comas.
+
+Los arrays JSON son análogas a las listas de matrices, vectores o secuencias que se encuentran en otros lenguajes de programación, como Java, Python, C Sharp, etc.
+
+Este ejemplo incluye un array como el valor para el campo de conversión.
+
+Este array contiene un elemento para cada miembro del reparto de nota en esta película o, debería decir, cada miembro del reparto capturado en esta colección en particular.
+
+Tenga en cuenta que tres de los elementos son strings, pero el cuarto es en realidad un documento incrustado.
+
+Esto registra el nombre artístico de Billy Zane, así como su nombre de nacimiento.
+
+Este conjunto ilustra lo último sobre JSON con el que realmente quiero que se vaya, ya que los documentos de JSON admiten cualquier nivel de jerarquía que sea apropiado para el modelo de datos de su aplicación.
+
+MongoDB está diseñado desde cero para respaldar esto.
+
+El lenguaje de consulta, los índices y las estructuras de datos internas están diseñados para admitir una amplia variedad de modelos de datos.
+
+Ahora, echemos un vistazo a la representación de Compass para documentos como estos.
+
+Aquí estamos viendo la colección video.movies y la pestaña Documentos para esta colección.
+
+Y si nos desplazamos por aquí, podemos ver varios documentos en esta colección.
+
+Usando la funcionalidad de filtro y Compass, podemos construir un filtro que encontrará todas las películas donde el título es Titanic.
+
+Aplicando este filtro, veremos que tenemos ocho documentos con el título Titanic.
+
+Desplazándonos hacia abajo, podemos encontrar el documento que acabamos de ver en su forma JSON sin procesar como se representa en Compass.
+
+Ahora, a diferencia de la vista de esquema en Compass, esta no es una representación resumida de los datos en esta colección, sino los documentos individuales en sí.
+
+En aras de una interfaz de usuario más limpia, Compass no representa documentos como JSON.
+
+En cambio, para cada documento, simplemente enumera los campos.
+
+Para valores agregados, como arrays y documentos incrustados, muestra una vista de árbol en la que puede hacer clic para expandir el valor del campo, como vemos para la conversión.
+
+Utiliza este mecanismo para cualquier nivel de jerarquía dentro de los documentos.
+
+Puede ampliar los valores sucesivos para reducirlos a los documentos que desee.
+
+Aquí, expandiremos el elemento Billy Zane de esta matriz para ver el documento completo u objeto tal como está almacenado en este documento.
+
+Y con eso, hemos concluido nuestra visión general de JSON y su importancia en MongoDB.
+
+Para obtener más información sobre el formato de documento JSON, no dude en leerlo en detalle en [www.json.org](www.json.org)
+
+### Quiz
+
+Chapter 1: Introduction
+
+Understanding JSON
+**Problem:**
+
+According to the JSON spec, which of the following data types are directly supported by JSON?
+
+Check all answers that apply:
+
+
+* String :+1:
+
+* Array :+1:
+
+* Object :+1:
+
+* Date
+
+* Decimal number :+1:
