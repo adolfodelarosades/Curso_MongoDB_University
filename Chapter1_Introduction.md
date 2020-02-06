@@ -439,7 +439,7 @@ Completamos una revisión más completa de los tipos de datos de MongoDB en otra
 
 En esta lección, veremos los tipos de valores agregados que admite MongoDB y también analizaremos el soporte para datos geoespaciales.
 
-En Compass, veamos el conjunto de datos meteorológicos de 100 años, navegando al espacio de nombre de datos de punto de 100 años en nuestro clúster Atlas.
+En Compass, veamos el conjunto de datos meteorológicos de 100 años **100YWeatherSmall**, navegando al espacio de nombre de datos de punto de 100 años en nuestro clúster Atlas.
 
 Podemos hacer eso de la siguiente manera.
 
@@ -447,15 +447,17 @@ Primero hacemos clic en la base de datos, y luego en la colección.
 
 Veamos la vista de esquema para esta colección.
 
+<img src="/images/weather-small.png">
+
 Ahora, este conjunto de datos proporciona lecturas del clima para ubicaciones en todo el mundo.
 
 Para este conjunto de datos, es importante comprender que todas las lecturas se registran tanto con una evaluación de valor como de calidad, para dar una idea de cuán confiable se determinó que era la medición cuando se tomó.
 
-Como ejemplo, vamos a desplazarnos hacia abajo y mirar el campo de temperatura del aire.
+Como ejemplo, vamos a desplazarnos hacia abajo y mirar el campo de temperatura del aire **airTemperature**.
 
-Tenga en cuenta que el tipo especificado para este campo en la interfaz de usuario de Compass es documento.
+Tenga en cuenta que el tipo especificado para este campo en la interfaz de usuario de Compass es **document**.
 
-A la derecha del nombre del campo, debería ver una descripción que dice documento con dos campos anidados.
+A la derecha del nombre del campo, debería ver una descripción que dice **Document with 2 nestedd fields**.
 
 Además de los valores escalares, como cadenas, enteros y dobles, MongoDB admite anidar un documento como el valor de un campo dentro de otro documento.
 
@@ -465,15 +467,17 @@ Cuando se expande, podemos ver los campos anidados para la calidad y el valor de
 
 Así que aquí he expandido la temperatura del aire haciendo clic en este cursor.
 
-El valor de la temperatura del aire es en realidad un documento anidado con dos campos, calidad y valor.
+<img src="/images/air-temperature.png">
 
-La calidad es una cadena y el valor es un número.
+El valor de la temperatura del aire es en realidad un **document** anidado con dos campos, **quality** (calidad) y **value** (valor).
+
+La calidad es un **string** y el valor es un **double**.
 
 Para muchas aplicaciones, es importante poder modelar datos, no solo como un conjunto plano de claves y valores, sino como estructuras de datos jerárquicas que reflejan la forma en que un desarrollador necesita trabajar con los datos en su aplicación.
 
 Si es apropiado para su aplicación, puede anidar documentos con dos o más niveles de profundidad.
 
-Como ejemplo, echemos un vistazo al campo de observación de la presión atmosférica.
+Como ejemplo, echemos un vistazo al campo de observación de la presión atmosférica **atmosphericPressureObservation**.
 
 La presión atmosférica nos dice el peso del aire en un lugar determinado.
 
@@ -483,9 +487,16 @@ Es un factor que usan los meteorólogos para predecir el clima del día siguient
 
 Si ampliamos el campo de observación de la presión atmosférica, podemos ver que este campo tiene un valor que es un documento con dos campos.
 
-Cada uno de esos campos son documentos anidados, como podemos ver aquí por el tipo que Compass nos proporciona.
+* **altimeterSetting**
+* **stationPressure**
 
-Si ampliamos cada uno de ellos, vemos una lectura y una medida de calidad para la altura sobre el nivel del mar a la que se tomó la medida, designada como la configuración del altímetro, y la lectura real de la presión atmosférica y la medida de calidad.
+<img src="/images/atmospheric-pressure-observation-1">
+
+Cada uno de esos campos son documentos anidados, como podemos ver en el tipo de dato que Compass nos proporciona.
+
+Si ampliamos cada uno de ellos, vemos una lectura (**value**) y una medida de calidad (**quality**) para la altura sobre el nivel del mar a la que se tomó la medida, designada como la configuración del altímetro, y la lectura real de la presión atmosférica (**value**) y la medida de calidad (**quality**).
+
+<img src="/images/atmospheric-pressure-observation-2">
 
 Con estos documentos expandidos de esta manera, podemos ver que la presión atmosférica se modela utilizando dos niveles de documentos anidados.
 
