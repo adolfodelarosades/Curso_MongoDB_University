@@ -490,13 +490,13 @@ Si ampliamos el campo de observación de la presión atmosférica, podemos ver q
 * **altimeterSetting**
 * **stationPressure**
 
-<img src="/images/atmospheric-pressure-observation-1">
+<img src="/images/atmospheric-pressure-observation-1.png">
 
 Cada uno de esos campos son documentos anidados, como podemos ver en el tipo de dato que Compass nos proporciona.
 
 Si ampliamos cada uno de ellos, vemos una lectura (**value**) y una medida de calidad (**quality**) para la altura sobre el nivel del mar a la que se tomó la medida, designada como la configuración del altímetro, y la lectura real de la presión atmosférica (**value**) y la medida de calidad (**quality**).
 
-<img src="/images/atmospheric-pressure-observation-2">
+<img src="/images/atmospheric-pressure-observation-2.png">
 
 Con estos documentos expandidos de esta manera, podemos ver que la presión atmosférica se modela utilizando dos niveles de documentos anidados.
 
