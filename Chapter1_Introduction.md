@@ -790,18 +790,20 @@ Tenga en cuenta que, en lugar de los casi 2 millones de documentos informados po
 Antes de continuar, es importante para mí mencionar que el tipo de filtro que hemos aplicado aquí se llama **filtro de igualdad**.
 
 Esto simplemente significa que estamos buscando **documentos con este valor exacto** en el campo **emd station location** nombre de la estación final.
-*******
+
 Ahora veamos un tipo diferente de filtro para situaciones en las que queremos seleccionar documentos que se encuentren en un rango particular de valores.
 
-Un buen ejemplo para trabajar aquí es el campo del año de nacimiento de la colección de bicicletas de la ciudad.
+Un buen ejemplo para trabajar aquí es el campo **birth year** año de nacimiento de la colección de bicicletas de la ciudad.
 
 Tenga en cuenta que al pasar el mouse sobre cualquiera de las barras del gráfico de resumen, cada barra representa un rango de valores.
 
-En el extremo izquierdo están los años de nacimiento menos de 1940, y las otras barras representan un rango de cinco años cada una.
+En el extremo izquierdo están los años de nacimiento menores de 1940, y las otras barras representan un rango de cinco años cada una.
 
 Hagamos clic en la barra de 1985 a 1990.
 
-Tenga en cuenta el documento de filtro creado para nosotros aquí.
+<img src="/images/birth-year.png">
+
+Tenga en cuenta el documento de filtro creado para nosotros aquí `{'birth year': {$gte: 1985,$lt: 1990}}`.
 
 Este filtro estipula una restricción que se puede expresar de la siguiente manera.
 
@@ -811,15 +813,15 @@ En lugar de un solo valor, como teníamos para el filtro de igualdad, este filtr
 
 Hay dos cosas a tener en cuenta aquí.
 
-Una es que el valor para el campo del año de nacimiento en nuestro documento filtrado es un documento JSON anidado.
+* Una es que el valor para el campo del año de nacimiento en nuestro documento filtrado es un documento JSON anidado.
 
-Sigue todas las reglas de los documentos JSON con respecto a los campos, y los pares de valores clave que contiene este documento.
+   Sigue todas las reglas de los documentos JSON con respecto a los campos, y los pares de valores clave que contiene este documento.
 
-La segunda cosa a tener en cuenta es que los campos se unen para encontrar un rango de valores debido al uso de un par de claves especiales.
+* La segunda cosa a tener en cuenta es que los campos se unen para encontrar un rango de valores debido al uso de un par de claves especiales.
 
-$ gte y $ lt.
+`$gte` y `$lt`.
 
-En MongoDB, este tipo de clave se llama operador.
+En MongoDB, este tipo de clave se llama **operador**.
 
 MongoDB define muchos operadores en su lenguaje de consulta.
 
@@ -827,7 +829,55 @@ En otras lecciones, entraremos en detalles sobre los operadores y todos los dem�
 
 Al aplicar este filtro, podemos ver que alrededor de 343,000 documentos coinciden con el rango que hemos especificado aquí para el año de nacimiento.
 
-Ahora que tenemos una mejor comprensión de los filtros de rango, expliquemos
+Ahora que tenemos una mejor comprensión de los filtros de rango, experimentemos un poco para tener una idea de lo que es posible con Compass y los filtros de rango.
+
+En lugar de hacer clic en una sola barra en el gráfico de resumen para el año de nacimiento, haga clic y mantenga presionado el botón del mouse y seleccione varias barras en este gráfico.
+
+<img src="/images/graph-range.png">
+
+Tenga en cuenta que el documento de filtro ahora expresa un rango mucho más amplio de años de nacimiento `{'birth year': {$gte: 1960,$lt: 1980}}`.
+
+Si aplicamos este filtro, MongoDB devolverá todos los documentos que tengan un valor de año de nacimiento mayor o igual a 1960, y menor a 1980.
+
+<img src="/images/graph-range-2.png">
+
+Antes de pasar de los filtros de rango, echemos un vistazo a un último ejemplo.
+
+Después de restablecer nuestro filtro, bajemos hasta la parte inferior de la vista de esquema.
+
+Aquí encontraremos un campo llamado **tripduration** duración del viaje.
+
+La duración del viaje almacena la duración del viaje en segundos.
+
+Simplemente seleccionemos una región de este gráfico y apliquemos el filtro.
+
+Aquí he seleccionado una duración de viaje en el rango de 2,000 a 4,000 `{tripduration: {$gte: 2000,$lt: 4000}}`.
+
+<img src="/images/trip-1.png">
+
+En este ejemplo, podemos ver una razón por la cual Compass, a pesar de que es una herramienta visual, proporciona un filtro JSON para trabajar, además de la interfaz de apuntar, hacer clic y arrastrar.
+
+Para los campos que tienen valores tan granulares, a veces es más rápido editar el filtro JSON directamente para obtener lo que queremos.
+
+<img src="/images/trip-2.png">
+
+Por ejemplo, supongamos que queremos filtrar los viajes que tienen una duración de entre 10 y 20 minutos.
+
+Simplemente podemos editar el filtro JSON directamente para que sea mayor de 600 segundos y menor de 1,200 segundos, de esta manera `{tripduration: {$gte: 600,$lt: 1200}}`.
+
+Y si aplicamos este filtro, podemos ver que más de 600,000 documentos coinciden con nuestra consulta.
+
+Desplazándonos hacia el campo de duración del viaje, podemos ver que el rango de valores en la vista de esquema ahora refleja solo aquellos documentos que coinciden con nuestra consulta.
+
+El mínimo es 600, y el máximo es 1,195.
+
+<img src="/images/trip-3.png">
+
+En esta lección hemos revisado cómo usar la interfaz de Compass para completar consultas que involucran filtros de igualdad y filtros de rango.
+
+También hemos echado un vistazo a los documentos JSON que representan estos filtros, a medida que comenzamos a sentirnos cómodos interactuando con MongoDB usando la sintaxis JSON.
+
+En otras lecciones de este curso, profundizamos mucho en JSON, consultas y una serie de otras operaciones esenciales para usar MongoDB.
 
 ## Lab 1.5: Scavenger Hunt, Part 1
 
