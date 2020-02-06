@@ -1002,7 +1002,7 @@ How many movies in the video collection were directed by Patty Jenkins. Stated m
 Choose the best answer:
 
 
-* 6 :+1*
+* 6 :+1:
 
 * 13
 
@@ -1028,7 +1028,7 @@ Choose the best answer:
 
 * 355
 
-* 754
+* 754 :+1:
 
 ## Lecture: Understanding JSON (Quiz)
 
