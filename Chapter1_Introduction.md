@@ -709,6 +709,126 @@ En otras lecciones, consideramos el uso de esta interfaz de usuario para filtrar
 
 ## Lecture: Filtering Collections with Queries (Quiz)
 
+### Transcript
+
+Ahora veamos cómo consultar MongoDB para que podamos localizar solo aquellos documentos que coinciden con un conjunto específico de filtros.
+
+Al hacer esto, enviaremos una solicitud a nuestro clúster MongoDB y MongoDB encontrará a cambio solo aquellos documentos que cumplan con nuestros criterios establecidos.
+
+Compass proporciona una rica interfaz de apuntar y hacer clic para filtrar colecciones.
+
+Veamos algunos ejemplos de colecciones de filtros usando la colección citibike.trips.
+
+<img src="/images/citibike-trips.png">
+
+Este conjunto de datos contiene documentos que registran los viajes realizados dentro de la ciudad de Nueva York utilizando la red Citi Bike de bicicletas y estaciones de acceso público.
+
+Los documentos de esta colección proporcionan detalles sobre las estaciones de inicio y finalización, la duración, el día y la hora de inicio y finalización de los viajes realizados con una bicicleta urbana.
+
+También hay una cantidad muy pequeña de información demográfica, incluido el año de nacimiento y el género.
+
+Ahora, como ya sabe, el gráfico a la derecha de cada campo en la vista de esquema de Compass proporciona un resumen del rango de valores encontrados dentro de un campo determinado para los documentos de la colección.
+
+Si pasamos el cursor sobre un elemento gráfico, podemos ver qué valores representa ese elemento.
+
+Ahora, si hacemos clic en un elemento gráfico, abrimos un área completamente nueva de funcionalidad de Compass.
+
+Como ejemplo, hice clic en esta barra dentro del gráfico del nombre de la estación final.
+
+Al principio solo puede notar que la barra cambió de color.
+
+<img src="/images/click-graph.png">
+
+Pero si mira aquí, en la vista de esquema de Compass, debería ver que el elemento de formulario de filtro en esta vista se ha actualizado.
+
+Tomemos un minuto para hablar de esto.
+
+Lo más probable es que ya estés familiarizado con JavaScript Object Notation, también conocido por su acrónimo JSON.
+
+Eso es J-S-O-N.
+
+A medida que tenga más experiencia en el uso de MongoDB, gran parte de su interacción con la base de datos será a través de documentos JSON de un tipo u otro.
+
+Aunque Compass es un cliente GUI, un poco de la orientación JSON de MongoDB aparece en este aspecto de la interfaz de Compass.
+
+Exploramos JSON con mayor detalle en otra lección.
+
+Por ahora, solo necesita conocer algunos hechos simples sobre los documentos JSON.
+
+Primero, los documentos JSON comienzan y terminan con llaves.
+
+En segundo lugar, los documentos JSON están compuestos de campos.
+
+En el ejemplo que estamos viendo aquí, este documento tiene un campo.
+
+Y finalmente, los campos tienen dos partes.
+
+Una clave y un valor (key/value) `{'end station name': 'Broadway & W 49 St'}`.
+
+La clave es un string y debe estar entre comillas, como vemos aquí `'end station name'`.
+
+El valor puede ser cualquier tipo de datos de JavaScript válido, incluido un documento JSON anidado.
+
+El valor del campo en este documento es `'Broadway & W 49 St'`.
+
+Dentro de un campo, la clave y el valor están separados por dos puntos.
+
+Por ahora, eso es todo lo que realmente necesita saber sobre JSON.
+
+En esta lección, veremos un par de ejemplos diferentes de documentos JSON a medida que veamos el filtrado de colecciones.
+
+Ahora, apliquemos nuestro filtro.
+
+El filtro que acabamos de aplicar se puede expresar de la siguiente manera.
+
+Muéstrame todos los documentos para los que el nombre de la estación final tiene el valor `'Broadway & W 49 St'`.
+
+<img src="/images/analyze.png">
+
+Tenga en cuenta que, en lugar de los casi 2 millones de documentos informados por Compass para toda la colección, al aplicar el filtro, Compass informa un poco más de 8,404 documentos que coinciden con nuestra consulta.
+
+Antes de continuar, es importante para mí mencionar que el tipo de filtro que hemos aplicado aquí se llama **filtro de igualdad**.
+
+Esto simplemente significa que estamos buscando **documentos con este valor exacto** en el campo **emd station location** nombre de la estación final.
+*******
+Ahora veamos un tipo diferente de filtro para situaciones en las que queremos seleccionar documentos que se encuentren en un rango particular de valores.
+
+Un buen ejemplo para trabajar aquí es el campo del año de nacimiento de la colección de bicicletas de la ciudad.
+
+Tenga en cuenta que al pasar el mouse sobre cualquiera de las barras del gráfico de resumen, cada barra representa un rango de valores.
+
+En el extremo izquierdo están los años de nacimiento menos de 1940, y las otras barras representan un rango de cinco años cada una.
+
+Hagamos clic en la barra de 1985 a 1990.
+
+Tenga en cuenta el documento de filtro creado para nosotros aquí.
+
+Este filtro estipula una restricción que se puede expresar de la siguiente manera.
+
+Muéstrame todos los documentos para los que el campo del año de nacimiento tiene un valor mayor o igual que 1985 y menor que 1990.
+
+En lugar de un solo valor, como teníamos para el filtro de igualdad, este filtro especifica un rango de valores.
+
+Hay dos cosas a tener en cuenta aquí.
+
+Una es que el valor para el campo del año de nacimiento en nuestro documento filtrado es un documento JSON anidado.
+
+Sigue todas las reglas de los documentos JSON con respecto a los campos, y los pares de valores clave que contiene este documento.
+
+La segunda cosa a tener en cuenta es que los campos se unen para encontrar un rango de valores debido al uso de un par de claves especiales.
+
+$ gte y $ lt.
+
+En MongoDB, este tipo de clave se llama operador.
+
+MongoDB define muchos operadores en su lenguaje de consulta.
+
+En otras lecciones, entraremos en detalles sobre los operadores y todos los demás aspectos del lenguaje de consulta MongoDB.
+
+Al aplicar este filtro, podemos ver que alrededor de 343,000 documentos coinciden con el rango que hemos especificado aquí para el año de nacimiento.
+
+Ahora que tenemos una mejor comprensión de los filtros de rango, expliquemos
+
 ## Lab 1.5: Scavenger Hunt, Part 1
 
 ## Lab 1.6: Scavenger Hunt, Part 2
