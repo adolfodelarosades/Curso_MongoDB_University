@@ -2,6 +2,15 @@
 
 ## Lecture:  Welcome! (Quiz)
 
+Temas que se verán en este capítulo:
+
+* Fundamentos de MongoDB
+* Compass
+* Flexible Schema
+* Query Language
+* MongoDB Atlas
+* Discusión Forum
+
 ## Lecture: Granding and Logistics (Quiz)
 
 A medida que comenzamos con este curso, me gustaría hablar sobre la calificación y algunos otros aspectos logísticos solo para asegurarme de que sepa cómo funciona este curso.
@@ -40,6 +49,22 @@ Eso es todo para el curso esencial de logística.
 
 Nos alegra que estés aprendiendo con nosotros y buena suerte.
 
+### Quiz
+
+**Problem:**
+
+What resources are available to help you complete this course?
+
+Check all answers that apply:
+
+* An in-class discussion forum where you can ask questions and help your fellow learners :+1:
+
+* Teaching assistants to field questions and provide guidance on the course :+1:
+
+* A personal chef
+
+* Laundry service
+
 ## Lecture: Are you Behind a Firewall?
 
 ### ¿Estás detrás de un firewall?
@@ -65,6 +90,20 @@ telnet cluster0-shard-00-00-jxeqq.mongodb.net 27017
 ```sh
 ping cluster0-shard-00-00-jxeqq.mongodb.net
 ```
+
+### Quiz
+
+**Problem:**
+
+Which of the following count toward your final grade?
+
+Check all answers that apply:
+
+* Quizzes
+
+* Labs (also called homework) :+1:
+
+* Final exam :+1:
 
 ## Lecture: Connecting to MongoDB Using Compass
 
@@ -206,6 +245,24 @@ Querrás tomar el curso de **MongoDB performance course** (rendimiento MongoDB) 
 Por cierto, si la lista de bases de datos que está viendo difiere un poco de lo que estoy mostrando aquí, no se preocupe por eso.
 
 Actualizamos este clúster de vez en cuando con nuevos conjuntos de datos.
+
+### Quiz
+
+**Problem:**
+
+Which of the following statements are true?
+
+Check all answers that apply:
+
+* Documents are stored in collections. :+1:
+
+* A database may contain one or more collections. :+1:
+
+* Each database and collection combination define a namespace. :+1:
+
+* We reference a namespace using the name of the database, followed by a comma, followed by the name of the collection, e.g., city,neighborhoods.
+
+* We won't talk about indexes too much in the course, but you can learn about indexes in M201: MongoDB Performance. :+1:
 
 ## Lecture: Exploring Datasets in Compass
 
@@ -434,6 +491,22 @@ Los ejemplos que hemos visto en esta lección no proporcionan una descripción g
 Sin embargo, estos son los más comunes: int32, double, string y date.
 
 Completamos una revisión más completa de los tipos de datos de MongoDB en otra lección sobre el formato binario en el que MongoDB almacena documentos.
+
+### Quiz
+
+**Problem:**
+
+Based on the field depicted below, which of the following are true?
+
+<img src="https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M001/scalar_values_video_year_field.png">
+
+Check all answers that apply:
+
+* Not all documents in this collection have the same value type for this field. :+1:
+
+* Most of the documents in this collection contain int32 values for this field. :+1:
+
+* Some documents in this field have the value type Year
 
 ## Lecture: MongoDB Documents: Fields with Documents as Values
 
@@ -707,6 +780,25 @@ Tenemos la funcionalidad de panorámica completa, zoom aquí.
 
 En otras lecciones, consideramos el uso de esta interfaz de usuario para filtrar colecciones de documentos que expresan ubicaciones dentro de una distancia especificada de un punto de referencia.
 
+### Quiz
+
+**Problem:**
+
+Which of the following are types of data Compass (and MongoDB) recognizes and specifically supports?
+Attempts Remaining:Correct Answer
+
+Check all answers that apply:
+
+* documents :+1:
+
+* arrays :+1:
+
+* geospatial data :+1:
+
+* rainfall
+
+* air pressure
+
 ## Lecture: Filtering Collections with Queries (Quiz)
 
 ### Transcript
@@ -879,9 +971,64 @@ También hemos echado un vistazo a los documentos JSON que representan estos fil
 
 En otras lecciones de este curso, profundizamos mucho en JSON, consultas y una serie de otras operaciones esenciales para usar MongoDB.
 
+### Quiz
+
+**Problem:**
+
+Which of statements below best describes the following filter?
+
+```sh
+{"age": {"$gte": 21, "$lt": 70}}
+```
+
+Choose the best answer:
+
+* Find all documents for which the age field has a value that is >= 21 and <= 70.
+
+* Find all documents for which the age field has a value that is either equal to 21 or equal to 70.
+
+* Find all documents for which the age field has a value that is >= 21 and < 70. :+1:
+
+* Find all documents for which the age field is < 70.
+
+* None of the above.
+
 ## Lab 1.5: Scavenger Hunt, Part 1
 
+**Problem:**
+
+How many movies in the video collection were directed by Patty Jenkins. Stated more precisely, how many documents in the video.movies collection have a value of "Patty Jenkins" for the director field?
+
+Choose the best answer:
+
+
+* 6 :+1*
+
+* 13
+
+* 47
+
+* 98
+
+* 143
+
 ## Lab 1.6: Scavenger Hunt, Part 2
+
+**Problem:**
+
+How many documents in the citibike.trips collection have a tripduration that is greater than or equal to 60 and less than 65?
+
+Choose the best answer:
+
+* 0
+
+* 94
+
+* 216
+
+* 355
+
+* 754
 
 ## Lecture: Understanding JSON (Quiz)
 
@@ -1024,15 +1171,13 @@ Para obtener más información sobre el formato de documento JSON, no dude en le
 
 ### Quiz
 
-Chapter 1: Introduction
-
 Understanding JSON
+
 **Problem:**
 
 According to the JSON spec, which of the following data types are directly supported by JSON?
 
 Check all answers that apply:
-
 
 * String :+1:
 
