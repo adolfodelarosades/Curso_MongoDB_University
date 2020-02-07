@@ -1,4 +1,34 @@
-# Chapter 1: Introduction (25 items)
+# Chapter 1: Introduction
+
+Introducción a MongoDB, Compass, y Basic Queries (25 Items)
+
+## Lessons
+
+1. Lecture: Welcome!
+2. Quiz
+3. Lecture: Grading and Logistics
+4. Quiz
+5. Lecture: Are you Behind a Firewall?
+6. Lecture: Connecting to MongoDB Using Compass
+7. Lecture: Databases, Collections, and Documents
+8. Quiz
+9. Lecture: Exploring Datasets in Compass
+10. Lab 1.1: Install Compass and Connect
+11. Lecture: Documents: Scalar Value Types
+12. Quiz
+13. Lecture: MongoDB Documents: Fields with Documents as Values
+14. Lecture: MongoDB Documents: Fields with Arrays as Values
+15. Lab 1.2: Determine the Value Type, Part 1
+16. Lab 1.3: Determine the Value Type, Part 2
+17. Lab 1.4: Determine the Value Type, Part 3
+18. Lecture: MongoDB Documents: Geospatial Data
+19. Quiz
+20. Lecture: Filtering Collections with Queries
+21. Quiz
+22. Lab 1.5: Scavenger Hunt, Part 1
+23. Lab 1.6: Scavenger Hunt, Part 2
+24. Lecture: Understanding JSON
+25. Quiz
 
 ## Lecture:  Welcome! (Quiz)
 
