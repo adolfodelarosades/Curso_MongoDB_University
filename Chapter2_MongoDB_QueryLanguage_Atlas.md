@@ -597,6 +597,96 @@ Y nuevamente, la instalación de Windows se trata en otra lección.
 
 ## 5. Tema: Conectando a nuestro grupo de clase Atlas desde el mongo Shell
 
+### Notas de lectura
+
+A las 3:12, dijimos por error la *video collection* en lugar de *video database*.
+
+Utilice el siguiente comando para conectarse al clúster de clase Atlas. Debe emitir este comando en el shell de cmd, la aplicación Terminal OSX u otra interfaz de línea de comandos que elija.
+
+```sh
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/test?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+```
+
+Mientras se conecta a su clúster MongoDB Atlas, o cualquier servidor MongoDB, desde el shell mongo, puede ver el siguiente mensaje de advertencia:
+
+```sh
+... WARNING: shell and server versions do not match
+```
+
+Este mensaje de advertencia se puede descartar de forma segura a los fines de este curso. El propósito de este mensaje es hacerle saber que la versión del servidor / clúster al que se está conectando tiene una versión diferente a la del shell de mongo de su cliente. Dadas las diferentes versiones entre el servidor y el cliente, puede haber algunos comandos / características de incompatibilidad que el shell del cliente o el servidor no admiten. Sin embargo, en este curso, no encontrará ningún problema de este tipo.
+
+Si encuentra el siguiente error al conectarse a un clúster de atlas, salga del shell Mongo (si está en uno) escribiendo `quit()`. Necesita ejecutar el comando desde su interfaz de línea de comandos.
+
+```sh
+2019-01-11T13:35:53.633-0500 E QUERY [js] SyntaxError: missing ; before statement @(shell):1:6
+```
+
+### Transcripción
+
+Vamos a conectarnos al Atlas Cluster para esta clase, la que todos hemos estado usando juntos.
+
+Aquí le mostraré cómo hacerlo, pero consulte las notas de la conferencia para conocer la cadena de conexión exacta y otros parámetros que debe pasar a Mongo para conectarse a nuestro grupo de Atlas.
+
+Es posible que necesitemos cambiar esta información de vez en cuando a medida que hacemos actualizaciones.
+
+Las notas de la conferencia también se actualizarán para que tenga los detalles necesarios para conectarse a este clúster desde Mongo Shell.
+
+Pegaré esos detalles aquí, y luego hablemos un poco sobre este comando.
+
+Quiero señalar un par de cosas aquí.
+
+La primera es que, debido a que nos estamos conectando a un clúster, queríamos darle a Mongo Shell el nombre de todos los servidores en este clúster.
+
+Esos se enumeran aquí hasta aquí.
+
+MongoDB está diseñado para proporcionar acceso de alta disponibilidad a sus datos.
+
+Lo hace permitiéndole mantener copias redundantes de sus datos en un clúster llamado conjunto de réplicas.
+
+Configuramos nuestro Atlas Cluster para que sea un conjunto de réplica de tres servidores para ayudar a garantizar que siempre tenga acceso a los datos.
+
+Hay miles de estudiantes que toman esta clase.
+
+En el caso de que el servidor primario se caiga debido a una falla de software o hardware, uno de los otros servidores intervendrá para continuar sirviendo datos a los clientes.
+
+Si desea obtener más información sobre cómo funcionan los conjuntos de réplica, consulte la documentación de MongoDB.
+
+Otra cosa que me gustaría señalar sobre este comando es que al final aquí, podemos ver la palabra prueba inmediatamente después de esta barra inclinada.
+
+Eso indica que nos vamos a conectar a este clúster y lo vamos a conectar a una base de datos llamada prueba.
+
+Ahora, si preferimos conectarnos a una base de datos diferente, podemos cambiar esto a una de las bases de datos que sabemos que está disponible en nuestro Grupo de Atlas.
+
+Hagamos la base de datos meteorológica de 100 años.
+
+Y si recuerdas, esa base de datos tiene una colección llamada datos donde se encuentran todas las lecturas del clima.
+
+Finalmente, lo último que me gustaría señalar sobre este comando es el hecho de que estamos haciendo una conexión segura a este clúster.
+
+Como lo hicimos al conectarnos con Compass, estamos usando una conexión encriptada a través de SSL y proporcionamos el mismo nombre de usuario y contraseña que hicimos para conectarnos con Compass.
+
+Así que sigamos adelante y conectemos a nuestro Atlas Cluster con Mongo Shell.
+
+Veremos un mensaje que indica que estamos conectados al primario para este clúster.
+
+El shell siempre se conectará al primario para un clúster como se especifica aquí, porque es el primario al que normalmente se dirigen la mayoría de las lecturas y al que deben dirigirse todas las escrituras para un clúster MongoDB.
+
+Solo las primarias en un clúster pueden aceptar escrituras y para cualquier clúster, hay una y solo una primaria.
+
+Ahora recuerde, nos conectamos a la base de datos meteorológicos de 100 años.
+
+Si escribimos show collections, efectivamente, vemos la recopilación de datos, porque nos hemos conectado a esta base de datos en particular.
+
+Si preferimos acceder a la colección de videos, podemos usar el comando use y usar video.
+
+Y luego, si mostramos colecciones aquí, veremos nuestra colección de películas.
+
+Ahora voy a mostrarle solo un comando más, y eso es solo para que podamos ver los documentos que están en esta colección de películas.
+
+¿De acuerdo?
+
+Y aquí, esto debería resultarle familiar dado que ya hemos analizado muchos de estos datos en Compass.
+
 ## 6. Examen
 
 ## 7. Tema: Crear un clúster de sandbox de Atlas
