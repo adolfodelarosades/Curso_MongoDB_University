@@ -51,7 +51,7 @@ En este capítulo, haremos una inmersión más profunda para que esté completam
 
 Cubriremos las operaciones CRUD.
 
-<img src="/images/c02/crud.png">
+<img src="/images/c2/crud.png">
 
 Si no está familiarizado con ese acrónimo, simplemente significa crear, leer, actualizar y eliminar.
 
@@ -113,7 +113,7 @@ El shell mongo es un cliente basado en texto que es totalmente compatible con to
 
 [Documentación Oficial: mongo Shell Quick Reference](https://docs.mongodb.com/manual/reference/mongo-shell/index.html)
 
-<img src="/images/c02/mongo-shell.png">
+<img src="/images/c2/mongo-shell.png">
 
 En esta lección, lo guiaré a través de la instalación de Mongo Shell en una máquina Windows.
 
@@ -141,7 +141,7 @@ Las versiones anteriores de MongoDB en el shell no proporcionaban soporte para S
 
 Seleccione Windows 64 y luego Descargar.
 
-<img src="/images/c02/windows.png">
+<img src="/images/c2/windows.png">
 
 Ahora, si no ha accedido previamente al Centro de descargas, se le pedirá que complete un formulario de descarga.
 
