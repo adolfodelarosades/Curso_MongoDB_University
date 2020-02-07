@@ -97,13 +97,13 @@ Check all answers that apply:
 
 ## 3. Tema: Instalación de mongo Shell (Windows)
 
-## Notas de lectura
+### Notas de lectura
 
 En este curso, utilizaremos Mongo Shell, ya que es totalmente compatible con todas las operaciones CRUD de MongoDB.
 
 Descargue **MongoDB Enterprise Server** del [Centro de descargas de MongoDB](https://www.mongodb.com/download-center/enterprise).
 
-## Transcripción
+### Transcripción
 
 Compass aún no es totalmente compatible con todo el lenguaje de consulta MongoDB.
 
@@ -354,6 +354,246 @@ Por supuesto, también puede pedir ayuda en el foro de discusión.
 Pero antes de publicar, asegúrese de hacer una búsqueda en el foro para ver si su pregunta ya ha sido formulada y respondida.
 
 ## 4. Tema: Instalación de mongo Shell (OSX / Linux)
+
+### Notas de lectura
+
+En este curso, utilizaremos Mongo Shell, ya que es totalmente compatible con todas las operaciones CRUD de MongoDB.
+
+Descargue **MongoDB Enterprise Server** del [Centro de descargas de MongoDB](https://www.mongodb.com/download-center/enterprise).
+
+**Nota para Mac OS:**
+
+A las 1:16 en el video, Shannon instala la versión 3.4.6 del shell mongo. Haga caso omiso de esto e instale la última versión del shell desde el centro de descargas.
+
+Las ediciones empresariales de MongoDB Mongo Shell tienen SSL habilitado, desde la versión 3.6.5.
+
+### Transcripción
+
+Compass no es totalmente compatible con el lenguaje de consulta MongoDB.
+
+Entonces, para explorar todas las operaciones CRUD en MongoDB, vamos a necesitar instalar el shell mongo.
+
+El shell mongo es un cliente basado en texto que utilizaremos mediante cualquier interfaz de línea de comandos que tenga disponible en su sistema.
+
+[Documentación Oficial: mongo Shell Quick Reference](https://docs.mongodb.com/manual/reference/mongo-shell/index.html)
+
+En esta lección, veremos cómo instalar el shell mongo en un sistema Mac OS X.
+
+Si está en Windows, vea el video para instalar el shell mongo en sistemas Windows.
+
+Ahora, para instalar el shell Mongo, en realidad vamos a seguir adelante y solo instalaremos todo MongoDB Enterprise Server.
+
+Enterprise Server se incluye con una serie de ejecutables que forman parte del ecosistema MongoDB, incluido el shell mongo.
+
+Visite el Centro de descargas de MongoDB.
+
+Puede llegar allí con una simple consulta de Google.
+
+Haga clic en la pestaña Enterprise Server y luego seleccione su sistema operativo.
+
+En este caso, queremos seleccionar OS X 64.
+
+Ahora siga estas instrucciones de instalación, incluso si ya tiene instalada una versión de MongoDB.
+
+Las versiones anteriores de la consola mongo no admitían SSL, y necesitamos compatibilidad con SSL para poder conectarnos a los clústeres de Atlas.
+
+Una vez que haya seleccionado su sistema operativo, haga clic en Descargar.
+
+<img src="/images/c2/mac.png">
+
+Ahora, es posible que aparezca un formulario de contacto emergente.
+
+Si ve un formulario de contacto, complételo.
+
+Y luego descargue Enterprise Server.
+
+Una vez que se completa la descarga, podemos abrir el buscador y navegar a Descargas.
+
+Aquí está el archivo que acabamos de descargar.
+
+Voy a **moverlo a mi directorio de inicio**.
+
+Ahora si navego a mi directorio de inicio, podemos ver el archivo aquí mismo.
+
+Voy a hacer doble clic en él y descomprimir el archivo comprimido.
+
+Luego, si miro dentro de esta carpeta, puedo ver que hay, además de cierta información de licencia, un directorio **bin** que contiene varios archivos ejecutables.
+
+El archivo ejecutable que nos interesa es este, **mongo**.
+
+Este es el ejecutable para el **shell mongo**.
+
+Por favor no confunda esto con **mongod**.
+
+**Mongod es el ejecutable para el servidor MongoDB**.
+
+Entonces, cuando decimos que tenemos una implementación de MongoDB ejecutándose, está ejecutando uno o más **mongods**.
+
+Nuevamente, estamos interesados en el shell mongo o el ejecutable mongo.
+
+Coloque la descarga que ha desempaquetado en su directorio de inicio, como lo hice aquí.
+
+Eso hará que seguir estas instrucciones sea un poco más simple.
+
+Ahora para ejecutar convenientemente el shell mongo, vamos a tener que actualizar nuestra variable de entorno de ruta.
+
+La ruta le dice a OS X dónde buscar los programas que nos gustaría ejecutar.
+
+Puede establecer su ruta en un archivo oculto llamado **.bash_profile**.
+
+Si abro Sublime Text y selecciono Abrir, puedo ver archivos ocultos en mi Mac escribiendo **Command-Shift-dot**.
+
+Luego, si navego a mi directorio de inicio, puedo ver que, de hecho, hay un **.bash_profile**.
+
+Ahora en su sistema, es posible que no tenga un .bash_profile.
+
+Si no ha creado uno anteriormente, probablemente no.
+
+No se alarme si no ve uno.
+
+Puede crear uno fácilmente, simplemente creando un nuevo archivo en su editor de texto favorito y luego guardándolo como .bash_profile.
+
+**Asegúrese de guardarlo en su directorio de inicio**.
+
+No lo guarde en el escritorio, no lo guarde en ningún otro lugar.
+
+**Asegúrese de guardarlo en su directorio de inicio**.
+
+Simplemente puede hacer clic en Guardar, y se creará un archivo .bash_profile para usted.
+
+Ya tengo uno, así que simplemente voy a abrir el que tengo.
+
+De nuevo es **Command-Shift-dot**.
+
+Para ver archivos ocultos.
+
+Y ahí está mi .bash_profile nuevamente, en mi directorio de inicio.
+
+Si abro esto, podemos ver que hay un comando bash aquí.
+
+Este comando establece el aviso para mi aplicación de terminal.
+
+Ahora, para usar el shell mongo, lo ejecutaremos desde una interfaz de línea de comandos.
+
+La aplicación de terminal se envía con Mac OS X.
+
+Así que ese es el que voy a usar.
+
+Y una cosa que señalaré aquí es que puedes ver que mi indicador es $ y luego un espacio.
+
+Esto se debe a que mi perfil de bash especifica que la solicitud de terminal, o para cualquier shells de bash, debe ir seguida de un espacio.
+
+Una inmersión en bash, una inmersión en el uso de interfaces de línea de comandos que no sean el shell Mongo está un poco fuera del alcance de este curso.
+
+Entonces, si desea profundizar en esto, hay una cantidad de tutoriales sobre bash y la aplicación de terminal, o si está en Windows, el shell de comandos o PowerShell, cualquier cantidad de tutoriales disponibles en línea que le recomendaría echar un vistazo a
+
+Entonces, para ejecutar el shell mongo de manera conveniente, queremos configurar nuestra variable de entorno de ruta.
+
+Cuando tiene una aplicación de terminal abierta, en cualquier momento, puede ver las variables de entorno que se han establecido.
+
+Por ejemplo, si quisiera ver qué es PS1, puedo hacerlo simplemente escribiendo echo $ PS1.
+
+Debe usar el carácter del dólar para estipular que desea ver el valor de esa variable de entorno que está definida.
+
+Puedo hacer lo mismo con la variable de entorno PATH.
+
+Y aquí, puedo ver que está configurado en algunos directorios de sistema estándar donde se encuentran archivos o programas ejecutables.
+
+Esto es para que pueda ejecutar una serie de comandos desde el terminal, incluidos varios programas del sistema que hacen que la interfaz de línea de comandos realmente funcione para mí.
+
+Lo que me gustaría hacer es actualizar nuestra RUTA para incluir la ubicación donde acabamos de colocar MongoDB. Como recordatorio, está en mi directorio de inicio debajo de esta carpeta, y dentro del subdirectorio bin.
+
+Ahora tengo una RUTA existente.
+
+Eso es todo esto.
+
+Y no quiero volar eso.
+
+Por lo tanto, debo asegurarme de que al actualizar mi RUTA, mantengo todos esos directorios, así como parte de la RUTA.
+
+La forma en que lo hacemos es a través de un comando como este.
+
+Entonces, aquí digo, como el valor de la variable de entorno de ruta, use esta secuencia de directorios.
+
+Entonces, esto simplemente significa mi directorio de inicio, y luego dentro de mi directorio de inicio, ese nombre largo de descarga para MongoDB.
+
+Y solo por conveniencia, no intentes escribirlo, porque probablemente arruinarás algo.
+
+Simplemente haga clic derecho y seleccione Copiar.
+
+Y eso copiará el nombre de ese directorio para usted.
+
+Y luego puedes pegarlo fácilmente.
+
+Entonces mi directorio de inicio, el nombre de la descarga, / bin.
+
+Y luego verás que tengo un colon aquí.
+
+Ese punto dice que todo lo que sigue es otro directorio, en el cual buscar programas ejecutables.
+
+Entonces, lo que esto está diciendo es que cada vez que un usuario solicite ejecutar un programa, búsquelo primero en el directorio de inicio de Shannon, mongodb-osx-x86_64-3.4.6 / bin.
+
+Así que mira aquí primero.
+
+Y luego, si no lo encuentra allí, continúe buscando en otros directorios.
+
+Ahora, al especificar $ PATH aquí, no olvide el dólar, lo que estamos diciendo es que tome todos estos directorios, tenga en cuenta que están separados por dos puntos, y póngalos aquí.
+
+La RUTA siempre se busca en orden, por lo que se buscará primero.
+
+Y luego, cada uno de los directorios que se enumeran después de este directorio, después de estos dos puntos, se buscará en secuencia después.
+
+Le pido que coloque el directorio que acabamos de descargar primero en su ruta, de modo que si tiene una instalación previa de MongoDB, cuando intente ejecutar el shell mongo, porque el primer lugar donde buscará el sistema es en ese directorio acabamos de descargar, esa es la versión del shell mongo que se ejecutará, no alguna versión que haya instalado anteriormente.
+
+Entonces, si guardamos esto, nuestro perfil de bash se actualizará con una nueva RUTA.
+
+Lo último que debo señalar al respecto es que su RUTA en el terminal no se actualizará hasta la próxima vez que inicie un terminal, o a menos que ejecute un comando especial.
+
+Entonces, si vuelvo a hacer eco de $ PATH, veremos que es exactamente lo mismo que antes.
+
+Sin embargo, si escribo source ~ / .bash_profile, lo que hace es leer mi perfil bash que acabo de actualizar.
+
+Y luego, si hago eco de $ PATH, ahora vemos que ese nuevo directorio que agregamos está incluido en PATH.
+
+Lo que esto hace por nosotros es garantizar que todos estos archivos ejecutables se puedan encontrar si escribimos su nombre aquí en el shell.
+
+Entonces, si escribo mongo y voy a agregar la opción de línea de comando --nodb, ¿lo ves?
+
+Lo que sucedió es exactamente contra lo que te advertí.
+
+Y es que no he especificado correctamente la carpeta en la que existe nuestra versión descargada de MongoDB.
+
+Entonces, volveré al buscador y seleccionaré Copiar.
+
+Y luego volveré a Sublime, y actualizaré mi RUTA con el valor correcto.
+
+Voy a guardarlo, y luego voy a buscar el perfil de bash nuevamente.
+
+Y ahora, si reviso mi RUTA, podemos ver que se ha actualizado correctamente.
+
+Y ahora, si ejecuto mongo, puedo ver que, de hecho, se inicia para mí.
+
+Lo que hemos recorrido aquí es cómo descargar el paquete MongoDB Enterprise.
+
+Hemos hablado sobre el hecho de que el shell mongo está incluido con el servidor mongo y una serie de otros ejecutables.
+
+Hemos explicado cómo configurar nuestra variable de entorno PATH, para que podamos ejecutar el mongo desde cualquier lugar, y le advertimos sobre un par de cosas que pueden salir mal cuando intentamos configurar el PATH.
+
+Entonces resulta que, dados los pasos que hemos seguido, en realidad tenemos la versión correcta y la versión incorrecta aquí en nuestra RUTA, porque simplemente estábamos concatenando lo que estaba aquí en el frente de lo que ya era el camino.
+
+Pero no se preocupe, porque si simplemente inicio un nuevo shell, verá que solo está el correcto.
+
+Entonces, en las nuevas invocaciones de la aplicación de terminal, recogeré exactamente lo que quiero de mi RUTA.
+
+Y podré correr nodb.
+
+Vemos algunos consejos más sobre cómo usar la aplicación de terminal, y profundizamos mucho sobre cómo usar el shell mongo en otras lecciones.
+
+Una última cosa antes de cerrar esta lección es que si tiene algún problema para instalar MongoDB en su entorno OS X, visite la documentación de MongoDB para obtener instrucciones detalladas sobre cómo instalar [MongoDB Enterprise en OSX](https://docs.mongodb.com/manual/tutorial/install-mongodb-enterprise-on-os-x/).
+
+Además de OS X, hay instrucciones detalladas para instalar [MongoDB Enterprise en Linux](https://docs.mongodb.com/manual/administration/install-enterprise-linux/), y todos los sabores de Linux y Windows.
+
+Y nuevamente, la instalación de Windows se trata en otra lección.
 
 ## 5. Tema: Conectando a nuestro grupo de clase Atlas desde el mongo Shell
 
