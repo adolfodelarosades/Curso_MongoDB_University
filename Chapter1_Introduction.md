@@ -1,4 +1,4 @@
-# Chapter 1: Introduction
+# Chapter 1: Introduction (25 items)
 
 ## Lecture:  Welcome! (Quiz)
 
