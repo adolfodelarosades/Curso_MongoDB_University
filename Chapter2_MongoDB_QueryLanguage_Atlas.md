@@ -625,23 +625,36 @@ Si encuentra el siguiente error al conectarse a un clúster de atlas, salga del 
 
 Vamos a conectarnos al Atlas Cluster para esta clase, la que todos hemos estado usando juntos.
 
-Aquí le mostraré cómo hacerlo, pero consulte las notas de la conferencia para conocer la cadena de conexión exacta y otros parámetros que debe pasar a Mongo para conectarse a nuestro grupo de Atlas.
+Aquí le mostraré cómo hacerlo, pero consulte las **notas de la lectura** para conocer la cadena de conexión exacta y otros parámetros que debe pasar a Mongo para conectarse a nuestro grupo de Atlas.
 
 Es posible que necesitemos cambiar esta información de vez en cuando a medida que hacemos actualizaciones.
 
-Las notas de la conferencia también se actualizarán para que tenga los detalles necesarios para conectarse a este clúster desde Mongo Shell.
+Las notas de la lectura también se actualizarán para que tenga los detalles necesarios para conectarse a este clúster desde Mongo Shell.
 
+```sh
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,
+cluster0-shard-00-02-jxeqq.mongodb.net:27017/test?replicaSet=Cluster0-shard-0" --authenticationDatabase 
+admin --ssl --username m001-student --password m001-mongodb-basics
+```
 Pegaré esos detalles aquí, y luego hablemos un poco sobre este comando.
+
+<img src="/images/c2/shell-atlas.png">
 
 Quiero señalar un par de cosas aquí.
 
 La primera es que, debido a que nos estamos conectando a un clúster, queríamos darle a Mongo Shell el nombre de todos los servidores en este clúster.
 
 Esos se enumeran aquí hasta aquí.
+```sh
+mongo "mongodb://
+cluster0-shard-00-00-jxeqq.mongodb.net:27017,
+cluster0-shard-00-01-jxeqq.mongodb.net:27017,
+cluster0-shard-00-02-jxeqq.mongodb.net:27017
+```
 
 MongoDB está diseñado para proporcionar acceso de alta disponibilidad a sus datos.
 
-Lo hace permitiéndole mantener copias redundantes de sus datos en un clúster llamado conjunto de réplicas.
+Lo hace permitiéndole mantener copias redundantes de sus datos en un clúster llamado **conjunto de réplicas (replica set)**.
 
 Configuramos nuestro Atlas Cluster para que sea un conjunto de réplica de tres servidores para ayudar a garantizar que siempre tenga acceso a los datos.
 
@@ -651,41 +664,64 @@ En el caso de que el servidor primario se caiga debido a una falla de software o
 
 Si desea obtener más información sobre cómo funcionan los conjuntos de réplica, consulte la documentación de MongoDB.
 
-Otra cosa que me gustaría señalar sobre este comando es que al final aquí, podemos ver la palabra prueba inmediatamente después de esta barra inclinada.
+Otra cosa que me gustaría señalar sobre este comando es que al final aquí, podemos ver la palabra `test` inmediatamente después de esta barra inclinada.
 
-Eso indica que nos vamos a conectar a este clúster y lo vamos a conectar a una base de datos llamada prueba.
+```sh
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,
+cluster0-shard-00-01-jxeqq.mongodb.net:27017,
+cluster0-shard-00-02-jxeqq.mongodb.net:27017/test
+?replicaSet=Cluster0-shard-0" --authenticationDatabase 
+admin --ssl --username m001-student --password m001-mongodb-basics
+```
+
+Eso indica que nos vamos a conectar a este clúster y lo vamos a conectar a una base de datos llamada `test`.
 
 Ahora, si preferimos conectarnos a una base de datos diferente, podemos cambiar esto a una de las bases de datos que sabemos que está disponible en nuestro Grupo de Atlas.
 
-Hagamos la base de datos meteorológica de 100 años.
+Pongamos la base de datos **100YWeatherSmall**.
 
-Y si recuerdas, esa base de datos tiene una colección llamada datos donde se encuentran todas las lecturas del clima.
+```sh
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,
+cluster0-shard-00-01-jxeqq.mongodb.net:27017,
+cluster0-shard-00-02-jxeqq.mongodb.net:27017/100YWeatherSmall
+?replicaSet=Cluster0-shard-0" 
+--authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+```
+<img src="/images/c2/shell-atlas-100.png">
+
+Y si recuerdas, esa base de datos tiene una colección llamada `data` donde se encuentran todas las lecturas del clima.
 
 Finalmente, lo último que me gustaría señalar sobre este comando es el hecho de que estamos haciendo una conexión segura a este clúster.
 
-Como lo hicimos al conectarnos con Compass, estamos usando una conexión encriptada a través de SSL y proporcionamos el mismo nombre de usuario y contraseña que hicimos para conectarnos con Compass.
+Como lo hicimos al conectarnos con Compass, estamos usando una **conexión encriptada a través de SSL** y proporcionamos el mismo nombre de usuario y contraseña que hicimos para conectarnos con Compass.
 
 Así que sigamos adelante y conectemos a nuestro Atlas Cluster con Mongo Shell.
 
-Veremos un mensaje que indica que estamos conectados al primario para este clúster.
+<img src="/images/c2/shell-atlas-connect.png">
+
+Veremos un mensaje que indica que estamos conectados al **primary** para este clúster.
 
 El shell siempre se conectará al primario para un clúster como se especifica aquí, porque es el primario al que normalmente se dirigen la mayoría de las lecturas y al que deben dirigirse todas las escrituras para un clúster MongoDB.
 
 Solo las primarias en un clúster pueden aceptar escrituras y para cualquier clúster, hay una y solo una primaria.
 
-Ahora recuerde, nos conectamos a la base de datos meteorológicos de 100 años.
+Ahora recuerde, nos conectamos a la base de datos `100YWeatherSmall`.
 
-Si escribimos show collections, efectivamente, vemos la recopilación de datos, porque nos hemos conectado a esta base de datos en particular.
+Si escribimos `show collections`, efectivamente, vemos la recopilación de datos, porque nos hemos conectado a esta base de datos en particular.
 
-Si preferimos acceder a la colección de videos, podemos usar el comando use y usar video.
+Si preferimos acceder a la colección de videos, podemos usar el comando `use video`.
 
-Y luego, si mostramos colecciones aquí, veremos nuestra colección de películas.
+Y luego, si mostramos colecciones aquí con `show collections`, veremos nuestra colección de `movies` (películas).
 
-Ahora voy a mostrarle solo un comando más, y eso es solo para que podamos ver los documentos que están en esta colección de películas.
+Ahora voy a mostrarle solo un comando más `db.movies.find().pretty()`, y eso es solo para que podamos ver los documentos que están en esta colección de películas.
 
 ¿De acuerdo?
 
+<img src="/images/c2/shell-1.png">
+
 Y aquí, esto debería resultarle familiar dado que ya hemos analizado muchos de estos datos en Compass.
+
+<img src="/images/c2/shell-2.png">
 
 ## 6. Examen
 
