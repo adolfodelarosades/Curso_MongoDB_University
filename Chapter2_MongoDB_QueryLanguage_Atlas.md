@@ -670,8 +670,8 @@ Otra cosa que me gustaría señalar sobre este comando es que al final aquí, po
 mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,
 cluster0-shard-00-01-jxeqq.mongodb.net:27017,
 cluster0-shard-00-02-jxeqq.mongodb.net:27017/test
-?replicaSet=Cluster0-shard-0" --authenticationDatabase 
-admin --ssl --username m001-student --password m001-mongodb-basics
+?replicaSet=Cluster0-shard-0" 
+--authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
 ```
 
 Eso indica que nos vamos a conectar a este clúster y lo vamos a conectar a una base de datos llamada `test`.
@@ -725,31 +725,155 @@ Y aquí, esto debería resultarle familiar dado que ya hemos analizado muchos de
 
 ## 6. Examen
 
+**Problem:**
+
+When connecting to an Atlas cluster using the shell, why do we provide the hostnames for all nodes when we launch mongo? Choose the best answer from the choices below.
+
+Choose the best answer:
+
+* So that if the primary node goes down, the shell can connect to other nodes in the cluster instead :+1:
+
+* Because our authentication credentials are not stored on the primary, but on other nodes in our cluster.
+
+* So that other nodes in the cluster can contact our client, if necessary
+
+Th* ere really isn't a good reason
+
+* To make it possible for all the nodes to communicate with each other
+
 ## 7. Tema: Crear un clúster de sandbox de Atlas
+
+### Notas de lectura
+
+Descargar materiales del curso
+
+Para comenzar a crear su clúster Atlas Sandbox, visite [https://cloud.mongodb.com/links/registerForAtlas](https://cloud.mongodb.com/links/registerForAtlas) y complete el formulario de creación de cuenta que ve en esa página.
+
+Las instrucciones detalladas para crear un clúster de sandbox se pueden encontrar en el laboratorio inmediatamente después de esta lección.
+
+### Transcripción
+
+Tres de las cuatro operaciones CRUD son **right operations** (operaciones correctas), create, update y delete.
+
+Las tres implican cambiar los datos de una colección de una forma u otra.
+
+**Solo tiene acceso de lectura a nuestro grupo Atlas de clase**.
+
+Afortunadamente, con la opción de nivel gratuito Atlas tenemos un medio para crear un **clúster de Sandbox MongoDB** en minutos y sin costo alguno.
+
+El nivel gratuito de Atlas es ideal para proyectos de prueba de concepto y en las primeras etapas de desarrollo de una aplicación de software.
+
+También es ideal para pruebas y con fines educativos.
+
+Siga y cree su propio clúster de niveles gratuitos de Atlas.
+
+Lo usarás durante el resto de este capítulo.
+
+También he incluido instrucciones para crear su clúster de sandbox en el laboratorio que sigue inmediatamente a esta lección.
+
+OK, aquí necesitamos completar el formulario de registro.
+
+[https://account.mongodb.com/account/register](https://account.mongodb.com/account/register)
+
+<img src="/images/c2/register.png">
+
+Una vez que haya completado el formulario de registro, continúe y haga clic en continuar.
+
+Al completar el formulario, se le pedirá que especifique un nombre de grupo.
+
+Grupos o cómo gestionamos el acceso a los clústeres de Atlas.
+
+Simplemente voy a especificar **shannon-m001** como mi nombre de grupo, y crearé el grupo.
+
+Una vez que haya creado un grupo, continúe y cree un clúster.
+
+<img src="/images/c2/new-cluster.png">
+
+Es posible que reciba una notificación de la integración de intercomunicadores que tenemos aquí cuando haga esto, no dude en ignorarla.
+
+Además, no se asuste por lo que ve cuando aparece por primera vez con respecto a los precios.
+
+El nivel gratuito es realmente gratuito.
+
+Simplemente necesitamos seleccionar el tamaño de instancia **M0**, y notará que el precio ha cambiado a cero.
+
+<img src="/images/c2/m0.png">
+
+Luego, necesitaremos ingresar un nombre de usuario y contraseña.
+
+Una vez que haya ingresado su nombre de usuario y contraseña, puede continuar e implementar su clúster.
+
+Ahora de nuevo, el clúster es libre.
+
+No se requiere tarjeta de crédito para nada de esto.
+
+Asegúrese de recordar el nombre de usuario y la contraseña que ingresó.
+
+Lo necesitarás más tarde.
+
+Ahora, una vez que haya implementado su clúster, deberá esperar solo uno o dos minutos para que el clúster aparezca.
+
+Una vez implementado, el clúster está listo para las conexiones.
+
+<img src="/images/c2/cluster0.png">
+
+Pero antes de conectarnos, necesitamos cambiar una configuración de seguridad para que sea más fácil acceder al clúster desde cualquier lugar.
+
+Haga clic en la opción **Security / Network Access**.
+
+<img src="/images/c2/security.png">
+
+Haga clic en **+ADD IP ADDRESS** Agregar dirección IP y Permitir **ALLOW ACCESS FROM ANYWHERE** acceso desde cualquier lugar y **Confirm**.
+
+Tomará solo un momento actualizar nuestra configuración de seguridad en el clúster.
+
+<img src="/images/c2/active.png">
+
+Mientras eso sucede, **permítanme enfatizar que hacer que un clúster sea accesible desde cualquier lugar no es una buena práctica**.
+
+Debe ser lo más restrictivo posible con respecto a la **IP Whitelist** al configurar un clúster Atlas.
+
+Sin embargo, para los propósitos de esta clase, esto está bien y nos ahorrará tiempo perdido en la depuración de problemas de red.
 
 ## 8. Laboratorio 2.0: crear un clúster de sandbox de Atlas
 
+### Transcripción
+
 ## 9. Tema: Conectando a tu Sandbox Cluster desde el mongo Shell
+
+### Transcripción
 
 ## 10. Tema: Carga de datos en su grupo de Sandbox
 
+### Transcripción
+
 ## 11. Tema: Conexión a su clúster de sandbox desde Compass
+
+### Transcripción
 
 ## 12. Laboratorio 2.1: ¿Cuántas comedias?
 
 ## 13. Tema: Crear documentos: insertOne ()
 
+### Transcripción
+
 ## 14. Tema: Creación de documentos: insertMany ()
+
+### Transcripción
 
 ## 15. Laboratorio 2.2: ¿Cuántos insertados?
 
 ## 16. Tema: Lectura de documentos: campos escalares
+
+### Transcripción
 
 ## 17. Examen
 
 ## 18. Laboratorio 2.3: Consultas en campos escalares
 
 ## 19. Tema: Lectura de documentos: campos de matriz
+
+### Transcripción
 
 ## 20. Examen
 
@@ -759,20 +883,34 @@ Y aquí, esto debería resultarle familiar dado que ya hemos analizado muchos de
 
 ## 23. Tema: Cursores
 
+### Transcripción
+
 ## 24. Tema: Proyecciones
+
+### Transcripción
 
 ## 25. Tema: Actualización de documentos: updateOne ()
 
 ## 26. Conferencia: Operadores de actualización
 
+### Transcripción
+
 ## 27. Examen
 
 ## 28. Tema: Actualización de documentos: updateMany ()
 
+### Transcripción
+
 ## 29. Tema: Upserts
 
+### Transcripción
+
 ## 30. Tema: Actualización de documentos: replaceOne ()
+
+### Transcripción
 
 ## 31. Laboratorio 2.6: Operadores de actualización
 
 ## 32. Tema: Eliminar documentos
+
+### Transcripción
