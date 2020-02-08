@@ -837,7 +837,75 @@ Sin embargo, para los propósitos de esta clase, esto está bien y nos ahorrará
 
 ## 8. Laboratorio 2.0: crear un clúster de sandbox de Atlas
 
-### Transcripción
+**Problema:**
+
+En este laboratorio deberás completar dos tareas diferentes:
+
+* Crea una cuenta Atlas
+* Crear Atlas Sandbox Cluster
+
+### Crear una nueva cuenta Atlas MongoDB:
+
+Si no tiene una cuenta Atlas existente, continúe y [cree una cuenta Atlas](https://account.mongodb.com/account/register) completando los campos requeridos.
+
+### Creación de un clúster de sandbox de Atlas:
+
+1. Después de crear una nueva cuenta, se le pedirá que cree su primer clúster:
+
+   <img src="/images/c2/cluster_create.png">
+
+2. Ahora elegirá un proveedor cloud para su clúster.
+
+   Seleccione AWS como el proveedor de la nube y para la Región, seleccione la ubicación más cercana a usted que tenga la etiqueta Nivel gratuito disponible: tenga en cuenta que la ubicación predeterminada es N.Virginia (us-east-1) Nivel gratuito disponible
+
+   <img src="/images/c2/cluster_provider.png">
+   
+3. Seleccione Cluster Tier `M0 Sandbox`:
+
+   <img src="/images/c2/cluster_tier.png">
+   
+4. Haga clic en `Cluster Name`, ingrese `"Sandbox"` en el cuadro de texto correspondiente y haga clic en `"Create Cluster"`:
+
+   <img src="/images/c2/m001_cluster_name.png">
+   
+5. Después de crear el clúster, será redirigido al panel de la cuenta:
+
+   <img src="/images/c2/account_dashboard.png">
+   
+   Vaya a la opción `Settings` y cambie el nombre del proyecto a "M001":
+
+    <img src="/images/c2/m001_project_rename.png">
+    
+6. A continuación, configure los ajustes de seguridad de este clúster, habilitando la *IP Whitelist*:
+
+   Actualice su IP Whitelist para que su aplicación pueda comunicarse con el clúster. Haga clic en la pestaña **"Network Access"** y luego haga clic en **"+ADD ADDRESS"**.
+
+   <img src="/images/c2/m001_ip_whitelisting0.png">
+   
+   Aparecerá un nuevo mensaje en la pantalla pidiendo **"Add Whitelist Entry"**. Haga clic en **"Allow Access from Anywhere"** y luego haga clic en **"Confirm"**.
+
+   <img src="/images/c2/m001_ip_whitelisting.png">
+   
+   *Tenga en cuenta que generalmente no recomendamos abrir un clúster Atlas para permitir el acceso desde cualquier lugar. Hacemos eso para esta clase para minimizar los problemas de red con los que se pueda encontrar y poder brindarle un mejor soporte.*
+
+7. Luego, cree la aplicación que necesita el usuario de la base de datos MongoDB para este curso.
+
+   Haga clic en la pestaña **"Database Access"** y luego haga clic en **"ADD NEW USER"**.
+
+   <img src="/images/c2/m001_user0.png">
+
+   Cree un usuario con las siguientes credenciales:
+
+   * username: **`m001-student`**
+   * password: **`m001-mongodb-basics`**
+   
+   Otorgue a este usuario el privilegio de **`Read and write to any database`**:
+
+   <img src="/images/c2/m001_user.png">
+
+   ¡Felicitaciones por crear su primera aplicación Atlas! Ahora tiene una base de datos MongoDB a la que puede acceder desde cualquier parte del mundo. A continuación, lo rellenaremos con datos para analizar y manipular en los próximos laboratorios.
+
+   A creado el Atlas Sandbox Cluster.
 
 ## 9. Tema: Conectando a tu Sandbox Cluster desde el mongo Shell
 
