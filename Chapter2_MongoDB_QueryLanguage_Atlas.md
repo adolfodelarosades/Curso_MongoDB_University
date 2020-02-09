@@ -970,6 +970,152 @@ y seleccionar **connecting with the Mongo shell**
 
 ### Transcripción
 
+Ahora veamos cómo cargar datos en su clúster de sandbox de Atlas.
+
+Así que aquí tenemos un shell conectado al clúster de sandbox.
+
+Veamos que hay ahí.
+
+Podemos ver qué bases de datos hay actualmente en este clúster escribiendo show dbs.
+
+<img src="/images/c2/cluster-connect-shell.png">
+
+Podemos ver que hay una base de datos `admin` y una base de datos `local` (en mi caso presenta varias más).
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show dbs
+admin               0.000GB
+local               1.635GB
+sample_airbnb       0.053GB
+sample_geospatial   0.001GB
+sample_mflix        0.042GB
+sample_supplies     0.001GB
+sample_training     0.068GB
+sample_weatherdata  0.004GB
+```
+
+Lo que nos gustaría hacer aquí es agregar una base de datos de video que contendrá una versión más detallada del conjunto de datos de la película que hemos visto en el grupo de clase Atlas.
+
+Ahora nuevamente, aquí, estoy **conectado a mi clúster de sandbox Atlas, no al clúster de clase Atlas**.
+
+Para seguirlo, debe conectarse a su propio clúster de sandbox de Atlas.
+
+Entonces, para hacer las cosas un poco más fáciles, lo que me gustaría hacer es alentarlo a configurar una pequeña carpeta en su computadora local donde pueda colocar el handout(folleto) que usaremos para esta lección.
+
+Cuando descargue y descomprima el handout para esta lección, debe tener un directorio titulado LoadMovieDetailsDataset.
+
+Y debería estar en su directorio de descargas.
+
+Lo mismo será cierto si está ejecutando en una máquina Windows, como podemos ver aquí.
+
+Lo que me gustaría animarlo a hacer es navegar a su directorio de inicio y crear una nueva carpeta llamada M001.
+
+Y luego copie esa carpeta, LoadMovieDetailsDataset, en su carpeta M001.
+
+Cuando termine, debería ver esa carpeta dentro de la carpeta M001 en su directorio de inicio.
+
+Hacer lo mismo en Windows se parece a esto.
+
+En su disco duro local, busque usuarios y luego su directorio de inicio.
+
+En este caso, es Shannon, para mí.
+
+Y lo que voy a hacer aquí es crear una nueva carpeta llamada M001, y luego copiar y pegar esa carpeta en mi nueva carpeta M001.
+
+<img src="/images/c2/carpeta-M001.png">
+
+Con esta configuración, será mucho más fácil para nosotros cargar nuestros datos en nuestro clúster Atlast.
+
+A partir de ahora en esta lección, simplemente voy a usar la aplicación de terminal aquí en mi Mac.
+
+OK, entonces lo que voy a hacer ahora es cerrar el shell, porque quiero navegar a la ubicación donde acabo de guardar el conjunto de datos de detalles de la película.
+
+Y debo señalar que el directorio que copié contiene un archivo js que terminará ejecutándose en el shell Mongo.
+
+Lo mismo, por supuesto, es cierto en Windows.
+
+Ahora, para navegar a este directorio, cuando inicie mi aplicación de terminal, estaré en mi directorio de inicio.
+
+Si escribo pwd, esto imprimirá el directorio en el que estoy ubicado actualmente.
+
+Y como se esperaba, es mi directorio de inicio en la Mac.
+
+Si hago una lista de directorios usando el comando ls, puedo ver ese directorio M001 que creé aquí.
+
+Y puedo cd, o cambiar el directorio, en M001 escribiendo `cd M001`.
+
+Nuevamente, haciendo una lista de directorio, puedo ver la carpeta de descargas que puse allí (lo descargue directamente).
+
+Y de nuevo, puedo cd en esa carpeta.
+
+Y luego, con una lista final del directorio, puedo ver el archivo js aquí.
+
+<img src="/images/c2/carpeta-M001-contenido.png">
+
+Bien, haciendo algo similar en Windows, cerrando mi shell.
+
+Y puedo ver desde el indicador que realmente estoy en mi directorio de inicio aquí.
+
+Ahora, la forma en que hago una lista de directorios en Windows es con DIR, que es una abreviatura de directorio.
+
+Veo M001 aquí.
+
+Al igual que con la aplicación de terminal en Mac y otros shells de bash, puedo cambiar el directorio y hacer otra lista de directorios.
+
+Y allí, veo el mismo archivo js.
+
+Ahora un par de cosas para señalar.
+
+Una es que he estado usando la finalización de pestañas para no tener que escribir todo el directorio.
+
+**Si escribe algunos caracteres, presione Tab**, si solo hay un directorio o archivo con ese nombre, por ejemplo, loa, si escribo tab, porque ese es el único directorio con ese nombre aquí, **el símbolo del sistema completará el nombre** para mí para no tener que escribirlo.
+
+Es solo una conveniencia.
+
+Lo mismo funciona exactamente en la aplicación de terminal en Mac y en la mayoría de los otros shells.
+
+La otra cosa que quiero señalar aquí es que **al usar las teclas de flecha, podemos volver al historial de comandos** que hemos ejecutado, **incluso cuando lanzamos el shell Mongo** en el símbolo del sistema.
+
+Y de nuevo, exactamente lo mismo funciona en Mac.
+
+Ahora lo bueno es que si ejecuto el shell Mongo aquí desde la carpeta en la que he guardado mi archivo js, entonces cuando ejecuto el shell Mongo, el shell Mongo tiene como directorio de trabajo el directorio que contiene ese archivo js.
+
+Ahora, el shell Mongo es un intérprete de JavaScript totalmente funcional.
+
+Y si eche un vistazo a ese archivo js, puedo ver que tengo una serie de comandos JavaScript aquí, incluido este último, que carga un montón de datos `less loadMovieDetailsDataset.js`.
+
+<img src="/images/c2/comand-less.png">
+
+La forma en que vamos a obtener datos en su clúster de sandbox es ejecutando este archivo JavaScript.
+
+Pero lo haremos desde el shell de Mongo.
+
+Y puedo ejecutar este archivo usando el comando de carga que me proporciona el shell.
+
+Entonces, simplemente necesito escribir `load("loadMovieDetailsDataset.js")`.
+
+<img src="/images/c2/load-script.png">
+
+Llamo a la función de carga.
+
+Y entre paréntesis, le paso el nombre de nuestro archivo js entre comillas.
+
+Ahora recuerda, actualmente, solo tenemos administrador y local aquí.
+
+Si ejecuto este comando, ahora podemos ver que se ha agregado una base de datos de video.
+
+Y si quiero acceder al data en esta base de datos, entonces puedo usar la base de datos movie y ver qué colecciones hay usando el comando `show collections`.
+
+<img src="/images/c2/database-movies.png">
+
+Puede seguir exactamente estos mismos pasos en Windows para cargar el conjunto de datos, porque el shell funciona más o menos igual en diferentes plataformas.
+
+Y si quiero echar un vistazo a los datos que están aquí, puedo hacerlo ejecutando este comando `db.movieDetails.find().pretty()`.
+
+<img src="/images/c2/find-collection.png">
+
+Y hablaremos mucho más sobre el comando find mientras nos sumergimos en el lenguaje de consulta MongoDB.
+
 ## 11. Tema: Conexión a su clúster de sandbox desde Compass
 
 ### Transcripción
