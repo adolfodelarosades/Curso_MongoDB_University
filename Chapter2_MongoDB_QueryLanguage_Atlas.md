@@ -1293,7 +1293,7 @@ Podemos realizar exactamente la misma operación en el shell Mongo.
 
 Para hacer eso, necesitaremos aprender nuestro primer método en el lenguaje de consulta MongoDB.
 
-Ese método es `insertOne`. :green_book:
+Ese método es `insertOne`.
 
 `insertOne` es un método de la clase `collection` en MongoDB.
 
@@ -1379,7 +1379,7 @@ Y vemos que el `_id` es el que proporcionamos en lugar del que se creá automát
 
 Volviendo a nuestra interfaz de Compass, si actualizamos la colección, podemos ver que tenemos dos documentos que tienen exactamente los mismos datos pero con diferentes valores `_id`.
 
-<img src="/images/c2/13-compass-star-trek-2.png">
+<img src="/images/c2/13-compass-start-trek-2.png">
 
 En la práctica, en realidad no tendría dos documentos diferentes que contengan los mismos datos, sino simplemente valores diferentes subrayados.
 
