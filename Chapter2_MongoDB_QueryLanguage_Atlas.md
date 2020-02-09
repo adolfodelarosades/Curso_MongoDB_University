@@ -1102,9 +1102,9 @@ Y entre paréntesis, le paso el nombre de nuestro archivo js entre comillas.
 
 Ahora recuerda, actualmente, solo tenemos administrador y local aquí.
 
-Si ejecuto este comando, ahora podemos ver que se ha agregado una base de datos de video.
+Si ejecuto este comando `show dbs`, ahora podemos ver que se ha agregado una base de datos de video.
 
-Y si quiero acceder al data en esta base de datos, entonces puedo usar la base de datos movie y ver qué colecciones hay usando el comando `show collections`.
+Y si quiero acceder a los datos en esta base de datos, entonces puedo usar la base de datos `use video` y ver qué colecciones hay usando el comando `show collections`.
 
 <img src="/images/c2/database-movies.png">
 
@@ -1119,6 +1119,70 @@ Y hablaremos mucho más sobre el comando find mientras nos sumergimos en el leng
 ## 11. Tema: Conexión a su clúster de sandbox desde Compass
 
 ### Transcripción
+
+Ahora conectemos Compass a su clúster de sandbox Atlas.
+
+Para hacer esto, querrá mirar la vista de clúster para su clúster de sandbox.
+
+Y haga clic en el nombre del clúster aquí.
+
+<img src="/images/c2/11-cluster-init.png">
+
+Es posible que haya nombrado a su clúster de otra manera, pero aquí es donde encuentra el nombre de su clúster.
+
+Haz clic a través de él.
+
+<img src="/images/c2/11-cluster-intances.png">
+
+Y entonces, lo que estamos buscando aquí es lo principal.
+
+Compass actualmente solo nos permite especificar un solo nombre de host en el campo Formulario.
+
+Nos ayuda un poco si tenemos una URI de conexión.
+
+Para nuestros propósitos, será más simple identificar simplemente el primario y luego hacer clic para hacerlo.
+
+Este es el nombre de host que queremos.
+
+<img src="/images/c2/11-cluster-primary.png">
+
+Su nombre de host será diferente porque tiene su propio clúster de sandbox.
+
+Pero para el mío, este es el nombre de host `cluster0-shard-00-01-3bh0e.mongodb.net:`.
+
+Puede encontrar el suyo exactamente en el mismo lugar en la interfaz de usuario de Compass.
+
+Cópialo.
+
+Vuelva a Compass y péguelo en el cuadro Nombre de host.
+
+El puerto ya está provisto para nosotros de manera predeterminada.
+
+Entonces, en este punto, lo que tendremos que hacer es simplemente especificar el nombre de usuario y la contraseña.
+
+Ahora, si siguió las instrucciones para configurar su clúster de sandbox, para crear un usuario administrativo con el nombre de usuario y la contraseña solicitados, aquí debe ingresar, para nombre de usuario, m001-students y para la contraseña m001-mongodb-basics.
+
+El resto de los valores predeterminados deberían estar bien.
+
+<img src="/images/c2/11-compass-my-cluster.png">
+
+Luego podemos hacer clic en Conectar.
+
+Y aquí vemos que, como vimos con show DBs, tenemos todas las bases de datos.
+
+<img src="/images/c2/11-compass-databases.png">
+
+El de interés es la base de datos de video.
+
+Y en la base de datos de video, debería ver una colección de detalles de películas con 2.295 documentos.
+
+<img src="/images/c2/11-compass-video.png">
+
+Podemos hacer clic en `movieDetails` y ver los documentos de la misma manera que podríamos y podemos hacerlo con el clúster de clase Atlas.
+
+<img src="/images/c2/11-compass-video-documents.png">
+
+Así es como conecta Compass a su clúster de sandbox Atlas.
 
 ## 12. Laboratorio 2.1: ¿Cuántas comedias?
 
