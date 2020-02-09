@@ -927,21 +927,44 @@ Ahora que hemos creado un clúster de sandbox, conectemos el shell Mongo a este 
 
 En el clúster sandbox tiene permisos completos que le permitirá emitir permisos a los datasets que están en este clúster o, más precisamente, a los datasets que cargaremos en este clúster.
 
+Así que en este punto, visite su clúster de sandbox en Atlas, conectarse al clúster de sandbox es una operación bastante sencilla dado lo que Atlas nos brinda desde la vista Atlas.
 
-so at this point please visit your sandbox cluster in Atlas connecting to the sandbox cluster is a pretty straightforward operation given what Atlas provides to us from the Atlas view we simply need to click the connect button and then scroll down to the instructions for connecting with the Mongo shell now it's pretty easy to be confused about whether to use this connection command or this connection string for our purposes we will completely ignore the URI connection string here at the top of this modal do not use this connection string to connect to your Atlas sandbox cluster instead scroll to the bottom of this modal where we find a section connect with the Mongo shell here you'll see instructions for connecting via the Mongo shell to this Atlas cluster we have almost the entire command that we'll need in order to do this now your command will differ slightly because you will have a different host name for each of the nodes in your replica set for your sandbox cluster so while these are the host names for my Atlas cluster yours will be different however if you simply click copy here and then jump into your command line interface whether it's the terminal application on a Mac or the command shell on a Windows machine or some other command-line interface on say a Linux machine of some kind regardless of which CLI you're using given that we've set up our path this command should work for you with one change you simply need to change the password to m001-mongodb-basics.
+<img src="/images/c2/cluster-init.png">
 
-Now sometimes the captioning for these videos doesn't reflect what we're typing on the screen exactly so please pay attention to what I'm actually showing you here on the screen with this command I can connect my Mongo shell to my atlas cluster you can use a very similar command that again you get from the Atlas UI here to connect to your own sandbox cluster the only difference for you should be in what hosts are listed here everything else should be the same including the Mongo command and each of the command line parameters that were passing to Mongo again please make sure you don't use this URI connection string here but do use this Mongo command provided for us in the connect with the Mongo shell section of this modal now if I run this command then I will see a few different responses printed out as the Mongo shell starts up but at the end what we're looking for is a prompt that looks something like this that indicates we have connected to the primary I can do exactly the same thing on Windows copying the same command in and changing the password to m001-mongodb-basics and see that I have successfully connected to my Atlas sandbox cluster and that is how we connect to our sandbox cluster from the Mongo shell
+Simplemente necesitamos hacer clic en el botón de conexión
 
-Ahora que hemos creado un clúster de sandbox, conectemos el shell Mongo a este clúster. 
+<img src="/images/c2/cluster-connect.png">
 
-En caso de que no sea 100% claro para usted a partir de ahora vamos a utilizar dos clústeres Atlas diferentes, uno es el clúster Atlas de clase que utilizamos en el Capítulo uno, donde nos conectamos con Compass y exploramos los conjuntos de datos.
+y seleccionar **connecting with the Mongo shell** 
 
-Ya que exploraremos datos en el lenguaje de consulta, usaremos ese mismo clúster de vez en cuando, pero también usaremos el clúster sandbox que acabamos de crear en Atlas porque tiene acceso completo de administrador que le permitirá emitir permisos a los conjuntos de datos que están en este clúster o, más precisamente, a los conjuntos de datos que cargaremos en este clúster, así que en este momento visite su sandbox cluster . 
+<img src="/images/c2/cluster-connect-steps.png">
 
+1. Download and install the mongo shell
 
-en Atlas conectarse al clúster de sandbox es una operación bastante sencilla dado lo que Atlas nos proporciona desde la vista Atlas, simplemente necesitamos hacer clic en el botón de conexión y luego desplazarnos hacia abajo para ver las instrucciones para conectando con el shell Mongo ahora es bastante fácil confundirse acerca de si usar este comando de conexión o esta cadena de conexión para nuestros propósitos, ignoraremos completamente la cadena de conexión URI aquí en la parte superior de este modal, no use esta cadena de conexión para conectarse a su clúster de sandbox de Atlas en su lugar, desplácese hasta la parte inferior de este modal donde encontramos una sección que se conecta con el shell Mongo aquí verá instrucciones para conectarse a través del shell Mongo a este clúster Atlas. Tenemos casi todo el comando que necesitaremos en para hacer esto ahora, su comando diferirá ligeramente porque tendrá un nombre de host diferente para cada uno de los nodos en su conjunto de réplicas para su clúster de sandbox, por lo tanto, si bien estos son los nombres de host para mi clúster Atlas, el suyo será diferente, sin embargo, si simplemente haga clic en copiar aquí y luego acceda a su interfaz de línea de comandos, ya sea la aplicación de terminal en una Mac o el shell de comandos en una máquina Windows o alguna otra línea de comandos Por ejemplo, una máquina Linux de algún tipo, independientemente de la CLI que esté utilizando, dado que hemos configurado nuestra ruta, este comando debería funcionar para usted con un cambio, simplemente necesita cambiar la contraseña a m001-mongodb-basics.
+* First, download the Mongo Shell
 
-Ahora, a veces, los subtítulos para estos videos no reflejan exactamente lo que estamos escribiendo en la pantalla, así que presta atención a lo que realmente te estoy mostrando aquí en la pantalla con este comando. Puedo conectar mi shell Mongo a mi grupo de atlas puede usar un comando muy similar que nuevamente obtiene de la interfaz de usuario de Atlas aquí para conectarse a su propio clúster de sandbox, la única diferencia para usted debe ser en qué hosts se enumeran aquí, todo lo demás debe ser el mismo, incluido el comando Mongo y cada uno de los comandos parámetros de línea que estaban pasando a Mongo nuevamente, asegúrese de no usar esta cadena de conexión URI aquí, pero use este comando Mongo que se nos proporcionó en la conexión con la sección de shell Mongo de este modal ahora si ejecuto este comando, lo haré veo algunas respuestas diferentes impresas a medida que se inicia el shell Mongo, pero al final lo que estamos buscando es un mensaje que se parece a esto que indica que nos hemos conectado a la primaria. Puedo hacer exactamente lo mismo g en Windows copiando el mismo comando y cambiando la contraseña a m001-mongodb-basics y veo que me he conectado con éxito a mi clúster de sandbox de Atlas y así es como nos conectamos a nuestro clúster de sandbox desde el shell Mongo
+   ```sh
+   curl -OL https://downloads.mongodb.org/osx/mongodb-shell-macos-x86_64-4.2.3.tgz
+   ```
+
+* Second, extract the Mongo Shell
+
+   ```sh
+   tar -xvf mongodb-shell-macos-x86_64-4.2.3.tgz
+   ```
+
+* Third, go to the created directory
+
+   ```sh
+   cd mongodb-macos-x86_64-4.2.3/bin
+   ```
+2. Run your connection string in your command line
+
+   ```sh
+   mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+   ```
+   
+<img src="/images/c2/cluster-connect-shell.png">
 
 ## 10. Tema: Carga de datos en su grupo de Sandbox
 
