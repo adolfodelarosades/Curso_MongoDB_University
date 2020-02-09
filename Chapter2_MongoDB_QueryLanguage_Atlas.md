@@ -1211,6 +1211,182 @@ Choose the best answer:
 
 ### Transcripción
 
+Ahora comencemos a explorar algunos conceptos básicos de operaciones CRUD.
+
+En MongoDB, generalmente hablamos de operaciones de creación como la inserción de documentos, o simplemente inserciones.
+
+Veamos cómo hacer esto con Compass.
+
+Así que aquí estoy conectado al clúster Atlas gratuito que creé.
+
+<img src="/images/c2/11-compass-video-documents.png">
+
+Nuevamente, este es un sandbox que es perfecto para desarrollar una prueba de concepto o el tipo de demostración y prueba que estoy haciendo en este curso.
+
+Por favor, siga en su propio grupo.
+
+Vamos a crear algunos datos en esta lección.
+
+Primero, me gustaría crear algunos documentos de película simples.
+
+Estos serán en su mayoría descartables.
+
+Así que los pondré en una colección llamada `moviesScratch`.
+
+Usando la vista de la base de datos de Compass, puedo crear una colección.
+
+Si hago clic en la base de datos de video, puedo ver las colecciones que contiene esta base de datos.
+
+<img src="/images/c2/11-compass-video.png">
+
+Tenga en cuenta que la colección `moviesDetails` que ya creamos está aquí.
+
+Si quiero crear una segunda colección haciendo clic en el botón `CREATE COLLECTION`.
+
+<img src="/images/c2/13-create-collection.png">
+
+Nombro mi colección y la creo.
+
+<img src="/images/c2/13-databases.png">
+
+Si hago clic en esta colección, veo que actualmente no tiene documentos.
+
+<img src="/images/c2/13-movies-scratch.png">
+
+Pero puedo crear uno haciendo clic en la opción `Insert Document`.
+
+Creemos un documento con `title : "Rocky" `, `year: 1976` e incluso proporcionaremos el ID de la **[Internet Movie Database (IMDb, en español: Base de datos de películas en Internet)](https://www.imdb.com/)** esto es `imdb : "tt0075148"`.
+
+La interfaz de usuario de Compass me permite pasar las teclas y los valores, por lo que ingresar estos datos es bastante rápido.
+
+Ahora para el año, necesito cambiar el tipo de valor a entero, más específicamente Int32.
+
+<img src="/images/c2/13-movie-rocky.png">
+
+Ahora podemos hacer clic en `INSERT`, y vemos que este documento ahora está en la colección.
+
+<img src="/images/c2/13-document-rocky.png">
+
+La colección tiene un recuento total de documentos de un documento.
+
+Agreguemos otra película  `title: "Creed`, `year: 2015` y `imdb: "tt3076658"`.
+
+<img src="/images/c2/13-movie-creed.png">
+
+Ahora, puedo volver y editar un documento si es necesario.
+
+En este caso, olvidé cambiar el tipo del año a Int32.
+
+Entonces, si hago clic en Editar, 
+
+<img src="/images/c2/13-document-creed.png">
+
+vuelvo a donde estaba y puedo cambiar el tipo de valor por año.
+
+<img src="/images/c2/13-document-creed-update.png">
+
+Hago clic en `UPDATE` y mi documento se actualiza.
+
+<img src="/images/c2/13-document-creed-good.png">
+
+Podemos realizar exactamente la misma operación en el shell Mongo.
+
+Para hacer eso, necesitaremos aprender nuestro primer método en el lenguaje de consulta MongoDB.
+
+Ese método es `insertOne`. :green_book:
+
+`insertOne` es un método de la clase `collection` en MongoDB.
+
+Para usarlo, primero debemos especificar qué base de datos usar.
+
+Y usaremos la base de datos `video`.
+
+Ahora, lo que sucedió aquí es que cuando intenté usar la base de datos `video` por primera vez, recibí un error de red.
+
+Lo que sucedió aquí es que, como dejé el shell inactivo, había terminado la conexión.
+
+Entonces, cuando intenté emitir un comando que requiere una conexión de red, recibí un error.
+
+Pero el shell también se vuelve a conectar automáticamente al clúster.
+
+Así que aquí, donde intenté usar el video por segunda vez, tuve éxito.
+
+<img src="/images/c2/13-shell-disconect.png">
+
+Si muestro colecciones, podemos ver que tengo tanto mi colección de `movieDetails` como `moviesScratch`.
+
+Ahora usemos `insertOne` para crear otro documento de película en la colección `moviesScratch`.
+
+Ya estoy usando la base de datos de video, entonces `db` se refiere a la base de datos `video`.
+
+Si escribo `db.moviesScratch`, entonces estoy especificando el espacio de nombre completo para la colección.
+
+Y como dije, `insertOne` es un método en la clase de colección, por lo que puedo llamarlo así `db.moviesScratch.insertOne`.
+
+Aquí usaremos `insertOne` para crear otro documento más en la colección `moviesScratch`.
+
+Entonces `db.moviesScratch.insertOne` y le pasamos el documento que deseamos insertar.
+
+```sh
+db.moviesScratch.insertOne({title: "Star Trek II: La ira de Khan", year: 1982, imdb: "tt0084726"})
+```
+
+La respuesta de llamar a este método es en sí misma un documento.
+
+<img src="/images/c2/13-shell-star-trek.png">
+
+`"acknowledged" : true` significa que tuvimos éxito al hacer el insert.
+
+Y tenga en cuenta que también se nos proporciona el identificador único para este documento creado por MongoDB `"insertedId" : ObjectId("5e3ffecdd519ebad64720694")`.
+
+Ahora, `insertOne` **crea un documento en la colección que especificamos**. :green_book:
+
+**Este método también creará una colección si aún no existían documentos**.
+
+Ahora, hagamos un poco de experimentación.
+
+Después de insertar el documento, podemos ver en la vista de documentos de Compass que este valor de ID es exactamente igual a que se nos mostró en el shell.
+
+<img src="/images/c2/13-shell-star-trek.png">
+
+Todos los documentos en MongoDB deben contener un campo `_id`.
+
+Este es el identificador único para un documento dado dentro de una colección.
+
+Por lo tanto, todos los valores de `_id` dentro de una sola colección son únicos.
+
+Si no proporcionamos un `_id`, MongoDB o el cliente que estamos usando crearán uno para nosotros, como vimos que sucedió aquí.
+
+Si se crea una `_id` para nosotros, será del tipo `ObjectID`.
+
+Debido a la forma en que se crean, se garantiza que las ID de objeto serán únicas para una colección determinada y aumentarán monotónicamente.
+
+También podemos insertar un documento y proporcionar el valor de ID nosotros mismos.
+
+Hagamos un ejemplo de eso.
+
+Volviendo al shell, en lugar de dejar que MongoDB cree el valor de ID de subrayado para nosotros, le proporcionaremos uno.
+
+Aquí, simplemente voy a usar el valor IMDB para este documento.
+
+Y voy a dejar todo lo demás igual, incluso este campo, incluso el campo IMDB por razones que creo que se aclararán un poco más tarde.
+
+Si presiono Enter, vemos que, nuevamente, recibimos un reconocimiento de que la inserción fue exitosa.
+
+Y nosotros también vea que la ID insertada es la que proporcionamos en lugar de la que se creó automáticamente.
+
+Volviendo a nuestra interfaz de Compass, si actualizamos la colección, podemos ver que tenemos dos documentos que tienen exactamente los mismos datos pero con diferentes valores de ID de subrayado.
+
+En la práctica, en realidad no tendría dos documentos diferentes que contengan los mismos datos, sino simplemente valores diferentes subrayados.
+
+Y en la práctica, querrás asegurarte de que tus valores de ID de subrayado sean de la misma forma en una colección determinada.
+
+Por lo tanto, no querrá tener cadenas como valor de ID de subrayado para algunos de sus documentos e ID de objeto como valor de ID de subrayado para otros.
+
+Ahora en esta lección, hemos visto cómo insertar documentos en MongoDB un documento a la vez y exploramos cómo hacerlo tanto en Compass como en el shell Mongo.
+
+En otra lección, veremos cómo hacer inserciones masivas en MongoDB usando insertMany.
+
 ## 14. Tema: Creación de documentos: insertMany ()
 
 ### Transcripción
