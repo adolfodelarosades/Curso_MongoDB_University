@@ -1207,7 +1207,7 @@ Choose the best answer:
 * 816
 
 
-## 13. Tema: Crear documentos: insertOne ()
+## 13. Tema: Crear documentos: insertOne() :green_book:
 
 ### Transcripción
 
@@ -1339,7 +1339,7 @@ La respuesta de llamar a este método es en sí misma un documento.
 
 Y tenga en cuenta que también se nos proporciona el identificador único para este documento creado por MongoDB `"insertedId" : ObjectId("5e3ffecdd519ebad64720694")`.
 
-Ahora, `insertOne` **crea un documento en la colección que especificamos**. :green_book:
+Ahora, `insertOne` **crea un documento en la colección que especificamos**.
 
 **Este método también creará una colección si aún no existían documentos**.
 
@@ -1347,7 +1347,7 @@ Ahora, hagamos un poco de experimentación.
 
 Después de insertar el documento, podemos ver en la vista de documentos de Compass que este valor de ID es exactamente igual a que se nos mostró en el shell.
 
-<img src="/images/c2/13-shell-star-trek.png">
+<img src="/images/c2/13-compass-star-trek.png">
 
 Todos los documentos en MongoDB deben contener un campo `_id`.
 
@@ -1365,29 +1365,33 @@ También podemos insertar un documento y proporcionar el valor de ID nosotros mi
 
 Hagamos un ejemplo de eso.
 
-Volviendo al shell, en lugar de dejar que MongoDB cree el valor de ID de subrayado para nosotros, le proporcionaremos uno.
+Volviendo al shell, en lugar de dejar que MongoDB cree el valor del `_id` por nosotros, le proporcionaremos uno.
 
-Aquí, simplemente voy a usar el valor IMDB para este documento.
+Aquí, simplemente voy a usar el valor `imdb` para este documento.
 
-Y voy a dejar todo lo demás igual, incluso este campo, incluso el campo IMDB por razones que creo que se aclararán un poco más tarde.
+Y voy a dejar todo lo demás igual, incluso este campo, incluso el campo `imdb` por razones que creo que se aclararán un poco más tarde.
+
+<img src="/images/c2/13-shell-star-trek-2.png">
 
 Si presiono Enter, vemos que, nuevamente, recibimos un reconocimiento de que la inserción fue exitosa.
 
-Y nosotros también vea que la ID insertada es la que proporcionamos en lugar de la que se creó automáticamente.
+Y vemos que el `_id` es el que proporcionamos en lugar del que se creá automáticamente.
 
-Volviendo a nuestra interfaz de Compass, si actualizamos la colección, podemos ver que tenemos dos documentos que tienen exactamente los mismos datos pero con diferentes valores de ID de subrayado.
+Volviendo a nuestra interfaz de Compass, si actualizamos la colección, podemos ver que tenemos dos documentos que tienen exactamente los mismos datos pero con diferentes valores `_id`.
+
+<img src="/images/c2/13-compass-star-trek-2.png">
 
 En la práctica, en realidad no tendría dos documentos diferentes que contengan los mismos datos, sino simplemente valores diferentes subrayados.
 
-Y en la práctica, querrás asegurarte de que tus valores de ID de subrayado sean de la misma forma en una colección determinada.
+Y en la práctica, querrás asegurarte de que tus valores de `_id` sean de la misma forma en una colección determinada.
 
-Por lo tanto, no querrá tener cadenas como valor de ID de subrayado para algunos de sus documentos e ID de objeto como valor de ID de subrayado para otros.
+Por lo tanto, no querrá tener cadenas como valor de `_id` para algunos de sus documentos e `ObjectId` como valor de `_id` para otros.
 
 Ahora en esta lección, hemos visto cómo insertar documentos en MongoDB un documento a la vez y exploramos cómo hacerlo tanto en Compass como en el shell Mongo.
 
-En otra lección, veremos cómo hacer inserciones masivas en MongoDB usando insertMany.
+En otra lección, veremos cómo hacer inserciones masivas en MongoDB usando `insertMany`.
 
-## 14. Tema: Creación de documentos: insertMany ()
+## 14. Tema: Creación de documentos: insertMany()
 
 ### Transcripción
 
