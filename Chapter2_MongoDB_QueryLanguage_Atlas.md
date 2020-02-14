@@ -1835,9 +1835,178 @@ Y con eso, hemos abordado la parte Create (Crear) de nuestras operaciones CRUD.
 
 ## 15. Laboratorio 2.2: ¿Cuántos insertados?
 
+Lab 2.2: How Many Inserted?
+
+Problem:
+
+If the collection `video.myMovies` is currently empty, how many documents would be inserted by the following call to `insertMany()`.
+
+```sh
+db.myMovies.insertMany(
+  [
+    {
+      "_id" : "tt0084726",
+      "title" : "Star Trek II: The Wrath of Khan",
+      "year" : 1982,
+      "type" : "movie"
+    },
+    {
+      "_id" : "tt0796366",
+      "title" : "Star Trek",
+      "year" : 2009,
+      "type" : "movie"
+    },
+    {
+      "_id" : "tt0084726",
+      "title" : "Star Trek II: The Wrath of Khan",
+      "year" : 1982,
+      "type" : "movie"
+    },
+    {
+      "_id" : "tt1408101",
+      "title" : "Star Trek Into Darkness",
+      "year" : 2013,
+      "type" : "movie"
+    },
+    {
+      "_id" : "tt0117731",
+      "title" : "Star Trek: First Contact",
+      "year" : 1996,
+      "type" : "movie"
+    }
+  ],
+  {
+    ordered: false
+  }
+);
+```
+
+Choose the best answer:
+
+* 1
+
+* 2
+
+* 3
+
+* 4 :+1:
+
+* 5
+
+
 ## 16. Tema: Lectura de documentos: campos escalares
 
+### Notas de lectura
+
+Notas
+
+* Para seguir esta conferencia, debe conectarse al **cluster de clases (class cluster)**.
+
+* Como recordatorio, use el siguiente comando para conectarse al clúster de clase Atlas. Debe ejecutar este comando en el `cmd` shell, la aplicación de terminal OSX u otra interfaz de línea de comandos que elija.
+
+```sh
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/test?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+```
+
+* En el minuto 3:30, Shannon menciona que no es necesario usar comillas al compilar sus consultas en MongoDB Compass. ¡Esto ya no es correcto! Debe proporcionar comillas al usar la notación de puntos para expresar consultas.
+
+* Es una buena práctica rodear las keys con comillas en cualquier situación.
+
 ### Transcripción
+
+Para comenzar nuestra discusión sobre las operaciones de lectura en el lenguaje de consulta MongoDB, analizaremos los filtros de igualdad.
+
+Esta discusión sentará las bases para nuestros tipos más sofisticados de consultas que involucran el amplio conjunto de operadores proporcionados por el lenguaje de consulta MongoDB.
+
+Ya has visto algunos ejemplos de filtros de igualdad en nuestro trabajo con filtros en Compass.
+
+Veamos primero otro filtro en Compass, y luego profundizaremos en los métodos que componen el lenguaje de consulta MongoDB a medida que se implementa en el shell mongo.
+
+Para esta lección, me gustaría ver los datos de la película.
+
+Usemos Compass para filtrar nuestra colección `video.movies` para películas con clasificación `PG-13`.
+
+La calificación que nos interesa se almacena en el campo `mpaaRating` para los documentos de esta colección.
+
+En este filtro, estoy especificando que simplemente quiero ver los documentos que tienen `PG-13` como su valor para este campo.
+
+Aplicando el filtro aquí en la pestaña Documentos, podemos ver que cada documento devuelto tiene una clasificación de hecho `PG-13`.
+
+Tenga en cuenta que solo 5,297 de los más de un millón de documentos en esta colección coinciden con este filtro.
+
+Podemos restringir aún más el conjunto de resultados agregando selectores adicionales a nuestro documento de consulta.
+
+La aplicación de este filtro reduce significativamente la cantidad de documentos que son conjuntos de resultados.
+
+Entonces, lo que es importante notar aquí es que los selectores en los filtros MongoDB se agrupan de manera predeterminada, lo que significa que solo se recuperan los documentos que coinciden con estos dos criterios.
+
+En otras lecciones consideramos operadores de consulta que nos permiten expresar filtros que coinciden con cualquiera de dos o más condiciones.
+
+En lugar de todas las dos o más condiciones que tenemos aquí, pero eso es para otra lección.
+
+Ahora echemos un vistazo a cómo realizar este mismo tipo de consulta en el shell mongo.
+
+El método para realizar operaciones de lectura en el lenguaje de consulta MongoDB se llama `find`.
+
+Para encontrar películas en nuestra colección de `videos.movies` con clasificación `PG-13`, primero debemos usar nuestra base de datos de video y luego llamar a buscar en la colección de la película (movies).
+
+Y podemos mejorar eso un poco usando el comando `pretty`.
+
+Y aquí, como vimos en Compass, podemos ver que todos nuestros resultados tienen una clasificación `mpaa` de `PG-13`.
+
+Nuevamente, como hicimos en Compass, podemos agregar un selector adicional por año y restringir nuestros resultados a películas `PG-13` a partir del año 2009.
+
+Y nuevamente, vemos que de hecho todos estos documentos coinciden con ambos criterios.
+
+Ahora que sabemos cómo crear filtros de calidad en los campos de nivel superior, centremos nuestra atención en cómo podemos igualar la igualdad con los documentos incrustados.
+
+Para esto, veamos nuestro conjunto de datos meteorológicos de 100 años.
+
+Las lecturas del clima en este conjunto de datos capturan bastantes detalles sobre el viento.
+
+Tenga en cuenta que el campo de viento tiene el documento de tipo de valor, u Objeto, como se llama en la vista de documentos en Compass.
+
+Si expandimos el viento, el campo de viento describe las condiciones generales del viento.
+
+Un valor de `c` para el tipo de viento indica que las condiciones del viento eran tranquilas cuando se tomó esta lectura.
+
+En el lenguaje de consulta, nuestro filtro tendría este formulario.
+
+Y después de aplicar ese filtro, echemos un vistazo a un par de documentos coincidentes.
+
+Podemos ver aquí que, de hecho, el tipo de viento es `c`.
+
+Y del mismo modo para este documento y todos los demás en este conjunto de resultados.
+
+Echando un vistazo más de cerca a nuestra sintaxis de consulta, estamos utilizando lo que llamamos notación de punto para identificar un campo de un documento anidado dentro del campo `wind`.
+
+Ahora la notación de puntos funciona para documentos anidados en cualquier nivel.
+
+Para esto, vamos un nivel más profundo y veamos el ángulo de dirección del viento.
+
+Entonces, en lugar del tipo de ventana, expresaremos nuestro filtro como `wind.direction.angle`.
+
+Y como el ángulo es un campo de valor entero, hagamos 290 y luego apliquemos nuestro filtro.
+
+Echando un vistazo a los resultados, el viento, la dirección, el ángulo, podemos ver que, de hecho, los documentos en el conjunto de resultados coinciden con esta consulta utilizando la notación de puntos.
+
+Una cosa que me gusta mucho del lenguaje de consulta MongoDB es que es intuitivo en muchos aspectos.
+
+La notación de puntos es, en mi opinión, un ejemplo.
+
+Ahora Compass es un poco más flexible acerca de la sintaxis que el shell.
+
+Tenga en cuenta que no estamos especificando citas alrededor de la clave aquí.
+
+Sin embargo, cuando utilice la notación de puntos en el shell, debe encerrar la clave entre comillas aplicando el mismo filtro en el shell MongoDB.
+
+Primero, usamos la base de datos de 100 años, y luego usamos find para expresar nuestro filtro.
+
+Si intentamos hacer esto, obtendremos un error porque, como mencioné, se requieren comillas alrededor de las teclas que usan notación de puntos en el shell mongo.
+
+Y aquí podemos ver que, de hecho, los documentos que coinciden con esta consulta tienen el `wind.direction.angle` de 290.
+
+En resumen, para reducir la jerarquía de documentos anidados que alcanza en documentos en cada nivel adicional de anidamiento al unir los nombres de los campos mediante la notación de puntos, y en el shell no olvide las comillas.
 
 ## 17. Examen
 
