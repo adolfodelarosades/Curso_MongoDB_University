@@ -1946,52 +1946,155 @@ Podemos restringir aún más el conjunto de resultados agregando selectores adic
 
 <img src="/images/c2/16-compass-mpaaRating-PG-13-year-2009.png">
 
-
 La aplicación de este filtro reduce significativamente la cantidad de documentos que son conjuntos de resultados.
 
-Entonces, lo que es importante notar aquí es que los selectores en los filtros MongoDB se agrupan de manera predeterminada, lo que significa que solo se recuperan los documentos que coinciden con estos dos criterios.
+Entonces, lo que es **importante** notar aquí es que los selectores en los filtros MongoDB se agrupan de manera predeterminada, lo que significa que **solo se recuperan los documentos que coinciden con estos dos criterios**.
 
-En otras lecciones consideramos operadores de consulta que nos permiten expresar filtros que coinciden con cualquiera de dos o más condiciones.
+En otras lecciones consideramos **operadores de consulta que nos permiten expresar filtros que coinciden con cualquiera de dos o más condiciones**.
 
 En lugar de todas las dos o más condiciones que tenemos aquí, pero eso es para otra lección.
 
 Ahora echemos un vistazo a cómo realizar este mismo tipo de consulta en el shell mongo.
 
-El método para realizar operaciones de lectura en el lenguaje de consulta MongoDB se llama `find`.
+El método para realizar operaciones de lectura en el lenguaje de consulta MongoDB se llama **`find`**.
 
 Para encontrar películas en nuestra colección de `videos.movies` con clasificación `PG-13`, primero debemos usar nuestra base de datos de video y luego llamar a buscar en la colección de la película (movies).
 
 Y podemos mejorar eso un poco usando el comando `pretty`.
 
-Y aquí, como vimos en Compass, podemos ver que todos nuestros resultados tienen una clasificación `mpaa` de `PG-13`.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ mpaaRating: "PG-13"}).pretty()
+...
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7099d4ee0af9e1b14f"),
+	"title" : "Hell's Belles",
+	"year" : 1969,
+	"imdbId" : "tt0063058",
+	"mpaaRating" : "PG-13",
+	"genre" : "Action, Drama, Thriller",
+	"viewerRating" : 5.8,
+	"viewerVotes" : 156,
+	"runtime" : 95,
+	"director" : "Maury Dexter",
+	"cast" : [
+		"Jeremy Slate",
+		"Adam Roarke",
+		"Jocelyn Lane",
+		"Angelique Pettyjohn"
+	],
+	"plot" : "When hot-headed Dan out-drives the thoroughly vicious Tony in a motorcycle race and wins a brand new bike, he sets in motion a chain of events that includes one blazing gas station and a disastrous rock slide.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7099d4ee0af9e1aff6"),
+	"title" : "Bandolero!",
+	"year" : 1968,
+	"imdbId" : "tt0062708",
+	"mpaaRating" : "PG-13",
+	"genre" : "Action, Crime, Drama",
+	"viewerRating" : 6.5,
+	"viewerVotes" : 2921,
+	"runtime" : 106,
+	"director" : "Andrew V. McLaglen",
+	"cast" : [
+		"James Stewart",
+		"Dean Martin",
+		"Raquel Welch",
+		"George Kennedy"
+	],
+	"plot" : "Mace Bishop masquerades as a hangman in order to save his outlaw brother from the gallows, runs to Mexico chased by the sheriff's posse and fights against Mexican bandits.",
+	"language" : "English, Spanish"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y aquí, como vimos en Compass, podemos ver que todos nuestros resultados tienen una clasificación `mpaaRating` de `PG-13`.
 
 Nuevamente, como hicimos en Compass, podemos agregar un selector adicional por año y restringir nuestros resultados a películas `PG-13` a partir del año 2009.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ mpaaRating: "PG-13", year: 2009 }).pretty()
+...
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c9b99d4ee0af9e76ced"),
+	"title" : "Avatar",
+	"year" : 2009,
+	"imdbId" : "tt0499549",
+	"mpaaRating" : "PG-13",
+	"genre" : "Action, Adventure, Fantasy",
+	"viewerRating" : 7.9,
+	"viewerVotes" : 811261,
+	"runtime" : 162,
+	"director" : "James Cameron",
+	"cast" : [
+		"Sam Worthington",
+		"Zoe Saldana",
+		"Sigourney Weaver",
+		"Stephen Lang"
+	],
+	"plot" : "A paraplegic marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home.",
+	"language" : "English, Spanish"
+}
+{
+	"_id" : ObjectId("58c59c9c99d4ee0af9e77382"),
+	"title" : "I Hate Valentine's Day",
+	"year" : 2009,
+	"imdbId" : "tt0762105",
+	"mpaaRating" : "PG-13",
+	"genre" : "Comedy, Romance",
+	"viewerRating" : 4.7,
+	"viewerVotes" : 6215,
+	"runtime" : 98,
+	"director" : "Nia Vardalos",
+	"cast" : [
+		"Nia Vardalos",
+		"John Corbett",
+		"Stephen Guarino",
+		"Amir Arison"
+	],
+	"plot" : "A florist, who abides by a strict five-date-limit with any man, finds herself wanting more with the new restaurateur in town.",
+	"language" : "English"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y nuevamente, vemos que de hecho todos estos documentos coinciden con ambos criterios.
 
 Ahora que sabemos cómo crear filtros de calidad en los campos de nivel superior, centremos nuestra atención en cómo podemos igualar la igualdad con los documentos incrustados.
 
-Para esto, veamos nuestro conjunto de datos meteorológicos de 100 años.
+Para esto, veamos nuestro conjunto de datos meteorológicos de 100 años `100YWeatherSmall`.
 
-Las lecturas del clima en este conjunto de datos capturan bastantes detalles sobre el viento.
+Las lecturas del clima en este conjunto de datos capturan bastantes detalles sobre el viento (wind).
 
-Tenga en cuenta que el campo de viento tiene el documento de tipo de valor, u Objeto, como se llama en la vista de documentos en Compass.
+Tenga en cuenta que el campo `wind` tiene su valor de tipo document u Object, como se llama en la vista de documentos en Compass.
 
-Si expandimos el viento, el campo de viento describe las condiciones generales del viento.
+Si expandimos `wind`, el campo de viento describe las condiciones generales del viento.
 
-Un valor de `c` para el tipo de viento indica que las condiciones del viento eran tranquilas cuando se tomó esta lectura.
+<img src="/images/c2/16-compass-wind.png">
+
+Un valor de `C` para el tipo de viento `type` indica que las condiciones del viento eran tranquilas cuando se tomó esta lectura.
 
 En el lenguaje de consulta, nuestro filtro tendría este formulario.
 
 Y después de aplicar ese filtro, echemos un vistazo a un par de documentos coincidentes.
 
-Podemos ver aquí que, de hecho, el tipo de viento es `c`.
+<img src="/images/c2/16-compass-wind-type-C.png">
+
+Podemos ver aquí que, de hecho, el tipo de viento es `C`.
 
 Y del mismo modo para este documento y todos los demás en este conjunto de resultados.
 
-Echando un vistazo más de cerca a nuestra sintaxis de consulta, estamos utilizando lo que llamamos notación de punto para identificar un campo de un documento anidado dentro del campo `wind`.
+Echando un vistazo más de cerca a nuestra sintaxis de consulta, estamos utilizando lo que llamamos notación de punto para identificar un campo de un documento anidado dentro del campo `wind` .
 
-Ahora la notación de puntos funciona para documentos anidados en cualquier nivel.
+Ahora la notación de puntos (`"wind.type"`) funciona para documentos anidados en cualquier nivel.
 
 Para esto, vamos un nivel más profundo y veamos el ángulo de dirección del viento.
 
