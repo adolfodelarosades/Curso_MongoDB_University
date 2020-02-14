@@ -1914,6 +1914,12 @@ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-
 
 ### Transcripción
 
+Recuerde conectarse en el shell y en Compas en el **class cluster**
+
+<img src="/images/c2/16-shell-class-cluster.png">
+
+<img src="/images/c2/16-compass-class-cluster.png">
+
 Para comenzar nuestra discusión sobre las operaciones de lectura en el lenguaje de consulta MongoDB, analizaremos los filtros de igualdad.
 
 Esta discusión sentará las bases para nuestros tipos más sofisticados de consultas que involucran el amplio conjunto de operadores proporcionados por el lenguaje de consulta MongoDB.
@@ -1930,11 +1936,16 @@ La calificación que nos interesa se almacena en el campo `mpaaRating` para los 
 
 En este filtro, estoy especificando que simplemente quiero ver los documentos que tienen `PG-13` como su valor para este campo.
 
+<img src="/images/c2/16-compass-mpaaRating-PG-13.png">
+
 Aplicando el filtro aquí en la pestaña Documentos, podemos ver que cada documento devuelto tiene una clasificación de hecho `PG-13`.
 
-Tenga en cuenta que solo 5,297 de los más de un millón de documentos en esta colección coinciden con este filtro.
+Tenga en cuenta que solo 5,295 de los casi un millón de documentos en esta colección coinciden con este filtro.
 
 Podemos restringir aún más el conjunto de resultados agregando selectores adicionales a nuestro documento de consulta.
+
+<img src="/images/c2/16-compass-mpaaRating-PG-13-year-2009.png">
+
 
 La aplicación de este filtro reduce significativamente la cantidad de documentos que son conjuntos de resultados.
 
