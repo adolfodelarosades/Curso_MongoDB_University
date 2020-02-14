@@ -1893,7 +1893,6 @@ Choose the best answer:
 
 * 5
 
-
 ## 16. Tema: Lectura de documentos: campos escalares
 
 ### Notas de lectura
@@ -2174,11 +2173,51 @@ Y aquí podemos ver que, de hecho, los documentos que coinciden con esta consult
 
 En resumen, para reducir la jerarquía de documentos anidados que alcanza en documentos en cada nivel adicional de anidamiento al unir los nombres de los campos mediante la notación de puntos, **no olvide las comillas**.
 
-## 17. Examen
+## 17. Examen Reading Documents: Scalar Fields
+
+**Problem:**
+
+Explore the movieDetails collection that you loaded into your Atlas sandbox cluster and then issue a query to answer the following question. How many movies in the movieDetails collection have exactly 2 award wins and 2 award nominations?
+
+You will find the [`count()`](https://docs.mongodb.com/manual/reference/method/cursor.count/) method useful in answering this question using the mongo shell.
+
+Choose the best answer:
+
+* 3
+
+* 7
+
+* 12 :+1:
+
+* 15
+
+* 20
+
 
 ## 18. Laboratorio 2.3: Consultas en campos escalares
 
-## 19. Tema: Lectura de documentos: campos de matriz
+Lab 2.3: Queries on Scalar Fields
+
+**Problem:**
+
+Explore the movieDetails collection that you loaded into your Atlas sandbox cluster and then issue a query to answer the following question. How many movies in the movieDetails collection are rated PG and have exactly 10 award nominations?
+
+You will find the [`count()`](https://docs.mongodb.com/manual/reference/method/cursor.count/) method useful in answering this question using the mongo shell.
+
+Choose the best answer:
+
+* 0
+
+* 1
+
+* 3 :+1:
+
+* 6
+
+* 11
+
+
+## 19. Tema: Lectura de documentos: Campos Array
 
 ### Transcripción
 
