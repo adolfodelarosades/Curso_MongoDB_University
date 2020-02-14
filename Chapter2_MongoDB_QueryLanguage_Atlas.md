@@ -1407,7 +1407,44 @@ Echemos un vistazo a un ejemplo de este comando.
 
 Lo tengo aquí en un editor de texto.
 
-Voy a insertar algunos documentos en videos, películas de punto y cero.
+```js
+db.moviesScratch.insertMany(
+    [
+        {
+  	    "_id" : "tt0084726",
+  	    "title" : "Star Trek II: The Wrath of Khan",
+  	    "year" : 1982,
+  	    "type" : "movie"
+          },
+          {
+  	    "_id" : "tt0796366",
+  	    "title" : "Star Trek",
+  	    "year" : 2009,
+  	    "type" : "movie"
+          },
+          {
+  	    "_id" : "tt0084726",
+  	    "title" : "Star Trek II: The Wrath of Khan",
+  	    "year" : 1982,
+  	    "type" : "movie"
+          },
+          {
+  	    "_id" : "tt1408101",
+  	    "title" : "Star Trek Into Darkness",
+  	    "year" : 2013,
+  	    "type" : "movie"
+          },
+          {
+  	    "_id" : "tt0117731",
+  	    "title" : "Star Trek: First Contact",
+  	    "year" : 1996,
+  	    "type" : "movie"
+        }
+    ]
+);
+```
+
+Voy a insertar algunos documentos en `videos.moviesScratch`.
 
 Esto es solo para que pueda hacer un poco de noodling por aquí demostrando este comando, y luego deshacerme de esta colección sin corromper los datos que realmente quiero mantener, con respecto a las películas (movies).
 
@@ -1423,11 +1460,105 @@ Ahora hay opciones adicionales para Insert Many,.
 
 Y los veremos un poco más adelante.
 
-Por ahora, ejecutemos este comando.
+Por ahora, ejecutemos este comando. (**Antes borramos todos los registros que tenga o borramos la colección `moviesScratch` **)
 
 Solo voy a copiarlo y pegarlo en nuestro shell.
 
 En este shell, estoy conectado a mi Sandbox Atlas cluster.
+
+```sh
+192:MongoDB adolfodelarosa$ mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+movieDetails
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.moviesScratch.insertMany(
+...     [
+...         {
+...       "_id" : "tt0084726",
+...       "title" : "Star Trek II: The Wrath of Khan",
+...       "year" : 1982,
+...       "type" : "movie"
+...           },
+...           {
+...       "_id" : "tt0796366",
+...       "title" : "Star Trek",
+...       "year" : 2009,
+...       "type" : "movie"
+...           },
+...           {
+...       "_id" : "tt0084726",
+...       "title" : "Star Trek II: The Wrath of Khan",
+...       "year" : 1982,
+...       "type" : "movie"
+...           },
+...           {
+...       "_id" : "tt1408101",
+...       "title" : "Star Trek Into Darkness",
+...       "year" : 2013,
+...       "type" : "movie"
+...           },
+...           {
+...       "_id" : "tt0117731",
+...       "title" : "Star Trek: First Contact",
+...       "year" : 1996,
+...       "type" : "movie"
+...         }
+...     ]
+... );
+2020-02-14T19:26:11.817+0100 E  QUERY    [js] uncaught exception: BulkWriteError({
+	"writeErrors" : [
+		{
+			"index" : 2,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: test.moviesScratch index: _id_ dup key: { _id: \"tt0084726\" }",
+			"op" : {
+				"_id" : "tt0084726",
+				"title" : "Star Trek II: The Wrath of Khan",
+				"year" : 1982,
+				"type" : "movie"
+			}
+		}
+	],
+	"writeConcernErrors" : [ ],
+	"nInserted" : 2,
+	"nUpserted" : 0,
+	"nMatched" : 0,
+	"nModified" : 0,
+	"nRemoved" : 0,
+	"upserted" : [ ]
+}) :
+BulkWriteError({
+	"writeErrors" : [
+		{
+			"index" : 2,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: test.moviesScratch index: _id_ dup key: { _id: \"tt0084726\" }",
+			"op" : {
+				"_id" : "tt0084726",
+				"title" : "Star Trek II: The Wrath of Khan",
+				"year" : 1982,
+				"type" : "movie"
+			}
+		}
+	],
+	"writeConcernErrors" : [ ],
+	"nInserted" : 2,
+	"nUpserted" : 0,
+	"nMatched" : 0,
+	"nModified" : 0,
+	"nRemoved" : 0,
+	"upserted" : [ ]
+})
+BulkWriteError@src/mongo/shell/bulk_api.js:367:48
+BulkWriteResult/this.toError@src/mongo/shell/bulk_api.js:332:24
+Bulk/this.execute@src/mongo/shell/bulk_api.js:1186:23
+DBCollection.prototype.insertMany@src/mongo/shell/crud_api.js:326:5
+@(shell):1:1
+```
 
 Y podemos ver que lo que sucede aquí se trata de lo que esperaría, dada nuestra comprensión de cómo funciona la inserción de documentos en MongoDB.
 
@@ -1437,7 +1568,7 @@ Entonces nuestro comando es Insert Many.
 
 Y tenemos 1, 2, 3, 4, 5 documentos que estamos intentando insertar.
 
-Tenga en cuenta, sin embargo, que estos dos documentos son idénticos.
+Tenga en cuenta, sin embargo, que los documentos 1 y 3 son idénticos.
 
 Con una inserción masiva, es posible que se produzca un error o una excepción para uno de los documentos que está insertando, especialmente si estamos haciendo algo como una operación de limpieza de datos donde hay mucho ruido en los datos o errores de algún tipo en nuestro conjunto de datos.
 
@@ -1455,13 +1586,15 @@ Pero lo más importante, son sus valores de `_id` los que son idénticos.
 
 Y sabemos que en una colección individual, los valores de `_id` deben ser únicos.
 
-Entonces, si nos desplazamos hacia abajo y vemos qué sucedió con este comando, podemos ver que tenemos un error de clave duplicada.
+Entonces, si nos desplazamos hacia abajo y vemos qué sucedió con este comando, podemos ver que tenemos un error de clave duplicada (dup key).
 
 Y el error está en la película Wrath of Khan.
 
-También podemos ver, si miramos un poco más abajo en la salida, que el número de documentos insertados fue dos, a pesar de que tenemos cinco documentos en esta llamada Insert Many.
+También podemos ver, si miramos un poco más abajo en la salida, que el número de documentos insertados fue dos `"nInserted" : 2,`, a pesar de que tenemos cinco documentos en esta llamada Insert Many.
 
 Y si vamos a Compass y nos refrescamos, vemos que hay una película de Star Trek y una película de Wrath of Khan en esta colección.
+
+<img src="/images/c2/14-compass-2movies.png">
 
 Entonces, de hecho, solo dos documentos se insertaron de los cinco que intentamos insertar.
 
@@ -1469,25 +1602,198 @@ Ahora volvamos a nuestro shell.
 
 Como mencioné, Insert Many hace una inserción ordenada, lo que significa que tan pronto como encuentre un error, dejará de insertar documentos.
 
-Debido a que encontró un error aquí, solo estos dos documentos se insertaron en esta colección con esta llamada.
+Debido a que encontró un error aquí (3er documento), solo estos dos documentos se insertaron en esta colección con esta llamada.
 
 Ahora, en muchas aplicaciones, es posible que simplemente queramos que nuestra aplicación continúe si encuentra un error, porque estamos bien con los documentos que erraron al no insertarse, o tenemos un proceso separado para tratarlos de otra manera.
 
 Para admitir este caso de uso, podemos especificar un segundo argumento para nuestro método Insert Many.
 
+```sh
+db.moviesScratch.insertMany(
+    [
+        {
+	    "_id" : "tt0084726",
+	    "title" : "Star Trek II: The Wrath of Khan",
+	    "year" : 1982,
+	    "type" : "movie"
+        },
+        {
+	    "_id" : "tt0796366",
+	    "title" : "Star Trek",
+	    "year" : 2009,
+	    "type" : "movie"
+        },
+        {
+	    "_id" : "tt0084726",
+	    "title" : "Star Trek II: The Wrath of Khan",
+	    "year" : 1982,
+	    "type" : "movie"
+        },
+        {
+	    "_id" : "tt1408101",
+	    "title" : "Star Trek Into Darkness",
+	    "year" : 2013,
+	    "type" : "movie"
+        },
+        {
+	    "_id" : "tt0117731",
+	    "title" : "Star Trek: First Contact",
+	    "year" : 1996,
+	    "type" : "movie"
+        }
+    ],
+    {
+        "ordered": false 
+    }
+);
+```
 Entonces, volviendo a nuestro editor de texto, el array es el primer argumento para Insert Many.
 
-Como segundo argumento, puedo proporcionar un documento que especifique un valor de `false` para la clave ordenada.
+Como segundo argumento, puedo proporcionar un documento que especifique un valor de `false` para la clave ordenada `"ordered": false`.
 
-Este documento de Opciones nos permite cambiar el comportamiento predeterminado.
+Este **documento de Opciones** nos permite cambiar el comportamiento predeterminado.
 
 Y en este caso, en lugar de hacer una inserción ordenada, voy a hacer una inserción no ordenada.
 
 Avancemos y ejecutemos esto ahora.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.moviesScratch.insertMany(
+...     [
+...         {
+...     "_id" : "tt0084726",
+...     "title" : "Star Trek II: The Wrath of Khan",
+...     "year" : 1982,
+...     "type" : "movie"
+...         },
+...         {
+...     "_id" : "tt0796366",
+...     "title" : "Star Trek",
+...     "year" : 2009,
+...     "type" : "movie"
+...         },
+...         {
+...     "_id" : "tt0084726",
+...     "title" : "Star Trek II: The Wrath of Khan",
+...     "year" : 1982,
+...     "type" : "movie"
+...         },
+...         {
+...     "_id" : "tt1408101",
+...     "title" : "Star Trek Into Darkness",
+...     "year" : 2013,
+...     "type" : "movie"
+...         },
+...         {
+...     "_id" : "tt0117731",
+...     "title" : "Star Trek: First Contact",
+...     "year" : 1996,
+...     "type" : "movie"
+...         }
+...     ],
+...     {
+...         "ordered": false 
+...     }
+... );
+2020-02-14T20:06:41.273+0100 E  QUERY    [js] uncaught exception: BulkWriteError({
+	"writeErrors" : [
+		{
+			"index" : 0,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: video.moviesScratch index: _id_ dup key: { _id: \"tt0084726\" }",
+			"op" : {
+				"_id" : "tt0084726",
+				"title" : "Star Trek II: The Wrath of Khan",
+				"year" : 1982,
+				"type" : "movie"
+			}
+		},
+		{
+			"index" : 1,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: video.moviesScratch index: _id_ dup key: { _id: \"tt0796366\" }",
+			"op" : {
+				"_id" : "tt0796366",
+				"title" : "Star Trek",
+				"year" : 2009,
+				"type" : "movie"
+			}
+		},
+		{
+			"index" : 2,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: video.moviesScratch index: _id_ dup key: { _id: \"tt0084726\" }",
+			"op" : {
+				"_id" : "tt0084726",
+				"title" : "Star Trek II: The Wrath of Khan",
+				"year" : 1982,
+				"type" : "movie"
+			}
+		}
+	],
+	"writeConcernErrors" : [ ],
+	"nInserted" : 2,
+	"nUpserted" : 0,
+	"nMatched" : 0,
+	"nModified" : 0,
+	"nRemoved" : 0,
+	"upserted" : [ ]
+}) :
+BulkWriteError({
+	"writeErrors" : [
+		{
+			"index" : 0,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: video.moviesScratch index: _id_ dup key: { _id: \"tt0084726\" }",
+			"op" : {
+				"_id" : "tt0084726",
+				"title" : "Star Trek II: The Wrath of Khan",
+				"year" : 1982,
+				"type" : "movie"
+			}
+		},
+		{
+			"index" : 1,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: video.moviesScratch index: _id_ dup key: { _id: \"tt0796366\" }",
+			"op" : {
+				"_id" : "tt0796366",
+				"title" : "Star Trek",
+				"year" : 2009,
+				"type" : "movie"
+			}
+		},
+		{
+			"index" : 2,
+			"code" : 11000,
+			"errmsg" : "E11000 duplicate key error collection: video.moviesScratch index: _id_ dup key: { _id: \"tt0084726\" }",
+			"op" : {
+				"_id" : "tt0084726",
+				"title" : "Star Trek II: The Wrath of Khan",
+				"year" : 1982,
+				"type" : "movie"
+			}
+		}
+	],
+	"writeConcernErrors" : [ ],
+	"nInserted" : 2,
+	"nUpserted" : 0,
+	"nMatched" : 0,
+	"nModified" : 0,
+	"nRemoved" : 0,
+	"upserted" : [ ]
+})
+BulkWriteError@src/mongo/shell/bulk_api.js:367:48
+BulkWriteResult/this.toError@src/mongo/shell/bulk_api.js:332:24
+Bulk/this.execute@src/mongo/shell/bulk_api.js:1186:23
+DBCollection.prototype.insertMany@src/mongo/shell/crud_api.js:326:5
+@(shell):1:1
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Ahora aquí, en realidad vemos tres errores de escritura.
 
-Hay tres errores de clave duplicados: uno para Wrath of Khan, uno para Star Trek y otro para Wrath of Khan.
+Hay tres errores de claves duplicadas (dup key): uno para Wrath of Khan, uno para Star Trek y otro para Wrath of Khan.
 
 Echemos un vistazo a nuestra consulta nuevamente.
 
@@ -1495,19 +1801,21 @@ Entonces, estas tres inserciones causaron un error de clave duplicada (duplicate
 
 ¿Porqué es eso?
 
-Bueno, si recuerdas, estos dos ya estaban en la colección de nuestro intento anterior de usar Insert Many.
+Bueno, si recuerdas, los dos primeros ya estaban en la colección por nuestro intento anterior de usar Insert Many.
 
-Entonces, un intento de insertar este y este nuevamente obtuvo errores de clave duplicados debido a esa inserción anterior.
+Entonces, un intento de insertar los dos primeros nuevamente obtuvo errores de clave duplicados debido a esa inserción anterior.
 
-Éste, por supuesto, tiene exactamente la misma idea que esta, por lo que falla por la misma razón que este documento.
+El tercero, por supuesto, tiene exactamente el mismo `_id` que el primero, por lo que falla por la misma razón que el primer documento.
 
-Lo interesante aquí es que, en lugar de simplemente eliminar el error y dejar de ejecutar inserciones, Insert Many continuó e insertó estos dos documentos: Star Trek Into Darkness y Star Trek First Contact.
+Lo interesante aquí es que, en lugar de simplemente eliminar el error y dejar de ejecutar inserciones, Insert Many continuó e insertó los dos documentos 4 y 5 (`"nInserted" : 2,)`: Star Trek Into Darkness y Star Trek First Contact.
 
 Si vamos a Compass y actualizamos nuestra vista de colección, podemos ver que ahora hay cuatro documentos en esta colección: Wrath of Khan, Star Trek, Star Trek into Darkness y Star Trek First Contact.
 
+<img src="/images/c2/14-compass-4movies.png">
+
 Entonces, al especificar `false` para ordenado, aunque haya, en este caso, tres errores de clave duplicados, Insert Many continua insertando documentos.
 
-Y terminá insertando esos dos últimos en nuestra lista de documentos que pasamos a Insert Many.
+Y terminá insertando los dos últimos documentos en nuestra lista de documentos que pasamos a Insert Many.
 
 En esta lección, vimos Insert Many y las versiones ordenadas y desordenadas de una operación Insert Many.
 
