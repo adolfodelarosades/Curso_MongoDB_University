@@ -1393,7 +1393,137 @@ En otra lección, veremos cómo hacer inserciones masivas en MongoDB usando `ins
 
 ## 14. Tema: Creación de documentos: insertMany()
 
+### Notas de lectura
+
+[insertMany](https://docs.mongodb.com/manual/reference/method/db.collection.insertMany/index.html) Página de documentación del comando .
+
 ### Transcripción
+
+En muchos casos, tenemos varios documentos que nos gustaría insertar a la vez en algún tipo de operación por lotes.
+
+El lenguaje de consulta MongoDB tiene un método para esto llamado Insert Many.
+
+Echemos un vistazo a un ejemplo de este comando.
+
+Lo tengo aquí en un editor de texto.
+
+Voy a insertar algunos documentos en videos, películas de punto y cero.
+
+Esto es solo para que pueda hacer un poco de noodling por aquí demostrando este comando, y luego deshacerme de esta colección sin corromper los datos que realmente quiero mantener, con respecto a las películas (movies).
+
+Consulte los Handouts de esta lección para descargar los ejemplos aquí para que pueda probarlos usted mismo.
+
+Ahora, en lugar de pasar un solo documento como primer argumento, como hicimos para Insert One, con Insert Many, pasamos una array.
+
+En este ejemplo, el array comienza aquí y termina aquí.
+
+Y puede ver que cada elemento es un documento que nos gustaría insertar en esta colección.
+
+Ahora hay opciones adicionales para Insert Many,.
+
+Y los veremos un poco más adelante.
+
+Por ahora, ejecutemos este comando.
+
+Solo voy a copiarlo y pegarlo en nuestro shell.
+
+En este shell, estoy conectado a mi Sandbox Atlas cluster.
+
+Y podemos ver que lo que sucede aquí se trata de lo que esperaría, dada nuestra comprensión de cómo funciona la inserción de documentos en MongoDB.
+
+Echemos un vistazo más de cerca a esta operación.
+
+Entonces nuestro comando es Insert Many.
+
+Y tenemos 1, 2, 3, 4, 5 documentos que estamos intentando insertar.
+
+Tenga en cuenta, sin embargo, que estos dos documentos son idénticos.
+
+Con una inserción masiva, es posible que se produzca un error o una excepción para uno de los documentos que está insertando, especialmente si estamos haciendo algo como una operación de limpieza de datos donde hay mucho ruido en los datos o errores de algún tipo en nuestro conjunto de datos.
+
+Para manejar estos problemas con gracia, hay un par de opciones diferentes para Insert Many que debe conocer.
+
+Puede elegir entre inserciones ordenadas (ordered) o inserciones no ordenadas (unordered).
+
+El valor predeterminado es inserciones ordenadas.
+
+Esto proporciona un buen ejemplo, ya que estamos usando valores IMDB como nuestro `_id` para cada documento en esta llamada Insert Many.
+
+De nuevo, estos dos documentos son idénticos.
+
+Pero lo más importante, son sus valores de `_id` los que son idénticos.
+
+Y sabemos que en una colección individual, los valores de `_id` deben ser únicos.
+
+Entonces, si nos desplazamos hacia abajo y vemos qué sucedió con este comando, podemos ver que tenemos un error de clave duplicada.
+
+Y el error está en la película Wrath of Khan.
+
+También podemos ver, si miramos un poco más abajo en la salida, que el número de documentos insertados fue dos, a pesar de que tenemos cinco documentos en esta llamada Insert Many.
+
+Y si vamos a Compass y nos refrescamos, vemos que hay una película de Star Trek y una película de Wrath of Khan en esta colección.
+
+Entonces, de hecho, solo dos documentos se insertaron de los cinco que intentamos insertar.
+
+Ahora volvamos a nuestro shell.
+
+Como mencioné, Insert Many hace una inserción ordenada, lo que significa que tan pronto como encuentre un error, dejará de insertar documentos.
+
+Debido a que encontró un error aquí, solo estos dos documentos se insertaron en esta colección con esta llamada.
+
+Ahora, en muchas aplicaciones, es posible que simplemente queramos que nuestra aplicación continúe si encuentra un error, porque estamos bien con los documentos que erraron al no insertarse, o tenemos un proceso separado para tratarlos de otra manera.
+
+Para admitir este caso de uso, podemos especificar un segundo argumento para nuestro método Insert Many.
+
+Entonces, volviendo a nuestro editor de texto, el array es el primer argumento para Insert Many.
+
+Como segundo argumento, puedo proporcionar un documento que especifique un valor de `false` para la clave ordenada.
+
+Este documento de Opciones nos permite cambiar el comportamiento predeterminado.
+
+Y en este caso, en lugar de hacer una inserción ordenada, voy a hacer una inserción no ordenada.
+
+Avancemos y ejecutemos esto ahora.
+
+Ahora aquí, en realidad vemos tres errores de escritura.
+
+Hay tres errores de clave duplicados: uno para Wrath of Khan, uno para Star Trek y otro para Wrath of Khan.
+
+Echemos un vistazo a nuestra consulta nuevamente.
+
+Entonces, estas tres inserciones causaron un error de clave duplicada (duplicate key error).
+
+¿Porqué es eso?
+
+Bueno, si recuerdas, estos dos ya estaban en la colección de nuestro intento anterior de usar Insert Many.
+
+Entonces, un intento de insertar este y este nuevamente obtuvo errores de clave duplicados debido a esa inserción anterior.
+
+Éste, por supuesto, tiene exactamente la misma idea que esta, por lo que falla por la misma razón que este documento.
+
+Lo interesante aquí es que, en lugar de simplemente eliminar el error y dejar de ejecutar inserciones, Insert Many continuó e insertó estos dos documentos: Star Trek Into Darkness y Star Trek First Contact.
+
+Si vamos a Compass y actualizamos nuestra vista de colección, podemos ver que ahora hay cuatro documentos en esta colección: Wrath of Khan, Star Trek, Star Trek into Darkness y Star Trek First Contact.
+
+Entonces, al especificar `false` para ordenado, aunque haya, en este caso, tres errores de clave duplicados, Insert Many continua insertando documentos.
+
+Y terminá insertando esos dos últimos en nuestra lista de documentos que pasamos a Insert Many.
+
+En esta lección, vimos Insert Many y las versiones ordenadas y desordenadas de una operación Insert Many.
+
+Insert One e Insert Many son dos formas principales en las que podemos crear documentos.
+
+Hay un par de otras formas en que podemos crear documentos mediante el uso de operaciones de actualización.
+
+Los comandos de actualización pueden provocar la inserción de documentos.
+
+Llamamos a estas operaciones **Upserts**.
+
+Discutimos Upserts en detalle en otra lección.
+
+Con esto, hemos discutido, con cierto detalle, las formas principales en las que creamos documentos en MongoDB e insinuamos la tercera forma en que los datos se pueden insertar en una colección de MongoDB.
+
+Y con eso, hemos abordado la parte Create (Crear) de nuestras operaciones CRUD.
 
 ## 15. Laboratorio 2.2: ¿Cuántos insertados?
 
@@ -1408,6 +1538,8 @@ En otra lección, veremos cómo hacer inserciones masivas en MongoDB usando `ins
 ## 19. Tema: Lectura de documentos: campos de matriz
 
 ### Transcripción
+
+
 
 ## 20. Examen
 
