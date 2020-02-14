@@ -2096,11 +2096,13 @@ Echando un vistazo más de cerca a nuestra sintaxis de consulta, estamos utiliza
 
 Ahora la notación de puntos (`"wind.type"`) funciona para documentos anidados en cualquier nivel.
 
-Para esto, vamos un nivel más profundo y veamos el ángulo de dirección del viento.
+Para esto, vamos un nivel más profundo y veamos el ángulo de dirección del viento (`"wind.direction.angle"`).
 
 Entonces, en lugar del tipo de ventana, expresaremos nuestro filtro como `wind.direction.angle`.
 
 Y como el ángulo es un campo de valor entero, hagamos 290 y luego apliquemos nuestro filtro.
+
+<img src="/images/c2/16-compass-wind-direction-angle.png">
 
 Echando un vistazo a los resultados, el viento, la dirección, el ángulo, podemos ver que, de hecho, los documentos en el conjunto de resultados coinciden con esta consulta utilizando la notación de puntos.
 
@@ -2108,19 +2110,69 @@ Una cosa que me gusta mucho del lenguaje de consulta MongoDB es que es intuitivo
 
 La notación de puntos es, en mi opinión, un ejemplo.
 
-Ahora Compass es un poco más flexible acerca de la sintaxis que el shell.
-
-Tenga en cuenta que no estamos especificando citas alrededor de la clave aquí.
-
-Sin embargo, cuando utilice la notación de puntos en el shell, debe encerrar la clave entre comillas aplicando el mismo filtro en el shell MongoDB.
+**Cuando utilice la notación de puntos en Compass o en el shell, debe encerrar la clave entre comillas**.
 
 Primero, usamos la base de datos de 100 años, y luego usamos find para expresar nuestro filtro.
 
-Si intentamos hacer esto, obtendremos un error porque, como mencioné, se requieren comillas alrededor de las teclas que usan notación de puntos en el shell mongo.
+Si no usamos las comillas, obtendremos un error porque, como mencioné, se requieren comillas alrededor de la key que usan notación de puntos.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use 100YWeatherSmall
+switched to db 100YWeatherSmall
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.data.find({"wind.direction.angle": 290}).pretty()
+...
+	"dewPoint" : {
+		"value" : 999.9,
+		"quality" : "9"
+	},
+	"pressure" : {
+		"value" : 1015.1,
+		"quality" : "1"
+	},
+	"wind" : {
+		"direction" : {
+			"angle" : 290,
+			"quality" : "1"
+		},
+		"type" : "N",
+		"speed" : {
+			"rate" : 17,
+			"quality" : "1"
+		}
+	},
+	"visibility" : {
+		"distance" : {
+			"value" : 500,
+			"quality" : "1"
+		},
+		"variability" : {
+			"value" : "N",
+			"quality" : "9"
+		}
+	},
+	"skyCondition" : {
+		"ceilingHeight" : {
+			"value" : 30,
+			"quality" : "1",
+			"determination" : "C"
+		},
+		"cavok" : "N"
+	},
+	"sections" : [
+		"AG1",
+		"AY1",
+		"GA1",
+		"GF1",
+		"MD1",
+		"MW1",
+		"UA1"
+	],
+...
+```
 
 Y aquí podemos ver que, de hecho, los documentos que coinciden con esta consulta tienen el `wind.direction.angle` de 290.
 
-En resumen, para reducir la jerarquía de documentos anidados que alcanza en documentos en cada nivel adicional de anidamiento al unir los nombres de los campos mediante la notación de puntos, y en el shell no olvide las comillas.
+En resumen, para reducir la jerarquía de documentos anidados que alcanza en documentos en cada nivel adicional de anidamiento al unir los nombres de los campos mediante la notación de puntos, **no olvide las comillas**.
 
 ## 17. Examen
 
