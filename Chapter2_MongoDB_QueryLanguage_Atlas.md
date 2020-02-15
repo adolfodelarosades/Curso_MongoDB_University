@@ -2905,6 +2905,26 @@ Choose the best answer:
 
 ## 21. Práctica de laboratorio 2.4: Consultas en campos de array, Parte 1
 
+Lab 2.4: Queries on Array Fields, Part 1
+
+**Problem:**
+
+Explore the movieDetails collection that you loaded into your Atlas sandbox cluster and then issue a query to answer the following question. How many movies in the movieDetails collection list "Family" among its genres?
+
+You will find the [`count()`](https://docs.mongodb.com/manual/reference/method/cursor.count/) method useful in answering this question using the mongo shell.
+
+Choose the best answer:
+
+* 20
+
+* 57
+
+* 124 :+1:
+
+* 200
+
+* 277
+
 ## 22. Práctica de laboratorio 2.5: Consultas en campos de array, Parte 2
 
 ## 23. Tema: Cursores
