@@ -3500,7 +3500,137 @@ Y use **uno para incluir explícitamente campos y excluir todos los demás**.
 
 ## 25. Tema: Actualización de documentos: updateOne ()
 
-## 26. Conferencia: Operadores de actualización
+### Notas de lectura
+
+Para seguir este tema, debe conectarse al clúster de sandbox en el que ha importado los datos.
+
+### Transcripción
+
+Ahora echemos un vistazo a la actualización de documentos.
+
+Antes de comenzar, me gustaría ver el conjunto de datos movieDetails en Compass con un poco más de detalle.
+
+Este conjunto de datos incluye los campos que puede esperar, como el title, year, y el MPAA rating.
+
+Pero también incluye campos que son importantes para construir un sitio web diseñado para aficionados al cine y otros que solo tienen un interés genuino en las películas.
+
+Hay un campo para los países en los que se filmó la película, quiénes fueron los escritores, los actores, por supuesto, e incluso un campo para el póster de la película para proporcionar una forma de acceder a algunas imágenes.
+
+Además, tenemos los datos de Rotten Tomatoes para las calificaciones de los espectadores y los premios que una película determinada puede haber ganado.
+
+Entonces, para el sitio web de una película, podemos usar estos datos para proporcionar una imagen realmente agradable de lo que se hizo para hacer esta película.
+
+Como mencioné, aunque no todas las películas en este conjunto de datos incluyen este campo, muchas incluyen un campo de póster.
+
+Echemos un vistazo a uno que en realidad no incluye un póster.
+
+Así que aquí tenemos la película The Martian.
+
+Y como puede ver en un escaneo rápido de los campos para este documento, no hay un campo de póster.
+
+Y de hecho, tampoco hay campo de premios.
+
+Ahora, no pasaremos demasiado tiempo en esto, pero la diferencia entre The Martian y otras películas que hemos visto ilustra algo que diferencia a MongoDB de las bases de datos relacionales.
+
+**Es posible que los documentos de la misma colección tengan diferentes esquemas**.
+
+Y aprovechamos eso en MongoDB de varias maneras.
+
+Esta es una diferencia importante con respecto a las tablas de bases de datos relacionales en las que todos los registros deben tener exactamente el mismo conjunto de columnas.
+
+Una de las formas más simples en que usamos esto en una base de datos MongoDB es que para los documentos para los cuales no tenemos datos para un campo, no necesitamos incluir el campo en absoluto.
+
+Yendo un poco más allá, muchas películas no han recibido premios.
+
+La flexibilidad del modelo de datos de MongoDB nos permite modelar fácilmente los premios solo para aquellas películas que los tienen sin crear una segunda tabla o una colección que luego debemos unir en consultas para obtener todos los datos necesarios para una película.
+
+Ahora, de hecho, existe un póster de película para The Martian.
+
+Y The Martian ganó varios premios.
+
+Entonces, como ejemplo de actualización de documentos en MongoDB, vamos a arreglar este documento agregando un campo de póster y un campo de premios.
+
+Ahora, una aplicación podría hacer este tipo de actualización a medida que el póster esté disponible en forma electrónica para su uso en el sitio o incluso en respuesta al contenido moderado y aportado por el usuario.
+
+En el lenguaje de consulta MongoDB, el método para actualizar un solo documento se llama **`updateOne`**.
+
+Ahora, por supuesto, podríamos agregar este campo en Compass simplemente editando el documento.
+
+Pero para la mayoría de los casos de uso de actualizaciones, va a escribir actualizaciones como parte de la lógica de su aplicación y no realizará actualizaciones a mano, como lo haríamos en una herramienta GUI como Compass.
+
+Así que aquí está nuestro llamado a `updateOne`.
+
+Hablemos brevemente sobre la sintaxis.
+
+La idea básica aquí con `updateOne` y los otros dos métodos de actualización es que primero especifique un filtro.
+
+Al igual que con `find`, esto identificará el documento o documentos que queremos actualizar.
+
+`updateOne` simplemente actualizará el primer documento que coincida con nuestro filtro.
+
+Por ejemplo, si hubiéramos puesto algo aquí como el año 1999, habría docenas de documentos que coinciden en esta colección.
+
+El primero recuperado por MongoDB sería el que se actualizó.
+
+En este caso, solo hay una película que se titula The Martian.
+
+Ahora, por supuesto, en una aplicación web, script de actualización u otra aplicación de software, estaríamos utilizando un identificador único como `_id` para especificar el documento que se actualizará.
+
+Estamos usando el título aquí solo para que sea obvio exactamente qué película estamos actualizando.
+
+El segundo argumento para `updateOne` especifica cómo queremos actualizar el documento.
+
+Debe aplicar un operador de actualización de algún tipo.
+
+En este caso, estamos utilizando el operador `$set`.
+
+`$set` toma un documento como argumento.
+
+Se espera un documento que tenga uno o más campos listados.
+
+`$set` actualiza el documento que coincide con el filtro, de modo que todos los pares de valores clave en el documento actualizado se reflejan en la nueva versión del documento que estamos actualizando.
+
+Para esta llamada a `updateOne`, `$set` agregará un campo llamado poster, con esta URL como valor.
+
+Si hubiera un campo de póster existente en el documento, esto modificaría su valor.
+
+Ahora vamos a copiar este comando y ejecutarlo en nuestro shell.
+
+En este shell, estamos conectados a nuestro clúster de sandbox Atlas y estamos utilizando la base de datos de video para que podamos acceder a la colección movieDetails.
+
+La respuesta que recibimos nos dice que la base de datos reconoció la actualización.
+
+Igualamos un solo documento, como se esperaba.
+
+Si hubiéramos igualado más, obtendríamos esa cuenta aquí.
+
+Y luego la respuesta indica cuántos documentos fueron modificados.
+
+Para `updateOne`, este valor siempre debe ser 1 o 0.
+
+Echemos un vistazo al documento ahora para ver qué cambios se hicieron.
+
+Y si actualizo el documento, puedo ver que ahora, de hecho, hay un campo de póster.
+
+Los operadores de actualización, como puede imaginar, no se limitan a las actualizaciones escalares, como acabamos de realizar.
+
+Podemos actualizar campos con cualquier valor legal.
+
+Como ejemplo rápido, avancemos y suministremos el campo de premios para The Martian.
+
+Ahora, podemos seguir adelante y ejecutar esta llamada para `updateOne`.
+
+Y tenga en cuenta que aquí, estamos haciendo algo muy similar a lo que hicimos en nuestra llamada anterior para `updateOne`.
+
+Pero en este caso, nuestro operador `$set` establecerá un campo de premios de modo que el valor de la clave de premios sea este documento.
+
+Ahora, si seguimos adelante y ejecutamos esto, vemos que, nuevamente, emparejamos un documento y modificamos un documento.
+
+Volviendo atrás y mirando este documento en Compass, podemos ver que nuestro campo de premios está aquí, con los valores especificados en nuestra llamada a `updateOne`.
+
+Y con eso, hemos cubierto los fundamentos del uso de `updateOne`.
+
+## 26. Conferencia: Operadores de Actualización
 
 ### Transcripción
 
