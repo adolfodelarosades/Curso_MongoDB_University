@@ -2817,11 +2817,11 @@ Para esto, será un poco más fácil ver la diferencia si volvemos a Compass.
 
 Entonces, aquí en Compass, una consulta para el elenco Jeff Bridges `{cast: "Jeff Bridges"}` nos da 114 documentos.
 
-<img src="/images/c2/16-compass-jeff.png">
+<img src="/images/c2/19-compass-jeff.png">
 
 Pero si consultamos a Jeff Bridges en la posición 0 para el campo de conversión, entonces solo tenemos 56 documentos, y podemos ver que en todos y cada uno de estos resultados devueltos, Jeff Bridges aparece primero en el array de conversión.
 
-<img src="/images/c2/16-compass-jeff0.png">
+<img src="/images/c2/19-compass-jeff0.png">
 
 Ahora, nuevamente, solo para recordarle, si queremos hacer este tipo de consulta, **será necesario encerrar nuestra clave entre comillas** tanto en Compass como en el Shell.
 
