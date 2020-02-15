@@ -2965,6 +2965,95 @@ Y recuerda que el shell mongo es un cliente.
 
 Usamos el cursor en nuestro cliente para recorrer los resultados.
 
+```
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ "cast.0": "Jeff Bridges" }).pretty()
+...
+{
+	"_id" : ObjectId("58c59c7599d4ee0af9e24d19"),
+	"title" : "The Vanishing",
+	"year" : 1993,
+	"imdbId" : "tt0108473",
+	"mpaaRating" : "R",
+	"genre" : "Drama, Horror, Mystery",
+	"viewerRating" : 6.3,
+	"viewerVotes" : 17291,
+	"runtime" : 109,
+	"director" : "George Sluizer",
+	"cast" : [
+		"Jeff Bridges",
+		"Kiefer Sutherland",
+		"Nancy Travis",
+		"Sandra Bullock"
+	],
+	"plot" : "The boyfriend of an abducted woman never gives up the search as the abductor looks on.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7599d4ee0af9e24f2d"),
+	"title" : "Blown Away",
+	"year" : 1994,
+	"imdbId" : "tt0109303",
+	"mpaaRating" : "R",
+	"genre" : "Action, Crime, Drama",
+	"viewerRating" : 6.1,
+	"viewerVotes" : 21856,
+	"runtime" : 121,
+	"director" : "Stephen Hopkins",
+	"cast" : [
+		"Jeff Bridges",
+		"Tommy Lee Jones",
+		"Suzy Amis",
+		"Lloyd Bridges"
+	],
+	"plot" : "An Irish bomber escapes from prison and targets a member of the Boston bomb squad.",
+	"language" : "English, Irish"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> it
+{
+	"_id" : ObjectId("58c59c7699d4ee0af9e26312"),
+	"title" : "Wild Bill",
+	"year" : 1995,
+	"imdbId" : "tt0114938",
+	"mpaaRating" : "R",
+	"genre" : "Action, Biography, Western",
+	"viewerRating" : 5.9,
+	"viewerVotes" : 4520,
+	"runtime" : 98,
+	"director" : "Walter Hill",
+	"cast" : [
+		"Jeff Bridges",
+		"Ellen Barkin",
+		"John Hurt",
+		"Diane Lane"
+	],
+	"plot" : "The early career of legendary lawman Wild Bill Hickock is telescoped and culminates in his relocation in Deadwood and a reunion with Calamity Jane.",
+	"language" : "English, Sioux, Cantonese"
+}
+...
+{
+	"_id" : ObjectId("58c59c9e99d4ee0af9e79b07"),
+	"title" : "A Dog Year",
+	"year" : 2009,
+	"imdbId" : "tt0808232",
+	"genre" : "Comedy, Drama",
+	"viewerRating" : 6.1,
+	"viewerVotes" : 1972,
+	"runtime" : 80,
+	"director" : "George LaVoo",
+	"cast" : [
+		"Jeff Bridges",
+		"Lauren Ambrose",
+		"Lois Smith",
+		"Domhnall Gleeson"
+	],
+	"plot" : "A guy suffering from a midlife crisis takes in a dog that's crazier than he is.",
+	"language" : "English"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 En el shell, el cursor se itera automáticamente hasta 20 veces para imprimir un conjunto inicial de resultados de búsqueda, como vemos aquí en respuesta a esta consulta.
 
 Entonces, cuando se emitió esta consulta, el servidor devolvió un cursor al shell, y el shell solicitó el siguiente elemento del conjunto de resultados del cursor 20 veces.
