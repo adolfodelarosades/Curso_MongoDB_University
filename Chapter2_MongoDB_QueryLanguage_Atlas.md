@@ -3076,6 +3076,56 @@ De esta manera, podemos iterar a través de un conjunto completo de resultados d
 
 ### Transcripción
 
+Las proyecciones reducen la sobrecarga de la red y los requisitos de procesamiento al limitar los campos que se devuelven en los documentos de resultados.
+
+Por defecto, MongoDB devuelve todos los campos en todos los documentos coincidentes para consultas.
+
+Puede definir una proyección como el segundo argumento del método `find`.
+
+Si quiero limitar mis documentos de resultados para que solo contengan un título, puedo hacerlo usando la siguiente sintaxis, o casi.
+
+Entonces, usando esta sintaxis, puedo crear una proyección donde los resultados de esta consulta devolverán solo el título y, en realidad, el `title` y el `_id`.
+
+Y hablaremos de eso en solo un segundo.
+
+Entonces, nuevamente, use el filtro como de costumbre.
+
+Pero en este caso, debido a que nos gustaría tener el título, también estamos agregando una proyección como el segundo argumento que pasamos para encontrar.
+
+Ahora, obtengo el `title` y `id`.
+
+Obtengo el campo `_id` porque el `_id` se devuelve de forma predeterminada para todas las proyecciones, a menos que lo excluya explícitamente de la proyección.
+
+La sintaxis de proyección me permite incluir explícitamente campos en los documentos devueltos.
+
+También puedo excluir explícitamente los campos.
+
+**Incluyo explícitamente los campos con un uno y excluyo con un cero.**
+
+Si no quiero ver el campo `_id`, entonces, para mi proyección, necesito agregar  `_id: 0`.
+
+Vamos a correr esto.
+
+Y ahora podemos ver que, de hecho, solo tenemos títulos.
+
+Ahora, si tenemos la situación inversa, donde realmente queremos excluir explícitamente un par de campos, podemos hacerlo de la siguiente manera.
+
+Entonces, digamos que en lugar de incluir el título, voy a excluir la calificación del espectador, los votos del espectador y el tiempo de ejecución.
+
+Y vamos a hacerlo bien.
+
+Ahora mis resultados contienen todos los campos excepto los que excluí explícitamente aquí.
+
+Tenga en cuenta que no hay calificación de espectador, ni votos de espectador, ni tiempo de ejecución en estos documentos.
+
+Y solo por el bien de la comparación, si abandono la proyección, entonces vemos que la calificación del espectador, los votos del espectador y el tiempo de ejecución regresan para aquellos documentos que tienen un tiempo de ejecución, como este.
+
+Por lo tanto, **si necesita limitar los campos devueltos por sus consultas, la proyección es la herramienta que debe utilizar**.
+
+Tiene **ceros para excluir explícitamente los campos** que no necesita ver en su conjunto de resultados.
+
+Y use **uno para incluir explícitamente campos y excluir todos los demás**.
+
 ## 25. Tema: Actualización de documentos: updateOne ()
 
 ## 26. Conferencia: Operadores de actualización
