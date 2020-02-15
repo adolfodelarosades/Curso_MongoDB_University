@@ -3693,7 +3693,157 @@ Y con eso, hemos cubierto los fundamentos del uso de `updateOne`.
 
 ## 26. Conferencia: Operadores de Actualización
 
+### Notas de lectura
+
+Para seguir esta conferencia, debe conectarse al clúster de sandbox en el que ha importado los datos.
+
 ### Transcripción
+
+Lo que me gustaría hacer ahora es darle una idea de los diferentes tipos de operadores de actualización de campo que tenemos disponibles para nosotros.
+
+Utilizamos el conjunto de dólares.
+
+Esto reemplaza o agrega completamente cada campo especificado en su parámetro como vimos en ejemplos anteriores.
+
+Echemos un vistazo a las otras opciones que tenemos para los operadores de actualización.
+
+Y para hacer esto, estoy mirando la página del operador de actualización en la documentación de MongoDB.
+
+Además de establecer, también hay sin establecer.
+
+Esto eliminará por completo el campo que especificamos de un documento.
+
+Otros aquí incluyen min y max.
+
+Estos nos permiten actualizar un campo basado en la comparación con otro valor tomando el mínimo de los dos valores o el máximo de los dos valores.
+
+Mientras nos desplazamos por aquí, podemos ver que hay otros operadores.
+
+Como ejercicio, me gustaría pedirle que visite la documentación de MongoDB sobre operadores de actualización y pruebe algunos de estos.
+
+Todos se explican por sí mismos y hay buena documentación sobre cada uno de ellos.
+
+Pero antes de hacerlo, echemos un vistazo a un par más de estos operadores a medida que continuamos avanzando a través de nuestros ejemplos aquí.
+
+Ahora, las actualizaciones tienen varios casos de uso diferentes.
+
+Se utilizan para corregir errores y, con el tiempo, mantener nuestros datos actualizados.
+
+Para los datos de películas, gran parte de lo que hay es estático.
+
+Tenemos directores, escritores, actores, etc.
+
+Sin embargo, será necesario actualizar otro contenido, como los comentarios y las calificaciones, a medida que los usuarios tomen medidas para crear nuevos comentarios o calificaciones.
+
+Podríamos usar $ set para hacer este tipo de actualizaciones.
+
+Pero ese es un enfoque propenso a errores.
+
+Es demasiado fácil hacer la aritmética de forma incorrecta o cometer otros tipos de errores.
+
+En cambio, tenemos una serie de operadores que admiten actualizaciones numéricas de datos.
+
+Ahora, como mencioné, tenemos min y max.
+
+Pero también hay $ inc.
+
+Esto incrementa el valor almacenado en el campo que le pasamos.
+
+Veamos un ejemplo del uso del operador $ inc para actualizar las revisiones.
+
+Aquí, lo que vamos a hacer es, nuevamente trabajando con el marciano, incrementar el tomate.reviews en tres y el tomate en 25.
+
+Y en caso de que no esté familiarizado con Rotten Tomatoes, en cada uno de nuestros documentos de detalles de la película hay un campo de tomates.
+
+Y el campo de tomate refleja la calificación para esta película de Rotten Tomatoes.
+
+Rotten Tomatoes es un agregador de clasificaciones de usuarios para películas.
+
+Entonces, las personas que han visto una película caen en una calificación.
+
+Esos se agrupan en una clasificación de tomate.
+
+Así que aquí estamos simulando la situación en la que hemos recibido tres revisiones adicionales para el marciano.
+
+Si ejecutamos esto y echamos un vistazo a la salida, como se esperaba, nuestra actualización fue exitosa.
+
+Y si miramos el documento antes de la actualización de tomato.reviews y tomato.userReviews y luego actualizamos, vemos que tomato.reviews fue a 283.
+
+Y las opiniones de los usuarios superaron los 105,000.
+
+Ahora pasemos a los campos de matriz.
+
+Como se puede imaginar, hay una serie de situaciones en las que queremos actualizar los valores de la matriz.
+
+MongoDB proporciona muchos operadores de actualización para matrices.
+
+Agregar al conjunto actualizará una matriz con nuevos valores solo si el valor aún no está contenido en la matriz.
+
+Puedo extraer el primer o el último elemento de una matriz según mis parámetros para el operador emergente.
+
+Puedo eliminar todos los valores que coinciden con algunos criterios con pull all.
+
+Y, por supuesto, puedo impulsar nuevos valores.
+
+Ahora, nuevamente, lo aliento a que eche un vistazo a la documentación para los operadores de actualización, en m los operadores de actualización de matriz.
+
+Pero echemos un vistazo a un par de ejemplos en los que necesitaremos actualizar los campos de la matriz.
+
+Para la mayoría de las aplicaciones web, deseamos estructurar nuestros datos de tal manera que podamos obtener todos los datos que necesitamos para representar una página individual con la menor cantidad posible de consultas a la base de datos.
+
+Para revisiones, comentarios y otras contribuciones de los usuarios, recomendamos que una parte de sus revisiones, a menudo las más recientes o más útiles, se incluyan como documentos incrustados.
+
+Siguiendo esta mejor práctica, lo que podríamos hacer para las reseñas de películas es algo como lo siguiente.
+
+Ahora puede ignorar en gran medida esta parte además del hecho de que es una revisión.
+
+Pero déjame llamar tu atención sobre la llamada al método updateOne.
+
+Esto, llamado updateOne, creará una clave llamada reviews, creará una matriz como el valor de esta clave y luego empujará esta revisión a la matriz.
+
+Recuerde que nuestro documento marciano en realidad no tiene un campo llamado revisiones.
+
+La razón por la que esto funciona es porque push crea una matriz si aún no existe una.
+
+Echemos un vistazo al documento ahora.
+
+Aquí podemos ver nuestro campo de revisiones agregado y las revisiones son una matriz.
+
+Y esta matriz tiene un elemento, que es la revisión que especificamos en nuestra actualización.
+
+Ahora agreguemos algunas reseñas más.
+
+Nuevamente estoy creando texto de revisión.
+
+Y en este caso estoy creando varios de ellos.
+
+Pero echemos un vistazo a nuestra updateOne.
+
+De nuevo, estamos usando $ push.
+
+Y como se esperaba, estamos avanzando hacia la matriz de revisiones.
+
+Pero aquí estamos usando cada modificador para push.
+
+Algunos de nuestros operadores de actualización, particularmente aquellos que tienen que ver con matrices, tienen modificadores asociados con ellos.
+
+Este modificador significa que $ push agregará cada uno de estos documentos como elementos individuales a la matriz de revisiones.
+
+Si no usamos $ cada uno aquí, entonces toda la matriz especificada en nuestro uso de $ push se agregaría como un solo elemento en esa matriz.
+
+En algunas circunstancias, eso podría ser lo que queremos, pero no en este caso.
+
+Así que ejecutemos este comando y luego miremos nuestro documento marciano.
+
+Y aquí podemos ver que, de hecho, hemos agregado siete revisiones adicionales.
+
+Y con eso, hemos concluido nuestra visión general de los operadores de actualización.
+
+Revisamos algunos de los operadores que están disponibles y trabajamos con algunos ejemplos.
+
+No dudes en experimentar por ti mismo con la colección de detalles de la película.
+
+Te animo a que pruebes tantos operadores de actualización como puedas utilizando la documentación de MongoDB como guía.
 
 ## 27. Examen
 
