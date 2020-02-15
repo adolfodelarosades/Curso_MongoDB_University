@@ -2949,7 +2949,39 @@ Choose the best answer:
 
 ## 23. Tema: Cursores
 
+### Notas de lectura
+
+Más información sobre [cursor iteration in the mongo shell](https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/index.html) y el comando [getMore](https://docs.mongodb.com/manual/reference/command/getMore/#dbcmd.getMore).
+
 ### Transcripción
+
+El método `find` devuelve un cursor.
+
+**Un cursor es esencialmente un puntero a la ubicación actual en un conjunto de resultados**.
+
+Para consultas que devuelven más que unos pocos documentos, MongoDB devolverá los resultados en lotes a nuestro cliente.
+
+Y recuerda que el shell mongo es un cliente.
+
+Usamos el cursor en nuestro cliente para recorrer los resultados.
+
+En el shell, el cursor se itera automáticamente hasta 20 veces para imprimir un conjunto inicial de resultados de búsqueda, como vemos aquí en respuesta a esta consulta.
+
+Entonces, cuando se emitió esta consulta, el servidor devolvió un cursor al shell, y el shell solicitó el siguiente elemento del conjunto de resultados del cursor 20 veces.
+
+Entonces, lo que veremos arriba aquí, si nos desplazáramos hacia arriba, son los primeros 20 resultados de esta consulta.
+
+Ahora, a medida que iteramos a través de un cursor y llegamos al final de un lote de resultados de la consulta, si hay más resultados, iterar el cursor activará una operación `getMore` para recuperar el siguiente lote de resultados.
+
+De esta manera, podemos iterar a través de un conjunto completo de resultados de búsqueda.
+
+Ahora, en este caso particular, el shell proporciona una conveniencia, y es que después de que muestra los primeros 20 resultados, tenemos la oportunidad de ver más de ellos escribiéndo `it`, que es la abreviatura de iterar.
+
+Y eso nos dará los próximos 20 resultados en nuestro conjunto de resultados.
+
+Y podemos continuar haciendo esto hasta agotar el cursor.
+
+De esta manera, podemos iterar a través de un conjunto completo de resultados de búsqueda.
 
 ## 24. Tema: Proyecciones
 
