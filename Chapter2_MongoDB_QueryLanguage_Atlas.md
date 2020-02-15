@@ -2927,6 +2927,26 @@ Choose the best answer:
 
 ## 22. Práctica de laboratorio 2.5: Consultas en campos de array, Parte 2
 
+Lab 2.5: Queries on Array Fields, Part 2
+
+**Problem:**
+
+Explore the movieDetails collection that you loaded into your Atlas sandbox cluster and then issue a query to answer the following question. How many movies in the movieDetails collection list "Western" second among its genres?
+
+You will find the [`count()`](https://docs.mongodb.com/manual/reference/method/cursor.count/) method useful in answering this question using the mongo shell.
+
+Choose the best answer:
+
+* 7
+
+* 14 :+1:
+
+* 80
+
+* 93
+
+* 102
+
 ## 23. Tema: Cursores
 
 ### Transcripción
