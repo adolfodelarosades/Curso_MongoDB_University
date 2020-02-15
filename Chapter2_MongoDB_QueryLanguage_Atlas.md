@@ -3510,13 +3510,15 @@ Ahora echemos un vistazo a la actualización de documentos.
 
 Antes de comenzar, me gustaría ver el conjunto de datos movieDetails en Compass con un poco más de detalle.
 
+<img src="/images/c2/25-compass-all-details.png">
+
 Este conjunto de datos incluye los campos que puede esperar, como el title, year, y el MPAA rating.
 
 Pero también incluye campos que son importantes para construir un sitio web diseñado para aficionados al cine y otros que solo tienen un interés genuino en las películas.
 
 Hay un campo para los países en los que se filmó la película, quiénes fueron los escritores, los actores, por supuesto, e incluso un campo para el póster de la película para proporcionar una forma de acceder a algunas imágenes.
 
-Además, tenemos los datos de Rotten Tomatoes para las calificaciones de los espectadores y los premios que una película determinada puede haber ganado.
+Además, tenemos los datos de **Rotten Tomatoes** para las calificaciones de los espectadores y los premios que una película determinada puede haber ganado.
 
 Entonces, para el sitio web de una película, podemos usar estos datos para proporcionar una imagen realmente agradable de lo que se hizo para hacer esta película.
 
@@ -3524,11 +3526,13 @@ Como mencioné, aunque no todas las películas en este conjunto de datos incluye
 
 Echemos un vistazo a uno que en realidad no incluye un póster.
 
-Así que aquí tenemos la película The Martian.
+<img src="/images/c2/25-compass-the-martian.png">
 
-Y como puede ver en un escaneo rápido de los campos para este documento, no hay un campo de póster.
+Así que aquí tenemos la película The Martian
 
-Y de hecho, tampoco hay campo de premios.
+Y como puede ver en un escaneo rápido de los campos para este documento, no hay un campo de póster (poster).
+
+Y de hecho, tampoco hay campo de premios (awards).
 
 Ahora, no pasaremos demasiado tiempo en esto, pero la diferencia entre The Martian y otras películas que hemos visto ilustra algo que diferencia a MongoDB de las bases de datos relacionales.
 
@@ -3548,7 +3552,7 @@ Ahora, de hecho, existe un póster de película para The Martian.
 
 Y The Martian ganó varios premios.
 
-Entonces, como ejemplo de actualización de documentos en MongoDB, vamos a arreglar este documento agregando un campo de póster y un campo de premios.
+Entonces, como ejemplo de actualización de documentos en MongoDB, vamos a arreglar este documento agregando un campo de póster(poster) y un campo de premios(awards).
 
 Ahora, una aplicación podría hacer este tipo de actualización a medida que el póster esté disponible en forma electrónica para su uso en el sitio o incluso en respuesta al contenido moderado y aportado por el usuario.
 
@@ -3556,15 +3560,26 @@ En el lenguaje de consulta MongoDB, el método para actualizar un solo documento
 
 Ahora, por supuesto, podríamos agregar este campo en Compass simplemente editando el documento.
 
+<img src="/images/c2/25-compass-edit.png">
+
 Pero para la mayoría de los casos de uso de actualizaciones, va a escribir actualizaciones como parte de la lógica de su aplicación y no realizará actualizaciones a mano, como lo haríamos en una herramienta GUI como Compass.
 
 Así que aquí está nuestro llamado a `updateOne`.
+
+```sh
+db.movieDetails.updateOne(
+  { title: "The Martian" }, 
+  { $set: {
+    poster: "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg"
+  }
+})
+```
 
 Hablemos brevemente sobre la sintaxis.
 
 La idea básica aquí con `updateOne` y los otros dos métodos de actualización es que primero especifique un filtro.
 
-Al igual que con `find`, esto identificará el documento o documentos que queremos actualizar.
+Al igual que con `find`, esto `{ title: "The Martian" }` identificará el documento o documentos que queremos actualizar.
 
 `updateOne` simplemente actualizará el primer documento que coincida con nuestro filtro.
 
@@ -3590,27 +3605,43 @@ Se espera un documento que tenga uno o más campos listados.
 
 `$set` actualiza el documento que coincide con el filtro, de modo que todos los pares de valores clave en el documento actualizado se reflejan en la nueva versión del documento que estamos actualizando.
 
-Para esta llamada a `updateOne`, `$set` agregará un campo llamado poster, con esta URL como valor.
+**Para esta llamada a `updateOne`, `$set` agregará un campo llamado poster, con esta URL como valor**.
 
-Si hubiera un campo de póster existente en el documento, esto modificaría su valor.
+**Si hubiera un campo de póster existente en el documento, esto modificaría su valor**.
 
 Ahora vamos a copiar este comando y ejecutarlo en nuestro shell.
 
 En este shell, estamos conectados a nuestro clúster de sandbox Atlas y estamos utilizando la base de datos de video para que podamos acceder a la colección movieDetails.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateOne(
+...   { title: "The Martian" }, 
+...   { $set: {
+...     poster: "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg"
+...   }
+... })
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 La respuesta que recibimos nos dice que la base de datos reconoció la actualización.
 
-Igualamos un solo documento, como se esperaba.
+Igualamos un solo documento `"matchedCount" : 1`, como se esperaba.
 
 Si hubiéramos igualado más, obtendríamos esa cuenta aquí.
 
-Y luego la respuesta indica cuántos documentos fueron modificados.
+Y luego la respuesta indica cuántos documentos fueron modificados `"modifiedCount" : 1`.
 
 Para `updateOne`, este valor siempre debe ser 1 o 0.
 
 Echemos un vistazo al documento ahora para ver qué cambios se hicieron.
 
-Y si actualizo el documento, puedo ver que ahora, de hecho, hay un campo de póster.
+<img src="/images/c2/25-compass-add-poster.png">
+
+Y si actualizo el documento, puedo ver que ahora, de hecho, hay un campo de póster (el último campo).
 
 Los operadores de actualización, como puede imaginar, no se limitan a las actualizaciones escalares, como acabamos de realizar.
 
@@ -3618,15 +3649,45 @@ Podemos actualizar campos con cualquier valor legal.
 
 Como ejemplo rápido, avancemos y suministremos el campo de premios para The Martian.
 
+```sh
+db.movieDetails.updateOne(
+  { title: "The Martian" }, 
+  { $set: {
+      "awards": {
+        "wins": 8,
+        "nominations": 14,
+        "text": "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+      }
+  }
+})
+```
+
 Ahora, podemos seguir adelante y ejecutar esta llamada para `updateOne`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateOne(
+...   { title: "The Martian" }, 
+...   { $set: {
+...       "awards": {
+...         "wins": 8,
+...         "nominations": 14,
+...         "text": "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+...       }
+...   }
+... })
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y tenga en cuenta que aquí, estamos haciendo algo muy similar a lo que hicimos en nuestra llamada anterior para `updateOne`.
 
-Pero en este caso, nuestro operador `$set` establecerá un campo de premios de modo que el valor de la clave de premios sea este documento.
+Pero en este caso, nuestro operador `$set` establecerá un campo `awards` de modo que el valor de la clave `awards`sea este documento.
 
-Ahora, si seguimos adelante y ejecutamos esto, vemos que, nuevamente, emparejamos un documento y modificamos un documento.
+Ahora, si seguimos adelante y ejecutamos esto, vemos que, nuevamente, emparejamos un documento y modificamos un documento `"matchedCount" : 1, "modifiedCount" : 1`.
 
 Volviendo atrás y mirando este documento en Compass, podemos ver que nuestro campo de premios está aquí, con los valores especificados en nuestra llamada a `updateOne`.
+
+<img src="/images/c2/25-compass-add-awards.png">
 
 Y con eso, hemos cubierto los fundamentos del uso de `updateOne`.
 
