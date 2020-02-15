@@ -2882,7 +2882,26 @@ Y de nuevo, aquí podemos ver rápidamente que Jeff Bridges aparece en primer lu
 
 Ahora debe tener una sólida comprensión de la sintaxis para las operaciones de lectura más comunes en los arrays.
 
-## 20. Examen
+## 20. Examen Reading Documents: Array Fields
+
+**Problem:**
+
+Explore the movieDetails collection that you loaded into your Atlas sandbox cluster and then issue a query to answer the following question. How many documents list just two writers: "Ethan Coen" and "Joel Coen", in that order?
+
+You will find the [`count()`](https://docs.mongodb.com/manual/reference/method/cursor.count/) method useful in answering this question using the mongo shell.
+
+Choose the best answer:
+
+
+* 1 :+1:
+
+* 3
+
+* 7
+
+* 12
+
+* 20
 
 ## 21. Práctica de laboratorio 2.4: Consultas en campos de array, Parte 1
 
