@@ -2235,7 +2235,9 @@ Ahora hablemos de coincidencias exactas para campos array.
 
 Nuevamente, estamos preparando el escenario aquí para una comprensión completa del lenguaje de consulta MongoDB, incluido el uso de una variedad de operadores que nos permiten hacer una serie de consultas muy sofisticadas.
 
-Por lo tanto, al considerar las coincidencias de igualdad en los arrays, podemos considerar las coincidencias en toda el array, las coincidencias basadas en cualquier elemento del array y las basadas en un elemento específico, por ejemplo, haciendo coincidir solo los arrays cuyo primer elemento coincide con un criterio específico.
+Por lo tanto, al considerar las coincidencias de igualdad en los arrays, podemos considerar las coincidencias en todo el array, las coincidencias basadas en cualquier elemento del array y las basadas en un elemento específico, por ejemplo, haciendo coincidir solo los arrays cuyo primer elemento coincide con un criterio específico.
+
+<img src="/images/c2/19-compass-the-big-lebowski.png">
 
 También podemos ver coincidencias más complejas utilizando operadores.
 
@@ -2245,29 +2247,481 @@ Aquí estamos mirando nuestra base de datos de video en Compass.
 
 Echemos un vistazo a esta misma base de datos en el shell Mongo.
 
-Bien, aquí, en el shell Mongo, estoy conectado a nuestro grupo Atlas de clase.
+Bien, aquí, en el shell Mongo, estoy conectado a nuestro cluster Atlas de clase.
 
 Usemos la base de datos de video y luego, en este primer ejemplo, filtraremos por una coincidencia exacta con un array.
 
-Ahora, para este tipo de filtros, los documentos coincidentes deben tener un valor que sea exactamente el que hemos ingresado como array.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({cast: ["Jeff Bridges", "Tim Robbins"]}).pretty()
+{
+	"_id" : ObjectId("58c59cd599d4ee0af9ef0c1e"),
+	"title" : "Making of Arlington Road",
+	"year" : 1999,
+	"imdbId" : "tt3522952",
+	"genre" : "Documentary",
+	"runtime" : 30,
+	"director" : "Richard Leyland",
+	"cast" : [
+		"Jeff Bridges",
+		"Tim Robbins"
+	],
+	"plot" : "The making of the film 'Arlington Road' with interviews with the leading actors Jeff Bridges and Tim Robbins illustrated with clips from the film.",
+	"language" : "English"
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Entonces, para el reparto de consultas, y luego para buscar a Jeff Bridges y Tim Robbins, y déjenme decirlo bien, **los documentos coincidentes tendrán un campo de conversión que tiene como valor un array con exactamente dos elementos: Jeff Bridges, seguido de Tim Robbins, en ese orden**.
+Ahora, para este tipo de filtros, **los documentos coincidentes deben tener un valor que sea exactamente el que hemos ingresado como array** `cast: ["Jeff Bridges", "Tim Robbins"]`.
+
+Entonces, para la consulta de reparto(cast), y luego para buscar a Jeff Bridges y Tim Robbins, **los documentos coincidentes tendrán un campo cast que tiene como valor un array con exactamente dos elementos: Jeff Bridges, seguido de Tim Robbins, en ese orden**.
 
 Solo hay una película que coincide con estos criterios.
 
-Es un documental llamado "Making of Arlington Road". Tenga en cuenta que el campo de array coincide exactamente con nuestro filtro.
+Es un documental llamado "Making of Arlington Road". **Tenga en cuenta que el campo de array coincide exactamente con nuestro filtro**.
 
-También tenga en cuenta que, debido a la semántica de los combates en serie, la película "Arlington Road" en sí misma no coincide, porque también incluye a Joan Cusack y Hope Davis, además de Jeff Bridges y Tim Robbins, en el elenco.
+También tenga en cuenta que, debido a la **semántica de los array matches**, la película "Arlington Road" en sí misma **no coincide, porque también incluye a Joan Cusack y Hope Davis, además de Jeff Bridges y Tim Robbins, en el elenco**.
 
 Hagamos una consulta rápida para eso.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({title: "Arlington Road"}).pretty()
+{
+	"_id" : ObjectId("58c59c7899d4ee0af9e2b101"),
+	"title" : "Arlington Road",
+	"year" : 1999,
+	"imdbId" : "tt0137363",
+	"mpaaRating" : "R",
+	"genre" : "Crime, Drama, Thriller",
+	"viewerRating" : 7.2,
+	"viewerVotes" : 66888,
+	"runtime" : 117,
+	"director" : "Mark Pellington",
+	"cast" : [
+		"Jeff Bridges",
+		"Tim Robbins",
+		"Joan Cusack",
+		"Hope Davis"
+	],
+	"plot" : "A man begins to suspect his neighbors are not what they appear to be and their secrets could be deadly.",
+	"language" : "English"
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Y aquí podemos ver que Joan Cusack y Hope Davis también figuran en el elenco.
 
-Como nuestra consulta original especificaba que queremos que la conversión sea exactamente este array, este documento en particular no coincide.
+Como nuestra **consulta original especificaba que queremos que la conversión sea exactamente este array** `cast: ["Jeff Bridges", "Tim Robbins"]`, este documento en particular no coincide.
 
 Ahora es más común que filtremos por un solo elemento de un campo de array.
 
 Para hacer esto en MongoDB, simplemente podemos filtrar, por ejemplo, Jeff Bridges, de esta manera.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ cast: "Jeff Bridges" }).pretty()
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1baba"),
+	"title" : "Halls of Anger",
+	"year" : 1970,
+	"imdbId" : "tt0065810",
+	"mpaaRating" : "R",
+	"genre" : "Drama",
+	"viewerRating" : 5.9,
+	"viewerVotes" : 245,
+	"runtime" : 96,
+	"director" : "Paul Bogart",
+	"cast" : [
+		"Calvin Lockhart",
+		"Janet MacLachlan",
+		"Jeff Bridges",
+		"James A. Watson Jr."
+	],
+	"plot" : "An all-black inner city school has to become an integrated school. Few dozen white kids are transfered there, but the black students are aggressively opposed to this. The school then approaches a tough black teacher for help.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1bb01"),
+	"title" : "In Search of America",
+	"year" : 1971,
+	"imdbId" : "tt0065885",
+	"genre" : "Drama",
+	"viewerRating" : 5.4,
+	"viewerVotes" : 111,
+	"runtime" : 90,
+	"director" : "Paul Bogart",
+	"cast" : [
+		"Carl Betz",
+		"Vera Miles",
+		"Ruth McDevitt",
+		"Jeff Bridges"
+	],
+	"plot" : "A college dropout convinces his family to re-examine its goals and gets them to leave it all for a cross-country odyssey in a 1928 Greyhound bus.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1bd99"),
+	"title" : "The Yin and the Yang of Mr. Go",
+	"year" : 1970,
+	"imdbId" : "tt0066592",
+	"mpaaRating" : "PG",
+	"genre" : "Fantasy, Mystery, Thriller",
+	"viewerRating" : 3.6,
+	"viewerVotes" : 168,
+	"runtime" : 89,
+	"director" : "Burgess Meredith",
+	"cast" : [
+		"James Mason",
+		"Jack MacGowran",
+		"Irene Tsu",
+		"Jeff Bridges"
+	],
+	"plot" : "Buddha has the power to change the nature of a person into their opposite. He uses this power only when the world is in danger. When a villain obtains plans that could be used for peace or war, Buddha turns him into a good guy. Now what?",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1c007"),
+	"title" : "The Last Picture Show",
+	"year" : 1971,
+	"imdbId" : "tt0067328",
+	"mpaaRating" : "R",
+	"genre" : "Drama",
+	"viewerRating" : 8.1,
+	"viewerVotes" : 29214,
+	"runtime" : 118,
+	"director" : "Peter Bogdanovich",
+	"cast" : [
+		"Timothy Bottoms",
+		"Jeff Bridges",
+		"Cybill Shepherd",
+		"Ben Johnson"
+	],
+	"plot" : "A group of 1950s high schoolers come of age in a bleak, isolated, atrophied West Texas town that is slowly dying, both economically and culturally.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1c2ee"),
+	"title" : "Bad Company",
+	"year" : 1972,
+	"imdbId" : "tt0068245",
+	"mpaaRating" : "PG",
+	"genre" : "Drama, Western",
+	"viewerRating" : 7.1,
+	"viewerVotes" : 2423,
+	"runtime" : 93,
+	"director" : "Robert Benton",
+	"cast" : [
+		"Jeff Bridges",
+		"Barry Brown",
+		"Jim Davis",
+		"David Huddleston"
+	],
+	"plot" : "A god-fearing Ohio boy dodging the Civil War draft arrives in Jefferson City where he joins up with a hardscrabble group of like runaways heading west.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1c423"),
+	"title" : "Fat City",
+	"year" : 1972,
+	"imdbId" : "tt0068575",
+	"mpaaRating" : "PG",
+	"genre" : "Drama, Sport",
+	"viewerRating" : 7.5,
+	"viewerVotes" : 4798,
+	"runtime" : 100,
+	"director" : "John Huston",
+	"cast" : [
+		"Stacy Keach",
+		"Jeff Bridges",
+		"Susan Tyrrell",
+		"Candy Clark"
+	],
+	"plot" : "Two men, working as professional boxers, come to blows when their careers each begin to take opposite momentum.",
+	"language" : "English, Spanish"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1c9d5"),
+	"title" : "The Iceman Cometh",
+	"year" : 1973,
+	"imdbId" : "tt0070212",
+	"mpaaRating" : "PG",
+	"genre" : "Drama",
+	"viewerRating" : 7.5,
+	"viewerVotes" : 967,
+	"runtime" : 239,
+	"director" : "John Frankenheimer",
+	"cast" : [
+		"Lee Marvin",
+		"Fredric March",
+		"Robert Ryan",
+		"Jeff Bridges"
+	],
+	"plot" : "A salesman with a sudden passion for reform has an idea to sell to his barfly buddies: throw away your pipe dreams. The drunkards, living in a flophouse above a saloon, resent the idea.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1ca26"),
+	"title" : "The Last American Hero",
+	"year" : 1973,
+	"imdbId" : "tt0070287",
+	"mpaaRating" : "PG",
+	"genre" : "Drama, Sport",
+	"viewerRating" : 6.3,
+	"viewerVotes" : 1016,
+	"runtime" : 95,
+	"director" : "Lamont Johnson",
+	"cast" : [
+		"Jeff Bridges",
+		"Valerie Perrine",
+		"Geraldine Fitzgerald",
+		"Ned Beatty"
+	],
+	"plot" : "A young hellraiser quits his moonshine business to try to become the best NASCAR racer the south had ever seen.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1ca69"),
+	"title" : "Lolly-Madonna XXX",
+	"year" : 1973,
+	"imdbId" : "tt0070332",
+	"mpaaRating" : "PG",
+	"genre" : "Drama",
+	"viewerRating" : 6.3,
+	"viewerVotes" : 265,
+	"runtime" : 103,
+	"director" : "Richard C. Sarafian",
+	"cast" : [
+		"Rod Steiger",
+		"Robert Ryan",
+		"Jeff Bridges",
+		"Scott Wilson"
+	],
+	"plot" : "Two rustic families, headed by patriarchs Laban Feather and Pap Gutshall, are feuding. At first, it is comical, with just the sons of the two families playing tricks on each other. But soon...",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1d3c0"),
+	"title" : "Hearts of the West",
+	"year" : 1975,
+	"imdbId" : "tt0073096",
+	"mpaaRating" : "PG",
+	"genre" : "Western, Comedy",
+	"viewerRating" : 6.4,
+	"viewerVotes" : 934,
+	"runtime" : 102,
+	"director" : "Howard Zieff",
+	"cast" : [
+		"Jeff Bridges",
+		"Andy Griffith",
+		"Donald Pleasence",
+		"Blythe Danner"
+	],
+	"plot" : "Lewis Tater writes Wild West dime novels and dreams of actually becoming a cowboy. When he goes west to find his dream he finds himself in possession of the loot box of two crooks who tried...",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1d12d"),
+	"title" : "Thunderbolt and Lightfoot",
+	"year" : 1974,
+	"imdbId" : "tt0072288",
+	"mpaaRating" : "R",
+	"genre" : "Comedy, Crime, Drama",
+	"viewerRating" : 7.1,
+	"viewerVotes" : 14675,
+	"runtime" : 115,
+	"director" : "Michael Cimino",
+	"cast" : [
+		"Clint Eastwood",
+		"Jeff Bridges",
+		"George Kennedy",
+		"Geoffrey Lewis"
+	],
+	"plot" : "With the help of an irreverent young sidekick, a bank robber gets his old gang back together to organize a daring new heist.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1d5e7"),
+	"title" : "Rancho Deluxe",
+	"year" : 1975,
+	"imdbId" : "tt0073605",
+	"mpaaRating" : "R",
+	"genre" : "Comedy, Romance, Western",
+	"viewerRating" : 6.4,
+	"viewerVotes" : 1164,
+	"runtime" : 93,
+	"director" : "Frank Perry",
+	"cast" : [
+		"Jeff Bridges",
+		"Sam Waterston",
+		"Elizabeth Ashley",
+		"Clifton James"
+	],
+	"plot" : "Two drifters, of widely varying backgrounds, rustle cattle and try to avoid being caught in contemporary Montana.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1d969"),
+	"title" : "King Kong",
+	"year" : 1976,
+	"imdbId" : "tt0074751",
+	"mpaaRating" : "PG",
+	"genre" : "Adventure, Fantasy, Horror",
+	"viewerRating" : 5.8,
+	"viewerVotes" : 20784,
+	"runtime" : 134,
+	"director" : "John Guillermin",
+	"cast" : [
+		"Jeff Bridges",
+		"Charles Grodin",
+		"Jessica Lange",
+		"John Randolph"
+	],
+	"plot" : "A petroleum exploration expedition comes to an isolated island and encounters a colossal giant gorilla.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1db4e"),
+	"title" : "Stay Hungry",
+	"year" : 1976,
+	"imdbId" : "tt0075268",
+	"mpaaRating" : "R",
+	"genre" : "Drama, Comedy",
+	"viewerRating" : 5.7,
+	"viewerVotes" : 2831,
+	"runtime" : 102,
+	"director" : "Bob Rafelson",
+	"cast" : [
+		"Jeff Bridges",
+		"Sally Field",
+		"Arnold Schwarzenegger",
+		"R.G. Armstrong"
+	],
+	"plot" : "A syndicate wants to buy a whole district to rebuild it. They've bought every house except the small gym \"Olympic\", where Mr. Austria Joe Santo prepares for the Mr. Universum championships ...",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1e6da"),
+	"title" : "The American Success Company",
+	"year" : 1980,
+	"imdbId" : "tt0078765",
+	"mpaaRating" : "PG",
+	"genre" : "Comedy, Drama",
+	"viewerRating" : 5.7,
+	"viewerVotes" : 205,
+	"runtime" : 91,
+	"director" : "William Richert",
+	"cast" : [
+		"Jeff Bridges",
+		"Belinda Bauer",
+		"Ned Beatty",
+		"Steven Keats"
+	],
+	"plot" : "A husband is humiliated at home and at work. He decides he has had enough of it and hires a prostitute to help him get back at his boss, wife and friends and get a lot richer in the process.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1e5a6"),
+	"title" : "Somebody Killed Her Husband",
+	"year" : 1978,
+	"imdbId" : "tt0078294",
+	"mpaaRating" : "PG",
+	"genre" : "Comedy, Crime, Mystery",
+	"viewerRating" : 4.9,
+	"viewerVotes" : 268,
+	"runtime" : 97,
+	"director" : "Lamont Johnson",
+	"cast" : [
+		"Farrah Fawcett",
+		"Jeff Bridges",
+		"John Wood",
+		"Tammy Grimes"
+	],
+	"plot" : "A woman's husband is murdered and she and her lover must find the killer or stand accused of doing it themselves.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1ec10"),
+	"title" : "Winter Kills",
+	"year" : 1979,
+	"imdbId" : "tt0080139",
+	"mpaaRating" : "R",
+	"genre" : "Drama, Thriller",
+	"viewerRating" : 6.4,
+	"viewerVotes" : 1324,
+	"runtime" : 97,
+	"director" : "William Richert",
+	"cast" : [
+		"Jeff Bridges",
+		"John Huston",
+		"Anthony Perkins",
+		"Eli Wallach"
+	],
+	"plot" : "The Pickering Commission concluded that a lone gunman killed the US President in 1960, in Philadelphia, but 19 years later a dying man confesses to be one of the real hit-men who killed President Kegan, sparking an investigation.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1f303"),
+	"title" : "Cutter's Way",
+	"year" : 1981,
+	"imdbId" : "tt0082220",
+	"mpaaRating" : "R",
+	"genre" : "Crime, Drama, Mystery",
+	"viewerRating" : 6.9,
+	"viewerVotes" : 3287,
+	"runtime" : 109,
+	"director" : "Ivan Passer",
+	"cast" : [
+		"Jeff Bridges",
+		"John Heard",
+		"Lisa Eichhorn",
+		"Ann Dusenberry"
+	],
+	"plot" : "Richard spots a man dumping a body, and decides to expose the man he thinks is the culprit with his friend Alex Cutter.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1fa39"),
+	"title" : "The Last Unicorn",
+	"year" : 1982,
+	"imdbId" : "tt0084237",
+	"mpaaRating" : "G",
+	"genre" : "Family, Animation, Fantasy",
+	"viewerRating" : 7.5,
+	"viewerVotes" : 17586,
+	"runtime" : 92,
+	"director" : "Jules Bass, Arthur Rankin Jr.",
+	"cast" : [
+		"Alan Arkin",
+		"Jeff Bridges",
+		"Mia Farrow",
+		"Tammy Grimes"
+	],
+	"plot" : "A brave unicorn and a magician fight an evil king who is obsessed with attempting to capture the world's unicorns.",
+	"language" : "English, German"
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1fa2b"),
+	"title" : "Kiss Me Goodbye",
+	"year" : 1982,
+	"imdbId" : "tt0084210",
+	"mpaaRating" : "PG",
+	"genre" : "Comedy, Fantasy, Romance",
+	"viewerRating" : 6.1,
+	"viewerVotes" : 1353,
+	"runtime" : 101,
+	"director" : "Robert Mulligan",
+	"cast" : [
+		"Sally Field",
+		"James Caan",
+		"Jeff Bridges",
+		"Paul Dooley"
+	],
+	"plot" : "Not until three years after the death of her husband Jolly, Kay dares to move back into their former home, persuaded by her new fianc�e Rupert. But soon her worst expectations come true, ...",
+	"language" : "English"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Los documentos coincidentes contienen la cadena Jeff Bridges como un elemento del reparto del campo de array.
 
@@ -2275,13 +2729,85 @@ Podemos ver que Jeff Bridges está aquí.
 
 Si nos desplazamos a través de los documentos del array, aparece en cada una de los arrays de reparto, a veces como el primer actor en la lista, y a veces en otras posiciones, como aquí.
 
-Lo bueno de esta sintaxis es que es exactamente lo mismo que los selectores para valores escalares.
+**Lo bueno de esta sintaxis es que es exactamente lo mismo que los selectores para valores escalares**.
 
 En algunas situaciones, queremos hacer coincidir un elemento específico de un array.
 
 Los actores se enumeran con frecuencia en orden de precedencia, y aquellos cuyas contribuciones a una película son más altas aparecen antes en la lista.
 
-Por ejemplo, la estrella de una película aparecerá antes de los actores secundarios, como vemos en el documento de "Iron Man". En esta película, Robert Downey Jr. es la estrella, con Jeff Bridges desempeñando un papel secundario, por lo que Robert Downey Jr. aparece primero.
+Por ejemplo, la estrella de una película aparecerá antes de los actores secundarios, como vemos en el documento de "Iron Man" (`"year" : 2008`). En esta película, Robert Downey Jr. es la estrella, con Jeff Bridges desempeñando un papel secundario, por lo que Robert Downey Jr. aparece primero.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({title: "Iron Man"}).pretty()
+{
+	"_id" : ObjectId("58c59c6c99d4ee0af9e11902"),
+	"title" : "Iron Man",
+	"year" : 1931,
+	"imdbId" : "tt0022002",
+	"genre" : "Drama",
+	"viewerRating" : 6.2,
+	"viewerVotes" : 119,
+	"runtime" : 73,
+	"director" : "Tod Browning",
+	"cast" : [
+		"Lew Ayres",
+		"Robert Armstrong",
+		"Jean Harlow",
+		"John Miljan"
+	],
+	"plot" : "Prizefighter Mason loses his opening fight so wife Rose leaves him for Hollywood. Without her around Mason trains and starts winning. Rose comes back and wants Mason to dump his manager Regan and replace him with her secret lover Lewis.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c6e99d4ee0af9e16c23"),
+	"title" : "Iron Man",
+	"year" : 1951,
+	"imdbId" : "tt0043678",
+	"genre" : "Drama, Sport",
+	"viewerRating" : 6.3,
+	"viewerVotes" : 93,
+	"runtime" : 81,
+	"director" : "Joseph Pevney",
+	"cast" : [
+		"Jeff Chandler",
+		"Evelyn Keyes",
+		"Stephen McNally",
+		"Rock Hudson"
+	],
+	"plot" : "An ambitious coal miner is talked into becoming a boxer by his gambler brother.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c8f99d4ee0af9e5ccfc"),
+	"title" : "Iron Man",
+	"year" : 2008,
+	"imdbId" : "tt0371746",
+	"mpaaRating" : "PG-13",
+	"genre" : "Action, Adventure, Sci-Fi",
+	"viewerRating" : 7.9,
+	"viewerVotes" : 615059,
+	"runtime" : 126,
+	"director" : "Jon Favreau",
+	"cast" : [
+		"Robert Downey Jr.",
+		"Terrence Howard",
+		"Jeff Bridges",
+		"Gwyneth Paltrow"
+	],
+	"plot" : "After being held captive in an Afghan cave, an industrialist creates a unique weaponized suit of armor to fight evil.",
+	"language" : "English, Persian, Urdu, Arabic, Hungarian"
+}
+{
+	"_id" : ObjectId("58c59ccf99d4ee0af9ee3f51"),
+	"title" : "Iron Man",
+	"year" : 2013,
+	"imdbId" : "tt3062350",
+	"genre" : "Animation, Short, Sci-Fi",
+	"runtime" : 7,
+	"director" : "Abdolreza Salehi"
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 El lenguaje de consulta MongoDB nos permite especificar que queremos hacer coincidir los elementos del array que ocurren en una posición específica en un array.
 
@@ -2289,15 +2815,70 @@ Para consultar las películas en las que Jeff Bridges aparece primero entre los 
 
 Para esto, será un poco más fácil ver la diferencia si volvemos a Compass.
 
-Entonces, aquí en Compass, una consulta para el elenco Jeff Bridges nos da 114 documentos.
+Entonces, aquí en Compass, una consulta para el elenco Jeff Bridges `{cast: "Jeff Bridges"}` nos da 114 documentos.
+
+<img src="/images/c2/16-compass-jeff.png">
 
 Pero si consultamos a Jeff Bridges en la posición 0 para el campo de conversión, entonces solo tenemos 56 documentos, y podemos ver que en todos y cada uno de estos resultados devueltos, Jeff Bridges aparece primero en el array de conversión.
 
-Ahora, nuevamente, solo para recordarle, si queremos hacer este tipo de consulta en el shell Mongo, será necesario encerrar nuestra clave entre comillas.
+<img src="/images/c2/16-compass-jeff0.png">
+
+Ahora, nuevamente, solo para recordarle, si queremos hacer este tipo de consulta, **será necesario encerrar nuestra clave entre comillas** tanto en Compass como en el Shell.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ "cast.0": "Jeff Bridges" }).pretty()
+...
+{
+	"_id" : ObjectId("58c59c7599d4ee0af9e24d19"),
+	"title" : "The Vanishing",
+	"year" : 1993,
+	"imdbId" : "tt0108473",
+	"mpaaRating" : "R",
+	"genre" : "Drama, Horror, Mystery",
+	"viewerRating" : 6.3,
+	"viewerVotes" : 17291,
+	"runtime" : 109,
+	"director" : "George Sluizer",
+	"cast" : [
+		"Jeff Bridges",
+		"Kiefer Sutherland",
+		"Nancy Travis",
+		"Sandra Bullock"
+	],
+	"plot" : "The boyfriend of an abducted woman never gives up the search as the abductor looks on.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c7599d4ee0af9e24f2d"),
+	"title" : "Blown Away",
+	"year" : 1994,
+	"imdbId" : "tt0109303",
+	"mpaaRating" : "R",
+	"genre" : "Action, Crime, Drama",
+	"viewerRating" : 6.1,
+	"viewerVotes" : 21856,
+	"runtime" : 121,
+	"director" : "Stephen Hopkins",
+	"cast" : [
+		"Jeff Bridges",
+		"Tommy Lee Jones",
+		"Suzy Amis",
+		"Lloyd Bridges"
+	],
+	"plot" : "An Irish bomber escapes from prison and targets a member of the Boston bomb squad.",
+	"language" : "English, Irish"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y de nuevo, aquí podemos ver rápidamente que Jeff Bridges aparece en primer lugar para todos estos.
 
-Ahora hemos analizado las coincidencias de igualdad en los arrays con todo el array, haciendo coincidir cualquier elemento del array y luego aquellos basados en un elemento específico del array.
+**Hemos analizado:**
+
+* **Las coincidencias de igualdad en los arrays con todo el array.**
+* **Las coincidencias de cualquier elemento del array.**
+* **Las coincidencias basadas en un elemento específico del array.**
 
 Ahora debe tener una sólida comprensión de la sintaxis para las operaciones de lectura más comunes en los arrays.
 
