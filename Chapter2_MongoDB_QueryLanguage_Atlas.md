@@ -3084,17 +3084,44 @@ Puede definir una proyección como el segundo argumento del método `find`.
 
 Si quiero limitar mis documentos de resultados para que solo contengan un título, puedo hacerlo usando la siguiente sintaxis, o casi.
 
-Entonces, usando esta sintaxis, puedo crear una proyección donde los resultados de esta consulta devolverán solo el título y, en realidad, el `title` y el `_id`.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ genre: "Action, Adventure"}, {title: 1})
+{ "_id" : ObjectId("58c59c6a99d4ee0af9e0d117"), "title" : "Who Will Marry Mary?" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0d9c2"), "title" : "The New Exploits of Elaine" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0db62"), "title" : "The Ventures of Marguerite" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0dde5"), "title" : "The Iron Claw" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0dc25"), "title" : "Beatrice Fairfax" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e28d"), "title" : "The Great Secret" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e482"), "title" : "The Seven Pearls" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e5f3"), "title" : "The Brass Bullet" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e459"), "title" : "The Red Ace" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e977"), "title" : "Wolves of Kultur" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e8f3"), "title" : "Tarzan of the Apes" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e71f"), "title" : "The Iron Test" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0e884"), "title" : "The Romance of Tarzan" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0ec74"), "title" : "Perils of Thunder Mountain" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0ea8d"), "title" : "The Fatal Fortune" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0f083"), "title" : "The Revenge of Tarzan" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0efa9"), "title" : "The Lost City" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0f0b7"), "title" : "The Screaming Shadow" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0f0cf"), "title" : "The Son of Tarzan" }
+{ "_id" : ObjectId("58c59c6b99d4ee0af9e0f1a1"), "title" : "The Adventures of Tarzan" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+Entonces, usando esta sintaxis, puedo crear una proyección donde los resultados de esta consulta devolverán solo el título y, en realidad, el `_id` y el `title`.
 
 Y hablaremos de eso en solo un segundo.
 
-Entonces, nuevamente, use el filtro como de costumbre.
+Entonces, nuevamente, use el filtro como de costumbre `{ genre: "Action, Adventure"}`.
 
-Pero en este caso, debido a que nos gustaría tener el título, también estamos agregando una proyección como el segundo argumento que pasamos para encontrar.
+Pero en este caso, debido a que nos gustaría tener el título, también estamos agregando una proyección como el segundo argumento que pasamos para encontrar `{title: 1}`.
 
-Ahora, obtengo el `title` y `id`.
+Ahora, obtengo el `_id` y el `title`.
 
-Obtengo el campo `_id` porque el `_id` se devuelve de forma predeterminada para todas las proyecciones, a menos que lo excluya explícitamente de la proyección.
+Obtengo el campo `_id` porque **el `_id` se devuelve de forma predeterminada para todas las proyecciones**, a menos que lo excluya explícitamente de la proyección.
 
 La sintaxis de proyección me permite incluir explícitamente campos en los documentos devueltos.
 
@@ -3106,19 +3133,364 @@ Si no quiero ver el campo `_id`, entonces, para mi proyección, necesito agregar
 
 Vamos a correr esto.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ genre: "Action, Adventure"}, {title: 1, _id: 0})
+{ "title" : "Who Will Marry Mary?" }
+{ "title" : "The New Exploits of Elaine" }
+{ "title" : "The Ventures of Marguerite" }
+{ "title" : "The Iron Claw" }
+{ "title" : "Beatrice Fairfax" }
+{ "title" : "The Great Secret" }
+{ "title" : "The Seven Pearls" }
+{ "title" : "The Brass Bullet" }
+{ "title" : "The Red Ace" }
+{ "title" : "Wolves of Kultur" }
+{ "title" : "Tarzan of the Apes" }
+{ "title" : "The Iron Test" }
+{ "title" : "The Romance of Tarzan" }
+{ "title" : "Perils of Thunder Mountain" }
+{ "title" : "The Fatal Fortune" }
+{ "title" : "The Revenge of Tarzan" }
+{ "title" : "The Lost City" }
+{ "title" : "The Screaming Shadow" }
+{ "title" : "The Son of Tarzan" }
+{ "title" : "The Adventures of Tarzan" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Y ahora podemos ver que, de hecho, solo tenemos títulos.
 
 Ahora, si tenemos la situación inversa, donde realmente queremos excluir explícitamente un par de campos, podemos hacerlo de la siguiente manera.
 
-Entonces, digamos que en lugar de incluir el título, voy a excluir la calificación del espectador, los votos del espectador y el tiempo de ejecución.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ genre: "Action, Adventure"}, {viewerRating: 0, viewerVotes: 0, runtime: 0, _id: 0}).pretty()
+{
+	"title" : "Who Will Marry Mary?",
+	"year" : 1913,
+	"imdbId" : "tt0003545",
+	"genre" : "Action, Adventure",
+	"director" : "Walter Edwin",
+	"cast" : [
+		"Mary Fuller",
+		"Ben F. Wilson",
+		"Richard Tucker",
+		"Harry Beaumont"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The New Exploits of Elaine",
+	"year" : 1915,
+	"imdbId" : "tt0005808",
+	"genre" : "Action, Adventure",
+	"director" : "Louis J. Gasnier, Leopold Wharton, Theodore Wharton",
+	"cast" : [
+		"Pearl White",
+		"Creighton Hale",
+		"Arnold Daly",
+		"Edwin Arden"
+	]
+}
+{
+	"title" : "The Ventures of Marguerite",
+	"year" : 1915,
+	"imdbId" : "tt0006213",
+	"genre" : "Action, Adventure",
+	"director" : "Robert Ellis, John Mackin, Hamilton Smith",
+	"cast" : [
+		"Marguerite Courtot",
+		"Richard Purdon",
+		"Edward Roseman",
+		"Paula Sherman"
+	],
+	"plot" : "As heiress to a large fortune, Marguerite is able to satisfy her love for beautiful clothes and a taste for adventure, while confronted by a multitude of schemers and gangsters bent on reducing her to poverty.",
+	"language" : "English"
+}
+{
+	"title" : "The Iron Claw",
+	"year" : 1916,
+	"imdbId" : "tt0006867",
+	"genre" : "Action, Adventure",
+	"director" : "Edward Josè, George B. Seitz",
+	"cast" : [
+		"Pearl White",
+		"Creighton Hale",
+		"Sheldon Lewis",
+		"Harry L. Fraser"
+	],
+	"language" : "English"
+}
+{
+	"title" : "Beatrice Fairfax",
+	"year" : 1916,
+	"imdbId" : "tt0006409",
+	"genre" : "Action, Adventure",
+	"director" : "Leopold Wharton, Theodore Wharton",
+	"cast" : [
+		"Harry Fox",
+		"Grace Darling",
+		"Allan Murnane",
+		"Nigel Barrie"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The Great Secret",
+	"year" : 1917,
+	"imdbId" : "tt0008031",
+	"genre" : "Action, Adventure",
+	"director" : "Christy Cabanne",
+	"cast" : [
+		"Francis X. Bushman",
+		"Beverly Bayne",
+		"Fred R. Stanton",
+		"Edward Connelly"
+	],
+	"plot" : "A wealthy young athlete comes to the aid of a beautiful heiress, whose fortune is being threatened by two arch villains, The Great Master and Doctor Zulph.",
+	"language" : "English"
+}
+{
+	"title" : "The Seven Pearls",
+	"year" : 1917,
+	"imdbId" : "tt0008562",
+	"genre" : "Action, Adventure",
+	"director" : "Louis J. Gasnier, Donald MacKenzie",
+	"cast" : [
+		"Mollie King",
+		"Creighton Hale",
+		"L�on Bary",
+		"John J. Dunn"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The Brass Bullet",
+	"year" : 1918,
+	"imdbId" : "tt0008919",
+	"genre" : "Action, Adventure",
+	"director" : "Ben F. Wilson",
+	"cast" : [
+		"Juanita Hansen",
+		"Jack Mulhall",
+		"Charles Hill Mailes",
+		"Joseph W. Girard"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The Red Ace",
+	"year" : 1917,
+	"imdbId" : "tt0008502",
+	"genre" : "Action, Adventure",
+	"director" : "Jacques Jaccard",
+	"cast" : [
+		"Marie Walcamp",
+		"Lawrence Peyton",
+		"L.M. Wells",
+		"Bobbie Mack"
+	],
+	"language" : "English"
+}
+{
+	"title" : "Wolves of Kultur",
+	"year" : 1918,
+	"imdbId" : "tt0009825",
+	"genre" : "Action, Adventure",
+	"director" : "Joseph A. Golden",
+	"cast" : [
+		"Leah Baird",
+		"Charles Hutchison",
+		"Sheldon Lewis",
+		"Betty Howe"
+	],
+	"language" : "English"
+}
+{
+	"title" : "Tarzan of the Apes",
+	"year" : 1918,
+	"imdbId" : "tt0009682",
+	"genre" : "Action, Adventure",
+	"director" : "Scott Sidney",
+	"cast" : [
+		"Elmo Lincoln",
+		"Enid Markey",
+		"True Boardman",
+		"Kathleen Kirkham"
+	],
+	"plot" : "The plot follows the novel more closely than does any other Tarzan movie. John and Alice Clayton take ship for Africa. Mutineers maroon them. After his parents die the newborn Tarzan is ..."
+}
+{
+	"title" : "The Iron Test",
+	"year" : 1918,
+	"imdbId" : "tt0009233",
+	"genre" : "Action, Adventure",
+	"director" : "Robert N. Bradbury, Paul Hurst",
+	"cast" : [
+		"Antonio Moreno",
+		"Carol Holloway",
+		"Barney Furey",
+		"Chet Ryan"
+	]
+}
+{
+	"title" : "The Romance of Tarzan",
+	"year" : 1918,
+	"imdbId" : "tt0009560",
+	"genre" : "Action, Adventure",
+	"director" : "Wilfred Lucas",
+	"cast" : [
+		"Elmo Lincoln",
+		"Enid Markey",
+		"Thomas Jefferson",
+		"Cleo Madison"
+	],
+	"plot" : "Tarzan and Jane are to sail for England. They are attacked by natives and Tarzan is believed to have been killed. The Greystoke relatives return to England, the Porters (Jane's family) goes...",
+	"language" : "English"
+}
+{
+	"title" : "Perils of Thunder Mountain",
+	"year" : 1919,
+	"imdbId" : "tt0010558",
+	"genre" : "Action, Adventure",
+	"director" : "Robert N. Bradbury, W.J. Burman",
+	"cast" : [
+		"Antonio Moreno",
+		"Carol Holloway",
+		"Kate Price",
+		"Jack Waltemeyer"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The Fatal Fortune",
+	"year" : 1919,
+	"imdbId" : "tt0010114",
+	"genre" : "Action, Adventure",
+	"director" : "Donald MacKenzie, Frank Wunderlee",
+	"cast" : [
+		"Helen Holmes",
+		"Jack Levering",
+		"Leslie King",
+		"William Black"
+	],
+	"plot" : "A young newspaperwoman travels to a South Seas island to search for buried treasure.",
+	"language" : "English"
+}
+{
+	"title" : "The Revenge of Tarzan",
+	"year" : 1920,
+	"imdbId" : "tt0011624",
+	"genre" : "Action, Adventure",
+	"director" : "Harry Revier, George M. Merrick",
+	"cast" : [
+		"Gene Pollar",
+		"Karla Schramm",
+		"Estelle Taylor",
+		"Armand Cortes"
+	],
+	"plot" : "Tarzan and Jane are sailing for France in answer to a call for help from Countess de Coude who is being persecuted by her brother Rokoff. After a duel with the Countess' jealous husband, ..."
+}
+{
+	"title" : "The Lost City",
+	"year" : 1920,
+	"imdbId" : "tt0011413",
+	"genre" : "Action, Adventure",
+	"director" : "E.A. Martin",
+	"cast" : [
+		"Juanita Hansen",
+		"George Chesebro",
+		"Frank Clark",
+		"Hector Dion"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The Screaming Shadow",
+	"year" : 1920,
+	"imdbId" : "tt0011667",
+	"genre" : "Action, Adventure",
+	"director" : "Ben F. Wilson, Duke Worne",
+	"cast" : [
+		"Ben F. Wilson",
+		"Neva Gerber",
+		"Frances Terry",
+		"Howard Crampton"
+	],
+	"language" : "English"
+}
+{
+	"title" : "The Son of Tarzan",
+	"year" : 1920,
+	"imdbId" : "tt0011717",
+	"genre" : "Action, Adventure",
+	"director" : "Arthur J. Flaven, Harry Revier",
+	"cast" : [
+		"Kamuela C. Searle",
+		"P. Dempsey Tabler",
+		"Nita Martan",
+		"Karla Schramm"
+	],
+	"plot" : "The scenario follows the book closely. Tarzan's son Jack (Korak to the apes) is kidnapped from England by Tarzan's old enemy Paulovich. He escapes into the African jungle with the help of ..."
+}
+{
+	"title" : "The Adventures of Tarzan",
+	"year" : 1921,
+	"imdbId" : "tt0011908",
+	"mpaaRating" : "PASSED",
+	"genre" : "Action, Adventure",
+	"director" : "Robert F. Hill, Scott Sidney",
+	"cast" : [
+		"Elmo Lincoln",
+		"Louise Lorraine",
+		"Scott Pembroke",
+		"Frank Whitson"
+	],
+	"plot" : "Tarzan spurns the love of La, Queen of Opar. When he isn't trying to keep the Bolshevik Rokoff and Clayton (pretender to the Greystoke estate) from reaching Opar, he is attacked ...",
+	"language" : "English"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Y vamos a hacerlo bien.
+Entonces, digamos que en lugar de incluir el título, voy a excluir la calificación del espectador, los votos del espectador y el tiempo de ejecución (viewerRating, viewerVotes, runtime).
 
 Ahora mis resultados contienen todos los campos excepto los que excluí explícitamente aquí.
 
 Tenga en cuenta que no hay calificación de espectador, ni votos de espectador, ni tiempo de ejecución en estos documentos.
 
 Y solo por el bien de la comparación, si abandono la proyección, entonces vemos que la calificación del espectador, los votos del espectador y el tiempo de ejecución regresan para aquellos documentos que tienen un tiempo de ejecución, como este.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({ genre: "Action, Adventure"}).pretty()
+...
+	],
+	"plot" : "A young newspaperwoman travels to a South Seas island to search for buried treasure.",
+	"language" : "English"
+}
+{
+	"_id" : ObjectId("58c59c6b99d4ee0af9e0f083"),
+	"title" : "The Revenge of Tarzan",
+	"year" : 1920,
+	"imdbId" : "tt0011624",
+	"genre" : "Action, Adventure",
+	"viewerRating" : 4.1,
+	"viewerVotes" : 14,
+	"runtime" : 90,
+	"director" : "Harry Revier, George M. Merrick",
+	"cast" : [
+		"Gene Pollar",
+		"Karla Schramm",
+		"Estelle Taylor",
+		"Armand Cortes"
+	],
+	"plot" : "Tarzan and Jane are sailing for France in answer to a call for help from Countess de Coude who is being persecuted by her brother Rokoff. After a duel with the Countess' jealous husband, ..."
+}
+{
+	"_id" : ObjectId("58c59c6b99d4ee0af9e0efa9"),
+	"title" : "The Lost City",
+...	
+```
 
 Por lo tanto, **si necesita limitar los campos devueltos por sus consultas, la proyección es la herramienta que debe utilizar**.
 
