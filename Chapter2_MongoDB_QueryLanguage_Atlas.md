@@ -2194,7 +2194,7 @@ Choose the best answer:
 * 20
 
 
-## 18. Laboratorio 2.3: Consultas en campos escalares
+## 18. Laboratorio 2.3: Consultas en Campos Escalares
 
 Lab 2.3: Queries on Scalar Fields
 
@@ -2217,11 +2217,89 @@ Choose the best answer:
 * 11
 
 
-## 19. Tema: Lectura de documentos: Campos Array
+## 19. Tema: Lectura de Documentos: Campos Array
+
+### Notas de lectura
+
+A las 4:01, utilizamos la consulta `{cast.0: "Jeff Bridges"}`, que funcionaba con la versión de Compass utilizada en ese momento.
+
+Con versiones actuales, siempre que el operador se utiliza en una clave para indicar una clave secundaria como "imdb.rating" o cuando se utiliza. para utilizar una consulta posicional como "cast.0", la clave debe estar entre comillas como esta:
+
+```sh
+{ "cast.0": "Jeff Bridges" }
+```
 
 ### Transcripción
 
+Ahora hablemos de coincidencias exactas para campos array.
 
+Nuevamente, estamos preparando el escenario aquí para una comprensión completa del lenguaje de consulta MongoDB, incluido el uso de una variedad de operadores que nos permiten hacer una serie de consultas muy sofisticadas.
+
+Por lo tanto, al considerar las coincidencias de igualdad en los arrays, podemos considerar las coincidencias en toda el array, las coincidencias basadas en cualquier elemento del array y las basadas en un elemento específico, por ejemplo, haciendo coincidir solo los arrays cuyo primer elemento coincide con un criterio específico.
+
+También podemos ver coincidencias más complejas utilizando operadores.
+
+Lo haremos en otras lecciones.
+
+Aquí estamos mirando nuestra base de datos de video en Compass.
+
+Echemos un vistazo a esta misma base de datos en el shell Mongo.
+
+Bien, aquí, en el shell Mongo, estoy conectado a nuestro grupo Atlas de clase.
+
+Usemos la base de datos de video y luego, en este primer ejemplo, filtraremos por una coincidencia exacta con un array.
+
+Ahora, para este tipo de filtros, los documentos coincidentes deben tener un valor que sea exactamente el que hemos ingresado como array.
+
+Entonces, para el reparto de consultas, y luego para buscar a Jeff Bridges y Tim Robbins, y déjenme decirlo bien, **los documentos coincidentes tendrán un campo de conversión que tiene como valor un array con exactamente dos elementos: Jeff Bridges, seguido de Tim Robbins, en ese orden**.
+
+Solo hay una película que coincide con estos criterios.
+
+Es un documental llamado "Making of Arlington Road". Tenga en cuenta que el campo de array coincide exactamente con nuestro filtro.
+
+También tenga en cuenta que, debido a la semántica de los combates en serie, la película "Arlington Road" en sí misma no coincide, porque también incluye a Joan Cusack y Hope Davis, además de Jeff Bridges y Tim Robbins, en el elenco.
+
+Hagamos una consulta rápida para eso.
+
+Y aquí podemos ver que Joan Cusack y Hope Davis también figuran en el elenco.
+
+Como nuestra consulta original especificaba que queremos que la conversión sea exactamente este array, este documento en particular no coincide.
+
+Ahora es más común que filtremos por un solo elemento de un campo de array.
+
+Para hacer esto en MongoDB, simplemente podemos filtrar, por ejemplo, Jeff Bridges, de esta manera.
+
+Los documentos coincidentes contienen la cadena Jeff Bridges como un elemento del reparto del campo de array.
+
+Podemos ver que Jeff Bridges está aquí.
+
+Si nos desplazamos a través de los documentos del array, aparece en cada una de los arrays de reparto, a veces como el primer actor en la lista, y a veces en otras posiciones, como aquí.
+
+Lo bueno de esta sintaxis es que es exactamente lo mismo que los selectores para valores escalares.
+
+En algunas situaciones, queremos hacer coincidir un elemento específico de un array.
+
+Los actores se enumeran con frecuencia en orden de precedencia, y aquellos cuyas contribuciones a una película son más altas aparecen antes en la lista.
+
+Por ejemplo, la estrella de una película aparecerá antes de los actores secundarios, como vemos en el documento de "Iron Man". En esta película, Robert Downey Jr. es la estrella, con Jeff Bridges desempeñando un papel secundario, por lo que Robert Downey Jr. aparece primero.
+
+El lenguaje de consulta MongoDB nos permite especificar que queremos hacer coincidir los elementos del array que ocurren en una posición específica en un array.
+
+Para consultar las películas en las que Jeff Bridges aparece primero entre los miembros del elenco, podemos usar la notación de puntos y especificar un índice de array.
+
+Para esto, será un poco más fácil ver la diferencia si volvemos a Compass.
+
+Entonces, aquí en Compass, una consulta para el elenco Jeff Bridges nos da 114 documentos.
+
+Pero si consultamos a Jeff Bridges en la posición 0 para el campo de conversión, entonces solo tenemos 56 documentos, y podemos ver que en todos y cada uno de estos resultados devueltos, Jeff Bridges aparece primero en el array de conversión.
+
+Ahora, nuevamente, solo para recordarle, si queremos hacer este tipo de consulta en el shell Mongo, será necesario encerrar nuestra clave entre comillas.
+
+Y de nuevo, aquí podemos ver rápidamente que Jeff Bridges aparece en primer lugar para todos estos.
+
+Ahora hemos analizado las coincidencias de igualdad en los arrays con todo el array, haciendo coincidir cualquier elemento del array y luego aquellos basados en un elemento específico del array.
+
+Ahora debe tener una sólida comprensión de la sintaxis para las operaciones de lectura más comunes en los arrays.
 
 ## 20. Examen
 
