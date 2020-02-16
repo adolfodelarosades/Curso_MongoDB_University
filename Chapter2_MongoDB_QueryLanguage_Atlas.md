@@ -4705,7 +4705,7 @@ Check all answers that apply:
 
 * $inc
 
-* $set
+* $set :+1:
 
 * $slice
 
@@ -4721,7 +4721,84 @@ Check all answers that apply:
 
 * $position
 
-
 ## 32. Tema: Eliminar documentos
 
 ### Transcripción
+
+OK.
+
+Ahora veamos la última de nuestras operaciones CRUD, operaciones de eliminación.
+
+El lenguaje de consulta MongoDB admite dos métodos de eliminación diferentes, `deleteOne` y `deleteMany`.
+
+Estos son similares a `insertOne`, `insertMany`, `updateOne`, `updateMany` en el sentido de que el primer argumento es un filtro que estamos utilizando para identificar el documento o documentos que queremos eliminar.
+
+Supongamos que estamos desarrollando una aplicación web y queremos agregar dos funciones adicionales, una de ellas es que los usuarios de nuestro sitio web pueden eliminar las reseñas que han hecho de películas y que, cuando sea necesario, podemos eliminar todas las reseñas de un usuario individual, por ejemplo, si elige eliminar su cuenta.
+
+Ahora, de nuevo, vamos a trabajar en el shell MongoDB solo como una demostración del uso de `deleteOne` y `deleteMany` en este tipo de aplicación hipotética.
+
+Y para analizar este ejemplo, me gustaría presentar un conjunto de datos adicional, y ese es un pequeño conjunto de revisiones de datos.
+
+Ahora, como hicimos con el conjunto de datos de detalles de la película, podemos cargar este conjunto de datos de reseñas utilizando el shell Mongo.
+
+En los folletos de esta lección, proporcioné un script llamado `loadReviewsDataset.js`.
+
+Puede usar el shell Mongo para ejecutar este script, y el script cargará la colección de reseñas en el host que especifique.
+
+Ahora aquí, he especificado los hosts para mi clúster Atlas Sandbox y proporcioné mi nombre de usuario y contraseña, aunque he ocultado la contraseña aquí.
+
+Una vez más, para que pueda hacer esto por sí mismo, deberá proporcionar sus propios nombres de host, nombre de usuario y contraseña del clúster Atlas.
+
+Y nuevamente, este es el nombre de usuario administrativo y la contraseña que creó cuando configuró su clúster Atlas Sandbox.
+
+Ahora, una última cosa que quiero señalar aquí es que estoy especificando la base de datos de video.
+
+Entonces, cuando me conecte aquí, voy a usar la base de datos de video y, por lo tanto, cargar el conjunto de datos de revisiones creará una colección en la base de datos de video.
+
+Ahora, sabemos lo suficiente sobre el lenguaje de consulta MongoDB para comprender realmente cómo funciona este script.
+
+En realidad es bastante simple.
+
+Llamamos a `insertMany`, pasándole una variedad de documentos de revisión.
+
+Nuevamente, db debería ser una referencia a la base de datos de video y lo será si especificó el video como la base de datos para conectarse cuando ejecuta este script.
+
+OK.
+
+Así que echemos un vistazo a esta colección en Compass.
+
+Puede tener una idea bastante clara de cuál es la estructura de los documentos.
+
+Tenga en cuenta que hay 20 documentos en total, y quiero llamar su atención sobre este ID de objeto.
+
+Para eliminar las revisiones, una forma de hacerlo es mediante su identificador único.
+
+Y, de hecho, para esta llamada a `deleteOne`, eso es exactamente lo que vamos a hacer: 595b, 9b3b.
+
+De hecho, nuestra declaración `deleteOne` eliminará este primer documento de nuestra colección.
+
+Así que ahora sigamos adelante y ejecutemos esta declaración `deleteOne` en nuestro shell Mongo.
+
+Aquí, estoy conectado a mi clúster Atlas Sandbox, y voy a ejecutar deleteOne.
+
+Y podemos ver en el resultado que mi eliminación fue exitosa y que eliminé un documento.
+
+Si volvemos a Compass y actualizamos, podemos ver que ahora tenemos 19 documentos y que el primer documento ya no está.
+
+Ahora sigamos adelante y ejecutemos esta declaración deleteMany.
+
+Ahora, aquí lo que vamos a hacer es eliminar todas las reseñas que fueron creadas por el revisor 795 y así sucesivamente.
+
+Así que busquemos a este revisor en nuestro conjunto de datos de Compass.
+
+Entonces, si agrego este filtro y aplico, podemos ver que tengo tres documentos, todos ellos creados por el revisor Emile T, todos con el mismo identificador único para la ID del revisor.
+
+Entonces, si ejecuto este método en el shell Mongo, vemos que tengo un conteo eliminado de tres, por lo que mi eliminación fue exitosa.
+
+Y si vuelvo a Compass y actualizo, este filtro ya no coincide con ningún documento.
+
+Y, de hecho, si restablezco y miro todos los documentos de esta colección, puedo ver que ahora tengo 16 documentos.
+
+Así que eliminé un documento con mi declaración `deleteOne` y luego tres más con mi declaración `deleteMany`, llevándome de 20 documentos a 16.
+
+Y eso es eliminar operaciones en MongoDB, usando `deleteOne` y `deleteMany.
