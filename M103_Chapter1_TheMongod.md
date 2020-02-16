@@ -108,11 +108,16 @@ Shutdown the new server:
 mongo admin --port 30000 --eval 'db.shutdownServer()'
 ```
 
+### Transcripción
+
+
 ## 2. Examen
 
 ## 3. Laboratorio: Lanzamiento de Mongod
 
 ## 4. Tema: Archivo de Configuración
+
+### Transcripción
 
 ## 5. Examen
 
@@ -120,39 +125,57 @@ mongo admin --port 30000 --eval 'db.shutdownServer()'
 
 ## 7. Tema: Estructura de Archivo
 
+### Transcripción
+
 ## 8. Examen
 
 ## 9. Laboratorio: Cambiar la Ruta de Acceso a la Base de Datos Predeterminada
 
 ## 10. Tema: Comandos Básicos
 
+### Transcripción
+
 ## 11. Examen
 
 ## 12. Tema: Conceptos Básicos de Registro
+
+### Transcripción
 
 ## 13. Examen
 
 ## 14. Tema: Perfil de la Base de Datos
 
+### Transcripción
+
 ## 15. Examen
 
 ## 16. Laboratorio: Inicio de Sesión en una Instalación Diferente
 
-## 17. Conferencia: Seguridad Básica: Parte 1
+## 17. Tema: Seguridad Básica: Parte 1
 
-## 18. Conferencia: Seguridad Básica: Parte 2
+### Transcripción
+
+## 18. Tema: Seguridad Básica: Parte 2
+
+### Transcripción
 
 ## 19. Examen
 
-## 20. Conferencia: Roles Incorporados: Parte 1
+## 20. Tema: Roles Incorporados: Parte 1
 
-## 21. Conferencia: Roles Incorporados: Parte 2
+### Transcripción
+
+## 21. Tema: Roles Incorporados: Parte 2
+
+### Transcripción
 
 ## 22. Examen
 
 ## 23. Laboratorio: Creación del Primer Usuario de la Aplicación
 
 ## 24. Tema: Descripción General de las Herramientas del Servidor
+
+### Transcripción
 
 ## 25. Examen
 
