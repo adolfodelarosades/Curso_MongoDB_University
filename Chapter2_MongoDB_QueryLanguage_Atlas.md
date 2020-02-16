@@ -4729,6 +4729,12 @@ OK.
 
 Ahora veamos la última de nuestras operaciones CRUD, operaciones de eliminación.
 
+```sh
+db.reviews.deleteOne({_id: ObjectId("595b0937411bedf6bed99b3b")});
+
+db.reviews.deleteMany({reviewer_id: 759723314});
+```
+
 El lenguaje de consulta MongoDB admite dos métodos de eliminación diferentes, `deleteOne` y `deleteMany`.
 
 Estos son similares a `insertOne`, `insertMany`, `updateOne`, `updateMany` en el sentido de que el primer argumento es un filtro que estamos utilizando para identificar el documento o documentos que queremos eliminar.
