@@ -3891,35 +3891,39 @@ Y este array tiene un elemento, que es la revisión que especificamos en nuestra
 
 Ahora agreguemos algunas reseñas más.
 
-
 ```sh
 let reviewText2 = [
-  "Matthew Samuel","text":"There have been better movies made about space, and there are ",
+  "There have been better movies made about space, and there are ",
   "elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ",
   "and film cliches."
 ].join()
+
 let reviewText3 = [
-  "Jarrad C","text":"The Martian Review: There are some movies you know going into them that they're going to be great.",
+  "The Martian Review: There are some movies you know going into them that they're going to be great.",
   "The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ",
   "(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ",
   "was happy that it ended)"
 ].join()
+
 let reviewText4 = [
   "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ",
   "about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ",
   "out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ",
   "significance that is both poignant and naively inspiring."
 ].join()
+
 let reviewText5 = [
   "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ",
   "an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
 ].join()
+
 let reviewText6 = [
   "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ",
   "learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ",
   "presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ",
   "we'll overcome every adversity)." 
 ].join()
+
 let reviewText7 = [
   "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ",
   "Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ",
@@ -3931,36 +3935,38 @@ db.movieDetails.updateOne({
 }, {
   $push: {
     reviews: {
-      rating: 2.5,
-      date: ISODate("2016-01-12T07:00:00Z"),
-      reviewer: "Matthew Samuel",
-      text: reviewText2
-    }, {
-      rating: 5.0,
-      date: ISODate("2016-01-13T09:00:00Z"),
-      reviewer: "Jarrad C",
-      text: reviewText3
-    }, {
-      rating: 3.0,
-      date: ISODate("2016-01-14T08:00:00Z"),
-      reviewer: "hunterjt13",
-      text: reviewText4
-    }, {
-      rating: 4.5,
-      date: ISODate("2016-01-15T09:00:00Z"),
-      reviewer: "Eugene B",
-      text: reviewText5
-    }, {
-      rating: 3.5,
-      date: ISODate("2016-01-16T10:00:00Z"),
-      reviewer: "Kevin M. W",
-      text: reviewText6
-    }, {
-      rating: 4.5,
-      date: ISODate("2016-01-17T11:00:00Z"),
-      reviewer: "Drake T",
-      text: reviewText7
-    }
+      $each: [{
+        rating: 2.5,
+        date: ISODate("2016-01-12T07:00:00Z"),
+        reviewer: "Matthew Samuel",
+        text: reviewText2
+      }, {
+        rating: 5.0,
+        date: ISODate("2016-01-13T09:00:00Z"),
+        reviewer: "Jarrad C",
+        text: reviewText3
+      }, {
+        rating: 3.0,
+        date: ISODate("2016-01-14T08:00:00Z"),
+        reviewer: "hunterjt13",
+        text: reviewText4
+      }, {
+        rating: 4.5,
+        date: ISODate("2016-01-15T09:00:00Z"),
+        reviewer: "Eugene B",
+        text: reviewText5
+      }, {
+        rating: 3.5,
+        date: ISODate("2016-01-16T10:00:00Z"),
+        reviewer: "Kevin M. W",
+        text: reviewText6
+      }, {
+        rating: 4.5,
+        date: ISODate("2016-01-17T11:00:00Z"),
+        reviewer: "Drake T",
+        text: reviewText7
+      }
+    ]}
   }
 }) 
 ```
@@ -3969,23 +3975,199 @@ Nuevamente estoy creando texto de revisión.
 
 Y en este caso estoy creando varios de ellos.
 
-Pero echemos un vistazo a nuestra updateOne.
+Pero echemos un vistazo a nuestra `updateOne`.
 
-De nuevo, estamos usando $ push.
+De nuevo, estamos usando `$push`.
 
-Y como se esperaba, estamos avanzando hacia la matriz de revisiones.
+Y como se esperaba, estamos pushing en el reviews array.
 
-Pero aquí estamos usando cada modificador para push.
+Pero aquí estamos usando el modificador `$each` para `push`.
 
-Algunos de nuestros operadores de actualización, particularmente aquellos que tienen que ver con matrices, tienen modificadores asociados con ellos.
+Algunos de nuestros operadores de actualización, particularmente aquellos que tienen que ver con arrays, tienen modificadores asociados con ellos.
 
-Este modificador significa que $ push agregará cada uno de estos documentos como elementos individuales a la matriz de revisiones.
+Este modificador significa que `$push` agregará cada uno de estos documentos como elementos individuales al array de reviews.
 
-Si no usamos $ cada uno aquí, entonces toda la matriz especificada en nuestro uso de $ push se agregaría como un solo elemento en esa matriz.
+Si no usamos `$each` aquí, entonces todo el array especificado en nuestro `$push` se agregaría como un solo elemento en ese array.
 
 En algunas circunstancias, eso podría ser lo que queremos, pero no en este caso.
 
-Así que ejecutemos este comando y luego miremos nuestro documento marciano.
+Así que ejecutemos este comando y luego miremos nuestro documento "The Martian".
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let reviewText2 = [
+...   "There have been better movies made about space, and there are ",
+...   "elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ",
+...   "and film cliches."
+... ].join()
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let reviewText3 = [
+...   "The Martian Review: There are some movies you know going into them that they're going to be great.",
+...   "The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ",
+...   "(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ",
+...   "was happy that it ended)"
+... ].join()
+
+let reviewText4 = [
+  "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ",
+  "about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ",
+  "out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ",
+  "significance that is both poignant and naively inspiring."
+].join()
+
+let reviewText5 = [
+  "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ",
+  "an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+].join()
+
+let reviewText6 = [
+  "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ",
+  "learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ",
+  "presents is grounMongoDB Enterprise Cluste
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let reviewText4 = [
+...   "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ",
+...   "about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ",
+...   "out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ",
+...   "significance that is both poignant and naively inspiring."
+... ].join()
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+let reviewText5 = [
+  "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ",
+  "an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+].join()
+
+let reviewText6 = [
+  "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ",
+  "learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ",
+  "presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ",
+  "we'll overcome every adversity)." 
+].join()
+
+let reviewText7 = [
+  "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ",
+  "Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ",
+  "An engaging, exciting, funny and beautifullet reviewText5 = [
+...   "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ",
+...   "an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+... ].join()
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+let reviewText6 = [
+  "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ",
+  "learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ",
+  "presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ",
+  "we'll overcome every adversity)." 
+].join()
+
+let reviewText7 = [
+  "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ",
+  "Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ",
+  "An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+].join()
+
+db.movieDetails.updateOne({
+  title: "The Martian"
+}, {
+  $push: {
+    reviews: {
+      $each: [{
+        rating: 2.5,
+        date: ISODate("2016-01-12T07:00:00Z"),
+        reviewer: "Matthew Samuel",
+    MongoDB Enterprise Cluster0-shard-0:PRIMAlet reviewText6 = [
+...   "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ",
+...   "learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ",
+...   "presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ",
+...   "we'll overcome every adversity)." 
+... ].join()
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let reviewText7 = [
+...   "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ",
+...   "Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ",
+...   "An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+... ].join()
+
+db.movieDetails.updateOne({
+  title: "The Martian"
+}, {
+  $push: {
+    reviews: {
+      $each: [{
+        rating: 2.5,
+        date: ISODate("2016-01-12T07:00:00Z"),
+        reviewer: "Matthew Samuel",
+        text: reviewText2
+      }, {
+        rating: 5.0,
+        date: ISODate("2016-01-13T09:00:00Z"),
+        reviewer: "Jarrad C",
+        text: reviewText3
+      }, {
+        rating: 3.0,
+        date: ISODate("2016-01-14T08:00:00Z"),
+        reviewer: "hunterjt13",
+        text: reviewText4
+      }, {
+        rating: 4.5,
+        date: ISODate("2016-01-15T09:00:00Z"),
+        reviewer: "Eugene B",
+        text: reviewText5
+      }, {
+        rating: 3.5,
+        date: ISODate("2016-01-16T10:00:00Z"),
+        reviewer: "Kevin M. W",
+        text: reviewText6
+      }, {
+        rating: 4.5,
+        date: ISODate("2016-01-17T11:00:00Z"),
+        reviewer: "Drake T",
+        text: reviewText7
+      }
+    ]}
+  }
+}) MongoDB Enterprise Cluster0-shard-0:PRIMAR
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateOne({
+...   title: "The Martian"
+... }, {
+...   $push: {
+...     reviews: {
+...       $each: [{
+...         rating: 2.5,
+...         date: ISODate("2016-01-12T07:00:00Z"),
+...         reviewer: "Matthew Samuel",
+...         text: reviewText2
+...       }, {
+...         rating: 5.0,
+...         date: ISODate("2016-01-13T09:00:00Z"),
+...         reviewer: "Jarrad C",
+...         text: reviewText3
+...       }, {
+...         rating: 3.0,
+...         date: ISODate("2016-01-14T08:00:00Z"),
+...         reviewer: "hunterjt13",
+...         text: reviewText4
+...       }, {
+...         rating: 4.5,
+...         date: ISODate("2016-01-15T09:00:00Z"),
+...         reviewer: "Eugene B",
+...         text: reviewText5
+...       }, {
+...         rating: 3.5,
+...         date: ISODate("2016-01-16T10:00:00Z"),
+...         reviewer: "Kevin M. W",
+...         text: reviewText6
+...       }, {
+...         rating: 4.5,
+...         date: ISODate("2016-01-17T11:00:00Z"),
+...         reviewer: "Drake T",
+...         text: reviewText7
+...       }
+...     ]}
+...   }
+... }) 
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+
+```
 
 Y aquí podemos ver que, de hecho, hemos agregado siete revisiones adicionales.
 
