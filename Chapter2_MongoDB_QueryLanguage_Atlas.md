@@ -3699,11 +3699,11 @@ Para seguir este tema, debe conectarse al clúster de sandbox en el que ha impor
 
 ### Transcripción
 
-Lo que me gustaría hacer ahora es darle una idea de los diferentes tipos de operadores de actualización de campo que tenemos disponibles para nosotros.
+Lo que me gustaría hacer ahora es darle una idea de los diferentes tipos de **operadores de actualización de campo** que tenemos disponibles para nosotros.
 
 Utilizamos **`$set`**. 
 
-Este reemplaza o agrega completamente cada campo especificado en su parámetro como vimos en ejemplos anteriores.
+Este **reemplaza o agrega completamente cada campo especificado en su parámetro** como vimos en ejemplos anteriores.
 
 Echemos un vistazo a las otras opciones que tenemos para los operadores de actualización.
 
@@ -3717,7 +3717,7 @@ Esto **eliminará por completo el campo que especificamos de un documento**.
 
 Otros aquí incluyen `$min` y `$max`.
 
-Estos nos permiten actualizar un campo basado en la comparación con otro valor tomando el mínimo de los dos valores o el máximo de los dos valores.
+Estos nos permiten **actualizar un campo basado en la comparación con otro valor tomando el mínimo de los dos valores o el máximo de los dos valores**.
 
 Podemos ver que hay otros operadores.
 
@@ -3801,7 +3801,7 @@ Y las opiniones de los usuarios superaron los 105,000.
 
 <img src="/images/c2/26-compass-the-martian-inc.png">
 
-Ahora pasemos a los campos de array.
+**Ahora pasemos a los campos de array**.
 
 Como se puede imaginar, hay una serie de situaciones en las que queremos actualizar los valores de un array.
 
@@ -4179,7 +4179,21 @@ No dudes en experimentar por ti mismo con la colección de detalles de la pelíc
 
 Te animo a que pruebes tantos operadores de actualización como puedas utilizando la documentación de MongoDB como guía.
 
-## 27. Examen
+## 27. Examen Update Operators
+
+**Problem:**
+
+Which of the following best describes the purpose of update operators?
+
+Choose the best answer:
+
+* To specify how one or more fields should be modified in matching documents. :+1:
+
+* To replace matching documents in update operations.
+
+* As filters to identify documents that should be updated.
+
+* To identify fields to be updated in matching documents.
 
 ## 28. Tema: Actualización de documentos: updateMany ()
 
