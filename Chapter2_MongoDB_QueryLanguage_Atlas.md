@@ -4165,11 +4165,11 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateOne({
 ... }) 
 { "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
-
-
 ```
 
 Y aquí podemos ver que, de hecho, hemos agregado siete revisiones adicionales.
+
+<img src="/images/c2/26-compass-the-martian-reviews-7.png">
 
 Y con eso, hemos concluido nuestra visión general de los operadores de actualización.
 
