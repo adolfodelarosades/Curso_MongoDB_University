@@ -4404,6 +4404,137 @@ Aspecto importante a considerar sobre `replaceOne`:
 
 ### Transcripción
 
+En esta lección, vamos a ver los comandos `replaceOne`.
+
+Pero antes de entrar en los detalles reales de cómo usar este comando, la sintaxis y la semántica, echemos un vistazo al principio primero.
+
+```js
+let filter = {title: "House, M.D., Season Four: New Beginnings"}
+
+let doc = db.movieDetails.findOne(filter);
+
+doc.poster;
+
+doc.poster = "https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576";
+
+doc.genres;
+
+doc.genres.push("TV Series");
+
+db.movieDetails.replaceOne(filter, doc);
+```
+
+En mi colección `video.movieDetails`, puedo encontrar documentos, documentos de películas, que coinciden con el título, "House, M.D., Season Four: New Beginnings", una serie de televisión muy popular por EEUU.
+
+Una vez que ejecuto ese hallazgo en mi interfaz de Compass, puedo ver la estructura de mi documento.
+
+<img src="/images/c2/30-compass-serie.png">
+
+Aquí, tengo toda la información sobre esta película en particular.
+
+Ahora, una cosa que estoy notando aquí es que la información del póster está configurada como `null`, y la información de géneros aquí solo está compuesta por `"Documentary"` y `"Short"`.
+
+Eso me indica que realmente tengo información que necesita ser actualizada.
+
+Tengo información para el póster, y me gustaría ampliar el campo de los géneros al incluir `"TV series"` como un género para esta película en particular.
+
+Y para eso, voy a usar el método `replaceOne`.
+
+Ahora, ya ha visto otros métodos para escribir, como inserciones y actualizaciones.
+
+Y esta es solo otra extensión de la misma capacidad que tenemos para escribir datos, actualizar datos o grabar datos.
+
+Y vamos a analizar esto desde el contexto de una aplicación.
+
+```js
+let filter = {title: "House, M.D., Season Four: New Beginnings"}
+
+let doc = db.movieDetails.findOne(filter);
+
+doc.poster;
+
+doc.poster = "https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576";
+
+doc.genres;
+
+doc.genres.push("TV Series");
+
+db.movieDetails.replaceOne(filter, doc);
+```
+
+Ahora, vamos a usar el shell Mongo, que es un intérprete de JavaScript.
+
+Eso nos permite imitar cómo será el comportamiento natural de una aplicación.
+
+Lo primero que voy a hacer es especificar el filtro por el que quiero encontrar un documento que quiero reemplazar.
+
+En este caso, es el título `"House, M.D., Season Four: New Beginnings"`, perfecto.
+
+Y luego usaré el método `movieDetails.findOne` para recuperar solo un documento que coincida con ese filtro.
+
+Sigamos adelante y hagámoslo en el Shell de Mongo.
+
+Una vez que me conecto al shell Mongo en mi colección de películas, puedo especificar el filtro, que determina qué estoy buscando, qué documentos coinciden con el título que me interesa.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let filter = {title: "House, M.D., Season Four: New Beginnings"}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> filter
+{ "title" : "House, M.D., Season Four: New Beginnings" }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y luego, usando el método `findOne` en mis `movieDetails`, pasando ese filtro, obtengo una variable, o puedo establecer una variable, llamada `doc` con esa misma información.
+
+Cuando lo analizo, puedo ver toda la información, incluido el hecho de que el póster no está allí, y los géneros solo se corresponden a `"Documentary"` y `"Short"`.
+
+Ahora que lo sé, tengo que ir a los campos de mi póster y especificar el valor de ese póster en esa cadena en particular que representa la información del póster que quiero adjuntar.
+
+Genial, ahora estoy configurando el campo del póster con esa información.
+
+El siguiente paso es analizar mis géneros.
+
+Y puedo ver que es un array compuesto por dos valores de cadena.
+
+Ahora, lo que me gustaría hacer es incluir a ese array una nueva, Serie de TV.
+
+Una vez que hago eso, y busco en mis géneros nuevamente, puedo ver que ahora el array se ha actualizado y se le ha agregado un nuevo valor.
+
+En este momento, mi documento está completamente configurado con toda la información que quiero: el póster y los géneros.
+
+Pero esto es solo en el contexto del shell Mongo actualmente.
+
+La base de datos aún no se ha actualizado, porque no le hemos dicho que se actualice.
+
+Una forma de hacerlo sería utilizar el método de reemplazo `replace`.
+
+El método de reemplazo tomará un filtro.
+
+Vamos a usar exactamente el mismo que antes, donde el título es igual a House M.D., lo que sea, lo que sea.
+
+Y vamos a utilizar la misma variable que hemos estado cambiando a lo largo de la ejecución de este shell Mongo con la configuración que queramos, como configurar el póster y agregar un nuevo valor de serie de TV a los géneros.
+
+Una vez que lo ejecute, lo que sucederá es que MongoDB recibirá este documento, lo emparejará con cualquier documento que encuentre definido por el filtro y lo reemplazará con esta estructura particular.
+
+Ahora, en caso de que hayamos definido un filtro que contenga más de un documento, o haremos coincidir más de un documento, simplemente reemplazará el primero que encontraría.
+
+Es por eso que solo reemplaza uno.
+
+Como podemos ver, como en el resultado de esta ejecución, lo reconocimos, lo cual es genial.
+
+Emparejamos uno de los documentos para nuestra actualización y modificamos ese mismo documento.
+
+Una vez que ejecutamos la consulta nuevamente y recuperamos nuevamente el mismo documento ahora de la base de datos, podemos ver que mi póster ya no es nulo, y los documentales están configurados con la información exacta que quiero.
+
+Ahora, ¿por qué usarías replaceOne en lugar de, por ejemplo, `updateOne`?
+
+`updateOne` está diseñado para, por ejemplo, actualizar un conjunto específico de valores en un documento.
+
+`replaceOne` reemplazará completamente los documentos.
+
+Por un lado, `replaceOne` y `updateOne` hacen exactamente lo mismo, excepto por el hecho de que estamos pasando la carga útil completa de nuestro nuevo documento.
+
+Todos los cambios irán de su aplicación al servidor, mientras que `updateOne puede especificar solo los conjuntos u operadores de conjuntos de campos que le interesen.
+
 ## 31. Laboratorio 2.6: Operadores de actualización
 
 ## 32. Tema: Eliminar documentos
