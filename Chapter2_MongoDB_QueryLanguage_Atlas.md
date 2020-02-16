@@ -4679,6 +4679,8 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.findOne(filter);
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
 ```
 
+<img src="/images/c2/30-compass-serie-replace.png">
+
 **Ahora, ¿por qué usarías `replaceOne` en lugar de, por ejemplo, `updateOne`?**
 
 `updateOne` está diseñado para, por ejemplo, **actualizar un conjunto específico de valores en un documento**.
