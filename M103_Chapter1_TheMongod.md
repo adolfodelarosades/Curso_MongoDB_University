@@ -1,6 +1,10 @@
 # Capítulo 1: El Mongod
+
+### 26 Items.
+
 Standalone node configuration and setup
 Configuración y configuración de nodos independientes
+
 
 ## Lecciones
 
