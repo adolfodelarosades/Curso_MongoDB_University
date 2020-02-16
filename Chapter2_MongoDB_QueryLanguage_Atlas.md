@@ -4287,6 +4287,110 @@ Buena suerte.
 
 ### Transcripción
 
+OK.
+
+Hablemos de las situaciones en las que los operadores de actualización pueden realmente crear nuevos documentos.
+
+Llamamos a estas operaciones **Upserts**.
+
+Cuando estaba creando el conjunto de datos para esta lección, en realidad hice uso de la funcionalidad `upsert` en MongoDB para crear nuestra colección de detalles de películas.
+
+Voy a ver un ejemplo de cómo construí esta colección.
+
+Ahora, hice esto en un script, pero echaré un vistazo a los mismos pasos básicos que seguí aquí en este ejemplo.
+
+Entonces imagina que tenemos este objeto de detalle.
+
+```sh
+{
+  "title": "The Martian",
+  "year": 2015,
+  "rated": "PG-13",
+  "runtime": 144,
+  "countries": [
+    "USA",
+    "UK"
+  ],
+  "genres": [
+    "Adventure",
+    "Drama",
+    "Sci-Fi"
+  ],
+  "director": "Ridley Scott",
+  "writers": [
+    "Drew Goddard",
+    "Andy Weir"
+  ],
+  "actors": [
+    "Matt Damon",
+    "Jessica Chastain",
+    "Kristen Wiig",
+    "Jeff Daniels"
+  ],
+  "plot": "During a manned mission to Mars, Astronaut Mark Watney is presumed dea...",
+  "imdb": {
+    "id": "tt3659388",
+    "rating": 8.2,
+    "votes": 187881
+  },
+  "tomato": {
+    "meter": 93,
+    "image": "certified",
+    "rating": 7.9,
+    "reviews": 283,
+    "fresh": 261,
+    "consensus": "Smart, thrilling, and surprisingly funny, The Martian offers a faithfu...",
+    "userMeter": 92,
+    "userRating": 4.3,
+    "userReviews": 105024
+  },
+  "metacritic": 80,
+  "type": "movie",
+  "poster": "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZT...",
+  "awards": {
+    "wins": 8,
+    "nominations": 14,
+    "text": "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+  }
+}
+```
+
+En el guión que escribí, esencialmente recorrí los datos que estaba trayendo a la base de datos, pero quería asegurarme de no introducir ninguna entrada de película duplicada.
+
+Entonces, la forma en que traté esto fue usando un comando que se parece a esto.
+
+```sh
+db.movieDetails.updateOne({
+  "imdb.id": detail.imdb.id
+}, {
+  $set: detail
+}, {
+   upsert: true
+});
+```
+
+El proceso que utilicé para recopilar los datos que quería poner en la colección de detalles de la película fue tal que no pude garantizar que solo se recuperen las películas que no están presentes en la colección de detalles de la película.
+
+Entonces, lo que decidí hacer fue utilizar el operador `$set`.
+
+El efecto de esto fue que, si el documento ya existía, esencialmente lo reemplacé con exactamente los mismos datos `detail`.
+
+Si aún no existía, `updateOne` realizó una actualización.
+
+El uso de `updateOne` con la opción `upsert` significaba que no necesitaba consultar primero la colección para ver si el documento ya existía y luego hacer una segunda consulta para insertar.
+
+Dejo que MongoDB haga todo el trabajo por mí.
+
+El truco aquí es que estoy usando este tercer parámetro (`upsert`) para `updateOne`, estableciendo `upsert` en true.
+
+Esto significa que si este filtro no coincide con ningún documento de mi colección, este documento(`detail`), que, para el ejemplo "The Martian", sería este, se insertará en la colección.
+
+Y esa es la idea básica para los advenedizos.
+
+Actualice documentos que coincidan con el filtro.
+
+Si no hay ninguno, inserte el documento de actualización como un nuevo documento en la colección.
+
 ## 30. Tema: Actualización de documentos: replaceOne ()
 
 ### Transcripción
