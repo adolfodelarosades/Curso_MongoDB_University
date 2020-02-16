@@ -90,7 +90,7 @@ Al final de este curso, debe estar familiarizado con las diferentes herramientas
 
 Podrá identificar diferentes arquitecturas MongoDB y usar el shell MongoDB para configurarlas.
 
-<img src="/images/m103/c1/1-tools.png">
+<img src="/images/m103/c1/1-3-tools.png">
 
 Entonces, sin más preámbulos, gracias por decidir aprender con nosotros.
 
