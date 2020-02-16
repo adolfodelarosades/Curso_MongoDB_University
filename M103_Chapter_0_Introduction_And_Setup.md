@@ -409,4 +409,278 @@ Check all answers that apply:
 
 ## 5. Laboratorio: Configuración del entorno Vagrant
 
+### Lab: Setting Up the Vagrant Environment
+
+**Problem:**
+
+In order to effectively learn from this class, you should be completing problems in a real MongoDB cluster. To do this, we will use a development environment called Vagrant that makes it easy to provision a virtual machine with Virtualbox.
+
+We first need to download [Vagrant](https://www.vagrantup.com/downloads.html) and [Virtualbox](https://www.virtualbox.org/wiki/Downloads). Vagrant requires that we use the latest version of Virtualbox (in the link), so click the link and download the correct option for your operating system.
+
+Now, download the handout above and create a folder in your home directory called `m103`. Copy the handout to this directory and then navigate to the handout directory `m103-vagrant-env` in your terminal. Bring up your Vagrant environment by running these commands (this will take a few minutes):
+
+```sh
+vagrant up --provision
+```
+
+This command brings up your virtual machine, if it's not already running. It also builds directories in the VM and downloads all the software and validation scripts necessary to complete this course.
+
+```sh
+vagrant ssh
+```
+
+This command connects to your Vagrant instance using SSH. If it prompts you for a username/password, use the username **vagrant** and the password **vagrant**.
+
+To validate that your box is running properly, execute the following command from the Vagrant command line:
+
+```sh
+vagrant@m103:~$ validate_box
+```
+
+Please enter the validation key you receive here:
+
+Enter answer here:
+
 ## 6. Tema: Solución de problemas del entorno Vagrant
+
+### Troubleshooting the Vagrant Environment
+
+In this lesson you can find the common pitfalls for setting up your vagrant environment as well as the troubleshooting guide .
+
+#### Error while mounting shared folders
+
+```sh
+==> mongodb-mXXX: Mounting shared folders...
+    mongodb-mXXX: /home/vagrant/shared => /Users/example/MXX/shared
+Vagrant was unable to mount VirtualBox shared folders. This is usually
+because the filesystem "vboxsf" is not available. This filesystem is
+made available via the VirtualBox Guest Additions and kernel module.
+Please verify that these guest additions are properly installed in the
+guest. This is not a bug in Vagrant and is usually caused by a faulty
+Vagrant box. For context, the command attempted was:
+
+mount -t vboxsf -o uid=1000,gid=1000 home_vagrant_shared /home/vagrant/shared
+
+The error output from the command was:
+
+mount: unknown filesystem type 'vboxsf'
+```
+
+Here is a possible solution:
+
+```sh
+mXXX-vagrant-env$ vagrant plugin update vagrant-vbguest
+mXXX-vagrant-env$ vagrant destroy
+mXXX-vagrant-env$ vagrant up
+```
+
+**IP mismatch while doing ssh**
+
+```sh
+mXXX-vagrant-env$ vagrant ssh
+Welcome to Ubuntu 14.04.5 LTS (GNU/Linux 3.13.0-153-generic x86_64)
+<–some text–>
+Swap usage: 0% IP address for eth1: 192.168.X.X
+<–some more text–>
+vagrant@mXXX:~$
+```
+
+If you are not able to view IP address for eth1 as shown above, then you can check the IP using:
+
+```sh
+vagrant@mXXX:~ ping m103
+```
+
+If the IP address for eth1(192.168.X.X) or the IP address in the output of above ping command differs for some reason, then destroy your vagrant using:
+
+
+```sh
+vagrant@mXXX:~ exit
+mXXX-vagrant-env$ vagrant destroy
+```
+
+Then re-provision your vagrant VM by running vagrant up again. If it still doesn't work, then please share the following:
+
+* what was the value in the VM
+* what is the value for the host
+* output of vagrant global status
+
+**Localhost IP mismatch while configuring replica sets:**
+
+If you encounter below error:
+
+```sh
+Failed to connect to 127.0.1.1:27001, in(checking socket for error after poll), reason: Connection refused
+```
+
+Check the localhost IP address using:
+
+```sh
+vagrant@mXXX:~ ping localhost
+```
+
+If the IP address is set to 127.0.1.1, instead of expected 127.0.0.1, then run the following command to resolve this issue:
+
+```sh
+vagrant@mXXX:~ exit
+mXXX-vagrant-env$ vagrant halt
+mXXX-vagrant-env$ vagrant up --provision
+```
+
+**Password for vagrant?**
+
+If you are being asked for the password, then credentials are:
+
+```sh
+username: vagrant
+password: vagrant
+```
+
+*Need to Enter Password Again and Again for Vagrant ??*
+
+Solution:
+
+If you are working with PuTTy and every time you enter vagrant, it asks for your password, please try the following solution:
+
+1. Open the **PuTTYgen** utility;
+2. Click on the Load button;
+3. Open the private_key file under the VM directory structure
+4. Change the value in the Number of bits in a generated key: field to 2048 , leave everything else as it is
+5. Save the file as private.ppk
+6. Use this `private.ppk` file as the "private key file for authentication" in PuTTy session config
+
+All works fine Source: [https://github.com/Varying-Vagrant-Vagrants/VVV/wiki/Connect-to-Your-Vagrant-Virtual-Machine-with-PuTTY](https://github.com/Varying-Vagrant-Vagrants/VVV/wiki/Connect-to-Your-Vagrant-Virtual-Machine-with-PuTTY)
+
+**Public Key not available error**
+
+If you encounter below error:
+
+```sh
+database: Reading package lists...
+ database: W
+ database: :
+ database: GPG error: http://repo.mongodb.com trusty/mongodb-enterprise/3.2 Release: The following signatures could not be verified because the public key is not available: NO_PUBKEY D68FA50FEA312927
+ database: + install_mongod
+ database: + echo 'Install MongoDB Enterprise'
+ ........
+ database: There are problems and -y was used without --force-yes
+ The SSH command responded with a non-zero exit status. Vagrant
+ assumes that this means the command failed. The output for this command
+ should be in the log above. Please read the output to determine what
+ went wrong.
+```
+
+The possible solution is:
+
+Modify the line **"apt-get install -y mongodb-enterprise"** in **provision-mongod** file under m103-vagrant-env directory to:
+
+```sh
+sudo apt-get install -y mongodb-enterprise --force-yes
+```
+
+**Vagrant Issues on windows:**
+
+*Must redirect to new repository for old Vagrant versions*
+
+If you encounter this error when provisioning vagrant:
+
+```sh
+G:\mXXX>vagrant up --provision
+```
+
+Must redirect to new repository for old Vagrant versions It just hangs there for a long time.
+
+Here are some steps that were followed by some students that worked:
+
+For `Windows7 SP1 machine` :
+
+1. Download the latest versions of vagrant and virtual box.
+2. Update Powershell from 2 to 3 using the instructions here: [https://docs.microsoft.com/en-us/skypeforbusiness/set-up-your-computer-for-windows-powershell/download-and-install-windows-powershell-3-0](https://docs.microsoft.com/en-us/skypeforbusiness/set-up-your-computer-for-windows-powershell/download-and-install-windows-powershell-3-0)
+3. Enable the virtualization in the BIOS (on some machines, it was under device configuration), Steps to do it can be found out here: Enable-Hardware- [https://www.wikihow.tech/Enable-Hardware-Virtualization](https://www.wikihow.tech/Enable-Hardware-Virtualization)
+
+Launch `vagrant --repair` or the command mentioned in error message, and again ran `vagrant up`, then try again.
+
+**Stderr: VBoxManage.exe: error: VT-x is not available**
+
+If you encounter below error:
+
+```sh
+Command: ["startvm", "d3da0d72-3297-4e35-b301-23c8cfb4db96", ""–type",
+"headless "]
+Stderr: VBoxManage.exe: error: VT-x is not available (VERR_VMX_NO_VMX)
+VBoxManage.exe: error: Details: code E_FAIL (0x80004005), component
+ConsoleWrap, interface IConsole
+```
+
+Here is the possible solution:
+
+1. Enable virtualization in the BIOS.
+2. Make sure you have Hyper-V turned off in Windows 10 For Windows 10: Press Windows key. Type "Turn Windows features on or off" Deselect the checkbox next to Hyper-V. Select OK. Select Restart now.
+
+**Vagrant issues on Ubuntu:**
+
+`VBoxManage: error: Failed to create the host-only adapter`
+
+Error:
+
+
+```sh
+==> mongod-mXXX: Clearing any previously set network interfaces…
+There was an error while executing VBoxManage, a CLI used by Vagrant
+for controlling VirtualBox. The command and stderr is shown below.
+Command: ["hostonlyif", "create"]
+Stderr: 0%…
+Progress state: NS_ERROR_FAILURE
+VBoxManage: error: Failed to create the host-only adapter
+VBoxManage: error: VBoxNetAdpCtl: Error while adding new interface: failed to open /dev/vboxnetctl: No such file or directory
+VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component HostNetworkInterfaceWrap, interface IHostNetworkInterface
+VBoxManage: error: Context: "RTEXITCODE handleCreate(HandlerArg*)" at line 94 of file VBoxManageHostonly.cpp
+1355238bc7db15948d1084776f2d62c9d060a2dd.png
+```
+
+Possible Solution:
+
+* Disable the Secure Boot on your Ubuntu machine.
+
+Steps to disable Secure boot:
+
+* Click simultaneously the shortcut Restart + Shift key.
+* Click Troubleshoot → Advanced options → Start-up Settings → Restart.
+* Click repeatedly the F10 key (BIOS setup), before the "Startup Menu" opens.
+* Go to Boot Manager and disable the option Secure Boot. ...
+* Save the changes and reboot.
+
+**SSL error**
+
+```sh
+Error: SSL certificate problem: self signed certificate in certificate chain
+Bringing machine 'mongod-mXXX' up with 'virtualbox' provider…
+==> mongod-mXXX: Box 'ubuntu/trusty64' could not be found. Attempting to find and install…
+mongod-mXXX: Box Provider: virtualbox
+mongod-mXXX: Box Version: >= 0
+The box 'ubuntu/trusty64' could not be found or
+could not be accessed in the remote catalog. If this is a private
+box on HashiCorp's Vagrant Cloud, please verify you're logged in via
+vagrant login. Also, please double-check the name. The expanded
+URL and error message are shown below:
+URL: ["https://vagrantcloud.com/ubuntu/trusty64 1"]
+Error: SSL certificate problem: self signed certificate in certificate chain.
+```
+
+This is most likely a consequence of your anti-virus blocking the execution of vagrant or its access the system certificates.
+
+Possible Solution:
+
+*Disable Antivirus and restart you vagrant machine*
+
+**Restarting/Destroying Vagrant from Virtual Box GUI**
+
+*Problem: If you are unsure on how to destroy or restart or shutdown vagrant.*
+
+Solution:
+
+* Open VirtualBox
+* From Left side, right-click on vagrant environment
+* You can see options like : "Start", "Remove" etc
+* You can also modify memory allocation for vagrant environment here.
+
