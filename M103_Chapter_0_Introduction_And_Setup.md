@@ -391,7 +391,21 @@ Gracias por su atención.
 Buena suerte al configurar su propio entorno virtual.
 
 
-## 4. Examen
+## 4. Examen Setting Up the Vagrant Environment
+
+**Problem:**
+
+Why are we using a Vagrant environment?
+
+Check all answers that apply:
+
+* Labs can be completed without interfering with existing settings on your host machine. :+1:
+
+* Troubleshooting is easier when all students are using the same VM. :+1:
+
+* Vagrant makes it easy to copy files from your host machine to the VM. :+1:
+
+* The VM comes with all dependencies necessary for this course. :+1:
 
 ## 5. Laboratorio: Configuración del entorno Vagrant
 
