@@ -3799,7 +3799,7 @@ Y si miramos el documento antes de la actualización de `tomato.reviews` y `toma
 
 Y las opiniones de los usuarios superaron los 105,000.
 
-<img src="/images/c2/25-compass-the-martian-inc.png">
+<img src="/images/c2/26-compass-the-martian-inc.png">
 
 Ahora pasemos a los campos de array.
 
