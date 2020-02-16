@@ -44,7 +44,7 @@ En este curso, veremos la arquitectura general y el comportamiento de un conjunt
 
 En el capítulo final, discutiremos la escalabilidad y cómo MongoDB escala horizontalmente a través del fragmentación.
 
-<img src="/images/1-ss.png">
+<img src="/images/m103/c1/1-ss.png">
 
 En este curso, cubriremos temas como la arquitectura de un clúster fragmentado, cómo se manejan las consultas y cómo elegir la forma en que se distribuyen sus datos.
 
