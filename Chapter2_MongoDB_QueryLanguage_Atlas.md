@@ -4693,6 +4693,35 @@ Todos los cambios irán de su aplicación al servidor, mientras que `updateOne` 
 
 ## 31. Laboratorio 2.6: Operadores de actualización
 
+Lab 2.6: Update Operators
+
+**Problem:**
+
+To work on this lab, you need to connect to the **sandbox cluster** in which you have imported the `video.movieDetails` collection.
+
+Suppose you wish to update the value of the `plot` field for one document in our `movieDetails` collection to correct a typo. Which of the following update operators and modifiers would you need to use to do this?
+
+Check all answers that apply:
+
+* $inc
+
+* $set
+
+* $slice
+
+* $addToSet
+
+* $rename
+
+* $mul
+
+* $push
+
+* $unset
+
+* $position
+
+
 ## 32. Tema: Eliminar documentos
 
 ### Transcripción
