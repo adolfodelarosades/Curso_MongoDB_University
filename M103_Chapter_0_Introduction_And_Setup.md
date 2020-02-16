@@ -192,21 +192,29 @@ After downloading the Handouts (provided in the next Lab), extract the zip folde
 
 From the directory `m103/m103-vagrant-env`, we can bring up the Vagrant environment:
 
-`m103-vagrant-env$ vagrant up`
+```sh
+m103-vagrant-env$ vagrant up
+```
  
 After bringing up the environment, we can provision Vagrant (to download datasets, validation scripts, etc.):
 
-`m103-vagrant-env$ vagrant provision`
+```sh
+m103-vagrant-env$ vagrant provision
+```
  
 Once the environment is provisioned, we can connect with `ssh`:
 
-`m103-vagrant-env$ vagrant ssh`
+```sh
+m103-vagrant-env$ vagrant ssh
+```
  
 As you complete labs in this course, you will be asked to run validation scripts that check your work. These validators are stored inside the VM. You can run these validators from anywhere within the Vagrant environment. Do not run these validators from within a Mongo shell.
 
 If you need to re-download these scripts, run the following command (from Vagrant):
 
-`vagrant@m103:~$ download_validators`
+```sh
+vagrant@m103:~$ download_validators
+```
 
 ## 4. Examen
 
