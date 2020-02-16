@@ -70,5 +70,42 @@ Any topic in this course might be addressed in the final exam.
 
 6 Items
 
-Graded Assignments
+## M103: Basic Cluster Administration
+Learn the essentials of database administration in MongoDB.
 
+5 Chapters
+96 Items
+
+### Chapter 0: Introduction & Setup
+Course overview, development environment setup
+
+6 Items
+Start Date: 04 feb. 17:00 UTC
+Due Date:  18 feb. 17:00 UTC
+
+### Chapter 1: The Mongod
+Standalone node configuration and setup
+
+26 Items
+Start Date: 04 feb. 17:00 UTC
+Due Date:  18 feb. 17:00 UTC
+
+
+### Chapter 2: Replication
+Basic replication concepts and replica set administration
+
+30 Items
+Start Date: 18 feb. 17:00 UTC
+Due Date:  25 feb. 17:00 UTC
+
+### Chapter 3: Sharding
+Sharded cluster creation and management
+
+28 Items
+Start Date: 25 feb. 17:00 UTC
+Due Date:  03 mar. 17:00 UTC
+
+### Final Exam
+Final exam questions
+
+6 Items
