@@ -160,26 +160,27 @@ If in case you have downloaded the version 6.1 then please **uninstall** it and 
 
    The last step of the installation of MinGW is to specify the packages you want to install. From here you can mark rsync and ssh for installation like so:
 
-   https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M310/mingw-rsync.png 
-   https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M310/mingw-ssh.png
-
+   <img src="/images/m103/c3/mingw-rsync.png">
+   
+   <img src="/images/m103/c3/mingw-ssh.png">
+   
    After marking the packages for installation you can go ahead and apply the changes:
 
-   https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M310/mingw-apply.png
+   <img src="/images/m103/c3/mingw-apply.png">
    
    Assuming you've kept the default installation path `rsync` and `ssh` should be installed to the `C:\MinGW\msys\1.0\bin` directory. In order for these tools to be accessible via the command-line (and Vagrant) you'll need to add this directory to your PATH environment variable.
 
    First go to Advanced system settings under System Properties and click "Environment Variables...":
 
-   https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M310/system-properties.png
+   <img src="/images/m103/c3/system-properties.png">
    
    From there select the "Path" variable and click "Edit...".
 
-   https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M310/env-vars.png
+   <img src="/images/m103/c3/env-vars.png">
    
    Directories in the PATH environment variable are deliminated by semicolons. You can now append the C:\MinGW\msys\1.0\bin directory to the end of the "Variable value."
 
-   https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M310/edit-path.png
+   <img src="/images/m103/c3/edit-path.png">
 
    You can confirm that `rsync` and `ssh` are both successfully installed and accessible via your PATH by launching the command prompt (`cmd`) and running `rsync` and `ssh` respectively. Both commands should output usage information. If you receive an error about not being recognized as an internal or external command then you'll need revisit the steps above.
 
@@ -206,7 +207,6 @@ As you complete labs in this course, you will be asked to run validation scripts
 If you need to re-download these scripts, run the following command (from Vagrant):
 
 `vagrant@m103:~$ download_validators`
-
 
 ## 4. Examen
 
