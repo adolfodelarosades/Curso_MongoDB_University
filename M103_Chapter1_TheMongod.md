@@ -38,6 +38,76 @@ Configuración y configuración de nodos independientes
 
 ## 1. Tema: El Mongod
 
+### Lecture Notes
+
+You can read more about the MongoDB server in the [daemon documentation](https://docs.mongodb.com/manual/reference/program/mongod/).
+
+Note: The `--fork` option is not available on the Windows operating system.
+
+**Lecture Instructions**
+
+Connect to the vagrant box:
+
+```sh
+cd m103-vagrant-env
+vagrant ssh
+```
+
+Launch mongod in our first shell:
+
+```sh
+mongod
+```
+
+Connect to the Mongo shell in our second shell:
+
+```sh
+mongo
+```
+
+Shutdown mongod from our second shell:
+
+```sh
+mongo admin --eval 'db.shutdownServer()'
+```
+
+Find command line options for mongod:
+
+```sh
+mongod --help
+```
+
+Create new data directory and try to launch mongod with a new `port` and `dbpath`, and also `fork` the process:
+
+```sh
+mkdir first_mongod
+mongod --port 30000 --dbpath first_mongod --fork
+```
+
+The above command will fail without a `logpath` - so we add one and then successfully launch mongod:
+
+```sh
+mongod --port 30000 --dbpath first_mongod --logpath first_mongod/mongod.log --fork
+```
+
+Try to connect back to Mongo shell, without specifying a port:
+
+```sh
+mongo
+```
+
+We need to add a port, because our mongod is running on port 30000, not the default 27017:
+
+```sh
+mongo --port 30000
+```
+
+Shutdown the new server:
+
+```sh
+mongo admin --port 30000 --eval 'db.shutdownServer()'
+```
+
 ## 2. Examen
 
 ## 3. Laboratorio: Lanzamiento de Mongod
