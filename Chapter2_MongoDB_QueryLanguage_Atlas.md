@@ -4487,19 +4487,123 @@ Y luego, usando el método `findOne` en mis `movieDetails`, pasando ese filtro, 
 
 Cuando lo analizo, puedo ver toda la información, incluido el hecho de que el póster no está allí, y los géneros solo se corresponden a `"Documentary"` y `"Short"`.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let doc = db.movieDetails.findOne(filter);
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc
+{
+	"_id" : ObjectId("5e3fc385d519ebad647203e1"),
+	"title" : "House, M.D., Season Four: New Beginnings",
+	"year" : 2008,
+	"runtime" : 26,
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Documentary",
+		"Short"
+	],
+	"director" : null,
+	"writers" : [ ],
+	"actors" : [
+		"Cyrus Deboo",
+		"Lisa Edelstein",
+		"Omar Epps",
+		"Christopher Fairbanks"
+	],
+	"plot" : null,
+	"poster" : null,
+	"imdb" : {
+		"id" : "tt1329164",
+		"rating" : 8.7,
+		"votes" : 106
+	},
+	"awards" : {
+		"wins" : 0,
+		"nominations" : 0,
+		"text" : ""
+	},
+	"type" : "movie"
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Ahora que lo sé, tengo que ir a los campos de mi póster y especificar el valor de ese póster en esa cadena en particular que representa la información del póster que quiero adjuntar.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc.poster
+null
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc.poster = "https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576";
+https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc.poster
+https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Genial, ahora estoy configurando el campo del póster con esa información.
 
 El siguiente paso es analizar mis géneros.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc.genres
+[ "Documentary", "Short" ]
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Y puedo ver que es un array compuesto por dos valores de cadena.
 
-Ahora, lo que me gustaría hacer es incluir a ese array una nueva, Serie de TV.
+Ahora, lo que me gustaría hacer es incluir a ese array un nuevo elemento, `"TV Series"`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc.genres.push("TV Series");
+3
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc.genres
+[ "Documentary", "Short", "TV Series" ]
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Una vez que hago eso, y busco en mis géneros nuevamente, puedo ver que ahora el array se ha actualizado y se le ha agregado un nuevo valor.
 
 En este momento, mi documento está completamente configurado con toda la información que quiero: el póster y los géneros.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> doc
+{
+	"_id" : ObjectId("5e3fc385d519ebad647203e1"),
+	"title" : "House, M.D., Season Four: New Beginnings",
+	"year" : 2008,
+	"runtime" : 26,
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Documentary",
+		"Short",
+		"TV Series"
+	],
+	"director" : null,
+	"writers" : [ ],
+	"actors" : [
+		"Cyrus Deboo",
+		"Lisa Edelstein",
+		"Omar Epps",
+		"Christopher Fairbanks"
+	],
+	"plot" : null,
+	"poster" : "https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576",
+	"imdb" : {
+		"id" : "tt1329164",
+		"rating" : 8.7,
+		"votes" : 106
+	},
+	"awards" : {
+		"wins" : 0,
+		"nominations" : 0,
+		"text" : ""
+	},
+	"type" : "movie"
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Pero esto es solo en el contexto del shell Mongo actualmente.
 
@@ -4509,15 +4613,25 @@ Una forma de hacerlo sería utilizar el método de reemplazo `replace`.
 
 El método de reemplazo tomará un filtro.
 
-Vamos a usar exactamente el mismo que antes, donde el título es igual a House M.D., lo que sea, lo que sea.
+Vamos a usar exactamente el mismo que antes, donde el título es igual "House, M.D., Season Four: New Beginnings".
 
 Y vamos a utilizar la misma variable que hemos estado cambiando a lo largo de la ejecución de este shell Mongo con la configuración que queramos, como configurar el póster y agregar un nuevo valor de serie de TV a los géneros.
 
+```sh
+db.movieDetails.replaceOne(filter, doc);
+```
+
 Una vez que lo ejecute, lo que sucederá es que MongoDB recibirá este documento, lo emparejará con cualquier documento que encuentre definido por el filtro y lo reemplazará con esta estructura particular.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.replaceOne(filter, doc);
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Ahora, en caso de que hayamos definido un filtro que contenga más de un documento, o haremos coincidir más de un documento, simplemente reemplazará el primero que encontraría.
 
-Es por eso que solo reemplaza uno.
+Es por `replaceOne`  que solo reemplaza uno.
 
 Como podemos ver, como en el resultado de esta ejecución, lo reconocimos, lo cual es genial.
 
@@ -4525,15 +4639,55 @@ Emparejamos uno de los documentos para nuestra actualización y modificamos ese 
 
 Una vez que ejecutamos la consulta nuevamente y recuperamos nuevamente el mismo documento ahora de la base de datos, podemos ver que mi póster ya no es nulo, y los documentales están configurados con la información exacta que quiero.
 
-Ahora, ¿por qué usarías replaceOne en lugar de, por ejemplo, `updateOne`?
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.findOne(filter);
+{
+	"_id" : ObjectId("5e3fc385d519ebad647203e1"),
+	"title" : "House, M.D., Season Four: New Beginnings",
+	"year" : 2008,
+	"runtime" : 26,
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Documentary",
+		"Short",
+		"TV Series"
+	],
+	"director" : null,
+	"writers" : [ ],
+	"actors" : [
+		"Cyrus Deboo",
+		"Lisa Edelstein",
+		"Omar Epps",
+		"Christopher Fairbanks"
+	],
+	"plot" : null,
+	"poster" : "https://www.imdb.com/title/tt1329164/mediaviewer/rm2619416576",
+	"imdb" : {
+		"id" : "tt1329164",
+		"rating" : 8.7,
+		"votes" : 106
+	},
+	"awards" : {
+		"wins" : 0,
+		"nominations" : 0,
+		"text" : ""
+	},
+	"type" : "movie"
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-`updateOne` está diseñado para, por ejemplo, actualizar un conjunto específico de valores en un documento.
+**Ahora, ¿por qué usarías `replaceOne` en lugar de, por ejemplo, `updateOne`?**
 
-`replaceOne` reemplazará completamente los documentos.
+`updateOne` está diseñado para, por ejemplo, **actualizar un conjunto específico de valores en un documento**.
 
-Por un lado, `replaceOne` y `updateOne` hacen exactamente lo mismo, excepto por el hecho de que estamos pasando la carga útil completa de nuestro nuevo documento.
+`replaceOne` **reemplazará completamente los documentos**.
 
-Todos los cambios irán de su aplicación al servidor, mientras que `updateOne puede especificar solo los conjuntos u operadores de conjuntos de campos que le interesen.
+Por un lado, `replaceOne` y `updateOne` hacen exactamente lo mismo, excepto por el hecho de que con `replaceOne` **estamos pasando la carga útil completa de nuestro nuevo documento**.
+
+Todos los cambios irán de su aplicación al servidor, mientras que `updateOne` **puede especificar solo los conjuntos u operadores de conjuntos de campos que le interesen**.
 
 ## 31. Laboratorio 2.6: Operadores de actualización
 
