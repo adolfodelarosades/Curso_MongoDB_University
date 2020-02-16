@@ -4393,6 +4393,15 @@ Si no hay ninguno, inserte el documento de actualización como un nuevo document
 
 ## 30. Tema: Actualización de documentos: replaceOne ()
 
+### Notas de lectura
+
+Aspecto importante a considerar sobre `replaceOne`:
+
+* El *documento de reemplazo* no puede contener [operadores de actualización](https://docs.mongodb.com/manual/reference/operator/update/index.html#array).
+* `replaceOne` aplicará cambios a un solo documento, el primero encontrado en el servidor que coincide con la expresión del filtro, usando el orden [`$natural`](https://docs.mongodb.com/manual/reference/method/cursor.sort/#return-natural-order) de los documentos en la colección.
+
+[replaceOne() documentation](https://docs.mongodb.com/manual/reference/method/db.collection.replaceOne/)
+
 ### Transcripción
 
 ## 31. Laboratorio 2.6: Operadores de actualización
