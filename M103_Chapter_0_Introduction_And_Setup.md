@@ -216,6 +216,181 @@ If you need to re-download these scripts, run the following command (from Vagran
 vagrant@m103:~$ download_validators
 ```
 
+### Transcripción
+
+Entonces los laboratorios en este curso se completarán dentro de una máquina virtual.
+
+Y esta lección trata sobre cómo configurar la máquina virtual en su máquina host.
+
+Pero primero, ¿por qué estamos usando uno?
+
+La primera es que es para proteger el medio ambiente.
+
+Queremos darle un entorno que pueda usar sin alterar la configuración existente en su máquina local.
+
+Esto también nos permite evitar la dependencia y la resolución de problemas del sistema.
+
+Entonces, todas las dependencias se descargan por usted.
+
+Y puedes concentrarte en el aprendizaje.
+
+Tercero, también nos permite brindar un apoyo más consistente a nuestros estudiantes a lo largo del curso.
+
+Si sabemos que todos están ejecutando el mismo sistema operativo, podemos diagnosticar y resolver más rápidamente los problemas que tenga.
+
+¿Entonces, cómo funciona?
+
+Arrancas una máquina virtual Vagrant en tu computadora.
+
+Y utiliza la memoria, el almacenamiento y la CPU de su computadora para funcionar como una computadora real.
+
+Y mediante el uso de un proceso llamado SSH o Secure Shell, puede conectarse a la máquina virtual.
+
+Una vez que esté conectado, puede tratarlo como una computadora normal.
+
+Y puede conectarlo con su terminal o símbolo del sistema.
+
+En este curso, lanzará procesos mongod y conjuntos de réplicas dentro de su máquina virtual.
+
+Pero para hacer eso, le pediremos que instale dos dependencias.
+
+El primero es VirtualBox.
+
+VirtualBox como un hipervisor de código abierto que nos permite ejecutar máquinas virtuales en su máquina host.
+
+El segundo es Vagrant, que es una herramienta de código abierto que nos permite construir y mantener estos entornos de software virtual muy rápidamente.
+
+Más específicamente, Vagrant hace que sea realmente fácil copiar archivos y compartir archivos desde su máquina host a su máquina virtual.
+
+Por ejemplo, si tenía un folleto de ejercicios o algún código que escribió en su máquina local, puede tomar esos archivos y copiarlos directamente en la máquina virtual.
+
+Veremos más sobre esto en un minuto.
+
+Como parte de las notas de la conferencia, encontrará las instrucciones para instalar estas dos herramientas de software para Windows.
+
+Así que no pasaré mucho tiempo en este video con respecto a eso.
+
+Pero una vez que los tenga instalados, comenzaremos a configurar el entorno de clase virtual.
+
+Primero, vamos a crear un directorio para este curso llamado m103 y un directorio principal llamado universidad.
+
+Este -p aquí crea el directorio principal de la universidad en caso de que no exista.
+
+Así que aquí tenemos una copia recursiva, que es anotada por -r, que se usa para copiar directorios completos en otra ubicación.
+
+En este caso, estamos copiando el directorio m103-vagrant-env en la carpeta m103.
+
+Entonces, ahora que estamos dentro de la carpeta del entorno m103 vagabundo dentro de la carpeta del curso m103, podemos comenzar a mirar el folleto real para ver lo que acabamos de descargar.
+
+Como podemos ver, tenemos un archivo Vagrant y un archivo de aprovisionamiento.
+
+El archivo Vagrant especifica algunos detalles de imagen del sistema operativo de referencia.
+
+Como puede ver, tenemos el sistema operativo que estamos ejecutando, Ubuntu.
+
+Y solo quiero llamar su atención rápidamente sobre esta carpeta que creamos llamada Shared.
+
+Esta carpeta conectará nuestra máquina virtual a nuestra máquina host.
+
+Entonces, en cualquier momento, si desea copiar un archivo de su máquina host en la máquina virtual, ya sea un folleto para un laboratorio o algún código que escribió en su máquina host, todo lo que debe hacer es copiarlo la carpeta compartida dentro del entorno virtual y la copiaría en la máquina virtual.
+
+Aquí hay algunos otros detalles, como el nombre de la caja, mongod-m103 y la cantidad de memoria, que es de poco más de dos gigabytes.
+
+También hay una dirección IP externa para el cuadro Vagrant, 192.168.103.100, que en realidad tendrá que usar en algunos laboratorios posteriores.
+
+Así que ahora podemos echar un vistazo al archivo de aprovisionamiento y ver qué hay dentro.
+
+Este archivo es bastante más largo que el archivo Vagrant.
+
+Y está escrito en el script de Shell porque necesita descargar algunas cosas para que pueda completar los materiales del curso.
+
+El archivo de aprovisionamiento en general especifica las dependencias y todo el software necesario que se requerirá para completar los laboratorios.
+
+Y también descargará los scripts de validación que ejecutará para verificar su trabajo.
+
+Aquí tenemos algunos comandos que definen qué versión de MongoDB instalar y dónde colocar algunos archivos y configuraciones y cualquier software de terceros.
+
+Realmente no necesitas saber nada de esto.
+
+Pero en caso de que algo salga mal con el entorno virtual durante el curso, podríamos pedirle que cambie algunas de las configuraciones y variables dentro de estos archivos.
+
+Sin embargo, las posibilidades de eso son muy pequeñas.
+
+Entonces, en general, trate de no perder el tiempo con estos archivos.
+
+La razón por la que estamos usando Vagrant es para que pueda concentrarse en el material del curso y no en las dependencias o en cualquier otra cosa.
+
+Así que ahora que hemos echado un vistazo a algunos de los archivos que recibió en el folleto, en realidad sacamos Vagrant y repasamos algunos de los comandos que puede usar para configurar el cuadro Vagrant una vez que se está ejecutando.
+
+Lo primero que vamos a aprender se llama vagabundo.
+
+Esto realmente abrirá nuestra caja como se especifica en el archivo Vagrant y el archivo de aprovisionamiento.
+
+Esto puede tardar un tiempo en ejecutarse, especialmente si es la primera vez que lo ejecuta.
+
+Así que solo espera unos minutos y debería completarse.
+
+Entonces, una vez que este cuadro se está ejecutando, podemos verificar el estado y el estado del cuadro utilizando el estado de comando vagabundo.
+
+Esto nos dice que nuestra caja mongod-m103 está funcionando.
+
+Y también nos da algunos comandos que podemos usar para apagarlo con un alto vagabundo, suspenderlo con un vagabundo suspendido y volver a iniciarlo con vagabundo arriba.
+
+Sin más preámbulos, vamos a SSH a la caja.
+
+Entonces aquí podemos conectarnos a la caja usando el SSH con el comando vagrant ssh.
+
+Esto reconocerá el archivo Vagrant y el archivo de aprovisionamiento y lo usará para conectarse al VirtualBox correcto.
+
+Entonces, una vez que tengamos SSHed, puede notar que el indicador de Shell ha cambiado para decir vagabundo y m103.
+
+Y esto es algo bueno.
+
+Significa que ya no estamos conectados a nuestra máquina host y en realidad estamos conectados directamente a la máquina virtual.
+
+Y podemos ejecutar comandos para explorar realmente nuestra máquina virtual.
+
+Solo echaremos un vistazo a la versión mongod que está instalada en nuestra caja.
+
+Y podemos ver su versión 3.6, que es la última.
+
+Esto se debe a que el archivo de aprovisionamiento fue y obtuvo la última versión de MongoDB para nosotros.
+
+Así que no tuvimos que descubrir cómo hacerlo.
+
+También se instaló en la ubicación correcta para que pueda saltar y comenzar a ejecutar comandos Mongo.
+
+Si queremos salir de la caja, todo lo que tenemos que hacer es escribir exit y estamos conectados de nuevo a nuestra máquina host.
+
+Si queremos detener la caja, podemos ejecutar una detención vagabunda.
+
+Y esto apagará con gracia nuestra máquina virtual para que el estado permanezca igual.
+
+Y si corremos vagabundo nuevamente, lo traerá de nuevo.
+
+Podemos verificar esto ejecutando el estado vagabundo nuevamente.
+
+Y como podemos ver, la caja se está ejecutando.
+
+Para resumir, esto es lo que se espera de usted.
+
+Descargue el folleto que contiene el entorno Vagrant.
+
+Descomprima el folleto y colóquelo en su nueva carpeta m103 para este curso.
+
+Puede activar el entorno virtual con vagabundo, y se conectan con SSH.
+
+Para verificar que el script de aprovisionamiento se ejecutó correctamente, puede verificar la versión de MongoDB que está instalada dentro de la máquina virtual.
+
+Si lo desea, puede salir de la caja y poner nuestro sistema en reposo, y luego volver a activarlo para que pueda usarlo.
+
+Todo bien.
+
+Gracias por su atención.
+
+Buena suerte al configurar su propio entorno virtual.
+
+
 ## 4. Examen
 
 ## 5. Laboratorio: Configuración del entorno Vagrant
