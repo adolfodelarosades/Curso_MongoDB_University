@@ -4199,6 +4199,90 @@ Choose the best answer:
 
 ### Transcripción
 
+Hemos estado trabajando con `updateOne`.
+
+Todos los mismos principios se aplican a `updateMany`.
+
+`updateMany` es nuestro segundo operador de actualización en el lenguaje de consulta MongoDB.
+
+La diferencia entre `updateOne` y `updateMany` es que `updateMany` hará la misma modificación a todos los documentos que coincidan con el filtro.
+
+Echemos un vistazo a un ejemplo.
+
+Me gustaría trabajar con un ejemplo de limpieza de datos para `updateMany`.
+
+Sé que en nuestro conjunto de datos de detalles de la película hay algunos campos en algunos documentos que están configurados como nulos.
+
+Lo que me gustaría hacer es eliminar los campos nulos de los documentos de esta colección.
+
+Podemos ver algunos de estos documentos con este filtro simple `{rated: null, poster: null}`.
+
+<img src="/images/c2/28-rated-poster-null.png">
+
+Aquí, solo estamos agregando todos los documentos que tienen nulo para el campo calificado(`rated`) y nulo para el campo de póster.
+
+Tenga en cuenta que hay 1.202 documentos que coinciden con estos criterios.
+
+Si solo buscamos aquellos con una calificación igual a nula, obtenemos bastantes más.
+
+<img src="/images/c2/28-rated-null.png">
+
+`updateMany` nos permite modificar muchos documentos a la vez, todos los cuales coinciden con el mismo criterio.
+
+Lo que me gustaría hacer es actualizar esta colección eliminando el campo `rated` donde su valor es nulo.
+
+Lo haremos utilizando esta llamada para `updateMany`.
+
+```sh
+db.movieDetails.updateMany({
+  rated: null
+}, {
+  $unset: {
+    rated: ""
+  }
+})
+```
+
+Aquí, estamos utilizando el operador `$unset`, y el operador `$unset` eliminará todos los campos que se enumeran en su documento.
+
+En este caso, solo hemos enumerado un campo para eliminar que es `rated`.
+
+Ahora, realmente no importa qué valor usemos aquí (`rated: ""`) como valor para la key `rated` en el documento que estamos pasando a nuestro operador `$unset`.
+
+Solo tiendo a usar una cadena vacía ("").
+
+De los resultados de ejecutar este comando, podemos ver que modificamos 1,599 documentos.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateMany({
+...   rated: null
+... }, {
+...   $unset: {
+...     rated: ""
+...   }
+... })
+{ "acknowledged" : true, "matchedCount" : 1599, "modifiedCount" : 1599 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y si recuerdas, esa es la cantidad de documentos para los que la calificación se estableció como nula.
+
+Si refrescamos en Compass y hacemos la misma consulta:
+
+<img src="/images/c2/28-rated-null-2.png">
+
+Vemos los mismos resultados con excepción que el campo `rated` ya no se pinta.
+
+Esto concluye nuestra discusión sobre `updateMany`.
+
+Los principios de filtrado y el uso de operadores de actualización son los mismos para `updateMany` que para `updateOne`.
+
+Nuevamente, te animo a experimentar, pero ten cuidado.
+
+`updateMany` modificará todos los documentos que coincidan con el filtro.
+
+Buena suerte.
+
 ## 29. Tema: Upserts
 
 ### Transcripción
