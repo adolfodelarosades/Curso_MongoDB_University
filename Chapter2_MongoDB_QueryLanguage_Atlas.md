@@ -3852,19 +3852,118 @@ db.movieDetails.updateOne({
 })
 ```
 
-Esto, llamado `updateOne`, creará una clave llamada reviews, creará un array como el valor de esta clave y luego empujará esta revisión al array.
+Esto, llamado `updateOne`, creará una clave llamada `reviews`, creará un array como el valor de esta clave y luego empujará esta revisión (`reviews`) al array.
 
-Recuerde que nuestro documento marciano en realidad no tiene un campo llamado revisiones.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> let reviewText1 = [
+...   "The Martian could have been a sad drama film, instead it was a ",
+...   "hilarious film with a little bit of drama added to it. The Martian is what ",
+...   "everybody wants from a space adventure. Ridley Scott can still make great ",
+...   "movies and this is one of his best."
+... ].join()
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateOne({
+...   title: "The Martian"
+... }, {
+...   $push: {
+...     reviews: {
+...       rating: 4.5,
+...       date: ISODate("2016-01-12T09:00:00Z"),
+...       reviewer: "Spencer H.",
+...       text: reviewText1
+...     }
+...   }
+... })
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-La razón por la que esto funciona es porque push crea una matriz si aún no existe una.
+Recuerde que nuestro documento "The Martian" en realidad no tiene un campo llamado `reviews`.
+
+La razón por la que esto funciona es porque `push` crea un array si aún no existe uno.
 
 Echemos un vistazo al documento ahora.
 
-Aquí podemos ver nuestro campo de revisiones agregado y las revisiones son una matriz.
+<img src="/images/c2/26-compass-the-martian-reviews.png">
 
-Y esta matriz tiene un elemento, que es la revisión que especificamos en nuestra actualización.
+Aquí podemos ver nuestro campo `reviews` agregado y las revisiones son un array.
+
+Y este array tiene un elemento, que es la revisión que especificamos en nuestra actualización.
 
 Ahora agreguemos algunas reseñas más.
+
+
+```sh
+let reviewText2 = [
+  "Matthew Samuel","text":"There have been better movies made about space, and there are ",
+  "elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ",
+  "and film cliches."
+].join()
+let reviewText3 = [
+  "Jarrad C","text":"The Martian Review: There are some movies you know going into them that they're going to be great.",
+  "The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ",
+  "(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ",
+  "was happy that it ended)"
+].join()
+let reviewText4 = [
+  "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ",
+  "about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ",
+  "out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ",
+  "significance that is both poignant and naively inspiring."
+].join()
+let reviewText5 = [
+  "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ",
+  "an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+].join()
+let reviewText6 = [
+  "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ",
+  "learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ",
+  "presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ",
+  "we'll overcome every adversity)." 
+].join()
+let reviewText7 = [
+  "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ",
+  "Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ",
+  "An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+].join()
+
+db.movieDetails.updateOne({
+  title: "The Martian"
+}, {
+  $push: {
+    reviews: {
+      rating: 2.5,
+      date: ISODate("2016-01-12T07:00:00Z"),
+      reviewer: "Matthew Samuel",
+      text: reviewText2
+    }, {
+      rating: 5.0,
+      date: ISODate("2016-01-13T09:00:00Z"),
+      reviewer: "Jarrad C",
+      text: reviewText3
+    }, {
+      rating: 3.0,
+      date: ISODate("2016-01-14T08:00:00Z"),
+      reviewer: "hunterjt13",
+      text: reviewText4
+    }, {
+      rating: 4.5,
+      date: ISODate("2016-01-15T09:00:00Z"),
+      reviewer: "Eugene B",
+      text: reviewText5
+    }, {
+      rating: 3.5,
+      date: ISODate("2016-01-16T10:00:00Z"),
+      reviewer: "Kevin M. W",
+      text: reviewText6
+    }, {
+      rating: 4.5,
+      date: ISODate("2016-01-17T11:00:00Z"),
+      reviewer: "Drake T",
+      text: reviewText7
+    }
+  }
+}) 
+```
 
 Nuevamente estoy creando texto de revisión.
 
