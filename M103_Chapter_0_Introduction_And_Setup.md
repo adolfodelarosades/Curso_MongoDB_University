@@ -26,17 +26,29 @@ Juntos, aprenderemos sobre la implementación de MongoDB en varias arquitecturas
 
 En el primer capítulo, analizaremos Mongod, que es el proceso central de la base de datos que maneja las solicitudes de datos y administra el acceso a los datos.
 
+<img src="/images/1-mongod.png">
+
 También cubriremos aspectos importantes de la implementación de un solo proceso de Mongod, como habilitar la autenticación y explorar los registros de la base de datos.
+
+<img src="/images/1-mongod-2.png">
 
 En el segundo capítulo, discutiremos cómo MongoDB admite alta disponibilidad al replicar nuestros datos.
 
 Con múltiples copias de datos en diferentes servidores de bases de datos, la replicación proporciona un nivel de tolerancia a fallas frente a la pérdida de un único servidor de bases de datos.
 
+<img src="/images/1-mongod-3.png">
+
 En este curso, veremos la arquitectura general y el comportamiento de un conjunto de réplicas, y las diferentes estrategias de implementación que puede utilizar para adaptarse mejor a su aplicación.
+
+<img src="/images/1-arquitectura.png">
 
 En el capítulo final, discutiremos la escalabilidad y cómo MongoDB escala horizontalmente a través del fragmentación.
 
+<img src="/images/1-ss.png">
+
 En este curso, cubriremos temas como la arquitectura de un clúster fragmentado, cómo se manejan las consultas y cómo elegir la forma en que se distribuyen sus datos.
+
+<img src="/images/1-3-temas.png">
 
 Este curso tiene tres capítulos.
 
