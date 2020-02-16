@@ -3691,33 +3691,35 @@ Volviendo atrás y mirando este documento en Compass, podemos ver que nuestro ca
 
 Y con eso, hemos cubierto los fundamentos del uso de `updateOne`.
 
-## 26. Conferencia: Operadores de Actualización
+## 26. Tema: Operadores de Actualización
 
 ### Notas de lectura
 
-Para seguir esta conferencia, debe conectarse al clúster de sandbox en el que ha importado los datos.
+Para seguir este tema, debe conectarse al clúster de sandbox en el que ha importado los datos.
 
 ### Transcripción
 
 Lo que me gustaría hacer ahora es darle una idea de los diferentes tipos de operadores de actualización de campo que tenemos disponibles para nosotros.
 
-Utilizamos el conjunto de dólares.
+Utilizamos **`$set`**. 
 
-Esto reemplaza o agrega completamente cada campo especificado en su parámetro como vimos en ejemplos anteriores.
+Este reemplaza o agrega completamente cada campo especificado en su parámetro como vimos en ejemplos anteriores.
 
 Echemos un vistazo a las otras opciones que tenemos para los operadores de actualización.
 
 Y para hacer esto, estoy mirando la página del operador de actualización en la documentación de MongoDB.
 
-Además de establecer, también hay sin establecer.
+[Update Operators](https://docs.mongodb.com/manual/reference/operator/update/index.html)
 
-Esto eliminará por completo el campo que especificamos de un documento.
+Además de `$set`, también hay `$unset`.
 
-Otros aquí incluyen min y max.
+Esto **eliminará por completo el campo que especificamos de un documento**.
+
+Otros aquí incluyen `$min` y `$max`.
 
 Estos nos permiten actualizar un campo basado en la comparación con otro valor tomando el mínimo de los dos valores o el máximo de los dos valores.
 
-Mientras nos desplazamos por aquí, podemos ver que hay otros operadores.
+Podemos ver que hay otros operadores.
 
 Como ejercicio, me gustaría pedirle que visite la documentación de MongoDB sobre operadores de actualización y pruebe algunos de estos.
 
@@ -3731,11 +3733,13 @@ Se utilizan para corregir errores y, con el tiempo, mantener nuestros datos actu
 
 Para los datos de películas, gran parte de lo que hay es estático.
 
+<img src="/images/c2/25-compass-all-details.png">
+
 Tenemos directores, escritores, actores, etc.
 
 Sin embargo, será necesario actualizar otro contenido, como los comentarios y las calificaciones, a medida que los usuarios tomen medidas para crear nuevos comentarios o calificaciones.
 
-Podríamos usar $ set para hacer este tipo de actualizaciones.
+Podríamos usar `$set` para hacer este tipo de actualizaciones.
 
 Pero ese es un enfoque propenso a errores.
 
@@ -3743,51 +3747,79 @@ Es demasiado fácil hacer la aritmética de forma incorrecta o cometer otros tip
 
 En cambio, tenemos una serie de operadores que admiten actualizaciones numéricas de datos.
 
-Ahora, como mencioné, tenemos min y max.
+Ahora, como mencioné, tenemos `$min` y `$max`.
 
-Pero también hay $ inc.
+Pero también hay `$inc`.
 
 Esto incrementa el valor almacenado en el campo que le pasamos.
 
-Veamos un ejemplo del uso del operador $ inc para actualizar las revisiones.
+Veamos un ejemplo del uso del operador `$inc` para actualizar las revisiones.
 
-Aquí, lo que vamos a hacer es, nuevamente trabajando con el marciano, incrementar el tomate.reviews en tres y el tomate en 25.
+```sh
+db.movieDetails.updateOne({ 
+  title: "The Martian"
+}, {
+  $inc: {
+    "tomato.reviews": 3,
+    "tomato.userReviews": 25
+  }
+})
+```
 
-Y en caso de que no esté familiarizado con Rotten Tomatoes, en cada uno de nuestros documentos de detalles de la película hay un campo de tomates.
+Aquí, lo que vamos a hacer es, nuevamente trabajando con "The Martian", incrementar el `tomate.reviews` en tres y el `tomate.userReviews` en 25.
 
-Y el campo de tomate refleja la calificación para esta película de Rotten Tomatoes.
+Y en caso de que no esté familiarizado con **Rotten Tomatoes**, en cada uno de nuestros documentos de detalles de la película hay un campo `tomate`.
 
-Rotten Tomatoes es un agregador de clasificaciones de usuarios para películas.
+Y el campo `tomate` refleja la calificación para esta película de Rotten Tomatoes.
+
+**Rotten Tomatoes es un agregador de clasificaciones de usuarios para películas**.
 
 Entonces, las personas que han visto una película caen en una calificación.
 
 Esos se agrupan en una clasificación de tomate.
 
-Así que aquí estamos simulando la situación en la que hemos recibido tres revisiones adicionales para el marciano.
+Así que aquí estamos simulando la situación en la que hemos recibido tres revisiones adicionales para "The Martian".
 
 Si ejecutamos esto y echamos un vistazo a la salida, como se esperaba, nuestra actualización fue exitosa.
 
-Y si miramos el documento antes de la actualización de tomato.reviews y tomato.userReviews y luego actualizamos, vemos que tomato.reviews fue a 283.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.updateOne({ 
+...   title: "The Martian"
+... }, {
+...   $inc: {
+...     "tomato.reviews": 3,
+...     "tomato.userReviews": 25
+...   }
+... })
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y si miramos el documento antes de la actualización de `tomato.reviews` y `tomato.userReviews` y luego actualizamos, vemos que `tomato.reviews` es 283.
 
 Y las opiniones de los usuarios superaron los 105,000.
 
-Ahora pasemos a los campos de matriz.
+<img src="/images/c2/25-compass-the-martian-inc.png">
 
-Como se puede imaginar, hay una serie de situaciones en las que queremos actualizar los valores de la matriz.
+Ahora pasemos a los campos de array.
 
-MongoDB proporciona muchos operadores de actualización para matrices.
+Como se puede imaginar, hay una serie de situaciones en las que queremos actualizar los valores de un array.
 
-Agregar al conjunto actualizará una matriz con nuevos valores solo si el valor aún no está contenido en la matriz.
+MongoDB proporciona muchos operadores de actualización para arrays.
 
-Puedo extraer el primer o el último elemento de una matriz según mis parámetros para el operador emergente.
+[Update Operators for Arrays](https://docs.mongodb.com/manual/reference/operator/update/index.html#array)
 
-Puedo eliminar todos los valores que coinciden con algunos criterios con pull all.
+`$addToSet` actualizará un array con nuevos valores solo si el valor aún no está contenido en el array.
 
-Y, por supuesto, puedo impulsar nuevos valores.
+Con `$pullAll` puedo extraer el primer o el último elemento de un array según mis parámetros.
 
-Ahora, nuevamente, lo aliento a que eche un vistazo a la documentación para los operadores de actualización, en m los operadores de actualización de matriz.
+Con `Spop` puedo eliminar todos los valores que coinciden con algunos criterios con `$pullAll`.
 
-Pero echemos un vistazo a un par de ejemplos en los que necesitaremos actualizar los campos de la matriz.
+Y, con `$push`, puedo ingresar nuevos valores.
+
+Ahora, nuevamente, lo aliento a que eche un vistazo a la documentación para los operadores de actualización, en la sección de los operadores de actualización de array.
+
+Pero echemos un vistazo a un par de ejemplos en los que necesitaremos actualizar los campos del array.
 
 Para la mayoría de las aplicaciones web, deseamos estructurar nuestros datos de tal manera que podamos obtener todos los datos que necesitamos para representar una página individual con la menor cantidad posible de consultas a la base de datos.
 
@@ -3797,9 +3829,30 @@ Siguiendo esta mejor práctica, lo que podríamos hacer para las reseñas de pel
 
 Ahora puede ignorar en gran medida esta parte además del hecho de que es una revisión.
 
-Pero déjame llamar tu atención sobre la llamada al método updateOne.
+Pero déjame llamar tu atención sobre la llamada al método `updateOne`.
 
-Esto, llamado updateOne, creará una clave llamada reviews, creará una matriz como el valor de esta clave y luego empujará esta revisión a la matriz.
+```sh
+let reviewText1 = [
+  "The Martian could have been a sad drama film, instead it was a ",
+  "hilarious film with a little bit of drama added to it. The Martian is what ",
+  "everybody wants from a space adventure. Ridley Scott can still make great ",
+  "movies and this is one of his best."
+].join()
+db.movieDetails.updateOne({
+  title: "The Martian"
+}, {
+  $push: {
+    reviews: {
+      rating: 4.5,
+      date: ISODate("2016-01-12T09:00:00Z"),
+      reviewer: "Spencer H.",
+      text: reviewText1
+    }
+  }
+})
+```
+
+Esto, llamado `updateOne`, creará una clave llamada reviews, creará un array como el valor de esta clave y luego empujará esta revisión al array.
 
 Recuerde que nuestro documento marciano en realidad no tiene un campo llamado revisiones.
 
