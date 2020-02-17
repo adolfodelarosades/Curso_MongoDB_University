@@ -1217,6 +1217,22 @@ db.<collection>.createIndex
 
 ## 11. Examen
 
+Basic Commands
+
+**Problem:**
+
+Which of the following methods executes a database command?
+
+Check all answers that apply:
+
+* db.command( { <COMMAND> } )
+
+* db.executeCommand( { <COMMAND> } )
+
+* db.runCommand( { <COMMAND> } ) :+1:
+
+* db.runThisCommand( { <COMMAND> } )
+
 ## 12. Tema: Conceptos Básicos de Registro
 
 ### Transcripción
