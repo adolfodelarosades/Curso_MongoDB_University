@@ -238,23 +238,27 @@ Y esta lección trata sobre cómo configurar la máquina virtual en su máquina 
 
 Pero primero, ¿por qué estamos usando uno?
 
-La primera es que es para proteger el medio ambiente.
+<img src="/images/m103/c3/3-why.png">
 
-Queremos darle un entorno que pueda usar sin alterar la configuración existente en su máquina local.
+* La primera es que es para proteger el medio ambiente.
 
-Esto también nos permite evitar la dependencia y la resolución de problemas del sistema.
+   Queremos darle un entorno que pueda usar sin alterar la configuración existente en su máquina local.
 
-Entonces, todas las dependencias se descargan por usted.
+* Esto también nos permite evitar la dependencia y la resolución de problemas del sistema.
 
-Y puedes concentrarte en el aprendizaje.
+   Entonces, todas las dependencias se descargan por usted.
 
-Tercero, también nos permite brindar un apoyo más consistente a nuestros estudiantes a lo largo del curso.
+   * Y puedes concentrarte en el aprendizaje.
 
-Si sabemos que todos están ejecutando el mismo sistema operativo, podemos diagnosticar y resolver más rápidamente los problemas que tenga.
+* Tercero, también nos permite brindar un apoyo más consistente a nuestros estudiantes a lo largo del curso.
+
+   Si sabemos que todos están ejecutando el mismo sistema operativo, podemos diagnosticar y resolver más rápidamente los problemas que tenga.
 
 ¿Entonces, cómo funciona?
 
 Arrancas una máquina virtual Vagrant en tu computadora.
+
+<img src="/images/m103/c3/3-esquema-1.png">
 
 Y utiliza la memoria, el almacenamiento y la CPU de su computadora para funcionar como una computadora real.
 
@@ -262,21 +266,35 @@ Y mediante el uso de un proceso llamado SSH o Secure Shell, puede conectarse a l
 
 Una vez que esté conectado, puede tratarlo como una computadora normal.
 
+<img src="/images/m103/c3/3-esquema-2.png">
+
 Y puede conectarlo con su terminal o símbolo del sistema.
 
 En este curso, lanzará procesos mongod y conjuntos de réplicas dentro de su máquina virtual.
 
+<img src="/images/m103/c3/3-esquema-3.png">
+
 Pero para hacer eso, le pediremos que instale dos dependencias.
 
+<img src="/images/m103/c3/3-dosdependencias.png">
+
 El primero es VirtualBox.
+
+<img src="/images/m103/c3/3-virtualvox.png">
 
 VirtualBox como un hipervisor de código abierto que nos permite ejecutar máquinas virtuales en su máquina host.
 
 El segundo es Vagrant, que es una herramienta de código abierto que nos permite construir y mantener estos entornos de software virtual muy rápidamente.
 
+<img src="/images/m103/c3/3-vagrant.png">
+
 Más específicamente, Vagrant hace que sea realmente fácil copiar archivos y compartir archivos desde su máquina host a su máquina virtual.
 
 Por ejemplo, si tenía un folleto de ejercicios o algún código que escribió en su máquina local, puede tomar esos archivos y copiarlos directamente en la máquina virtual.
+
+<img src="/images/m103/c3/3-esquema-4.png">
+
+<img src="/images/m103/c3/3-esquema-5.png">
 
 Veremos más sobre esto en un minuto.
 
@@ -288,33 +306,228 @@ Pero una vez que los tenga instalados, comenzaremos a configurar el entorno de c
 
 Primero, vamos a crear un directorio para este curso llamado m103 y un directorio principal llamado universidad.
 
-Este -p aquí crea el directorio principal de la universidad en caso de que no exista.
+```sh
+$ mkdir -p ~/university/m103/ 
+```
 
-Así que aquí tenemos una copia recursiva, que es anotada por -r, que se usa para copiar directorios completos en otra ubicación.
+Este -p aquí crea el directorio principal `university` en caso de que no exista.
 
-En este caso, estamos copiando el directorio m103-vagrant-env en la carpeta m103.
+```sh
+$ cp -r m103-vagrant-env/ ~/university/m103/ 
 
-Entonces, ahora que estamos dentro de la carpeta del entorno m103 vagabundo dentro de la carpeta del curso m103, podemos comenzar a mirar el folleto real para ver lo que acabamos de descargar.
+En mi caso
+$ cp -r m103/ ~/university/m103/ 
+```
 
-Como podemos ver, tenemos un archivo Vagrant y un archivo de aprovisionamiento.
+Así que aquí tenemos una copia recursiva, que es anotada por `-r`, que se usa para copiar directorios completos en otra ubicación.
 
-El archivo Vagrant especifica algunos detalles de imagen del sistema operativo de referencia.
+En este caso, estamos copiando el directorio `m103-vagrant-env` en la carpeta `m103`.
+
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ cd university/m103/m103-vagrant-env
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ pwd
+/Users/adolfodelarosa/university/m103/m103-vagrant-env
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+```
+
+Entonces, ahora que estamos dentro de la carpeta `m103-vagrant-env`, podemos comenzar a mirar el folleto real para ver lo que acabamos de descargar.
+
+<img src="/images/m103/c3/3-carpeta103.png">
+
+Como podemos ver, tenemos un archivo `Vagrantfile` y un archivo `provision-mongod`.
+
+El archivo `Vagrantfile` especifica algunos detalles de imagen del sistema operativo de referencia.
 
 Como puede ver, tenemos el sistema operativo que estamos ejecutando, Ubuntu.
 
-Y solo quiero llamar su atención rápidamente sobre esta carpeta que creamos llamada Shared.
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ cat Vagrantfile
+if Vagrant::VERSION < "2.0.0"
+  $stderr.puts "Must redirect to new repository for old Vagrant versions"
+  Vagrant::DEFAULT_SERVER_URL.replace('https://vagrantcloud.com')
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.box_check_update = false
+  config.vm.synced_folder "shared/", "/shared", create: true
+  config.vm.synced_folder "dataset/", "/dataset", create: true
+
+  config.vm.define "mongod-m103" do |server|
+    server.vm.provider "virtualbox" do |vb|
+	     vb.customize ["modifyvm", :id, "--cpus", "2"]
+       vb.name = "mongod-m103"
+       vb.memory = 2048
+    end
+    server.vm.hostname = "m103"
+    server.vm.network :private_network, ip: "192.168.103.100"
+    server.vm.provision :shell, path: "provision-mongod", args: ENV['ARGS']
+  end
+end
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+```
+
+Y solo quiero llamar su atención rápidamente sobre esta carpeta que creamos llamada `shared/`.
 
 Esta carpeta conectará nuestra máquina virtual a nuestra máquina host.
 
-Entonces, en cualquier momento, si desea copiar un archivo de su máquina host en la máquina virtual, ya sea un folleto para un laboratorio o algún código que escribió en su máquina host, todo lo que debe hacer es copiarlo la carpeta compartida dentro del entorno virtual y la copiaría en la máquina virtual.
+**Entonces, en cualquier momento, si desea copiar un archivo de su máquina host en la máquina virtual, ya sea un folleto para un laboratorio o algún código que escribió en su máquina host, todo lo que debe hacer es copiarlo la carpeta compartida dentro del entorno virtual y la copiaría en la máquina virtual**.
 
-Aquí hay algunos otros detalles, como el nombre de la caja, mongod-m103 y la cantidad de memoria, que es de poco más de dos gigabytes.
+Aquí hay algunos otros detalles, como el nombre del vm, `vb.name = "mongod-m103"` y la cantidad de memoria, que es de poco más de dos gigabytes `vb.memory = 2048`.
 
-También hay una dirección IP externa para el cuadro Vagrant, 192.168.103.100, que en realidad tendrá que usar en algunos laboratorios posteriores.
+También hay una dirección IP externa para el cuadro Vagrant, 192.168.103.100 `ip: "192.168.103.100"`, que en realidad tendrá que usar en algunos laboratorios posteriores.
 
 Así que ahora podemos echar un vistazo al archivo de aprovisionamiento y ver qué hay dentro.
 
-Este archivo es bastante más largo que el archivo Vagrant.
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ cat provision-mongod
+#!/usr/bin/env bash
+#
+# Bash script for provisioning the MongoDB instances
+
+set -e
+set -x
+
+function ip_config(){
+  export CLIENT_IP_ADDR=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}' | tail -1`
+  export CLIENT_NAME=`hostname | cut -d. -f 1 | tr '[:upper:]' '[:lower:]'`
+  echo "Configuring /etc/hosts ..."
+  echo "127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4 " > /etc/hosts
+  echo "::1       localhost localhost.localdomain localhost6 localhost6.localdomain6" >> /etc/hosts
+  echo "fe00::0 ip6-localnet" >> /etc/hosts
+  echo "ff00::0 ip6-mcastprefix" >> /etc/hosts
+  echo "ff02::1 ip6-allnodes" >> /etc/hosts
+  echo "ff02::2 ip6-allrouters" >> /etc/hosts
+  echo "ff02::3 ip6-allhosts" >> /etc/hosts
+  echo "$CLIENT_IP_ADDR $CLIENT_NAME" >> /etc/hosts
+}
+
+function install_mongod(){
+  echo "Install MongoDB Enterprise"
+  # install MongoDB using apt-get so it installs with service support and has a
+  # default configuration file in /etc/
+  # have to force-yes -y to force install of unsigned packages (our 3.4 key does
+  # not match, no 3.6 key in the docs) and to agree to install
+  sudo apt-get install --force-yes -y mongodb-enterprise
+  mkdir -p /var/log/mongodb/
+  sudo chown vagrant:vagrant -R /var/log/mongodb
+  sudo chown vagrant:vagrant -R /var/lib/mongodb
+  sudo echo "
+security:
+  authorization: enabled"  | sudo tee -a /etc/mongod.conf
+  echo "Done installing MongoDB Enterprise"
+}
+
+function user_setup(){
+  sudo sh -c "killall mongod; true"
+  sudo mkdir -p /data
+  sudo chmod -R 777 /data
+  mkdir -p /data/db
+  mkdir -p /home/vagrant/data
+  chmod -R 777 /home/vagrant/data
+  chown -R vagrant:vagrant /home/vagrant/data
+  mkdir -p /var/m103/validation
+  echo "Set LC_ALL=C to .profile"
+  sudo echo "export LC_ALL=C" >> /home/vagrant/.profile
+  sudo echo "PATH=$PATH:/var/m103/validation" >> /home/vagrant/.profile
+}
+
+function update_repo(){
+  echo "Install MongoDB Enterprise Repository"
+  # set to track mongodb development (rc)
+  echo "deb [ arch=amd64 ] http://repo.mongodb.com/apt/ubuntu trusty/mongodb-enterprise/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise.list
+  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 0C49F3730359A14518585931BC711F9BA15703C6
+
+  echo "Update Repositories"
+  sudo apt-get update -y
+  echo "Installing MongoDB Enterprise Dependencies"
+  sudo apt-get install -y libgssapi-krb5-2 libsasl2-2 libssl1.0.0 libstdc++6 snmp
+}
+
+function config(){
+  sudo su
+  # disable THP
+  echo -e "never" > /sys/kernel/mm/transparent_hugepage/enabled
+  echo -e "never" > /sys/kernel/mm/transparent_hugepage/defrag
+  # disable mongod upstart service
+  echo 'manual' | sudo tee /etc/init/mongod.override
+}
+
+function download_dataset() {
+  echo "Downloading Dataset"
+  curl -s https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M103/products.json.tgz -o products.json.tgz
+  tar -xzvf products.json.tgz -C /dataset
+  rm -rf products.json.tgz
+
+  curl -s https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M103/products.part2.json.tgz -o products.part2.json.tgz
+  tar -xzvf products.part2.json.tgz -C /dataset
+  rm -rf products.part2.json.tgz
+}
+
+function download_validators() {
+  echo "Downloading Validation Scripts"
+  curl -s https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M103/m103_validation.tgz -o m103_validation.tgz
+  tar -xzvf m103_validation.tgz -C /var/m103/validation
+  rm -rf m103_validation.tgz
+  echo "#!/bin/bash
+        curl -s https://s3.amazonaws.com/edu-static.mongodb.com/lessons/M103/m103_validation.tgz -o m103_validation.tgz
+        sudo tar -xzvf m103_validation.tgz -C /var/m103/validation
+        rm -rf m103_validation.tgz" > /var/m103/validation/download_validators
+  echo "#!/bin/bash
+        echo -n 'm103 rocks' | openssl sha256 | sed -e s/\(stdin\)=.//" > /var/m103/validation/validate_box
+  chmod -R +x /var/m103/validation/
+  chown root:root /var/m103/validation
+  echo "Done: Downloaded Validation Scripts"
+}
+
+function data_path() {
+  sudo mkdir -p /data
+  sudo chown -R vagrant:vagrant /data
+}
+
+function install_pymongo() {
+  sudo apt-get -y install python-pip
+  sudo pip install pymongo
+}
+
+function verify_ip() {
+  export EXPECTED_IP=192.168.103.100
+  ifconfig | grep $EXPECTED_IP
+  ret=$?
+  if [ $ret -ne 0 ]
+  then
+    ERR="The VM does not have the expected IP: $EXPECTED_IP
+instead it has: $CLIENT_IP_ADDR
+Ensure no other vagrant VM has that same expected IP: $EXPECTED_IP
+You should recreate this VM after destroying it with 'vagrant destroy'"
+    fatal "$ERR"
+  fi
+}
+
+function fatal() {
+  echo ERROR
+  echo "$1"
+  exit 1
+}
+
+config
+ip_config
+update_repo
+install_mongod
+user_setup
+data_path
+install_pymongo
+download_dataset
+download_validators
+# Starting at this point, it is only validations so removing exit on error
+set +e
+verify_ip
+echo "DONE"
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+
+```
+
+Este archivo es bastante más largo que el archivo Vagrantfile.
 
 Y está escrito en el script de Shell porque necesita descargar algunas cosas para que pueda completar los materiales del curso.
 
@@ -336,7 +549,17 @@ La razón por la que estamos usando Vagrant es para que pueda concentrarse en el
 
 Así que ahora que hemos echado un vistazo a algunos de los archivos que recibió en el folleto, en realidad sacamos Vagrant y repasamos algunos de los comandos que puede usar para configurar el cuadro Vagrant una vez que se está ejecutando.
 
-Lo primero que vamos a aprender se llama vagabundo.
+Lo primero que vamos a aprender es llamar `vagrant up`.
+
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant up
+Bringing machine 'mongod-m103' up with 'virtualbox' provider...
+==> mongod-m103: This machine used to live in /Users/adolfodelarosa/m103/m103-vagrant-env but it's now at /Users/adolfodelarosa/university/m103/m103-vagrant-env.
+==> mongod-m103: Depending on your current provider you may need to change the name of
+==> mongod-m103: the machine to run it as a different machine.
+==> mongod-m103: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> mongod-m103: flag to force provisioning. Provisioners marked to run always will still run.
+```
 
 Esto realmente abrirá nuestra caja como se especifica en el archivo Vagrant y el archivo de aprovisionamiento.
 
@@ -344,19 +567,57 @@ Esto puede tardar un tiempo en ejecutarse, especialmente si es la primera vez qu
 
 Así que solo espera unos minutos y debería completarse.
 
-Entonces, una vez que este cuadro se está ejecutando, podemos verificar el estado y el estado del cuadro utilizando el estado de comando vagabundo.
+Entonces, una vez que este cuadro se está ejecutando, podemos verificar el estado y el estado del cuadro utilizando el estado de comando `vagrant status`.
 
-Esto nos dice que nuestra caja mongod-m103 está funcionando.
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant status
+Current machine states:
 
-Y también nos da algunos comandos que podemos usar para apagarlo con un alto vagabundo, suspenderlo con un vagabundo suspendido y volver a iniciarlo con vagabundo arriba.
+mongod-m103               running (virtualbox)
+
+The VM is running. To stop this VM, you can run `vagrant halt` to
+shut it down forcefully, or you can run `vagrant suspend` to simply
+suspend the virtual machine. In either case, to restart it again,
+simply run `vagrant up`.
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+
+```
+
+Esto nos dice que nuestra caja `mongod-m103` está funcionando.
+
+Y también nos da algunos comandos que podemos usar para apagarlo con un `vagrant halt`, suspenderlo con un `vagrant suspend` y volver a iniciarlo con `vagrant up`.
 
 Sin más preámbulos, vamos a SSH a la caja.
 
-Entonces aquí podemos conectarnos a la caja usando el SSH con el comando vagrant ssh.
+Entonces aquí podemos conectarnos a la caja usando el SSH con el comando `vagrant ssh`.
+
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant ssh
+Welcome to Ubuntu 14.04.6 LTS (GNU/Linux 3.13.0-170-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+  System information as of Mon Feb 17 16:01:38 UTC 2020
+
+  System load:  0.11              Processes:           83
+  Usage of /:   5.1% of 39.34GB   Users logged in:     0
+  Memory usage: 8%                IP address for eth0: 10.0.2.15
+  Swap usage:   0%                IP address for eth1: 192.168.103.100
+
+  Graph this data and manage this system at:
+    https://landscape.canonical.com/
+
+New release '16.04.6 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Last login: Mon Feb 17 16:01:38 2020 from 10.0.2.2
+vagrant@m103:~$ 
+```
 
 Esto reconocerá el archivo Vagrant y el archivo de aprovisionamiento y lo usará para conectarse al VirtualBox correcto.
 
-Entonces, una vez que tengamos SSHed, puede notar que el indicador de Shell ha cambiado para decir vagabundo y m103.
+Entonces, una vez que tengamos ssh, puede notar que el indicador de Shell ha cambiado para decir `vagrant@m103:~$ `.
 
 Y esto es algo bueno.
 
@@ -366,6 +627,20 @@ Y podemos ejecutar comandos para explorar realmente nuestra máquina virtual.
 
 Solo echaremos un vistazo a la versión mongod que está instalada en nuestra caja.
 
+```sh
+vagrant@m103:~$ mongod --version
+db version v3.6.17
+git version: 3d6953c361213c5bfab23e51ab274ce592edafe6
+OpenSSL version: OpenSSL 1.0.1f 6 Jan 2014
+allocator: tcmalloc
+modules: enterprise 
+build environment:
+    distmod: ubuntu1404
+    distarch: x86_64
+    target_arch: x86_64
+vagrant@m103:~$ 
+```
+
 Y podemos ver su versión 3.6, que es la última.
 
 Esto se debe a que el archivo de aprovisionamiento fue y obtuvo la última versión de MongoDB para nosotros.
@@ -374,36 +649,107 @@ Así que no tuvimos que descubrir cómo hacerlo.
 
 También se instaló en la ubicación correcta para que pueda saltar y comenzar a ejecutar comandos Mongo.
 
-Si queremos salir de la caja, todo lo que tenemos que hacer es escribir exit y estamos conectados de nuevo a nuestra máquina host.
+Si queremos salir de la caja, todo lo que tenemos que hacer es escribir `exit` y estamos conectados de nuevo a nuestra máquina host.
 
-Si queremos detener la caja, podemos ejecutar una detención vagabunda.
+```sh
+vagrant@m103:~$ exit
+logout
+Connection to 127.0.0.1 closed.
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+```
+
+Si queremos detener la caja, podemos ejecutar `vagrant halt`.
+
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant halt
+==> mongod-m103: Attempting graceful shutdown of VM...
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+```
 
 Y esto apagará con gracia nuestra máquina virtual para que el estado permanezca igual.
 
-Y si corremos vagabundo nuevamente, lo traerá de nuevo.
+Y si corremos `vagrant up` nuevamente, lo traerá de nuevo.
 
-Podemos verificar esto ejecutando el estado vagabundo nuevamente.
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant up
+Bringing machine 'mongod-m103' up with 'virtualbox' provider...
+==> mongod-m103: Clearing any previously set forwarded ports...
+==> mongod-m103: Clearing any previously set network interfaces...
+==> mongod-m103: Preparing network interfaces based on configuration...
+    mongod-m103: Adapter 1: nat
+    mongod-m103: Adapter 2: hostonly
+==> mongod-m103: Forwarding ports...
+    mongod-m103: 22 (guest) => 2222 (host) (adapter 1)
+==> mongod-m103: Running 'pre-boot' VM customizations...
+==> mongod-m103: Booting VM...
+==> mongod-m103: Waiting for machine to boot. This may take a few minutes...
+    mongod-m103: SSH address: 127.0.0.1:2222
+    mongod-m103: SSH username: vagrant
+    mongod-m103: SSH auth method: private key
+==> mongod-m103: Machine booted and ready!
+==> mongod-m103: Checking for guest additions in VM...
+    mongod-m103: The guest additions on this VM do not match the installed version of
+    mongod-m103: VirtualBox! In most cases this is fine, but in rare cases it can
+    mongod-m103: prevent things such as shared folders from working properly. If you see
+    mongod-m103: shared folder errors, please make sure the guest additions within the
+    mongod-m103: virtual machine match the version of VirtualBox you have installed on
+    mongod-m103: your host and reload your VM.
+    mongod-m103: 
+    mongod-m103: Guest Additions Version: 4.3.40
+    mongod-m103: VirtualBox Version: 6.0
+==> mongod-m103: Setting hostname...
+==> mongod-m103: Configuring and enabling network interfaces...
+==> mongod-m103: Mounting shared folders...
+    mongod-m103: /shared => /Users/adolfodelarosa/university/m103/m103-vagrant-env/shared
+    mongod-m103: /dataset => /Users/adolfodelarosa/university/m103/m103-vagrant-env/dataset
+    mongod-m103: /vagrant => /Users/adolfodelarosa/university/m103/m103-vagrant-env
+==> mongod-m103: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> mongod-m103: flag to force provisioning. Provisioners marked to run always will still run.
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+```
+
+Podemos verificar esto ejecutando el estado nuevamente `vagrant status`.
+
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant status
+Current machine states:
+
+mongod-m103               running (virtualbox)
+
+The VM is running. To stop this VM, you can run `vagrant halt` to
+shut it down forcefully, or you can run `vagrant suspend` to simply
+suspend the virtual machine. In either case, to restart it again,
+simply run `vagrant up`.
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ 
+```
 
 Y como podemos ver, la caja se está ejecutando.
 
 Para resumir, esto es lo que se espera de usted.
 
-Descargue el folleto que contiene el entorno Vagrant.
+<img src="/images/m103/c3/3-resumen.png">
 
-Descomprima el folleto y colóquelo en su nueva carpeta m103 para este curso.
+* Descargue el zip que contiene el entorno Vagrant.
 
-Puede activar el entorno virtual con vagabundo, y se conectan con SSH.
+* Descomprima el zip y colóquelo en su nueva carpeta m103 para este curso.
 
-Para verificar que el script de aprovisionamiento se ejecutó correctamente, puede verificar la versión de MongoDB que está instalada dentro de la máquina virtual.
+* Puede activar el entorno virtual con `vagrant up`
 
-Si lo desea, puede salir de la caja y poner nuestro sistema en reposo, y luego volver a activarlo para que pueda usarlo.
+* Conectarse a out box usando `vagrant ssh`
+
+* Verificar que el script de aprovisionamiento se ejecutó correctamente
+
+* Verificar la versión de MongoDB que está instalada dentro de la máquina virtual.
+
+* Puede salir de la caja y poner nuestro sistema en reposo
+
+* Y luego volver a activarlo para que pueda usarlo.
 
 Todo bien.
 
 Gracias por su atención.
 
 Buena suerte al configurar su propio entorno virtual.
-
 
 ## 4. Examen Setting Up the Vagrant Environment
 
