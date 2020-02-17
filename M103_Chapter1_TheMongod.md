@@ -1656,6 +1656,39 @@ mongoimport --port 30000 products.json
 
 ### Transcripción
 
-## 25. Examen
+## 25. Examen Server Tools Overview
+
+**Problem:**
+
+Which of the following are true differences between mongoexport and mongodump?
+
+Check all answers that apply:
+
+* Mongodump can create a data file and a metadata file, but mongoexport just creates a data file. :+1:
+
+* Mongoexport is typically faster than mongodump.
+
+* Mongoexport outputs BSON, but mongodump outputs JSON.
+
+* Mongodump outputs BSON, but mongoexport outputs JSON. :+1:
+
+* By default, mongoexport sends output to standard output, but mongodump writes to a file. :+1:
+
 
 ## 26. Laboratorio: Importación de un Conjunto de Datos
+
+Lab - Importing a Dataset
+
+**Problem:**
+
+Now that you have some background about MongoDB's server tools, use `mongoimport` to import a JSON dataset into MongoDB. You can find the dataset inside the Vagrant box in `/dataset/products.json`, or in the lesson handout.
+
+Import the whole dataset with your application's user `m103-application-user` into a collection called `products`, in the database `applicationData`.
+
+When you're finished, run the following validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
+
+```sh
+vagrant@m103:~$ validate_lab_import_dataset
+```
+
+Enter answer here:
