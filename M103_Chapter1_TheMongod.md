@@ -1415,6 +1415,58 @@ Enter answer here:
 
 ## 18. Tema: Seguridad Básica: Parte 2
 
+### Lecture Notes
+
+**Lecture Instructions**
+
+Print configuration file:
+
+```sh
+cat /etc/mongod.conf
+```
+
+Launch standalone mongod:
+
+```sh
+mongod -f /etc/mongod.conf
+```
+
+Connect to mongod:
+
+```sh
+mongo --host 127.0.0.1:27017
+```
+
+Create new user with the root role (also, named root):
+
+```sh
+use admin
+db.createUser({
+  user: "root",
+  pwd: "root123",
+  roles : [ "root" ]
+})
+```
+
+Connect to mongod and authenticate as root:
+
+```sh
+mongo --username root --password root123 --authenticationDatabase admin
+```
+
+Run DB stats:
+
+```sh
+db.stats()
+```
+
+Shutdown the server:
+
+```sh
+use admin
+db.shutdownServer()
+```
+
 ### Transcripción
 
 ## 19. Examen
