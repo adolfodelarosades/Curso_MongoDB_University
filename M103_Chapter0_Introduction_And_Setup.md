@@ -280,7 +280,7 @@ Pero para hacer eso, le pediremos que instale dos dependencias.
 
 El primero es VirtualBox.
 
-<img src="/images/m103/c3/3-virtualvox.png">
+<img src="/images/m103/c3/3-virualvox.png">
 
 VirtualBox como un hipervisor de código abierto que nos permite ejecutar máquinas virtuales en su máquina host.
 
