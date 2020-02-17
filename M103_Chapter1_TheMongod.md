@@ -837,6 +837,33 @@ mongo admin --host localhost:27000 --eval '
 '
 ```
 
+MIO
+```sh
+vagrant@m103:~$ mongo admin --host localhost:27000 --eval '
+> db.createUser({
+> user: "m103-admin",
+> pwd: "m103-pass",
+> roles: [
+> {role: "root", db: "admin"}
+> ]
+> })
+> '
+MongoDB shell version v3.6.17
+connecting to: mongodb://localhost:27000/admin?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("e0b6fc24-944c-477c-b391-1aa39d04a49a") }
+MongoDB server version: 3.6.17
+Successfully added user: {
+	"user" : "m103-admin",
+	"roles" : [
+		{
+			"role" : "root",
+			"db" : "admin"
+		}
+	]
+}
+vagrant@m103:~$ 
+```
+
 The above command creates a user with the following credentials:
 
 * Role: `root` on `admin` database
@@ -847,6 +874,15 @@ When you're finished, run the following validation script in your vagrant and ou
 
 ```sh
 vagrant@m103:~$ validate_lab_launch_mongod
+```
+
+MIO
+```sh
+vagrant@m103:~$ mongod --port 27000 --dbpath /data/db --bind_ip 192.168.103.100,localhost
+
+vagrant@m103:~$ validate_lab_launch_mongod
+5a21c6dd403b6546001e79c0
+vagrant@m103:~$ 
 ```
 
 *Hint:* You want to make sure all applicable command line options are set! Also, in case you need to restart the `mongod` daemon, you may need to `kill` the process using it's **pid**.
@@ -863,13 +899,126 @@ To kill the process, you can use this command:
 kill <pid>
 ```
 
-Enter answer here:
+Enter answer here:5a21c6dd403b6546001e79c0
 
 ## 4. Tema: Archivo de Configuración
 
+### Lecture Notes
+
+*At 3:54 the speaker says "YAML stands for Yet Another Markup Language". This acronym has been updated to "YAML Ain't Markup Language".*
+
+See MongoDB documentation for more information about [command line options](https://docs.mongodb.com/manual/reference/program/mongod/#options) and [configuration file options](https://docs.mongodb.com/manual/reference/configuration-options/).
+
+#### Lecture Instructions
+
+*These lecture instructions are not meant to be reproduced in your environment. They reflect what you will see in the lecture video, however they may point to non-existing resources and files*.
+
+Launch mongod using default configuration:
+
+```sh
+mongod
+```
+
+Launch mongod with specified `--dbpath` and `--logpath`:
+
+
+```sh
+mongod --dbpath /data/db --logpath /data/log/mongod.log
+```
+
+Launch mongod and fork the process:
+
+```sh
+mongod --dbpath /data/db --logpath /data/log/mongod.log --fork
+```
+
+Launch mongod with many configuration options:
+
+*Note that all* "ssl" *options have been edited to use* "tls" *instead. As of MongoDB 4.2, options using* "ssl" *have been deprecated*.
+
+```sh
+mongod --dbpath /data/db --logpath /data/log/mongod.log --fork --replSet "M103" --keyFile /data/keyfile --bind_ip "127.0.0.1,192.168.103.100" --tlsMode requireTLS --tlsCAFile "/etc/tls/TLSCA.pem" --tlsCertificateKeyFile "/etc/tls/tls.pem"
+```
+
+Example configuration file, with the same configuration options as above:
+
+```sh
+storage:
+  dbPath: "/data/db"
+systemLog:
+  path: "/data/log/mongod.log"
+  destination: "file"
+replication:
+  replSetName: M103
+net:
+  bindIp : "127.0.0.1,192.168.103.100"
+tls:
+  mode: "requireTLS"
+  certificateKeyFile: "/etc/tls/tls.pem"
+  CAFile: "/etc/tls/TLSCA.pem"
+security:
+  keyFile: "/data/keyfile"
+processManagement:
+  fork: true
+ 
+```
+
 ### Transcripción
 
-## 5. Examen
+## 5. Examen Configuration File
+
+#### Problem:
+
+Consider the following:
+
+```sh
+mongod --dbpath /data/db --logpath /data/logs --replSet M103 --bind_ip '127.0.0.1,192.168.103.100' --keyFile /data/keyfile --fork
+```
+
+Which of the following represents a configuration file equivalent to the command line options?
+
+
+Check all answers that apply:
+
+```sh
+storage:
+  dbPath: "/data/db"
+systemLog:
+  destination: file
+  path: "/data/logs"
+replication:
+  replSetName: "M103"
+net:
+  bindIp: "127.0.0.1,192.168.103.100"
+security:
+  keyFile: "/data/keyfile"
+processManagement:
+  fork: true
+```
+
+```sh
+storage.dbPath: /data/db
+systemLog.destination: "/data/logs"
+replication.replSetName: "M103"
+net.bindIp: "127.0.0.1,192.168.103.100"
+security.keyFile: "/data/keyfile"
+processManagement.fork: true
+```
+
+```sh
+storage
+  dbPath="/data/db"
+systemLog
+  destination="/data/logs"
+replication
+  replSetName="M103"
+net
+  bindIp="127.0.0.1,192.168.103.100"
+security
+  keyFile="/data/keyfile"
+processManagement
+  fork=true
+```
 
 ## 6. Laboratorio: Archivo de Configuración
 
