@@ -1562,7 +1562,97 @@ Check all answers that apply:
 
 ## 23. Laboratorio: Creación del Primer Usuario de la Aplicación
 
+Lab - Creating First Application User
+
+**Problem:**
+
+In the first lab, you created a user with the root role on the admin database. The requirements are listed here:
+
+* run on port **27000**
+* data files are stored in `/var/mongodb/db/`
+* listens to connections from the IP address `192.168.103.100` and `localhost`
+* authentication is enabled
+* root user on *admin* database with username: `m103-admin` and password: `m103-pass`
+
+The `root` role is one of the most powerful roles in a Mongo cluster, and has many privileges which are never used by a typical application. In this lab, you will create a new user for an application that has the `readWrite` role, because the application does not need to monitor the cluster or create users - it only needs to read and write data.
+
+The requirements for this new user are:
+
+* Role: `readWrite` on `applicationData` database
+* Authentication source: `admin`
+* Username: `m103-application-user`
+* Password: `m103-application-pass`
+
+You don't need to make any changes to your `mongod` configuration, but it **must be running with authentication enabled**. If your configuration does not use authentication, this lab may fail to validate.
+
+When you're finished, run the following validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
+
+```sh
+vagrant@m103:~$ validate_lab_first_application_user
+```
+
+Enter answer here:
+
 ## 24. Tema: Descripción General de las Herramientas del Servidor
+
+### Lecture Notes
+
+**Lecture Instructions**
+
+List mongodb binaries:
+
+```sh
+find /usr/bin/ -name "mongo*"
+```
+
+Create new dbpath and launch mongod:
+
+```sh
+mkdir -p ~/first_mongod
+mongod --port 30000 --dbpath ~/first_mongod --logpath ~/first_mongod/mongodb.log --fork
+```
+
+Use mongostat to get stats on a running mongod process:
+
+```sh
+mongostat --help
+mongostat --port 30000
+```
+
+Use mongodump to get a BSON dump of a MongoDB collection:
+
+```sh
+mongodump --help
+mongodump --port 30000 --db applicationData --collection products
+ls dump/applicationData/
+cat dump/applicationData/products.metadata.json
+```
+
+Use mongorestore to restore a MongoDB collection from a BSON dump:
+
+```sh
+mongorestore --drop --port 30000 dump/
+```
+
+Use mongoexport to export a MongoDB collection to JSON or CSV (or stdout!):
+
+```sh
+mongoexport --help
+mongoexport --port 30000 --db applicationData --collection products
+mongoexport --port 30000 --db applicationData --collection products -o products.json
+```
+
+Tail the exported JSON file:
+
+```sh
+tail products.json
+```
+
+Use mongoimport to create a MongoDB collection from a JSON or CSV file:
+
+```sh
+mongoimport --port 30000 products.json
+```
 
 ### Transcripción
 
