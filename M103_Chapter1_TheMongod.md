@@ -1365,7 +1365,23 @@ mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authentica
 
 ### Transcripción
 
-## 15. Examen
+## 15. Examen Profiling the Database
+
+**Problem:**
+
+What events are captured by the profiler?
+
+Check all answers that apply:
+
+* CRUD operations :+1:
+
+* Administrative commands :+1:
+
+* Network timeouts
+
+* WiredTiger storage data
+
+* Cluster configuration operations :+1:
 
 ## 16. Laboratorio: Inicio de Sesión en una Instalación Diferente
 
