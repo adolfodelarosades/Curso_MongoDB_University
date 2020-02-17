@@ -139,10 +139,19 @@ If in case you have downloaded the version 6.1 then please **uninstall** it and 
    Download and installation should be straightforward. Go to the [VirtualBox downloads page](https://www.virtualbox.org/wiki/Download_Old_Builds_6_0), download the setup binary for your appropriate OS, and run the installer.
 
    If you run into issues installing VirtualBox on a recent version of MacOS, you may want to look at this [knowledge article](https://apple.stackexchange.com/questions/300510/virtualbox-5-1-8-installation-didnt-install-kernel-extensions-how-do-i-fix-thi).
+   
+   
+   ```sh
+   192:~ adolfodelarosa$ vboxmanage --version
+   6.0.14r133895
+   192:~ adolfodelarosa$ 
+   ```
 
 2. Install Vagrant
 
    After VirtualBox has been installed you can go ahead and [download](https://www.vagrantup.com/downloads.html) and [install](https://www.vagrantup.com/docs/installation/) Vagrant.
+
+
 
 #### Installing Vagrant on Windows
 
