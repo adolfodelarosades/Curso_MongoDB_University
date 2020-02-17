@@ -980,6 +980,7 @@ Which of the following represents a configuration file equivalent to the command
 
 Check all answers that apply:
 
+:+1+
 ```sh
 storage:
   dbPath: "/data/db"
@@ -1022,13 +1023,128 @@ processManagement
 
 ## 6. Laboratorio: Archivo de Configuración
 
+Lab - Configuration File
+
+**Problem:**
+
+In this lab, you're going to launch a mongod instance in the vagrant environment with the same exact settings as the previous lab. However this time, those settings will be defined in a configuration file instead of the command line. It is required for this lab that you use the [YAML format](https://docs.mongodb.com/manual/reference/configuration-options/index.html#file-format) to construct this config file.
+
+As a reminder, here are the requirements of your mongod instance:
+
+* run on port **27000**
+* data files are stored in `/data/db/`
+* listens to connections from the IP address `192.168.103.100` and `localhost`
+* authentication is enabled
+
+If you created the user from the previous lab, you don't need to create any new users. If you did not create the user, do so now. Here are the requirements for that user:
+
+* Role: `root` on `admin` database
+* Username: `m103-admin`
+* Password: `m103-pass`.
+
+When your config file is complete, launch mongod with the `--config <config_filepath>` command line option with the filepath to your config file in place of `config_filepath` (you can also use the `-f` option instead of `--config`).
+
+When you're finished, run the following validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
+
+```sh
+vagrant@m103:~$ validate_lab_configuration_file
+```
+
 ## 7. Tema: Estructura de Archivo
+
+### Lecture Notes
+
+#### Lecture Instructions
+
+List `--dbpath` directory:
+
+```sh
+ls -l /data/db
+```
+
+List diagnostics data directory:
+
+```sh
+ls -l /data/db/diagnostic.data
+```
+
+List journal directory:
+
+```sh
+ls -l /data/db/journal
+```
+
+List socket file:
+
+```sh
+ls /tmp/mongodb-27017.sock
+```
 
 ### Transcripción
 
-## 8. Examen
+## 8. Examen File Structure
+
+**Problem:**
+
+Which of the following files in the MongoDB data directory can you access to view collection data?
+
+Check all answers that apply:
+
+* The collection.wt file
+
+* The storage.bson file
+
+* The WiredTiger.wt file
+
+* None of the above :+1:
 
 ## 9. Laboratorio: Cambiar la Ruta de Acceso a la Base de Datos Predeterminada
+
+Lab - Change the Default DB Path
+
+**Problem:**
+
+In this lab, you're going to edit the config file from the previous lab to include a different DB path than the default path `/data/db`. Mongod will now store data files in this new directory instead.
+
+Using what you know about the configuration file and Linux user groups, please complete the following:
+
+* create a new folder `/var/mongodb/db/` and allow mongod to write files to this directory
+   * create this directory with `sudo`, because `/var` is owned by `root`
+   * use `chown` to change the owner of this directory to `vagrant:vagrant`
+* edit your config file to use this new directory as the `dbpath`
+
+Here are the updated requirements for your mongod instance:
+
+* runs on port **27000**
+* stores its data files in `/var/mongodb/db/`
+* listens to connections from the IP address `192.168.103.100` and `localhost`
+* uses authentication
+
+Now that your config file has changed, you have to restart mongod so the server will reflect those changes. As a reminder, here is the way to safely shutdown from the `mongo` shell:
+
+```sh
+use admin
+db.shutdownServer()
+quit()
+```
+
+Once your `mongod` is safely stopped, you can launch it again with your new config file.
+
+We could have kept the previous DB and users, however in this lab we will start with a new empty database directory, meaning empty database.
+
+Let's recreate the user `m103-admin` with the same requirements as earlier, as we will need this user for the validation scripts and later tasks.
+
+* Role: `root` on `admin` database
+* Username: `m103-admin`
+* Password: `m103-pass`
+
+When you're finished, run the following validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
+
+```sh
+vagrant@m103:~$ validate_lab_change_dbpath
+```
+
+Enter answer here:
 
 ## 10. Tema: Comandos Básicos
 
