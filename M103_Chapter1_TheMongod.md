@@ -1235,11 +1235,133 @@ Check all answers that apply:
 
 ## 12. Tema: Conceptos Básicos de Registro
 
+### Lecture Notes
+
+The logging output has changed in MongoDB 4.2. If you're interested, you can find more information in the 4.2 release notes for [Logging & Diagnostics](https://docs.mongodb.com/manual/release-notes/4.2/#logging-and-diagnostics).
+
+**Lecture Instructions**
+
+Get the logging components:
+
+```sh
+mongo admin --host 192.168.103.100:27000 -u m103-admin -p m103-pass --eval '
+  db.getLogComponents()
+'
+```
+
+Change the logging level:
+
+```sh
+mongo admin --host 192.168.103.100:27000 -u m103-admin -p m103-pass --eval '
+  db.setLogLevel(0, "index")
+'
+```
+
+View the logs through the Mongo shell:
+
+```sh
+db.adminCommand({ "getLog": "global" })
+```
+
+View the logs through the command line:
+
+```sh
+tail -f /data/db/mongod.log
+```
+
+Update a document:
+
+```sh
+mongo admin --host 192.168.103.100:27000 -u m103-admin -p m103-pass --eval '
+  db.products.update( { "sku" : 6902667 }, { $set : { "salePrice" : 39.99} } )
+'
+```
+
+Look for instructions in the log file with grep:
+
+```sh
+grep -i 'update' /data/db/mongod.log
+```
+
 ### Transcripción
 
-## 13. Examen
+## 13. Examen Logging Basics
+
+**Problem:**
+
+Which of the following operations can be used to access the logs?
+
+Check all answers that apply:
+
+* Running db.adminCommand({ "getLog": "global" }) from the Mongo shell :+1:
+
+* Running tail -f <path-to-log-file> from the command line :+1:
+
+* Running db.getLogComponents() from the Mongo shell
 
 ## 14. Tema: Perfil de la Base de Datos
+
+### Lecture Notes
+
+**Lecture Instructions**
+
+**Note: The command ``show collections`` no longer lists the system.* collections. It changed after version 4.0.**
+
+To list all of the collection names you can run this command:
+
+```sh
+db.runCommand({listCollections: 1})
+```
+
+Get profiling level:
+
+```sh
+mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authenticationDatabase admin --eval '
+  db.getProfilingLevel()
+'
+```
+
+Set profiling level:
+
+```sh
+mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authenticationDatabase admin --eval '
+  db.setProfilingLevel(1)
+'
+```
+
+Show collections:
+
+```sh
+mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authenticationDatabase admin --eval '
+  db.getCollectionNames()
+'
+```
+
+Note: *show collections* only works from within the shell
+
+Set `slowms` to 0:
+
+```sh
+mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authenticationDatabase admin --eval '
+  db.setProfilingLevel( 1, { slowms: 0 } )
+'
+```
+
+Insert one document into a new collection:
+
+```sh
+mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authenticationDatabase admin --eval '
+  db.new_collection.insert( { "a": 1 } )
+'
+```
+
+Get profiling data from `system.profile`:
+
+```sh
+mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authenticationDatabase admin --eval '
+  db.system.profile.find().pretty()
+'
+```
 
 ### Transcripción
 
