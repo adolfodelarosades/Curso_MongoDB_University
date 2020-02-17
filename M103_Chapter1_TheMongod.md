@@ -1148,6 +1148,57 @@ Enter answer here:
 
 ## 10. Tema: Comandos Básicos
 
+### Lecture Notes
+
+The explain() output has changed in MongoDB 4.2. Specifically, a new section called explain.queryPlanner.optimizedPipeline has been added to the output. You can read about it in the optimizedPipeline docs.
+
+Lecture Instructions
+
+User management commands:
+
+db.createUser()
+db.dropUser()
+ COPY
+Collection management commands:
+
+db.<collection>.renameCollection()
+db.<collection>.createIndex()
+db.<collection>.drop()
+ COPY
+Database management commands:
+
+db.dropDatabase()
+db.createCollection()
+ COPY
+Database status command:
+
+db.serverStatus()
+ COPY
+Creating index with Database Command:
+
+db.runCommand(
+  { "createIndexes": <collection> },
+  { "indexes": [
+    {
+      "key": { "product": 1 }
+    },
+    { "name": "name_index" }
+    ]
+  }
+)
+ COPY
+Creating index with Shell Helper:
+
+db.<collection>.createIndex(
+  { "product": 1 },
+  { "name": "name_index" }
+)
+ COPY
+Introspect a Shell Helper:
+
+db.<collection>.createIndex
+
+
 ### Transcripción
 
 ## 11. Examen
