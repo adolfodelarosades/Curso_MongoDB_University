@@ -799,7 +799,7 @@ vagrant@m103:~$ validate_box
 
 Please enter the validation key you receive here:
 
-Enter answer here:
+Enter answer here: 6445a3f8b6f1cc5873cf1ac94194903444602708d4eb189d42b6e65ca594d80d
 
 ## 6. Tema: Solución de problemas del entorno Vagrant
 
