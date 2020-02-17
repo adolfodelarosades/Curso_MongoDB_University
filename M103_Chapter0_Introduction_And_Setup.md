@@ -807,7 +807,7 @@ Enter answer here: 6445a3f8b6f1cc5873cf1ac94194903444602708d4eb189d42b6e65ca594d
 
 In this lesson you can find the common pitfalls for setting up your vagrant environment as well as the troubleshooting guide .
 
-#### Error while mounting shared folders
+#### Error while mounting shared folders
 
 ```sh
 ==> mongodb-mXXX: Mounting shared folders...
@@ -834,7 +834,7 @@ mXXX-vagrant-env$ vagrant destroy
 mXXX-vagrant-env$ vagrant up
 ```
 
-**IP mismatch while doing ssh**
+#### IP mismatch while doing ssh
 
 ```sh
 mXXX-vagrant-env$ vagrant ssh
@@ -859,13 +859,13 @@ vagrant@mXXX:~ exit
 mXXX-vagrant-env$ vagrant destroy
 ```
 
-Then re-provision your vagrant VM by running vagrant up again. If it still doesn't work, then please share the following:
+Then re-provision your vagrant VM by running `vagrant up` again. If it still doesn't work, then please share the following:
 
 * what was the value in the VM
 * what is the value for the host
-* output of vagrant global status
+* output of `vagrant global status`
 
-**Localhost IP mismatch while configuring replica sets:**
+#### Localhost IP mismatch while configuring replica sets:
 
 If you encounter below error:
 
@@ -887,7 +887,7 @@ mXXX-vagrant-env$ vagrant halt
 mXXX-vagrant-env$ vagrant up --provision
 ```
 
-**Password for vagrant?**
+#### Password for vagrant?
 
 If you are being asked for the password, then credentials are:
 
@@ -911,7 +911,7 @@ If you are working with PuTTy and every time you enter vagrant, it asks for your
 
 All works fine Source: [https://github.com/Varying-Vagrant-Vagrants/VVV/wiki/Connect-to-Your-Vagrant-Virtual-Machine-with-PuTTY](https://github.com/Varying-Vagrant-Vagrants/VVV/wiki/Connect-to-Your-Vagrant-Virtual-Machine-with-PuTTY)
 
-**Public Key not available error**
+#### Public Key not available error
 
 If you encounter below error:
 
@@ -938,7 +938,7 @@ Modify the line **"apt-get install -y mongodb-enterprise"** in **provision-mongo
 sudo apt-get install -y mongodb-enterprise --force-yes
 ```
 
-**Vagrant Issues on windows:**
+#### Vagrant Issues on windows:
 
 *Must redirect to new repository for old Vagrant versions*
 
@@ -960,7 +960,7 @@ For `Windows7 SP1 machine` :
 
 Launch `vagrant --repair` or the command mentioned in error message, and again ran `vagrant up`, then try again.
 
-**Stderr: VBoxManage.exe: error: VT-x is not available**
+#### Stderr: VBoxManage.exe: error: VT-x is not available
 
 If you encounter below error:
 
@@ -977,12 +977,11 @@ Here is the possible solution:
 1. Enable virtualization in the BIOS.
 2. Make sure you have Hyper-V turned off in Windows 10 For Windows 10: Press Windows key. Type "Turn Windows features on or off" Deselect the checkbox next to Hyper-V. Select OK. Select Restart now.
 
-**Vagrant issues on Ubuntu:**
+#### Vagrant issues on Ubuntu:
 
 `VBoxManage: error: Failed to create the host-only adapter`
 
 Error:
-
 
 ```sh
 ==> mongod-mXXX: Clearing any previously set network interfaces…
@@ -1010,7 +1009,7 @@ Steps to disable Secure boot:
 * Go to Boot Manager and disable the option Secure Boot. ...
 * Save the changes and reboot.
 
-**SSL error**
+#### SSL error
 
 ```sh
 Error: SSL certificate problem: self signed certificate in certificate chain
@@ -1033,7 +1032,7 @@ Possible Solution:
 
 *Disable Antivirus and restart you vagrant machine*
 
-**Restarting/Destroying Vagrant from Virtual Box GUI**
+#### Restarting/Destroying Vagrant from Virtual Box GUI
 
 *Problem: If you are unsure on how to destroy or restart or shutdown vagrant.*
 
