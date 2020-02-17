@@ -1477,19 +1477,68 @@ When should you deploy a MongoDB deployment with security enabled?
 
 Check all answers that apply:
 
-* When deploying your staging environment
+* When deploying your staging environment :+1:
 
-* When deploying an evaluation environment
+* When deploying an evaluation environment :+1:
 
-* When deploying your production environment
+* When deploying your production environment :+1:
 
-* When deploying a development environment
+* When deploying a development environment :+1:
 
 ## 20. Tema: Roles Incorporados: Parte 1
+
+### Lecture Notes
+
+[M310 - MongoDB Security](https://university.mongodb.com/courses/M310/about)
+
 
 ### Transcripción
 
 ## 21. Tema: Roles Incorporados: Parte 2
+
+### Lecture Notes
+
+**Lecture Instructions**
+
+Authenticate as `root` user:
+
+```sh
+mongo admin -u root -p root123
+```
+
+Create security officer:
+
+```sh
+db.createUser(
+  { user: "security_officer",
+    pwd: "h3ll0th3r3",
+    roles: [ { db: "admin", role: "userAdmin" } ]
+  }
+)
+```
+
+Create database administrator:
+
+```sh
+db.createUser(
+  { user: "dba",
+    pwd: "c1lynd3rs",
+    roles: [ { db: "admin", role: "dbAdmin" } ]
+  }
+)
+```
+
+Grant role to user:
+
+```sh
+db.grantRolesToUser( "dba",  [ { db: "playground", role: "dbOwner"  } ] )
+```
+
+Show role privileges:
+
+```sh
+db.runCommand( { rolesInfo: { role: "dbOwner", db: "playground" }, showPrivileges: true} )
+```
 
 ### Transcripción
 
