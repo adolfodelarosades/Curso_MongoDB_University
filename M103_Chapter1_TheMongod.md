@@ -114,29 +114,35 @@ Todo bien.
 
 Entonces, en esta lección, vamos a discutir el mongod.
 
-Aprenderá qué es el mongod, cómo funciona a un alto nivel y qué es un demonio, la disponibilidad del mongod y las opciones que puede usar para configurarlo.
+<img src="/images/m103/c1/1-1-objetivos.png">
+
+Aprenderá qué es el mongod, cómo funciona a un alto nivel y qué es un demonio (daemon), la disponibilidad del mongod y las opciones que puede usar para configurarlo.
 
 Mongod es el principal proceso de demonio para MongoDB.
+
+<img src="/images/m103/c1/1-1-mongod.png">
 
 Es la unidad central de la base de datos, que maneja las conexiones, las solicitudes y la parte más importante de esta, persistiendo sus datos o escribiendo sus datos en un disco.
 
 Entonces, ¿qué es un demonio?
 
-Un daemon es un programa, un proceso que debe ejecutarse y no interactuar de manera directa.
+<img src="/images/m103/c1/1-1-daemon.png">
 
-Por convención, los demonios tienen un d añadido al final de su nombre, de ahí el nombre mongod.
+**Un daemon es un programa, un proceso que debe ejecutarse y no interactuar de manera directa**.
 
-Cuando corremos
+Por convención, los demonios tienen un **d** añadido al final de su nombre, de ahí el nombre **mongod**.
 
-mongod, no interactuamos con él directamente.
+Cuando corremos mongod, no interactuamos con él directamente.
 
-En cambio, nuestra aplicación utiliza un controlador para comunicarse con el mongod.
+En cambio, nuestra aplicación utiliza un controlador(driver) para comunicarse con el mongod.
 
 La interacción del usuario es a nivel de aplicación.
 
-Y el conductor maneja todos los detalles esenciales de la comunicación con el mongod.
+Y el driver maneja todos los detalles esenciales de la comunicación con el mongod.
 
 MongoDB está disponible en numerosas arquitecturas de 64 bits, incluidas las populares, como Ubuntu, Windows y otras.
+
+<img src="/images/m103/c1/1-1-arquitecturas.png">
 
 Para fines de desarrollo y demostración, también puede instalarlo en un Mac OS.
 
@@ -144,19 +150,71 @@ Todo bien.
 
 Entonces, ahora que tenemos una idea de qué es mongod, discutamos su uso.
 
-Mongod se inicia más fácilmente ejecutando el comando mongod.
+**Mongod se inicia más fácilmente ejecutando el comando `mongod`**.
+
+```sh
+vagrant@m103:~$ mongod
+2020-02-17T18:09:33.728+0000 I CONTROL  [initandlisten] MongoDB starting : pid=2226 port=27017 dbpath=/data/db 64-bit host=m103
+2020-02-17T18:09:33.729+0000 I CONTROL  [initandlisten] db version v3.6.17
+2020-02-17T18:09:33.730+0000 I CONTROL  [initandlisten] git version: 3d6953c361213c5bfab23e51ab274ce592edafe6
+2020-02-17T18:09:33.730+0000 I CONTROL  [initandlisten] OpenSSL version: OpenSSL 1.0.1f 6 Jan 2014
+2020-02-17T18:09:33.731+0000 I CONTROL  [initandlisten] allocator: tcmalloc
+2020-02-17T18:09:33.731+0000 I CONTROL  [initandlisten] modules: enterprise 
+2020-02-17T18:09:33.732+0000 I CONTROL  [initandlisten] build environment:
+2020-02-17T18:09:33.732+0000 I CONTROL  [initandlisten]     distmod: ubuntu1404
+2020-02-17T18:09:33.733+0000 I CONTROL  [initandlisten]     distarch: x86_64
+2020-02-17T18:09:33.733+0000 I CONTROL  [initandlisten]     target_arch: x86_64
+2020-02-17T18:09:33.734+0000 I CONTROL  [initandlisten] options: {}
+2020-02-17T18:09:33.735+0000 I STORAGE  [initandlisten] 
+2020-02-17T18:09:33.736+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-17T18:09:33.736+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-17T18:09:33.737+0000 I STORAGE  [initandlisten] wiredtiger_open config: create,cache_size=488M,cache_overflow=(file_max=0M),session_max=20000,eviction=(threads_min=4,threads_max=4),config_base=false,statistics=(fast),compatibility=(release="3.0",require_max="3.0"),log=(enabled=true,archive=true,path=journal,compressor=snappy),file_manager=(close_idle_time=100000),statistics_log=(wait=0),verbose=(recovery_progress),
+2020-02-17T18:09:34.658+0000 I STORAGE  [initandlisten] WiredTiger message [1581962974:658120][2226:0x7f983f818ac0], txn-recover: Set global recovery timestamp: 0
+2020-02-17T18:09:34.680+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.681+0000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2020-02-17T18:09:34.681+0000 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2020-02-17T18:09:34.682+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.682+0000 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2020-02-17T18:09:34.683+0000 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server. 
+2020-02-17T18:09:34.683+0000 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP 
+2020-02-17T18:09:34.683+0000 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2020-02-17T18:09:34.684+0000 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2020-02-17T18:09:34.684+0000 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2020-02-17T18:09:34.684+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.685+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.685+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-17T18:09:34.685+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-17T18:09:34.686+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.686+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-17T18:09:34.687+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-17T18:09:34.687+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.796+0000 I STORAGE  [initandlisten] createCollection: admin.system.version with provided UUID: 9260dafa-0288-46da-9a1a-4c27213a57ac
+2020-02-17T18:09:34.828+0000 I COMMAND  [initandlisten] setting featureCompatibilityVersion to 3.6
+2020-02-17T18:09:34.839+0000 I STORAGE  [initandlisten] createCollection: local.startup_log with generated UUID: 2d47d4be-20e9-4602-9350-4a5062d6edd1
+2020-02-17T18:09:34.846+0000 I FTDC     [initandlisten] Initializing full-time diagnostic data capture with directory '/data/db/diagnostic.data'
+2020-02-17T18:09:34.846+0000 I NETWORK  [initandlisten] listening via socket bound to 127.0.0.1
+2020-02-17T18:09:34.846+0000 I NETWORK  [initandlisten] listening via socket bound to /tmp/mongodb-27017.sock
+2020-02-17T18:09:34.846+0000 I NETWORK  [initandlisten] waiting for connections on port 27017
+2020-02-17T18:09:34.859+0000 I STORAGE  [LogicalSessionCacheRefresh] createCollection: config.system.sessions with generated UUID: ee39bfbd-0de8-4c79-8592-55e1c474aeab
+2020-02-17T18:09:34.872+0000 I INDEX    [LogicalSessionCacheRefresh] build index on: config.system.sessions properties: { v: 2, key: { lastUse: 1 }, name: "lsidTTLIndex", ns: "config.system.sessions", expireAfterSeconds: 1800 }
+2020-02-17T18:09:34.872+0000 I INDEX    [LogicalSessionCacheRefresh] 	 building index using bulk method; build may temporarily use up to 500 megabytes of RAM
+2020-02-17T18:09:34.874+0000 I INDEX    [LogicalSessionCacheRefresh] build index done.  scanned 0 total records. 0 secs
+
+```
 
 Vemos un montón de resultados aquí, pero la información más importante está en la parte superior e inferior.
 
-Todo bien.
+`MongoDB starting : pid=2226 port=27017 dbpath=/data/db 64-bit host=m103`
 
-Ahora, para que podamos ver aquí, mongod nos ha dicho la identificación del proceso de este proceso mongod, 5838, el puerto en el que se está ejecutando, 27017, el dbpath.
+Ahora, para que podamos ver aquí, mongod nos ha dicho la identificación del proceso de este proceso mongod, 2226, el puerto en el que se está ejecutando, 27017, el dbpath /data/db 
 
 Y ambos son valores predeterminados, eso es porque no especificamos nada más.
 
-También nos da el nombre de host de la caja vagabunda, m103.
+También nos da el nombre de host de la caja vagrant, m103.
 
 Y podemos ver, en la parte inferior aquí, que está escuchando conexiones en el puerto 27017.
+
+`waiting for connections on port 27017`
 
 Tenga en cuenta que nuestro terminal ya no interactúa.
 
@@ -166,17 +224,84 @@ La terminal nos da una nueva línea.
 
 Tenemos que abrir una ventana y terminal diferente para conectarnos a mongo aquí.
 
+```sh
+mini-de-adolfo:m103-vagrant-env adolfodelarosa$ vagrant ssh
+Welcome to Ubuntu 14.04.6 LTS (GNU/Linux 3.13.0-170-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+  System information as of Mon Feb 17 17:24:52 UTC 2020
+
+  System load:  0.0               Processes:           85
+  Usage of /:   5.1% of 39.34GB   Users logged in:     0
+  Memory usage: 6%                IP address for eth0: 10.0.2.15
+  Swap usage:   0%                IP address for eth1: 192.168.103.100
+
+  Graph this data and manage this system at:
+    https://landscape.canonical.com/
+
+New release '16.04.6 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Last login: Mon Feb 17 17:24:53 2020 from 10.0.2.2
+vagrant@m103:~$ 
+```
+
 Así que vamos a abrir una segunda ventana de terminal aquí y escribir el comando mongo para conectarse a mongo.
+
+```sh
+vagrant@m103:~$ mongo
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("3107a574-0174-4614-a665-e5e2c324ff51") }
+MongoDB server version: 3.6.17
+Welcome to the MongoDB shell.
+For interactive help, type "help".
+For more comprehensive documentation, see
+	http://docs.mongodb.org/
+Questions? Try the support group
+	http://groups.google.com/group/mongodb-user
+Server has startup warnings: 
+2020-02-17T18:09:33.735+0000 I STORAGE  [initandlisten] 
+2020-02-17T18:09:33.736+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-17T18:09:33.736+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-17T18:09:34.680+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.681+0000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2020-02-17T18:09:34.681+0000 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2020-02-17T18:09:34.682+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.682+0000 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2020-02-17T18:09:34.683+0000 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server. 
+2020-02-17T18:09:34.683+0000 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP 
+2020-02-17T18:09:34.683+0000 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2020-02-17T18:09:34.684+0000 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2020-02-17T18:09:34.684+0000 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2020-02-17T18:09:34.684+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.685+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.685+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-17T18:09:34.685+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-17T18:09:34.686+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:09:34.686+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-17T18:09:34.687+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-17T18:09:34.687+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise > 
+
+```
 
 Esto se conectará en el puerto predeterminado, que es 27017.
 
 Y estamos conectados.
 
-Ahora, ejecutemos el comando show dbs desde el shell para obtener una lista de bases de datos.
+Ahora, ejecutemos el comando `show dbs` desde el shell para obtener una lista de bases de datos.
 
+```sh
+MongoDB Enterprise > show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+MongoDB Enterprise > 
+```
 Vemos admin y local.
-
-Y hubo hacer.
 
 Tenga en cuenta que si ya ha estado usando MongoDB localmente, es posible que vea más bases de datos que esta.
 
@@ -184,15 +309,42 @@ Entonces, mirando hacia atrás en la salida del terminal de mongod, podemos ver 
 
 Las líneas con la información "conexión aceptada" nos pueden decir exactamente cuándo ocurrió una conexión y de dónde vino.
 
-En este caso solo fuimos nosotros conectando a través de la concha de mongo.
+```sh
+connection accepted from 127.0.0.1:59213 #1 (1 connection now open)
+```
+
+En este caso solo fuimos nosotros conectando a través del shell de mongo.
 
 Bien, hemos terminado con este mongod por ahora, así que vamos a apagar el servidor y salir del shell mongo.
 
-Para hacerlo, volveremos a la terminal con el shell mongo, usaremos la base de datos de administración y luego ejecutaremos el comando de apagado.
+Para hacerlo, volveremos a la terminal con el shell mongo, usaremos la base de datos de administración y luego ejecutaremos el comando de apagado `db.shutdownServer()`.
 
-Finalmente, saldremos del shell mongo con el comando de salida.
+```sh
+MongoDB Enterprise > use admin
+switched to db admin
+MongoDB Enterprise > db.shutdownServer()
+server should be down...
+2020-02-17T18:24:50.324+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27017 (127.0.0.1) failed
+2020-02-17T18:24:50.325+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27017, in(checking socket for error after poll), reason: Connection refused
+2020-02-17T18:24:50.325+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27017 (127.0.0.1) failed failed 
+MongoDB Enterprise > 
+```
 
-Así que solo voy a usar la base de datos de administración aquí, y luego voy a ejecutar el comando db.shutdownServer.
+Si vemos nuestro servidor mongod tenemos:
+
+```
+020-02-17T18:24:50.227+0000 I FTDC     [conn1] Shutting down full-time diagnostic data capture
+2020-02-17T18:24:50.229+0000 I STORAGE  [conn1] WiredTigerKVEngine shutting down
+2020-02-17T18:24:50.247+0000 I STORAGE  [conn1] shutdown: removing fs lock...
+2020-02-17T18:24:50.248+0000 I CONTROL  [conn1] now exiting
+2020-02-17T18:24:50.248+0000 I CONTROL  [conn1] shutting down with code:0
+vagrant@m103:~$ 
+```
+No ha sacado del servidor
+
+Finalmente, saldremos del shell mongo con el comando salir.
+
+Así que solo voy a usar la base de datos de administración aquí, y luego voy a ejecutar el comando `db.shutdownServer`.
 
 Esto va a cerrar el proceso mongod.
 
@@ -200,25 +352,289 @@ Y si miramos la salida mongod, podemos ver que está apagada.
 
 Para salir del shell mongo, simplemente teníamos que escribir exit.
 
-Podemos ver la salida de mongod, que cuando se apagó, eliminó los archivos de socket y, en general, simplemente se limpió después de sí mismo, solo para ser un buen proceso en nuestra computadora y no ocupar demasiado espacio mientras no corriendo.
+```sh
+MongoDB Enterprise > exit
+bye
+2020-02-17T18:27:47.286+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27017 (127.0.0.1) failed
+2020-02-17T18:27:47.287+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27017, in(checking socket for error after poll), reason: Connection refused
+2020-02-17T18:27:47.287+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27017 (127.0.0.1) failed failed 
+2020-02-17T18:27:47.287+0000 I QUERY    [thread1] Failed to end session { id: UUID("3107a574-0174-4614-a665-e5e2c324ff51") } due to SocketException: socket exception [CONNECT_ERROR] for couldn't connect to server 127.0.0.1:27017, connection attempt failed
+vagrant@m103:~$ 
+```
 
-Todo bien.
+Podemos ver la salida de mongod, que cuando se apagó, eliminó los archivos de socket y, en general, simplemente se limpió después de sí mismo, solo para ser un buen proceso en nuestra computadora y no ocupar demasiado espacio mientras no corriendo.
 
 Así que ahora hablemos sobre cómo configurar el mongod.
 
-El mongod toma una miríada de banderas, y podemos verlas todas escribiendo el comando mongod --help.
+El mongod toma una miríada de banderas, y podemos verlas todas escribiendo el comando `mongod --help`.
+
+```sh
+vagrant@m103:~$ mongod --help
+Options:
+
+General options:
+  -h [ --help ]                         show this usage information
+  --version                             show version information
+  -f [ --config ] arg                   configuration file specifying 
+                                        additional options
+  -v [ --verbose ] [=arg(=v)]           be more verbose (include multiple times
+                                        for more verbosity e.g. -vvvvv)
+  --quiet                               quieter output
+  --port arg                            specify port number - 27017 by default
+  --bind_ip arg                         comma separated list of ip addresses to
+                                        listen on - localhost by default
+  --bind_ip_all                         bind to all ip addresses
+  --ipv6                                enable IPv6 support (disabled by 
+                                        default)
+  --listenBacklog arg (=128)            set socket listen backlog size
+  --maxConns arg                        max number of simultaneous connections 
+                                        - 1000000 by default
+  --logpath arg                         log file to send write to instead of 
+                                        stdout - has to be a file, not 
+                                        directory
+  --syslog                              log to system's syslog facility instead
+                                        of file or stdout
+  --syslogFacility arg                  syslog facility used for mongodb syslog
+                                        message
+  --logappend                           append to logpath instead of 
+                                        over-writing
+  --logRotate arg                       set the log rotation behavior 
+                                        (rename|reopen)
+  --timeStampFormat arg                 Desired format for timestamps in log 
+                                        messages. One of ctime, iso8601-utc or 
+                                        iso8601-local
+  --redactClientLogData                 Redact client data written to the 
+                                        diagnostics log
+  --pidfilepath arg                     full path to pidfile (if not set, no 
+                                        pidfile is created)
+  --timeZoneInfo arg                    full path to time zone info directory, 
+                                        e.g. /usr/share/zoneinfo
+  --keyFile arg                         private key for cluster authentication
+  --noauth                              run without security
+  --setParameter arg                    Set a configurable parameter
+  --transitionToAuth                    For rolling access control upgrade. 
+                                        Attempt to authenticate over outgoing 
+                                        connections and proceed regardless of 
+                                        success. Accept incoming connections 
+                                        with or without authentication.
+  --clusterAuthMode arg                 Authentication mode used for cluster 
+                                        authentication. Alternatives are 
+                                        (keyFile|sendKeyFile|sendX509|x509)
+  --nounixsocket                        disable listening on unix sockets
+  --unixSocketPrefix arg                alternative directory for UNIX domain 
+                                        sockets (defaults to /tmp)
+  --filePermissions arg                 permissions to set on UNIX domain 
+                                        socket file - 0700 by default
+  --fork                                fork server process
+  --networkMessageCompressors [=arg(=disabled)] (=snappy)
+                                        Comma-separated list of compressors to 
+                                        use for network messages
+  --auth                                run with security
+  --clusterIpSourceWhitelist arg        Network CIDR specification of permitted
+                                        origin for `__system` access.
+  --slowms arg (=100)                   value of slow for profile and console 
+                                        log
+  --slowOpSampleRate arg (=1)           fraction of slow ops to include in the 
+                                        profile and console log
+  --profile arg                         0=off 1=slow, 2=all
+  --cpu                                 periodically show cpu and iowait 
+                                        utilization
+  --sysinfo                             print some diagnostic system 
+                                        information
+  --noIndexBuildRetry                   don't retry any index builds that were 
+                                        interrupted by shutdown
+  --noscripting                         disable scripting engine
+  --notablescan                         do not allow table scans
+  --shutdown                            kill a running server (for init 
+                                        scripts)
+
+Replication options:
+  --oplogSize arg                       size to use (in MB) for replication op 
+                                        log. default is 5% of disk space (i.e. 
+                                        large is good)
+
+Master/slave options (old; use replica sets instead):
+  --master                              master mode
+  --slave                               slave mode
+  --source arg                          when slave: specify master as 
+                                        <server:port>
+  --only arg                            when slave: specify a single database 
+                                        to replicate
+  --slavedelay arg                      specify delay (in seconds) to be used 
+                                        when applying master ops to slave
+  --autoresync                          automatically resync if slave data is 
+                                        stale
+
+Replica set options:
+  --replSet arg                         arg is <setname>[/<optionalseedhostlist
+                                        >]
+  --replIndexPrefetch arg               specify index prefetching behavior (if 
+                                        secondary) [none|_id_only|all]
+  --enableMajorityReadConcern [=arg(=1)] (=1)
+                                        enables majority readConcern
+
+Sharding options:
+  --configsvr                           declare this is a config db of a 
+                                        cluster; default port 27019; default 
+                                        dir /data/configdb
+  --shardsvr                            declare this is a shard db of a 
+                                        cluster; default port 27018
+
+SSL options:
+  --sslOnNormalPorts                    use ssl on configured ports
+  --sslMode arg                         set the SSL operation mode 
+                                        (disabled|allowSSL|preferSSL|requireSSL
+                                        )
+  --sslPEMKeyFile arg                   PEM file for ssl
+  --sslPEMKeyPassword arg               PEM file password
+  --sslClusterFile arg                  Key file for internal SSL 
+                                        authentication
+  --sslClusterPassword arg              Internal authentication key file 
+                                        password
+  --sslCAFile arg                       Certificate Authority file for SSL
+  --sslClusterCAFile arg                CA used for verifying remotes during 
+                                        outbound connections
+  --sslCRLFile arg                      Certificate Revocation List file for 
+                                        SSL
+  --sslDisabledProtocols arg            Comma separated list of TLS protocols 
+                                        to disable [TLS1_0,TLS1_1,TLS1_2]
+  --sslWeakCertificateValidation        allow client to connect without 
+                                        presenting a certificate
+  --sslAllowConnectionsWithoutCertificates 
+                                        allow client to connect without 
+                                        presenting a certificate
+  --sslAllowInvalidHostnames            Allow server certificates to provide 
+                                        non-matching hostnames
+  --sslAllowInvalidCertificates         allow connections to servers with 
+                                        invalid certificates
+  --sslFIPSMode                         activate FIPS 140-2 mode at startup
+
+Storage options:
+  --storageEngine arg                   what storage engine to use - defaults 
+                                        to wiredTiger if no data files present
+  --dbpath arg                          directory for datafiles - defaults to 
+                                        /data/db
+  --directoryperdb                      each database will be stored in a 
+                                        separate directory
+  --noprealloc                          disable data file preallocation - will 
+                                        often hurt performance
+  --nssize arg (=16)                    .ns file size (in MB) for new databases
+  --quota                               limits each database to a certain 
+                                        number of files (8 default)
+  --quotaFiles arg                      number of files allowed per db, implies
+                                        --quota
+  --smallfiles                          use a smaller default file size
+  --syncdelay arg (=60)                 seconds between disk syncs (0=never, 
+                                        but not recommended)
+  --upgrade                             upgrade db if needed
+  --repair                              run repair on all dbs
+  --repairpath arg                      root directory for repair files - 
+                                        defaults to dbpath
+  --journal                             enable journaling
+  --nojournal                           disable journaling (journaling is on by
+                                        default for 64 bit)
+  --journalOptions arg                  journal diagnostic options
+  --journalCommitInterval arg           how often to group/batch commit (ms)
+
+Auditing Options:
+  --auditDestination arg                Destination of audit log output.  
+                                        (console/syslog/file)
+  --auditFormat arg                     Format of the audit log, if logging to 
+                                        a file.  (BSON/JSON)
+  --auditPath arg                       full filespec for audit log file
+  --auditFilter arg                     filter spec to screen audit records
+
+SNMP Module Options:
+  --snmp-subagent                       run snmp subagent
+  --snmp-master                         run snmp as master
+
+WiredTiger options:
+  --wiredTigerCacheSizeGB arg           maximum amount of memory to allocate 
+                                        for cache; defaults to 1/2 of physical 
+                                        RAM
+  --wiredTigerJournalCompressor arg (=snappy)
+                                        use a compressor for log records 
+                                        [none|snappy|zlib]
+  --wiredTigerDirectoryForIndexes       Put indexes and data in different 
+                                        directories
+  --wiredTigerMaxCacheOverflowFileSizeGB arg (=0)
+                                        Maximum amount of disk space to use for
+                                        cache overflow; Defaults to 0 
+                                        (unbounded)
+  --wiredTigerCollectionBlockCompressor arg (=snappy)
+                                        block compression algorithm for 
+                                        collection data [none|snappy|zlib]
+  --wiredTigerIndexPrefixCompression arg (=1)
+                                        use prefix compression on row-store 
+                                        leaf pages
+
+InMemory options:
+  --inMemorySizeGB arg                  maximum amount of memory to allocate 
+                                        for InMemory data; defaults to 50% of 
+                                        physical RAM less 1GB
+
+Encryption at rest options:
+  --enableEncryption                    Enable encryption at rest
+  --encryptionKeyFile arg               File path for encryption key file
+  --encryptionCipherMode arg            Cipher mode to use for encryption at 
+                                        rest
+  --kmipRotateMasterKey                 Rotate master encryption key
+  --kmipKeyIdentifier arg               KMIP unique identifier for existing key
+                                        to use
+  --kmipServerName arg                  KMIP server host name
+  --kmipPort arg                        KMIP server port (defaults to 5696)
+  --kmipClientCertificateFile arg       Client certificate for authenticating 
+                                        to KMIP server
+  --kmipClientCertificatePassword arg   Client certificate for authenticating 
+                                        Mongo to KMIP server
+  --kmipServerCAFile arg                CA File for validating connection to 
+                                        KMIP server
+
+LDAP Module Options:
+  --ldapServers arg                     Comma separated list of LDAP servers on
+                                        format  host:port
+  --ldapTransportSecurity arg (=tls)    Transport security used between MongoDB
+                                        and remote LDAP server(none|tls)
+  --ldapBindMethod arg (=simple)        Authentication scheme to use while 
+                                        connecting to LDAP. This may either be 
+                                        'sasl' or 'simple'
+  --ldapBindSaslMechanisms arg (=DIGEST-MD5)
+                                        Comma separated list of SASL mechanisms
+                                        to use while binding to the LDAP server
+  --ldapTimeoutMS arg (=10000)          Timeout for LDAP queries (ms)
+  --ldapQueryUser arg                   LDAP entity to bind with to perform 
+                                        queries
+  --ldapQueryPassword arg               Password to use while binding to the 
+                                        LDAP server to perform queries
+  --ldapUserToDNMapping arg (=[{match: "(.+)", substitution: "{0}"}])
+                                        Tranformation from MongoDB users to 
+                                        LDAP user DNs
+  --ldapAuthzQueryTemplate arg          Relative LDAP query URL which will be 
+                                        queried against the host to acquire 
+                                        LDAP groups. The token {USER} will be 
+                                        replaced with the mapped username
+
+vagrant@m103:~$ 
+
+```
 
 Eso es mucha flexibilidad.
 
-Por ahora, los que vamos a cubrir son port, dbpath, logpath y fork.
+Por ahora, los que vamos a cubrir son `port`, `dbpath`, `logpath` y `fork`.
 
---port es el argumento utilizado para decirle a mongod en qué puerto escuchar.
+`--port` es el argumento utilizado para decirle a mongod en qué puerto escuchar.
+
+<img src="/images/m103/c1/1-1-port.png">
 
 Si esto no se especifica, mongod escuchará en el puerto 27017 de forma predeterminada.
 
-El --dbpath es donde mongod crea los archivos que almacenarán información para nuestras bases de datos y colecciones.
+El `--dbpath` es donde mongod crea los archivos que almacenarán información para nuestras bases de datos y colecciones.
 
---Logpath es uno que no especificamos en este momento, pero es donde mongod registrará mensajes informativos.
+<img src="/images/m103/c1/1-1-dbpath.png">
+
+`--logpath` es uno que no especificamos en este momento, pero es donde mongod registrará mensajes informativos.
+
+<img src="/images/m103/c1/1-1-logpath.png">
 
 Vimos esto temprano cuando corrimos mongod.
 
@@ -226,11 +642,11 @@ Pero en ese caso, lo imprimió en la salida estándar o en el terminal.
 
 En cambio, podríamos especificar un destino con un logpath y mongod generará la información en ese archivo.
 
---Fork es un argumento usado para decirle a mongod que comience como un proceso en segundo plano.
+`--fork` es un argumento usado para decirle a mongod que comience como un proceso en segundo plano.
+
+<img src="/images/m103/c1/1-1-fork.png">
 
 Podemos usar esto para que mongod no bloquee la ventana de terminal actual como acaba de hacer.
-
-Todo bien.
 
 Así que vamos a probar algunas de estas opciones.
 
@@ -244,41 +660,125 @@ Entonces, en este comando, solo estamos creando el directorio first_mongod.
 
 Entonces, si ejecutamos esto, nos dará un error.
 
+```sh
+vagrant@m103:~$ mkdir first_mongod
+vagrant@m103:~$ mongod --port 30000 --dbpath first_mongod --fork
+BadValue: --fork has to be used with --logpath or --syslog
+try 'mongod --help' for more information
+vagrant@m103:~$ 
+```
+
 Olvidé mencionar que si especificamos la bandera fork, también debe especificar una ruta de acceso.
 
 Así que configuremos la ruta de acceso a un archivo llamado mongod.log en el primer directorio mongod.
 
-Todo bien.
-
 Entonces, ahora que hemos especificado nuestra ruta de acceso, esto debería funcionar.
+
+```sh
+vagrant@m103:~$ mongod --port 30000 --dbpath first_mongod --logpath first_mongod/mongod.log --fork
+about to fork child process, waiting until server is ready for connections.
+forked process: 2514
+child process started successfully, parent exiting
+vagrant@m103:~$ 
+```
 
 Y lo hace
 
-Bifurcó el proceso, nos da el nombre de la ID del proceso-- 6114, y nos dice que el proceso hijo comienza con éxito.
+Bifurcó el proceso, nos da el nombre de la ID del proceso-- 2514, y nos dice que el proceso hijo comienza con éxito.
 
 Entonces, debido a que bifurcamos este proceso, en realidad tenemos acceso al shell incluso después de iniciar mongod.
 
-Entonces podemos conectarnos a mongo en el mismo shell.
+**Entonces podemos conectarnos a mongo en el mismo shell**.
 
-Sin embargo, esto no va a funcionar, porque está intentando conectarse en el puerto 27017, pero hemos comenzado nuestro proceso en el puerto 30,000.
+```sh
+vagrant@m103:~$ mongo
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb
+2020-02-17T18:48:01.569+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27017, in(checking socket for error after poll), reason: Connection refused
+2020-02-17T18:48:01.570+0000 E QUERY    [thread1] Error: couldn't connect to server 127.0.0.1:27017, connection attempt failed :
+connect@src/mongo/shell/mongo.js:263:13
+@(connect):1:6
+exception: connect failed
+vagrant@m103:~$ 
+
+```
+
+Sin embargo, esto no va a funcionar, porque está intentando conectarse en el puerto 27017, pero hemos comenzado nuestro proceso en el puerto 30000.
 
 Si especificamos eso al comando mongo.
 
 Debería conectarnos al puerto correcto.
 
+```sh
+vagrant@m103:~$ mongo --port 30000
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:30000/?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("8860a539-2154-475a-84b4-617b83ffbcd0") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-17T18:46:15.086+0000 I STORAGE  [initandlisten] 
+2020-02-17T18:46:15.086+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-17T18:46:15.086+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server. 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] 
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-17T18:46:15.751+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise > 
+
+```
+
 Y lo hace
 
 Simplemente podemos ejecutar un show dbs rápido para asegurarnos de que se esperan nuestras bases de datos.
+
+```sh
+MongoDB Enterprise > show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+MongoDB Enterprise > 
+```
 
 Y nuevamente, tenemos la base de datos de administración y la base de datos local.
 
 Así que ahora voy a cerrar este como lo hicimos la última vez.
 
-Así que cerramos nuestro servidor desde la base de datos de administración, y luego salimos del shell mongo.
+Así que cerramos nuestro servidor desde la base de datos de `admin`, y luego salimos del shell mongo.
 
-Todo bien.
+```sh
+MongoDB Enterprise > use admin
+switched to db admin
+MongoDB Enterprise > db.shutdownServer()
+server should be down...
+2020-02-17T18:51:44.727+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:30000 (127.0.0.1) failed
+2020-02-17T18:51:44.728+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:30000, in(checking socket for error after poll), reason: Connection refused
+2020-02-17T18:51:44.728+0000 I NETWORK  [thread1] reconnect 127.0.0.1:30000 (127.0.0.1) failed failed 
+MongoDB Enterprise > exit
+bye
+2020-02-17T18:51:50.678+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:30000 (127.0.0.1) failed
+2020-02-17T18:51:50.678+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:30000, in(checking socket for error after poll), reason: Connection refused
+2020-02-17T18:51:50.678+0000 I NETWORK  [thread1] reconnect 127.0.0.1:30000 (127.0.0.1) failed failed 
+2020-02-17T18:51:50.679+0000 I QUERY    [thread1] Failed to end session { id: UUID("8860a539-2154-475a-84b4-617b83ffbcd0") } due to SocketException: socket exception [CONNECT_ERROR] for couldn't connect to server 127.0.0.1:30000, connection attempt failed
+vagrant@m103:~$ 
+```
 
 Así que solo como resumen.
+
+<img src="/images/m103/c1/1-1-resumen.png">
 
 En esta lección aprendimos que mongod es el principal proceso de demonio para MongoDB.
 
@@ -314,16 +814,18 @@ Check all answers that apply:
 
 In this lab, you're going to launch your own mongod with a few basic command line arguments.
 
-Applying what you've learned so far about the `mongod process, launch a mongod instance, from the command line, with the following requirements:
+Applying what you've learned so far about the `mongod` process, launch a mongod instance, from the command line, with the following requirements:
 
-run on port 27000
-data files are stored in /data/db/
-listens to connections from the IP address 192.168.103.100 and localhost
-authentication is enabled
-By default, a mongod that enforces authentication but has no configured users only allows connections through the localhost. Use the mongo shell on the Vagrant box to use the localhost exception and connect to this node.
+* run on port **27000**
+* data files are stored in `/data/db/`
+* listens to connections from the IP address `192.168.103.100` and localhost
+* authentication is enabled
 
-Use the following command to connect to the Mongo shell and create the following user. You will need this user in order to validate subsequent labs.
+By default, a mongod that enforces authentication but has no configured users only allows connections through the `localhost`. Use the mongo shell on the Vagrant box to use the localhost exception and connect to this node.
 
+Use the following command to connect to the Mongo shell and create the following user. **You will need this user in order to validate subsequent labs**.
+
+```sh
 mongo admin --host localhost:27000 --eval '
   db.createUser({
     user: "m103-admin",
@@ -333,27 +835,33 @@ mongo admin --host localhost:27000 --eval '
     ]
   })
 '
- COPY
+```
+
 The above command creates a user with the following credentials:
 
-Role: root on admin database
-Username: m103-admin
-Password: m103-pass
+* Role: `root` on `admin` database
+* Username: `m103-admin`
+* Password: `m103-pass`
+
 When you're finished, run the following validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
 
+```sh
 vagrant@m103:~$ validate_lab_launch_mongod
- COPY
-Hint: You want to make sure all applicable command line options are set! Also, in case you need to restart the mongod daemon, you may need to kill the process using it's pid.
+```
+
+*Hint:* You want to make sure all applicable command line options are set! Also, in case you need to restart the `mongod` daemon, you may need to `kill` the process using it's **pid**.
 
 You can use the following command to find the pid of the process:
 
+```sh
 ps -ef | grep mongod
- COPY
+```
+
 To kill the process, you can use this command:
 
+```sh
 kill <pid>
- COPY
-Attempts Remaining:3 Attempts left
+```
 
 Enter answer here:
 
