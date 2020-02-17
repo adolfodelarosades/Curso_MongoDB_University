@@ -1469,7 +1469,21 @@ db.shutdownServer()
 
 ### Transcripción
 
-## 19. Examen
+## 19. Examen Basic Security: Part 2
+
+**Problem:**
+
+When should you deploy a MongoDB deployment with security enabled?
+
+Check all answers that apply:
+
+* When deploying your staging environment
+
+* When deploying an evaluation environment
+
+* When deploying your production environment
+
+* When deploying a development environment
 
 ## 20. Tema: Roles Incorporados: Parte 1
 
