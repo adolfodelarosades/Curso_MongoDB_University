@@ -300,7 +300,7 @@ Check all answers that apply:
 
 * `--loglocation`
 
-* `--logpath`
+* `--logpath` :+1:
 
 * `--logdestination`
 
