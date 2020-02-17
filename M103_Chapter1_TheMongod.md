@@ -1542,7 +1542,23 @@ db.runCommand( { rolesInfo: { role: "dbOwner", db: "playground" }, showPrivilege
 
 ### Transcripción
 
-## 22. Examen
+## 22. Examen Built-In Roles: Part 2
+
+**Problem:**
+
+Which of the following are Built-in Roles in MongoDB?
+
+Check all answers that apply:
+
+* dbAdminAnyDatabase :+1:
+
+* read :+1:
+
+* readWriteUpdate
+
+* dbAdminAllDatabases
+
+* rootAll
 
 ## 23. Laboratorio: Creación del Primer Usuario de la Aplicación
 
