@@ -152,6 +152,11 @@ If in case you have downloaded the version 6.1 then please **uninstall** it and 
    After VirtualBox has been installed you can go ahead and [download](https://www.vagrantup.com/downloads.html) and [install](https://www.vagrantup.com/docs/installation/) Vagrant.
 
 
+   ```sh
+   192:~ adolfodelarosa$ vagrant --version
+   Vagrant 2.2.7
+   192:~ adolfodelarosa$ 
+   ```
 
 #### Installing Vagrant on Windows
 
