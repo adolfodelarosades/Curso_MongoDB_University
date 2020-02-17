@@ -1150,32 +1150,41 @@ Enter answer here:
 
 ### Lecture Notes
 
-The explain() output has changed in MongoDB 4.2. Specifically, a new section called explain.queryPlanner.optimizedPipeline has been added to the output. You can read about it in the optimizedPipeline docs.
+The `explain()` output has changed in MongoDB 4.2. Specifically, a new section called `explain.queryPlanner.optimizedPipeline` has been added to the output. You can read about it in the [optimizedPipeline docs](https://docs.mongodb.com/manual/reference/explain-results/#explain.queryPlanner.optimizedPipeline).
 
-Lecture Instructions
+#### Lecture Instructions
 
 User management commands:
 
+```sh
 db.createUser()
 db.dropUser()
- COPY
+```
+
 Collection management commands:
 
+```sh
 db.<collection>.renameCollection()
 db.<collection>.createIndex()
 db.<collection>.drop()
- COPY
+```
+
 Database management commands:
 
+```sh
 db.dropDatabase()
 db.createCollection()
- COPY
+```
+
 Database status command:
 
+```sh
 db.serverStatus()
- COPY
+```
+
 Creating index with Database Command:
 
+```sh
 db.runCommand(
   { "createIndexes": <collection> },
   { "indexes": [
@@ -1186,17 +1195,22 @@ db.runCommand(
     ]
   }
 )
- COPY
+```
+
 Creating index with Shell Helper:
 
+```sh
 db.<collection>.createIndex(
   { "product": 1 },
   { "name": "name_index" }
 )
- COPY
+```
+
 Introspect a Shell Helper:
 
+```sh
 db.<collection>.createIndex
+```
 
 
 ### Transcripción
