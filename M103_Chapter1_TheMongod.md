@@ -1463,7 +1463,8 @@ Using what you know about the configuration file and Linux user groups, please c
 
 * create a new folder `/var/mongodb/db/` and allow mongod to write files to this directory
    * create this directory with `sudo`, because `/var` is owned by `root`
-   * use `chown` to change the owner of this directory to `vagrant:vagrant`
+   * use `chown` to change the owner of this directory to `vagrant:vagrant` 
+      MIO(`vagrant@m103:/$ sudo chown -R vagrant:vagrant /var/mongodb`)
 * edit your config file to use this new directory as the `dbpath`
 
 Here are the updated requirements for your mongod instance:
@@ -1491,13 +1492,40 @@ Let's recreate the user `m103-admin` with the same requirements as earlier, as w
 * Username: `m103-admin`
 * Password: `m103-pass`
 
+MIO
+```sh
+vagrant@m103:~$ mongo admin --host localhost:27000 --eval '
+> db.createUser({
+> user: "m103-admin",
+> pwd: "m103-pass",
+> roles: [
+> {role: "root", db: "admin"}
+> ]
+> })
+> '
+MongoDB shell version v3.6.17
+connecting to: mongodb://localhost:27000/admin?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("6223eb83-e0b6-4a9a-93f9-b900ebe52150") }
+MongoDB server version: 3.6.17
+Successfully added user: {
+	"user" : "m103-admin",
+	"roles" : [
+		{
+			"role" : "root",
+			"db" : "admin"
+		}
+	]
+}
+vagrant@m103:~$ 
+```
+
 When you're finished, run the following validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
 
 ```sh
 vagrant@m103:~$ validate_lab_change_dbpath
 ```
 
-Enter answer here:
+Enter answer here: 5a2f973bcb6b357b57e6bf43
 
 ## 10. Tema: Comandos Básicos
 
