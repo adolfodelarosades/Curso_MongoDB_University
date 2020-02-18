@@ -965,6 +965,171 @@ processManagement:
 
 ### Transcripción
 
+El archivo de configuración de MongoDB es una forma de organizar las opciones que necesita para ejecutar el proceso MongoD o MongoS en un archivo YAML fácil de analizar.
+
+Para la mayoría de los casos de uso fuera del desarrollo o evaluación más básico, debe usar un archivo de configuración para almacenar sus opciones de inicio MongoD o MongoS.
+
+Antes de entrar en más detalles sobre el archivo de configuración, comencemos con una opción de MongoD.
+
+Si ha interactuado con un programa en un entorno de terminal o shell, es probable que ya esté familiarizado con el funcionamiento de las opciones de línea de comandos.
+
+Por lo general, tiene su ejecutable principal, por ejemplo, MongoD.
+
+Luego encadena las opciones de la línea de comandos.
+
+Algunos de ellos les gusta tomar un valor, como `dbpath` y `logpath`.
+
+Otros funcionan como una bandera y no requieren un valor para dirigir el comportamiento, como `fork`.
+
+Al final, tiene su comando completo en la línea de comando con potencialmente docenas de opciones y valores.
+
+```sh
+vagrant@m103:~$ mongod --dbpath /data/db --logpath /data/log/mongod.log --fork --replSet "M103" --keyFile /data/keyfile --bind_ip "127.0.0.1, 192.168.0.100" --sslMode requireSSL --sslCAFile "/etc/ssl/SSLCA.pem" --sslPEMKeyFile "/etc/ssl/ssl.pem"
+```
+
+Este comando es perfectamente válido y funcionaría bien en entornos de producción.
+
+Pero hay problemas con este enfoque.
+
+Tendríamos que volver a escribir todo esto cada vez que quisiéramos lanzar un nuevo MongoD en un servidor diferente.
+
+Si queremos rastrear esta configuración, necesitaríamos seleccionar los servicios existentes que se ejecutan en el servidor o ejecutar un comando dentro de MongoDB.
+
+Finalmente, es más difícil de leer y buscar opciones individuales a lo largo de esta cadena de línea de comando muy larga.
+
+Antes de entrar en el archivo de configuración, comencemos con algunas opciones comunes de línea de comandos.
+
+<img src="/images/m103/c1/1-4-comandos.png">
+
+Tiene sus opciones básicas de configuración de ruta: `dbpath` y `logpath`.
+
+A partir de 3.6, debe configurar `bind ip` para incluir un adaptador de red en el host que proporciona acceso a la red.
+
+De lo contrario, MongoD solo puede aceptar conexiones en ese mismo host.
+
+Al configurar las opciones `replSet` y `keyFile` se inicia MongoD en modo de replicación con la seguridad de autenticación básica entre clústeres y la autenticación de usuario habilitada.
+
+Estas son opciones muy comunes, y es probable que vea al menos una de estas en cualquier implementación de MongoDB.
+
+Las opciones de SSL están relacionadas con el cifrado de transporte tls ssl.
+
+No necesita saber mucho sobre estas opciones en detalle para este curso.
+
+Eche un vistazo a M310 aquí en la Universidad MongoDB para un curso en profundidad sobre seguridad de clúster, que incluye tsl ssl.
+
+Alternativamente, eche un vistazo a nuestra documentación.
+
+Finalmente, tenemos `fork`, que simplemente le dice a MongoD que se ejecute como un demonio en lugar de estar atado a una ventana de terminal.
+
+Entonces, ¿cuáles son las contrapartes del archivo de configuración para estas opciones de línea de comandos?
+
+<img src="/images/m103/c1/1-4-file-options.png">
+
+A la derecha, tengo la ruta completa a la opción de configuración.
+
+Eso significa que cada clave en la ruta al valor final es el padre del archivo YAML.
+
+Por lo tanto, la opción de configuración de nombre `replSet` se encuentra bajo la clave principal de replicación `replication.replSetName`.
+
+Archivos de configuración para admitir anidamiento más profundo también.
+
+Eche un vistazo a estas dos opciones: sslPEMKey y sslCA file.
+
+Ambos están bajo el padre SSL, que a su vez están bajo el padre neto.
+
+El padre neto también captura una ip de enlace.
+
+Las tres opciones están relacionadas con el padre neto, pero como sslPEMKey y sslCAKey son específicas de net.ssl.
+
+```sh
+net.ssl.sslPEMKey
+net.ssl.sslCAKey
+net.ssl.sslCAKey
+```
+
+Ahora, ¿cómo llegué a estas asignaciones?
+
+Aquí es donde nuestro fantástico manual viene al rescate.
+
+[mongod](https://docs.mongodb.com/manual/reference/program/mongod/index.html)
+
+[Configuration File Options](https://docs.mongodb.com/manual/reference/configuration-options/index.html)
+
+Todas nuestras opciones de línea de comandos y nuestras opciones de archivo de configuración están bien documentadas en estos dos enlaces.
+
+Te invito a que les eches un vistazo para descubrir qué opciones de línea de comandos u opciones de archivos de configuración están disponibles y cómo mapear entre las dos.
+
+Ahora tomemos nuestra lista de opciones de archivo de configuración con la ruta completa a la opción y traduzcamos eso a nuestro archivo YAML de configuración.
+
+YAML significa **Y**et **A**nother **M**arkup **L**anguage.
+
+Tienes tus pares de valores clave.
+
+La clave de nivel superior y un archivo de configuración MongoDB representan una agrupación lógica de opciones.
+
+Cada elemento anidado debajo de una clave de nivel superior representa una opción relacionada con esa clave de nivel superior.
+
+<img src="/images/m103/c1/1-4-yaml.png">
+
+Así que aquí vemos que dbPath es una opción de almacenamiento.
+
+Recuerde, anteriormente esto figuraba como storage.dbPath.
+
+La opción de línea de comando era dash dash dbPath.
+
+Una clave puede tener múltiples valores de pares de claves incrustados, cada uno de los cuales representa una opción relacionada con la clave de nivel superior.
+
+Así que aquí tenemos nuestra familia de opciones de registro del sistema donde estoy especificando la ruta al archivo de registro y el tipo de archivo.
+
+Notarás que nuestra única opción, ruta de registro, se convirtió en dos.
+
+A veces, una opción de archivo de configuración tendrá una o más opciones encadenadas requeridas.
+
+La documentación siempre indicará claramente estas relaciones.
+
+También es más fácil ver distintos grupos de opciones relacionadas.
+
+Puedo distinguir claramente las opciones de almacenamiento de las opciones de registro del sistema de las opciones de replicación.
+
+Incluso he agregado un comentario para mejorar la legibilidad y la comprensión.
+
+Las opciones del archivo de configuración tienen el mismo efecto que las opciones de la línea de comandos, pero como puede ver, el formato YAML ofrece ventajas significativas.
+
+Estas son todas las opciones de nuestro ejemplo inicial.
+
+<img src="/images/m103/c1/1-4-yaml2.png">
+
+El efecto en MongoD es el mismo, pero la organización y la legibilidad se han mejorado enormemente.
+
+Ahora, ¿cómo usamos un archivo de configuración?
+
+Tendremos que usar al menos una opción de línea de comando para que esto funcione.
+
+<img src="/images/m103/c1/1-4-config.png">
+
+```sh
+mongod --conf "/etc/mongod.conf"
+mongod -f "/etc/mongod.conf"
+```
+
+Especifique la `--config` o `-f` junto con una ruta al archivo de configuración.
+
+Para muchas distribuciones de Linux, al instalar MongoDB a través de un administrador de paquetes, encontrará un archivo de configuración predeterminado en `etc/ mongod.conf`.
+
+Siéntase libre de modificar esto o apunte a su propio archivo de configuración.
+
+Solo necesita asegurarse de que el proceso MongoD pueda acceder a la ubicación del archivo y leer el archivo.
+
+Puede encontrar la lista completa de opciones de archivo de configuración y cómo usarlas en nuestra documentación en línea.
+
+La documentación también incluye ejemplos estructurales, así como una descripción de cómo funcionan las opciones y cuáles son los valores esperados.
+
+En resumen, las opciones del archivo de configuración proporcionan la misma funcionalidad que nuestras opciones de línea de comandos.
+
+<img src="/images/m103/c1/1-4-resumen.png">
+
+Mejoran la legibilidad de nuestros ajustes de configuración, y puede usar la documentación para facilitar la asignación de una opción de línea de comando a una opción de archivo de configuración.
+
 ## 5. Examen Configuration File
 
 #### Problem:
