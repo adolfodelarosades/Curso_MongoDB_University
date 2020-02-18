@@ -1666,6 +1666,148 @@ grep -i 'update' /data/db/mongod.log
 
 ### Transcripción
 
+MongoDB proporciona dos funciones de registro para rastrear actividades en su base de datos.
+
+El registro del proceso muestra actividad en la instancia de MongoDB.
+
+El registro del proceso recopila actividad en uno de los siguientes componentes.
+
+Cada uno de estos componentes tiene un nivel de verbosidad asociado.
+
+Puede usar db.getLogComponents en el shell Mongo para revisar la verbosidad del componente de registro configurado actualmente.
+
+Vamos a ver.
+
+Estoy conectado al servidor MongoDB usando el shell mongo.
+
+Puedo ejecutar db.getLogComponents para recuperar los componentes de registro de mi base de datos actual.
+
+Entonces, ¿Qué significa todo esto?
+
+Comenzando en la parte superior, el campo de verbosidad es el nivel de verbosidad predeterminado para el servidor MongoDB.
+
+Cualquiera de los otros componentes puede heredar de este campo.
+
+¿Ves cómo todos estos otros componentes tienen 1 negativo como su verbosidad?
+
+Negativo 1 significa heredar del padre.
+
+Puedes ver que tengo una verbosidad de 1, por lo que todos mis componentes heredan de eso.
+
+Los niveles de registro 1 a 5 solo aumentan el nivel de verbosidad para incluir mensajes de depuración.
+
+Cuanto mayor sea el número, más detallados serán sus mensajes de depuración.
+
+Recapitulemos eso muy brevemente.
+
+Negativo 1 significa que el componente de registro hereda su nivel de verbosidad de su padre.
+
+Por defecto, su verbosidad es típicamente 0.
+
+Eso significa solo mensajes informativos.
+
+Había establecido mi nivel de verbosidad en 1 para poder ver más mensajes de depuración.
+
+Un nivel de verbosidad más alto significa mensajes de depuración más detallados y frecuentes.
+
+Si no está tratando de identificar y resolver un problema activamente, puede dejar la verbosidad en 0 para un nivel base de monitoreo.
+
+Notarás que para algunos de estos componentes de registro también hay subcomponentes.
+
+Recuerde, había tres componentes diferentes para la replicación.
+
+Tuviste tu componente de replicación estándar, y luego tuviste un latido y un componente de reversión.
+
+Puede ver los tres aquí debajo de la réplica principal.
+
+Cada uno es heredero.
+
+Los latidos y la reversión se heredan de la replicación, que en sí misma se hereda de mi campo de verbosidad de nivel superior.
+
+Ahora, ¿cómo funciona todo esto?
+
+Hay dos formas en que podemos mirar los registros.
+
+El primero es mediante el uso del comando de base de datos getLogs aquí en el shell mongo.
+
+La otra es usar una utilidad, como tail -f, para seguir el final del registro.
+
+Comencemos con el comando getLogs.
+
+Estoy usando db.adminCommand porque getLog debe ejecutarse en la base de datos de administración.
+
+Estoy especificando global para decirle a getLog que me dé toda la actividad de registro.
+
+Esto devolverá todo el registro al punto en el que ejecutamos este comando.
+
+Puedes ver que tengo mucha actividad de índice.
+
+Aquí hay varios comandos, incluido el comando que ejecuté cuando ejecuté db.getLog.
+
+Mirando esto, en realidad tengo demasiada actividad de índice.
+
+Realmente no necesito este nivel de detalle.
+
+Cambiemos la verbosidad del registro para el componente de índice nuevamente a 0.
+
+Estoy especificando el nivel de verbosidad al que quiero cambiar el componente con db.setLogLevel.
+
+El resultado aquí es cuál era la configuración del nivel de registro.
+
+Puedo volver a ejecutar db.getLogComponents para ver mi valor actualizado de índice.
+
+Podemos ver aquí que he establecido con éxito el nivel de verbosidad del componente de registro de índice en 0.
+
+Echemos otro vistazo al registro, esta vez usando tail -f.
+
+Estoy especificando la ruta a mi archivo de registro a la utilidad de cola.
+
+Y estoy especificando la bandera -f para dirigir la cola para seguir este registro.
+
+Eso significa que constantemente recibiré actualizaciones ya que hay nueva actividad publicada en este archivo.
+
+Dependiendo de su sistema operativo, puede haber diferentes utilidades de tail disponibles para usted que realizan la misma función básica.
+
+Veamos específicamente este evento de registro de COMMAND.
+
+Entonces este es el comando que acabo de identificar en el archivo de registro.
+
+Comencemos con la marca de tiempo.
+
+Esto nos permite saber cuándo ocurrió el evento.
+
+A continuación, tengo el nivel de gravedad del mensaje.
+
+Brevemente, hay cinco tipos de niveles de gravedad.
+
+Tiene Fatal, Error, Advertencia, Informativo, que está relacionado con el nivel de detalle 0, y Depuración, que está relacionado con el nivel de detalle 1 a 5.
+
+Este componente tiene un nivel de verbosidad de I, lo que significa que este es un mensaje informativo.
+
+A continuación, tenemos el componente de registro real en el que se encuentra la operación.
+
+En este caso, la operación es un comando.
+
+También podemos ver la conexión en la que ocurrió el evento.
+
+Las conexiones son incrementales y únicas, por lo que cualquier evento iniciado por una conexión específica es probable que provenga del mismo cliente.
+
+Tenemos información más específica sobre el evento.
+
+Tenemos una acción de comando que se ejecutó en la base de datos de administración.
+
+$ Cmd indica que se trata de un comando de base de datos.
+
+La lista completa de posibles eventos y descriptores están fuera de alcance.
+
+Pero en general, puede esperar que lo que sigue inmediatamente a la conexión sea la operación que desencadenó el evento.
+
+AppName indica qué cliente inició la operación, en este caso, el shell mongo.
+
+Ahora podemos profundizar en el comando en sí.
+
+Todo el documento es el esqueleto de
+
 ## 13. Examen Logging Basics
 
 **Problem:**
