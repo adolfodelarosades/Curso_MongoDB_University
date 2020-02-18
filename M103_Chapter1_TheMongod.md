@@ -1214,6 +1214,17 @@ When you're finished, run the following validation script in your vagrant and ou
 ```sh
 vagrant@m103:~$ validate_lab_configuration_file
 ```
+MIO
+```sh
+storage:
+  dbPath: "/data/db"
+net:
+  bindIp: "127.0.0.1,192.168.103.100"
+  port: 27000
+security:
+  authorization: "enabled"
+```
+Enter answer here: 5a2f0e41ae3c4e2f7427ee8f
 
 ## 7. Tema: Estructura de Archivo
 
@@ -1246,6 +1257,183 @@ ls /tmp/mongodb-27017.sock
 ```
 
 ### Transcripción
+
+En esta lección, cubriremos la estructura de archivos de un servidor independiente MongoDB.
+
+Esta es una lista de los archivos que puede encontrar en un directorio de datos de un servidor MongoDB o en un proceso independiente.
+
+<img src="/images/m103/c1/1-7-estructure.png">
+
+Por lo general, nunca necesita interactuar con los archivos de esta carpeta de datos a menos que lo indique el personal de soporte de MongoDB o mediante un procedimiento detallado en nuestra documentación.
+
+Ninguno de estos archivos está diseñado para el acceso o modificación del usuario, y modificarlos puede causar bloqueos o pérdida de datos.
+
+Si desea explorar, tómese el tiempo para asegurarse de que solo realiza funciones de lectura.
+
+Echemos un vistazo a una implementación real de MongoDB.
+
+Este grupo de archivos aquí está relacionado con la forma en que el motor de almacenamiento WiredTiger realiza un seguimiento de información como metadatos de clúster y opciones de configuración específicas de WiredTiger.
+
+<img src="/images/m103/c1/1-7-estructure2.png">
+
+El archivo WiredTiger.lock actúa como una seguridad.
+
+Si ejecutó un segundo proceso MongoDB simultáneo y señaló esta carpeta, el archivo de bloqueo ayuda a evitar que se inicie ese segundo proceso MongoDB.
+
+Si experimenta un apagado sucio, como que la máquina host pierde energía o se bloquea de algún modo, es posible que no pueda iniciar MongoD debido a este archivo de bloqueo.
+
+Es posible que se le indique que elimine los archivos de bloqueo antes de reiniciar MongoD.
+
+Recuerde que si no está guiado por el soporte de MongoDB o un procedimiento documentado, no interactúe con ninguno de estos archivos.
+
+El siguiente grupo de archivos que termina en .wt está relacionado con la recopilación e indexación de los datos en sí.
+
+Estos son sus datos de recopilación y estos son sus datos de índice.
+
+MongoDB WiredTiger almacena datos de índice como una estructura separada de los datos de recopilación.
+
+Cada colección de un índice obtiene su propio archivo.
+
+Incluso en una nueva implementación de MongoDB, generalmente tiene algunas bases de datos y colecciones de forma predeterminada, por lo que siempre debe ver alguna colección en los archivos index .wt.
+
+Puede intentar introspectar estos archivos de datos utilizando un programa como Strings, pero aquí no hay muchos datos legibles por humanos.
+
+Estos archivos están diseñados para interactuar a través del proceso del servidor MongoDB, en lugar de una herramienta de terceros.
+
+La modificación de estas herramientas puede provocar la pérdida de datos y bloqueos.
+
+Ahora esta carpeta diagnostic.data se ve bastante interesante.
+
+<img src="/images/m103/c1/1-7-data.png">
+
+Echemos un vistazo rápido.
+
+Estos datos contienen datos de diagnóstico capturados para uso específico por el soporte de MongoDB.
+
+Para ser muy claros, no estamos capturando ninguno de sus datos privados reales.
+
+Los datos de diagnóstico son capturados por nuestro módulo de captura de datos a tiempo completo o FTDC.
+
+FTDC recopila datos de los siguientes comandos.
+
+<img src="/images/m103/c1/1-7-ftdc.png">
+
+Si intenta echar un vistazo a los datos producidos por el módulo FTDC utilizando algo como Strings, encontrará que no es legible para los humanos.
+
+Estos datos solo son utilizados con fines de diagnóstico por los ingenieros de soporte de MongoDB.
+
+Y solo pueden ver esos datos si los proporciona explícitamente.
+
+En el futuro, echemos un vistazo a nuestros archivos de diario.
+
+Cada uno de estos archivos de diario forma parte del sistema de registro en diario WiredTiger.
+
+<img src="/images/m103/c1/1-7-jornal.png">
+
+Hablemos de eso brevemente.
+
+Con MongoDB WiredTiger, las operaciones de escritura se almacenan en la memoria intermedia y se vacían cada 60 segundos, creando un punto de control de datos.
+
+WiredTiger también utiliza un sistema de registro de escritura anticipada en un archivo de diario en disco.
+
+<img src="/images/m103/c1/1-7-write.png">
+
+Las entradas del diario se almacenan primero en la memoria intermedia y luego WiredTiger sincroniza el diario en el disco cada 50 milisegundos.
+
+Cada archivo de diario está limitado a 100 megabytes de tamaño.
+
+WiredTiger utiliza un método de rotación de archivos para sincronizar datos con el disco.
+
+<img src="/images/m103/c1/1-7-write2.png">
+
+En caso de falla, WiredTiger puede usar el diario para recuperar datos que ocurrieron entre puntos de control.
+
+Por ejemplo, durante las operaciones normales, WiredTiger transfiere datos al disco cada 60 segundos, o cuando el archivo de diario tiene 2 gigabytes de datos.
+
+Estos enjuagues nuevamente crean un punto de control duradero.
+
+<img src="/images/m103/c1/1-7-write3.png">
+
+Si el MongoD se bloquea entre los puntos de control, existe la posibilidad de que los datos no se hayan escrito de forma segura y completa.
+
+Cuando MongoDB vuelve a estar en línea, WiredTiger puede verificar si hay alguna recuperación por hacer.
+
+<img src="/images/m103/c1/1-7-write4.png">
+
+En caso de que haya algunas escrituras incompletas, WiredTiger mira los archivos de datos existentes para encontrar el identificador del último punto de control.
+
+Luego busca en los archivos del diario el registro que coincida con el identificador del último punto de control.
+
+Finalmente, aplica operaciones en los archivos de diario desde el último punto de control.
+
+<img src="/images/m103/c1/1-7-write5.png">
+
+Al final, el servidor MongoDB puede reanudar la ejecución normal.
+
+Echemos un vistazo al último grupo de archivos.
+
+<img src="/images/m103/c1/1-7-files.png">
+
+El archivo mongod.lock tiene una función similar al archivo WiredTiger.lock.
+
+Si este archivo no está vacío, significa que un proceso MongoDB está actualmente activo en este directorio.
+
+Cualquier otro proceso de MongoDB que intente acceder a este directorio no se iniciará en ese caso.
+
+Si este archivo está vacío, entonces todo está claro.
+
+En algunas situaciones inusuales, como un cierre impuro, el archivo mongod.lock no estará vacío, aunque MongoD ya no se esté ejecutando.
+
+Es posible que deba eliminar el archivo mongod.lock si así lo solicita el soporte o nuestra documentación.
+
+Estos dos archivos restantes son más archivos de soporte y metadatos para WiredTiger.
+
+Recuerde, nunca debería necesitar interactuar con cualquiera de estos archivos y modificarlos puede provocar bloqueos o pérdida de datos.
+
+Además de los archivos contenidos aquí en el directorio de datos, también está el archivo de registro.
+
+Vamos a repasar el inicio de sesión con más detalle en la lección posterior.
+
+Pero solo para darle un vistazo rápido, puede ver en mi registro, no hay mucha información aquí ahora.
+
+<img src="/images/m103/c1/1-7-log.png">
+
+Eso es porque realmente no estoy haciendo nada con mi servidor.
+
+A medida que utilice su servidor MongoDB, el archivo de registro se llenará con información adicional.
+
+Estos archivos de registro son vitales para el diagnóstico posterior a la falla y también deben tratarse con cuidado.
+
+Depende de usted si desea colocar sus archivos de registro en el mismo directorio que sus archivos de datos.
+
+Sin embargo, no es una mala idea mantenerlos separados.
+
+Hay un archivo más del que deberíamos hablar, pero no está en ninguno de los dos directorios de los que hemos hablado hasta ahora.
+
+Este archivo mongodb-27017.sock es un archivo de socket utilizado por MongoDB para crear una conexión de socket en el puerto especificado.
+
+<img src="/images/m103/c1/1-7-sock.png">
+
+MongoDB necesita usar sockets para comunicaciones entre procesos.
+
+Sin este archivo, MongoDB no puede funcionar.
+
+Este archivo se crea al inicio y permite que el servidor MongoDB sea el propietario de este puerto.
+
+Si hay un bloqueo u otro apagado sucio, puede encontrar un error en el inicio relacionado con este archivo.
+
+Puede eliminarlo de manera segura si así lo solicita el soporte o nuestra documentación en ese caso.
+
+Recapitulemos.
+
+<img src="/images/m103/c1/1-7-resumen.png">
+
+El soporte de MongoDB utiliza algunos archivos, como diagnosis.data y sus archivos de registro, para ayudarlo a resolver problemas con su base de datos.
+
+El resto es utilizado exclusivamente por el proceso del servidor MongoDB para operaciones normales y no debe modificarse sin la dirección específica del soporte de MongoDB.
+
+Consulte el soporte de MongoDB o nuestra documentación para obtener instrucciones sobre cómo interactuar con cualquiera de estos archivos.
+
 
 ## 8. Examen File Structure
 
