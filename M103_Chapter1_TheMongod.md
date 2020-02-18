@@ -1806,7 +1806,46 @@ AppName indica qué cliente inició la operación, en este caso, el shell mongo.
 
 Ahora podemos profundizar en el comando en sí.
 
-Todo el documento es el esqueleto de
+Todo el documento es el esqueleto de***
+El comando ejecutado.
+
+Bajo el capó, tenemos un comando para establecer el parámetro que establece la verbosidad del componente de registro del componente de registro de índice en la base de datos de administración.
+
+El comando fue generado por mí usando el método db.setLogLevel.
+
+Finalmente, tenemos algunos metadatos relacionados con cómo se realizó la operación.
+
+El último punto de datos es de particular interés.
+
+Es cuánto tiempo tardó en completarse esta operación.
+
+Hablaremos en otra lección sobre operaciones lentas y cómo identificarlas.
+
+Mirando hacia atrás en mi registro, podemos ver que los eventos de índice se han reducido en frecuencia ya que acabamos de volver a los mensajes informativos para ese componente de registro.
+
+Veamos qué sucede cuando emitimos una escritura.
+
+Voy a actualizar un documento en nuestra colección de productos.
+
+Este es un simple comando de actualización donde estoy estableciendo el precio de venta de este producto en particular.
+
+Ahora echemos un vistazo a nuestros registros.
+
+Ambos eventos de registro están relacionados con el comando de actualización único que emití.
+
+Ahora, puede estar pensando, pensé que acabamos de actualizar un documento.
+
+Bueno, una operación de actualización es esencialmente dos componentes.
+
+Uno es el comando y el otro es la operación de escritura que se produce como resultado de ese comando.
+
+Recapitulemos.
+
+El registro del proceso de revisión de MongoDB admite múltiples componentes para controlar la granularidad de los eventos capturados.
+
+Puede recuperar el registro desde el shell mongo o utilizando utilidades de línea de comandos como tail.
+
+Finalmente, puede cambiar la verbosidad de cualquier componente de registro utilizando el shell mongo.
 
 ## 13. Examen Logging Basics
 
@@ -1887,6 +1926,90 @@ mongo newDB --host 192.168.103.100:27000 -u m103-admin -p m103-pass --authentica
 ```
 
 ### Transcripción
+
+Muy bien, así que en esta lección, vamos a discutir el perfil de la base de datos y cómo se puede usar junto con los bloqueos de la base de datos.
+
+Los servidores generan una gran cantidad de eventos.
+
+Y un archivo de registro es excelente para capturar estos datos o subconjuntos de estos datos.
+
+Pero el propósito de estos registros es informar sobre el estado de la base de datos, como un todo.
+
+Los registros almacenan algunos datos en nuestros comandos, pero no hay suficientes datos aquí para comenzar a optimizar nuestras consultas.
+
+Las líneas no contendrán ninguna estadística de ejecución, la dirección de un índice utilizado por una consulta, planes rechazados ni nada.
+
+E incluso si pudiéramos colocar esa información en los registros, realmente no deberíamos.
+
+Los archivos de registro están destinados a proporcionar a los administradores información operativa sobre una instancia o proceso, para que puedan marcar cualquier error, advertencia o mensaje informativo interesante.
+
+Para depurar operaciones lentas, necesitamos ser un poco más precisos en la información que capturamos.
+
+Para eso, confiamos en el generador de perfiles de base de datos.
+
+Permitimos perfiladores a nivel de base de datos.
+
+Entonces, las operaciones en cada base de datos se perfilan por separado.
+
+Cuando está habilitado, el perfil restaurará los datos para todas las operaciones en una base de datos dada, y una nueva colección llamada perfil de puntos del sistema.
+
+Esta recopilación contendrá datos de perfiles sobre operaciones CRUD, así como opciones administrativas y de configuración.
+
+Tiene tres configuraciones.
+
+El valor predeterminado es cero, lo que significa que el generador de perfiles está apagado.
+
+Uno significa que el generador de perfiles está activado, pero solo va a las operaciones de perfil que se consideran lentas.
+
+Por defecto, MongoDB considerará lenta cualquier operación que tarde más de 100 milisegundos.
+
+Pero también podemos definir qué es una consulta lenta configurando el valor lento de MS, como veremos en un minuto.
+
+Dos significa que el generador de perfiles está activado y creará un perfil de todas las operaciones en una base de datos, independientemente de cuánto tiempo demoren.
+
+Esto es un poco peligroso porque puede generar muchos derechos sobre la colección de perfil de puntos del sistema y generar una gran carga en el sistema.
+
+Esto no significa que las operaciones pequeñas no puedan bloquear otras, pero obtener datos sobre esas operaciones requiere más granularidad.
+
+Muy bien, así que ahora echemos un vistazo al generador de perfiles.
+
+Esta base de datos aún no existe, por lo que el generador de perfiles está configurado de forma predeterminada en el nivel 0.
+
+Y podemos verificar eso ejecutando db.getprofilinglevel.
+
+Y como puedes ver, nos da un cero.
+
+Podemos cambiar eso a uno con db.setprofilinglevel.
+
+Entonces, esta declaración activó el generador de perfiles, perfil de nivel 1.
+
+Si ejecutamos este comando, podemos ver que MongoDB creó una nueva colección llamada system dot profile.
+
+Pero no hay nada en este momento.
+
+Y debido a que no hemos especificado una MS lenta, el generador de perfiles solo almacenará datos en consultas que demoren más de 100 milisegundos.
+
+Muy bien, aquí, solo para tener una idea de cómo funciona el generador de perfiles y cómo se ven los datos de creación de perfiles, solo voy a configurar MS lenta a cero, para que todo se perfile en esta base de datos.
+
+Así que solo voy a insertar un pequeño documento aquí en esta nueva colección, llamada nueva colección.
+
+Entonces, ahora voy a ver qué hay en la colección de perfil de puntos del sistema ahora mismo, después de ejecutar esa consulta, y voy a hacer que la salida sea un poco más bonita para que sea más legible.
+
+Muy bien, para que podamos ver nuestra declaración de derechos se registra en el generador de perfiles.
+
+Nos da la cantidad de documentos insertados e insertados, y la cantidad de claves de índice insertadas por la operación, claves insertadas, así como el tiempo que la operación tomó en milisegundos.
+
+Entonces también podemos perfilar las operaciones de lectura.
+
+Aquí, tenemos un predicado de consulta realmente simple, donde solo estamos buscando documentos donde A es uno.
+
+Y podemos ver que el generador de perfiles registró un poco más de información sobre esta consulta.
+
+Nos dice que agotamos el cursor que estábamos usando para recuperar estos datos, y también tiene algunas estadísticas de ejecución, como el estado por el que pasamos para llegar aquí.
+
+En este caso, fue solo un escaneo de colección.
+
+Muy bien, solo para recapitular, hemos cubierto la diferencia entre los datos de registro y los datos de perfil, cómo configurar el generador de perfiles en su base de datos y cómo interpretar la salida del generador de perfiles dependiendo de la operación.
 
 ## 15. Examen Profiling the Database
 
