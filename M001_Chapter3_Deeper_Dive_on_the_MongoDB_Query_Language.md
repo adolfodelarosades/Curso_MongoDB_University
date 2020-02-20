@@ -25,7 +25,40 @@ Operadores de consulta: Operadores de Elementos, Operadores Lógicos, Operadores
 
 ## 1. Tema: Introducción a los Operadores de Consultas (Query)
 
-## 2. Examen
+En este capítulo, vamos a hablar sobre algunos conceptos más avanzados del lenguaje de consulta MongoDB.
+
+El lenguaje de consulta MongoDB proporciona un amplio soporte para filtrar documentos de todas las formas y tamaños, incluso aquellos con esquemas complejos. Veremos la variedad de operadores de consulta disponibles y cómo usarlos.
+
+<img src="/images/c3/crud.png">
+
+Tenga en cuenta que debido a que los cuatro tipos de operaciones CRUD (crear, leer, actualizar y eliminar) requieren un filtro, nuestros operadores de consulta pueden usarse en sus filtros para cualquiera de los métodos de lenguaje de consulta que hemos discutido.
+
+Puede encontrar una lista completa, con enlaces a material de referencia para todos los operadores de consulta, en la documentación de MongoDB [Query and Projection Operators](https://docs.mongodb.com/manual/reference/operator/query/index.html).
+
+Vamos a hacer una descripción general de cada tipo de operador con algunos ejemplos muy concretos.
+
+La mejor manera de aprender es ensuciarse las manos.
+
+Como parte de este capítulo, haremos que realice una serie de pruebas y laboratorios para que tenga bastante experiencia con estos operadores.
+
+Empecemos.
+
+## 2. Examen Introduction to Query Operators
+
+**Problem:**
+
+For which CRUD operations can one use the query operators we will discuss in this chapter?
+
+
+Check all answers that apply:
+
+* Create :+1:
+
+* Read :+1:
+
+* Update :+1:
+
+* Delete :+1:
 
 ## 3. Tema: Operadores de Comparación
 
