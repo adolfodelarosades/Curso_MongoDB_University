@@ -81,29 +81,86 @@ Nombre | Descripción
 `$ne`| 	Coincide con todos los valores que no son iguales a un valor especificado.
 `$nin` | No coincide con ninguno de los valores especificados en un array.
 
+#### Comandos de conexión:
+
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/100YWeatherSmall?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+```
+
+```sh
+mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+```
+
 ### Transcripción
 
 En esta lección, discutiremos los Operadores de Consulta de Comparación ([comparison query operators](https://docs.mongodb.com/manual/reference/operator/query/#comparison)).
 
 Estos son operadores que nos permiten hacer coincidir en función de un valor de campo relativo a algún otro valor.
 
-En nuestra colección de detalles de películas, la mayoría de los documentos tienen un campo llamado run time (tiempo de ejecución).
+En nuestra colección de detalles de películas, la mayoría de los documentos tienen un campo llamado `runtime` (tiempo de ejecución).
 
 Esto es un buen punto de partida para considerar algunos operadores de comparación.
 
-Aquí tengo un shell mongo conectado a mi clúster de sandbox Atlas.
+Aquí tengo un shell mongo conectado a su clúster de sandbox Atlas.
+
+```sh
+mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+```
 
 Vamos a filtrar todas las películas que tengan un tiempo de ejecución superior a 90.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+movieDetails
+moviesScratch
+reviews
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.count()
+2295
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({runtime: {$gt: 90} }, {_id: 0, title: 1, runtime: 1})
+{ "_id" : ObjectId("5e3fc385d519ebad6471fd9d"), "title" : "Once Upon a Time in the West", "year" : 1968, "rated" : "PG-13", "runtime" : 175, "countries" : [ "Italy", "USA", "Spain" ], "genres" : [ "Western" ], "director" : "Sergio Leone", "writers" : [ "Sergio Donati", "Sergio Leone", "Dario Argento", "Bernardo Bertolucci", "Sergio Leone" ], "actors" : [ "Claudia Cardinale", "Henry Fonda", "Jason Robards", "Charles Bronson" ], "plot" : "Epic story of a mysterious stranger with a harmonica who joins forces with a notorious desperado to protect a beautiful widow from a ruthless assassin working for the railroad.", "poster" : "http://ia.media-imdb.com/images/M/MV5BMTEyODQzNDkzNjVeQTJeQWpwZ15BbWU4MDgyODk1NDEx._V1_SX300.jpg", "imdb" : { "id" : "tt0064116", "rating" : 8.6, "votes" : 201283 }, "tomato" : { "meter" : 98, "image" : "certified", "rating" : 9, "reviews" : 54, "fresh" : 53, "consensus" : "A landmark Sergio Leone spaghetti western masterpiece featuring a classic Morricone score.", "userMeter" : 95, "userRating" : 4.3, "userReviews" : 64006 }, "metacritic" : 80, "awards" : { "wins" : 4, "nominations" : 5, "text" : "4 wins & 5 nominations." }, "type" : "movie" }
+...
+```
 
 Ahora el tiempo de ejecución se especifica en minutos, por lo que todas las películas duran más de una hora y media.
 
 Si lo deseamos, podemos proyectar solo el título y el tiempo de ejecución para darnos un resumen más rápido de este conjunto de resultados.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({runtime: {$gt: 90} }, {_id: 0, title: 1, runtime: 1})
+{ "title" : "Once Upon a Time in the West", "runtime" : 175 }
+{ "title" : "A Million Ways to Die in the West", "runtime" : 116 }
+{ "title" : "Wild Wild West", "runtime" : 106 }
+{ "title" : "West Side Story", "runtime" : 152 }
+{ "title" : "Red Rock West", "runtime" : 98 }
+{ "title" : "How the West Was Won", "runtime" : 164 }
+{ "title" : "Journey to the West", "runtime" : 110 }
+{ "title" : "West of Memphis", "runtime" : 147 }
+{ "title" : "Star Wars: Episode IV - A New Hope", "runtime" : 121 }
+{ "title" : "Star Wars: Episode V - The Empire Strikes Back", "runtime" : 124 }
+{ "title" : "Star Wars: Episode VI - Return of the Jedi", "runtime" : 131 }
+{ "title" : "Star Wars: Episode I - The Phantom Menace", "runtime" : 136 }
+{ "title" : "Star Wars: Episode III - Revenge of the Sith", "runtime" : 140 }
+{ "title" : "Star Trek", "runtime" : 127 }
+{ "title" : "Star Wars: Episode II - Attack of the Clones", "runtime" : 142 }
+{ "title" : "Star Trek Into Darkness", "runtime" : 132 }
+{ "title" : "Star Trek: First Contact", "runtime" : 111 }
+{ "title" : "Star Trek II: The Wrath of Khan", "runtime" : 113 }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "runtime" : 95 }
+{ "title" : "Love Actually", "runtime" : 135 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Puede ver que cada documento en nuestro conjunto de resultados tiene un tiempo de ejecución mayor de 90 minutos.
 
 Ahora revisemos la sintaxis por un minuto.
 
-¿Por qué está estructurado de esta manera?
+¿Por qué está estructurado de esta manera? `db.movieDetails.find({runtime: {$gt: 90}}, {_id: 0, title: 1, runtime: 1})`
 
 La idea aquí es mantener la coherencia con los filtros de igualdad.
 
@@ -117,29 +174,56 @@ Esta sintaxis también hace que sea muy conveniente expresar rangos.
 
 Por ejemplo, puedo estipular que me gustaría ver películas de más de 90 minutos y menos de 120 minutos.
 
-Para hacer eso, podemos usar esta consulta.
+Para hacer eso, podemos usar esta consulta. `db.movieDetails.find({runtime: {$gt: 90, $lt: 120}}, {_id: 0, title: 1, runtime: 1})`
 
-Y en aras de la exhaustividad, mencionaré que $ lt es el operador menor que.
+Y en aras de la exhaustividad, mencionaré que `$lt` es el operador menor que.
 
 Ahora lo que realmente quiero es que todas las películas que coincidan con mi filtro sean mayores o iguales a 90 minutos y menores que igual a 120 minutos.
 
-Entonces, puedo modificar mi filtro ligeramente para usar el operador mayor o igual que $ gte y el operador $ lte.
+Entonces, puedo modificar mi filtro ligeramente para usar el operador mayor o igual que es `$gte` y el operador `$lte`.
 
 Vamos a correr esto.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({runtime: {$gte: 90, $lte: 120}}, {_id: 0, title: 1, runtime: 1})
+{ "title" : "A Million Ways to Die in the West", "runtime" : 116 }
+{ "title" : "Wild Wild West", "runtime" : 106 }
+{ "title" : "Red Rock West", "runtime" : 98 }
+{ "title" : "Journey to the West", "runtime" : 110 }
+{ "title" : "Star Trek: First Contact", "runtime" : 111 }
+{ "title" : "Star Trek II: The Wrath of Khan", "runtime" : 113 }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "runtime" : 95 }
+{ "title" : "I Love You, Man", "runtime" : 105 }
+{ "title" : "Love & Other Drugs", "runtime" : 112 }
+{ "title" : "Punch-Drunk Love", "runtime" : 95 }
+{ "title" : "From Paris with Love", "runtime" : 92 }
+{ "title" : "From Russia with Love", "runtime" : 115 }
+{ "title" : "I Love You Phillip Morris", "runtime" : 98 }
+{ "title" : "Zathura: A Space Adventure", "runtime" : 101 }
+{ "title" : "Turks in Space", "runtime" : 110 }
+{ "title" : "2001: A Space Travesty", "runtime" : 99 }
+{ "title" : "The Adventures of Tintin", "runtime" : 107 }
+{ "title" : "The Adventures of Robin Hood", "runtime" : 102 }
+{ "title" : "The Adventures of Priscilla, Queen of the Desert", "runtime" : 104 }
+{ "title" : "Adventures in Babysitting", "runtime" : 102 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Aquí podemos ver que hemos perdido algunos resultados de la última vez porque ahora estamos especificando que queremos películas en un rango de solo dos horas.
 
-Entonces, con esta consulta, tuvimos bastantes películas que en realidad duraron más de dos horas.
+Entonces, con esta consulta, tuvimos bastantes películas que en realidad duraron más de dos horas. `db.movieDetails.find({runtime: {$gt: 90}}, {_id: 0, title: 1, runtime: 1})`
 
-Y con este, solo los que duran entre 90 minutos y dos horas.
+Y con este  `db.movieDetails.find({runtime: {$gt: 90, $lt: 120}}, {_id: 0, title: 1, runtime: 1})`
+, solo los que duran entre 90 minutos y dos horas.
 
 Por supuesto, con los operadores de comparación no se limitaron a trabajar con un solo campo.
 
 Podemos trabajar fácilmente con tantos campos como sea necesario utilizando combinaciones de operadores de comparación, otros operadores y coincidencias de igualdad.
 
-Supongamos que estamos interesados ​​en películas que están altamente calificadas y que también tienen tiempos de ejecución largos.
+Supongamos que estamos interesados en películas que están altamente calificadas y que también tienen tiempos de ejecución largos.
 
-Mezclemos las cosas un poco más usando un campo de documento incrustado, el medidor de tomate.
+Mezclemos las cosas un poco más usando un campo de documento incrustado, el medidor de tomate (tomato meter).
 
 Ahora para el medidor de tomate, el máximo es 100.
 
@@ -147,31 +231,39 @@ Entonces, lo que haré es combinar un selector para el medidor de tomate buscand
 
 Entonces, en este caso, películas que duran tres horas o más.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({runtime: {$gte: 180}, "tomato.meter": {$gte: 95}}, 
+{_id: 0, title: 1, runtime: 1})
+{ "title" : "Lagaan: Once Upon a Time in India", "runtime" : 224 }
+{ "title" : "The Godfather: Part II", "runtime" : 202 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Aquí podemos ver que tenemos dos resultados que cumplen con estos criterios.
 
 El padrino: la parte II, por supuesto, es muy larga y, en mi opinión, la mejor de las tres películas de padrino.
 
-Así que echemos un vistazo a qué otros operadores de comparación hay.
+Así que echemos un vistazo a qué otros operadores de comparación hay [comparison query operators](https://docs.mongodb.com/manual/reference/operator/query/#comparison).
 
-$ eq, tiene exactamente la misma semántica que las coincidencias de igualdad con las que ya está familiarizado.
+`$eq`, tiene exactamente la misma semántica que las coincidencias de igualdad con las que ya está familiarizado.
 
-Hemos visto mayor que, mayor que o igual a, menor que y menor que o igual a.
+Hemos visto mayor que `$gt`, mayor que o igual a `$gte`, menor que `$lt` y menor que o igual a `$lte`.
 
-Ahora echemos un vistazo a no igual a, o $ ne y $ in.
+Ahora echemos un vistazo a no igual a, o `$ne` y `$in`.
 
-Primero, veremos $ ne.
+Primero, veremos `$ne`.
 
-Ahora, en muchas aplicaciones, particularmente si estamos haciendo algo como la limpieza de datos, podríamos estar interesados ​​en particionar nuestros datos porque sabemos que tenemos algunos campos que no son los esperados.
+Ahora, en muchas aplicaciones, particularmente si estamos haciendo algo como la limpieza de datos, podríamos estar interesados en particionar nuestros datos porque sabemos que tenemos algunos campos que no son los esperados.
 
-Muchas películas de esta colección tienen un valor de cuatro sin clasificar.
+Muchas películas de esta colección tienen uno de cuatro valores para el campo `rated` ("PG", "PG-13", "G", "R", "APPROVED") o un valor "UNRATED".
 
 Entonces, tal vez solo queremos ver todos los documentos que tienen una calificación real, como PG, PG-13, R, etc.
 
-Podemos usar $ ne para hacer esto, y la semántica de este filtro es que haremos coincidir todos los documentos que para la clave clasificada tendrán un valor que sea diferente o no sea igual a no calificado.
+Podemos usar `$ne` para hacer esto, y la semántica de este filtro es que haremos coincidir todos los documentos que para la clave `rated` (clasificada) tendrán un valor que sea diferente o no sea igual a "UNRATED" (no calificado).
 
-Ahora hay una cosa que debo mencionar sobre $ ne.
+Ahora hay una cosa que debo mencionar sobre `$ne`.
 
-Además de hacer coincidir todos los documentos que contienen un campo calificado cuyo valor es algo diferente de no calificado, $ ne también devolverá documentos que no tengan un campo calificado en absoluto.
+Además de hacer coincidir todos los documentos que contienen un campo `rated` cuyo valor es diferente de "UNRATED", `$ne` **también devolverá documentos que no tengan un campo `rated` en absoluto**.
 
 MongoDB admite un modelo de datos flexible.
 
