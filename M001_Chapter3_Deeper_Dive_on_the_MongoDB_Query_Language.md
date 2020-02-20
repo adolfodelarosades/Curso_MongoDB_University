@@ -459,28 +459,72 @@ Y con eso, hemos cubierto los operadores de comparación para hacer consultas de
 
 Estos expanden significativamente los tipos de consultas que podemos hacer contra una colección MongoDB.
 
-## 4. Examen
+## 4. Examen Comparison Operators
+
+**Problem:**
+
+Using the `$in` operator, filter the `video.movieDetails` collection to determine how many movies list "Ethan Coen" or "Joel Coen" among their writers. Your filter should match all movies that list one of the Coen brothers as writers regardless of how many other writers are also listed. Select the number of movies matching this filter from the choices below.
+
+Choose the best answer:
+
+
+* 0
+
+* 3 :+1:
+
+* 7
+
+* 12
+
+* 16
+
+Solution:
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({writers: {$in: ["Ethan Coen", "Joel Coen"] }}, {_id: 0, title: 1, writers: 1})
+{ "title" : "The Big Lebowski", "writers" : [ "Ethan Coen", "Joel Coen" ] }
+{ "title" : "No Country for Old Men", "writers" : [ "Joel Coen", "Ethan Coen", "Cormac McCarthy" ] }
+{ "title" : "Paris, je t'aime", "writers" : [ "Tristan Carné", "Emmanuel Benbihy", "Emmanuel Benbihy", "Bruno Podalydès", "Paul Mayeda Berges", "Gurinder Chadha", "Gus Van Sant", "Joel Coen", "Ethan Coen", "Walter Salles", "Daniela Thomas", "Christopher Doyle", "Rain Li", "Gabrielle Keng", "Isabel Coixet", "Nobuhiro Suwa", "Sylvain Chomet", "Alfonso Cuarón", "Olivier Assayas", "Oliver Schmitz", "Richard LaGravenese", "Vincenzo Natali", "Wes Craven", "Tom Tykwer", "Gena Rowlands", "Alexander Payne", "Nadine Eïd", "Frédéric Auburtin" ] }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 
 ## 5. Tema: Operadores de Elementos
+
+### Notas de lectura
+
+Si desea revisar cómo filtrar otros tipos, consulte la [documentación de `$type`](https://docs.mongodb.com/manual/reference/operator/query/type/).
+
+### Transcripción
 
 ## 6. Examen
 
 ## 7. Tema: Operadores Lógicos
 
+### Transcripción
+
 ## 8. Examen
 
 ## 9. Tema: Operador de Array: `$all`
+
+### Transcripción
 
 ## 10. Examen
 
 ## 11. Tema: Operador de Array: `$size`
 
+### Transcripción
+
 ## 12. Examen
 
 ## 13. Tema: Operador de Array: `$elemMatch`
 
+### Transcripción
+
 ## 14. Examen
 
 ## 15. Tema: Operador `$regex`
+
+### Transcripción
 
 ## 16. Problema de desafío: Valor Único en un Array de Integers
