@@ -261,41 +261,199 @@ Entonces, tal vez solo queremos ver todos los documentos que tienen una califica
 
 Podemos usar `$ne` para hacer esto, y la semántica de este filtro es que haremos coincidir todos los documentos que para la clave `rated` (clasificada) tendrán un valor que sea diferente o no sea igual a "UNRATED" (no calificado).
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({reted: {$ne: "UNRATED"}}, {_id: 0, title: 1, rated: 1})
+{ "title" : "Once Upon a Time in the West", "rated" : "PG-13" }
+{ "title" : "A Million Ways to Die in the West", "rated" : "R" }
+{ "title" : "Wild Wild West", "rated" : "PG-13" }
+{ "title" : "West Side Story", "rated" : "UNRATED" }
+{ "title" : "Slow West", "rated" : "R" }
+{ "title" : "An American Tail: Fievel Goes West", "rated" : "G" }
+{ "title" : "Red Rock West", "rated" : "R" }
+{ "title" : "How the West Was Won", "rated" : "APPROVED" }
+{ "title" : "Journey to the West", "rated" : "PG-13" }
+{ "title" : "West of Memphis", "rated" : "R" }
+{ "title" : "Star Wars: Episode IV - A New Hope", "rated" : "PG" }
+{ "title" : "Star Wars: Episode V - The Empire Strikes Back", "rated" : "PG" }
+{ "title" : "Star Wars: Episode VI - Return of the Jedi", "rated" : "PG" }
+{ "title" : "Star Wars: Episode I - The Phantom Menace", "rated" : "PG" }
+{ "title" : "Star Wars: Episode III - Revenge of the Sith", "rated" : "PG-13" }
+{ "title" : "Star Trek", "rated" : "PG-13" }
+{ "title" : "Star Wars: Episode II - Attack of the Clones", "rated" : "PG" }
+{ "title" : "Star Trek Into Darkness", "rated" : "PG-13" }
+{ "title" : "Star Trek: First Contact", "rated" : "PG-13" }
+{ "title" : "Star Trek II: The Wrath of Khan", "rated" : "PG" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Ahora hay una cosa que debo mencionar sobre `$ne`.
 
-Además de hacer coincidir todos los documentos que contienen un campo `rated` cuyo valor es diferente de "UNRATED", `$ne` **también devolverá documentos que no tengan un campo `rated` en absoluto**.
+Además de hacer coincidir todos los documentos que contienen un campo `rated` cuyo valor es diferente de "UNRATED", `$ne` **también devolverá documentos que no tengan un campo `rated` en absoluto**. Vea `{ "title" : "Turks in Space" }` a continuación: 
+
+```sh
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> it
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "rated" : "PG" }
+{ "title" : "Love Actually", "rated" : "R" }
+{ "title" : "Shakespeare in Love", "rated" : "R" }
+{ "title" : "I Love You, Man", "rated" : "R" }
+{ "title" : "P.S. I Love You", "rated" : "PG-13" }
+{ "title" : "Love & Other Drugs", "rated" : "R" }
+{ "title" : "Punch-Drunk Love", "rated" : "R" }
+{ "title" : "From Paris with Love", "rated" : "R" }
+{ "title" : "From Russia with Love", "rated" : "APPROVED" }
+{ "title" : "I Love You Phillip Morris", "rated" : "R" }
+{ "title" : "2001: A Space Odyssey", "rated" : "G" }
+{ "title" : "Office Space", "rated" : "R" }
+{ "title" : "Zathura: A Space Adventure", "rated" : "PG" }
+{ "title" : "Space Cowboys", "rated" : "PG-13" }
+{ "title" : "Lost in Space", "rated" : "PG-13" }
+{ "title" : "Plan 9 from Outer Space", "rated" : "UNRATED" }
+{ "title" : "Muppets from Space", "rated" : "G" }
+{ "title" : "Turks in Space" }
+{ "title" : "2001: A Space Travesty", "rated" : "R" }
+{ "title" : "Space Chimps", "rated" : "G" }
+Type "it" for more
+
+```
 
 MongoDB admite un modelo de datos flexible.
 
 Existen muchos casos de uso para que los documentos de la misma colección tengan campos que otros documentos no tienen.
 
-En los modelos de datos MongoDB, en lugar de almacenar un valor nulo para el campo, a menudo simplemente no almacenaremos nada en el campo.
+**En los modelos de datos MongoDB, en lugar de almacenar un valor nulo para el campo, a menudo simplemente no almacenaremos nada en el campo**.
 
 En otra lección, veremos cómo distinguir documentos que no tienen un campo determinado.
 
-OK, entonces el último operador de comparación que quiero ver es el $ in.
+OK, entonces el último operador de comparación que quiero ver es el `$in`.
 
-$ in, nos permite especificar uno o más valores.
+`$in`, nos permite especificar uno o más valores.
 
 Cualquiera de los cuales debe hacer que se devuelva un documento.
 
-Este filtro seleccionaremos todos los documentos donde el valor de calificación sea G o PG.
+En este filtro seleccionaremos todos los documentos donde el valor de calificación sea "G" o "PG".
 
 Los documentos con cualquiera de esos dos valores para la clave clasificada coincidirán con este filtro.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({rated: {$in: ["G", "PG"] }}, {_id: 0, title: 1, rated: 1})
+{ "title" : "An American Tail: Fievel Goes West", "rated" : "G" }
+{ "title" : "Star Wars: Episode IV - A New Hope", "rated" : "PG" }
+{ "title" : "Star Wars: Episode V - The Empire Strikes Back", "rated" : "PG" }
+{ "title" : "Star Wars: Episode VI - Return of the Jedi", "rated" : "PG" }
+{ "title" : "Star Wars: Episode I - The Phantom Menace", "rated" : "PG" }
+{ "title" : "Star Wars: Episode II - Attack of the Clones", "rated" : "PG" }
+{ "title" : "Star Trek II: The Wrath of Khan", "rated" : "PG" }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "rated" : "PG" }
+{ "title" : "2001: A Space Odyssey", "rated" : "G" }
+{ "title" : "Zathura: A Space Adventure", "rated" : "PG" }
+{ "title" : "Muppets from Space", "rated" : "G" }
+{ "title" : "Space Chimps", "rated" : "G" }
+{ "title" : "The Adventures of Tintin", "rated" : "PG" }
+{ "title" : "The Adventures of Baron Munchausen", "rated" : "PG" }
+{ "title" : "The Adventures of Robin Hood", "rated" : "PG" }
+{ "title" : "The Many Adventures of Winnie the Pooh", "rated" : "G" }
+{ "title" : "The Adventures of Sharkboy and Lavagirl 3-D", "rated" : "PG" }
+{ "title" : "The Adventures of Buckaroo Banzai Across the 8th Dimension", "rated" : "PG" }
+{ "title" : "The Adventures of Rocky & Bullwinkle", "rated" : "PG" }
+{ "title" : "The Extraordinary Adventures of Adèle Blanc-Sec", "rated" : "PG" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Y aquí podemos ver que, de hecho, todos los resultados tienen un valor de PG o G para la clave clasificada.
 
-Si quisiéramos extender esto, simplemente agregamos otro elemento al valor de la matriz de nuestro operador $ in.
+Si quisiéramos extender esto, simplemente agregamos otro elemento al valor del array de nuestro operador `$in`.
 
-Tenga en cuenta que el valor de $ in debe ser una matriz.
+Tenga en cuenta que el valor de `$in` debe ser un array.
 
-En este caso, se devolverán los documentos que tengan un valor de calificación que sea cualquiera de estos tres valores.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({rated: {$in: ["G", "PG", "PG-13"] }}, {_id: 0, title: 1, rated: 1})
+{ "title" : "Once Upon a Time in the West", "rated" : "PG-13" }
+{ "title" : "Wild Wild West", "rated" : "PG-13" }
+{ "title" : "An American Tail: Fievel Goes West", "rated" : "G" }
+{ "title" : "Journey to the West", "rated" : "PG-13" }
+{ "title" : "Star Wars: Episode IV - A New Hope", "rated" : "PG" }
+{ "title" : "Star Wars: Episode V - The Empire Strikes Back", "rated" : "PG" }
+{ "title" : "Star Wars: Episode VI - Return of the Jedi", "rated" : "PG" }
+{ "title" : "Star Wars: Episode I - The Phantom Menace", "rated" : "PG" }
+{ "title" : "Star Wars: Episode III - Revenge of the Sith", "rated" : "PG-13" }
+{ "title" : "Star Trek", "rated" : "PG-13" }
+{ "title" : "Star Wars: Episode II - Attack of the Clones", "rated" : "PG" }
+{ "title" : "Star Trek Into Darkness", "rated" : "PG-13" }
+{ "title" : "Star Trek: First Contact", "rated" : "PG-13" }
+{ "title" : "Star Trek II: The Wrath of Khan", "rated" : "PG" }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "rated" : "PG" }
+{ "title" : "P.S. I Love You", "rated" : "PG-13" }
+{ "title" : "2001: A Space Odyssey", "rated" : "G" }
+{ "title" : "Zathura: A Space Adventure", "rated" : "PG" }
+{ "title" : "Space Cowboys", "rated" : "PG-13" }
+{ "title" : "Lost in Space", "rated" : "PG-13" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Si inventamos esto un poco y lo cambiamos solo a películas con clasificación R y PG-13, verá que ahora nuestros resultados coinciden con esos criterios.
+En este caso, se devolverán los documentos que tengan un valor de calificación que sea cualquiera de estos tres valores `"G", "PG", "PG-13"`.
 
-También hay un operador que nos permite hacer lo contrario de lo que hace $ in.
+Si inventamos esto un poco y lo cambiamos solo a películas con clasificación "R" y "PG-13", verá que ahora nuestros resultados coinciden con esos criterios.
 
-Lo dejaré como ejercicio para que experimente con ese operador.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({rated: {$in: ["R", "PG-13"] }}, {_id: 0, title: 1, rated: 1})
+{ "title" : "Once Upon a Time in the West", "rated" : "PG-13" }
+{ "title" : "A Million Ways to Die in the West", "rated" : "R" }
+{ "title" : "Wild Wild West", "rated" : "PG-13" }
+{ "title" : "Slow West", "rated" : "R" }
+{ "title" : "Red Rock West", "rated" : "R" }
+{ "title" : "Journey to the West", "rated" : "PG-13" }
+{ "title" : "West of Memphis", "rated" : "R" }
+{ "title" : "Star Wars: Episode III - Revenge of the Sith", "rated" : "PG-13" }
+{ "title" : "Star Trek", "rated" : "PG-13" }
+{ "title" : "Star Trek Into Darkness", "rated" : "PG-13" }
+{ "title" : "Star Trek: First Contact", "rated" : "PG-13" }
+{ "title" : "Love Actually", "rated" : "R" }
+{ "title" : "Shakespeare in Love", "rated" : "R" }
+{ "title" : "I Love You, Man", "rated" : "R" }
+{ "title" : "P.S. I Love You", "rated" : "PG-13" }
+{ "title" : "Love & Other Drugs", "rated" : "R" }
+{ "title" : "Punch-Drunk Love", "rated" : "R" }
+{ "title" : "From Paris with Love", "rated" : "R" }
+{ "title" : "I Love You Phillip Morris", "rated" : "R" }
+{ "title" : "Office Space", "rated" : "R" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+También hay un operador que nos permite hacer lo contrario de lo que hace `$in`.
+
+Lo dejaré como ejercicio para que experimente con ese operador (`$nin`).
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({rated: {$nin: ["R", "PG-13"] }}, {_id: 0, title: 1, rated: 1})
+{ "title" : "West Side Story", "rated" : "UNRATED" }
+{ "title" : "An American Tail: Fievel Goes West", "rated" : "G" }
+{ "title" : "How the West Was Won", "rated" : "APPROVED" }
+{ "title" : "Star Wars: Episode IV - A New Hope", "rated" : "PG" }
+{ "title" : "Star Wars: Episode V - The Empire Strikes Back", "rated" : "PG" }
+{ "title" : "Star Wars: Episode VI - Return of the Jedi", "rated" : "PG" }
+{ "title" : "Star Wars: Episode I - The Phantom Menace", "rated" : "PG" }
+{ "title" : "Star Wars: Episode II - Attack of the Clones", "rated" : "PG" }
+{ "title" : "Star Trek II: The Wrath of Khan", "rated" : "PG" }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "rated" : "PG" }
+{ "title" : "From Russia with Love", "rated" : "APPROVED" }
+{ "title" : "2001: A Space Odyssey", "rated" : "G" }
+{ "title" : "Zathura: A Space Adventure", "rated" : "PG" }
+{ "title" : "Plan 9 from Outer Space", "rated" : "UNRATED" }
+{ "title" : "Muppets from Space", "rated" : "G" }
+{ "title" : "Turks in Space" }
+{ "title" : "Space Chimps", "rated" : "G" }
+{ "title" : "The Adventures of Tintin", "rated" : "PG" }
+{ "title" : "The Adventures of Baron Munchausen", "rated" : "PG" }
+{ "title" : "The Adventures of Robin Hood", "rated" : "PG" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y con eso, hemos cubierto los operadores de comparación para hacer consultas dentro de MongoDB.
 
