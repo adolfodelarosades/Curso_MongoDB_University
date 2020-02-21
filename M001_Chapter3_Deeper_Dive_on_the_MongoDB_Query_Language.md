@@ -422,7 +422,6 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({rated: {$in: 
 { "title" : "Office Space", "rated" : "R" }
 Type "it" for more
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
-
 ```
 
 También hay un operador que nos permite hacer lo contrario de lo que hace `$in`.
@@ -496,6 +495,92 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY>
 Si desea revisar cómo filtrar otros tipos, consulte la [documentación de `$type`](https://docs.mongodb.com/manual/reference/operator/query/type/).
 
 ### Transcripción
+
+En otra lección mencione que, debido a su modelo de datos flexible, MongoDB admite operadores que nos permiten detectar la presencia o ausencia de un campo determinado.
+
+Además, como sabe, aunque no suele ser una buena idea, es posible que el mismo campo en la colección tenga un tipo de valor diferente de un documento a otro.
+
+El lenguaje de consulta MongoDB proporciona operadores que nos permiten manejar ambas situaciones.
+
+Se llaman `$exist` y `$type`.
+
+Así que echemos un vistazo a un ejemplo de `$exist` primero.
+
+Para esto, veremos nuevamente el clúster Atlas clase M001 y la colección `video.movies`.
+
+Dentro de la colección de películas, tenemos bastantes películas antiguas.
+
+Muchas de estas películas son anteriores al sistema de clasificación de películas MPAA.
+
+Lo que podríamos querer hacer con una aplicación es probar la existencia de una calificación.
+
+Aquí en Compass, me he conectado al grupo de clase Atlas.
+
+Filtremos por documentos que contengan un campo de calificación MPAA.
+
+Entonces, la sintaxis de `$exist` es que especificamos que la clave estaba interesada en probar la existencia de.
+
+Y como el valor de esa clave en nuestro filtro, proporcionamos un documento que tiene `$exist` como clave y un valor de verdadero o falso.
+
+Si el valor que especificamos aquí es verdadero, entonces haremos coincidir los documentos que contienen esta clave.
+
+Y si es falso, haremos coincidir los documentos que no contienen la clave.
+
+Tenga en cuenta que los documentos que contienen la clave de calificación MPAA son sustancialmente menores que el número total de documentos en esta colección.
+
+Hagamos lo contrario ahora y establezca `$exist` en false.
+
+Ahora podemos ver que las películas recuperadas en respuesta a esta consulta no contienen ningún campo de calificación MPAA.
+
+Si nos desplazamos a través de la vista de esquema, vemos que aquí, donde debería aparecer la calificación MPAA, no es así.
+
+Esto se debe a que con este filtro aplicado, Compass solo está mirando documentos que no tienen este campo.
+
+Debo señalar aquí algo con lo que podría toparse con respecto a los campos faltantes.
+
+No es un valor que se usa comúnmente en bases de datos relacionales para filas que no tienen datos para una columna en particular.
+
+Y para este ejemplo, vamos a cambiar rápidamente a nuestro clúster de sandbox Atlas y echar un vistazo a la colección de detalles de la película.
+
+Algunos usuarios de MongoDB prefieren incluir una clave y simplemente establecer su valor en nulo para documentos que no tienen valor para ese campo.
+
+Para admitir consultas de valores nulos, si filtra algo como esto, tomate.consensus nulo, este filtro coincidirá con ambos documentos que tienen explícitamente el valor establecido en nulo, como vemos en este documento, y aquellos que no contienen la clave tomate.consensus, como vemos en este documento, que no solo no tiene tomate.consensus sino que no tiene el período de campo de tomate.
+
+Para las colecciones que contienen documentos con valores nulos para algunos campos, inevitablemente se encontrará con esto.
+
+Así que mantente atento.
+
+Ahora echemos un vistazo al operador $ type.
+
+Seguiremos trabajando con nuestra colección video.movies para nuestro ejemplo.
+
+Echa un vistazo al campo de calificación del espectador.
+
+Lo que vemos aquí en la vista de esquema para video.movies es que el tipo de valor para la calificación del espectador realmente depende del documento que veamos.
+
+Algunos tienen un tipo de valor para doble, algunos tienen un tipo de valor de Int32, otros tienen un tipo de valor de indefinido.
+
+Podemos filtrar los documentos que tienen un tipo de valor particular para un campo utilizando el operador $ type.
+
+Veamos un ejemplo.
+
+Y para esto, me gustaría volver al caparazón de Mongo.
+
+Aquí tengo un shell conectado al clúster Atlas clase M001.
+
+Con este comando, nuestro filtro solo coincidirá con los documentos de la colección video.movies que tengan un valor para viewerRating que sea un entero de 32 bits.
+
+Y podemos ver que en cada uno de estos documentos, la clasificación del espectador es, de hecho, un número entero.
+
+Puedo voltear esto y buscar solo dobles en su lugar.
+
+Y aquí podemos ver que estos son valores de coma flotante.
+
+Si desea revisar cómo filtrar otros tipos, consulte la documentación.
+
+Incluye una cobertura integral para todos los tipos de valor por los que puede filtrar, junto con detalles adicionales sobre el operador $ type.
+
+$ existe y $ type nos permiten hacer meta preguntas sobre los documentos de una colección y, por lo tanto, nos brindan algunas herramientas importantes para trabajar con el soporte de MongoDB para modelos de datos flexibles.
 
 ## 6. Examen
 
