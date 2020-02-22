@@ -794,6 +794,120 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY>
 
 ### Transcripción
 
+En esta lección, vamos a considerar operadores lógicos.
+
+En particular, nos vamos a centrar en `$or` y `$and`.
+
+Ahora también quiero hacerle saber que hay un operador `$not` y un operador `$nor`.
+
+Pero en esta lección, vamos a ver solo `$or` y `$and`.
+
+Echemos un vistazo a un ejemplo usando el operador `$or`.
+
+Lo que vamos a hacer aquí es buscar documentos basados en su calificación(rating) utilizando tanto el medidor de tomate (tomato meter), que es producido por las revisiones del público en general que se preocupa por comentar, como el metacrítico (metacritic), que es un puntaje generado en base a las revisiones de críticos de cine.
+
+Ahora, la suposición incluida en esta consulta es que el público en general es un calificador más fácil que los críticos de cine.
+
+Estamos buscando documentos en nuestra colección de detalles de películas que tengan una `tomato.meter` mayor que 95 o una calificación metacrítica mayor de 88.
+
+Veamos la sintaxis aquí.
+
+`$or` toma como valor un array en la que especificamos selectores.
+
+En este caso, estamos usando más de 95 para el `tomato.meter` y más de 88 para el `metacritic`.
+
+Ahora ejecutemos esta consulta y echemos un vistazo a los resultados.
+
+Podemos ver que "Toy Story 3" en realidad coincide con ambos criterios.
+
+Tiene una calificación de `tomato.meter` mayor de 95 y una puntuación metacrítica mayor de 92.
+
+Y luego aquí hay uno en el que el público en general y los críticos estamos bastante separados en la calificación de esta película, este es el documento para el "Día de la Marmota".
+
+Entonces, de nuevo,`$or` toma un array como argumento.
+
+Los elementos del array son selectores.
+
+Cualquiera de los cuales puede ser cierto para que coincida con un documento que será devuelto por esta consulta.
+
+Ahora veamos el operador `$and`.
+
+Algo que quiero señalar sobre `$and` es que es necesario solo en ciertas situaciones.
+
+Por ejemplo, podríamos usar `$and` aquí y restringir los resultados a aquellas películas donde tanto el puntaje metacrítico como el puntaje del `tomato.meter` fueron altos.
+
+Veamos un ejemplo de eso.
+
+Así que ahora solo se nos devuelven películas en las que tanto el `tomato.meter` como los puntajes metacríticos son altos.
+
+Pero lo que hay que tener en cuenta es que el operador`$and` en esta consulta en particular es superfluo.
+
+La razón es que la consulta que acabamos de hacer aquí es equivalente a esta.
+
+Los selectores en un filtro ya están implícitamente unidos.
+
+Y podemos ver que si aplicamos esta consulta sin el uso de `$and` que obtenemos exactamente los mismos resultados de búsqueda.
+
+Entonces, ¿por qué hay un `$and` un operador?
+
+La razón es porque a veces necesitamos especificar el mismo campo más de una vez en un filtro.
+
+Si intentara hacer esto, usando solo un filtro simple, no obtendría los resultados deseados porque las claves en un documento JSON deben ser únicas.
+
+Por ejemplo, si nuestra consulta fuera esta, el último uso de la clave metacrítica sería el utilizado.
+
+El operador `$and` me permite especificar múltiples restricciones en el mismo campo en situaciones como esta donde necesito hacerlo.
+
+En este caso, necesitamos todos los documentos para los cuales metacrítico no es igual a nulo, pero existe.
+
+Recuerde que nulo coincidirá con las claves que realmente tienen el valor nulo y las que no contienen la clave en absoluto.
+
+Este tipo de consulta podría ser útil para una aplicación en la que sabemos que tenemos un poco de datos sucios donde posiblemente hay campos que tienen un valor metacrítico que es igual a nulo.
+
+Pero lo que realmente queremos es que todos nuestros valores metacríticos tengan un valor numérico de algún tipo.
+
+Y si ejecuto esto, entonces obtengo documentos donde existe el campo `metacritic` y donde tengo un valor distinto de nulo para ese campo.
+
+Y siempre podemos cambiar esto para ver solo documentos donde `metacritic` es nulo y el campo realmente existe.
+
+Ejecutemos esta consulta en su lugar.
+
+Ahora, en realidad no hay ningún documento de este tipo en esta colección.
+
+Y lo que quiero decir con eso es que, de hecho, no son documentos en los que el campo `metacritic` tenga un valor nulo.
+
+Así que creemos uno.
+
+Para esto, voy a ir a Compass.
+
+Y a pesar de que el documento que estamos buscando ya está aquí, me gustaría limitar el conjunto de resultados que estamos viendo solo a este documento.
+
+Aplicando ese filtro, vemos un documento devuelto y que de hecho es "Once Upon a Time in the West".
+
+Ahora, para crear un documento que tenga un valor nulo para `metacritic`, lo que voy a hacer aquí es usar el botón copiar documento que veo a la derecha de mi documento aquí en la interfaz de Compass.
+
+Eso muestra un modal con una copia de ese documento y me da la oportunidad de insertarlo.
+
+Pero antes de insertarlo, lo que quiero hacer es ir al campo `metacritic`, cambiar su valor a nulo y asegurarme de que también cambie su tipo a nulo.
+
+Entonces lo que haré es insertarlo.
+
+Pero primero, tenga en cuenta que no hay un `_id` para esta copia del documento.
+
+Cuando lo inserte, se creará otro valor de ID de puntaje para mí.
+
+Y ahora tengo dos documentos que tienen este título.
+
+El primero es el documento original.
+
+Y el segundo es mi copia con `metacritic` establecido en nulo.
+
+Ahora, si ejecuto esa misma consulta en un shell, podemos ver que coincidimos con el documento que acabamos de insertar.
+
+Antes de cerrar esta lección, volveré a Compass y eliminaré ese documento que inserté para limpiarlo después de mí mismo.
+
+Nuevamente, recuerde que `$and` se usa en situaciones en las que necesitamos especificar múltiples criterios en el mismo campo.
+
 ## 8. Examen
 
 ## 9. Tema: Operador de Array: `$all`
