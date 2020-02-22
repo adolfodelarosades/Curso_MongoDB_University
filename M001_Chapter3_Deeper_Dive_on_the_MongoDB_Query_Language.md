@@ -1147,25 +1147,199 @@ Solution:
 
 ### Transcripción
 
-Ahora veamos a los operadores para array-valued fields (campos con valores de array).
+Ahora veamos a los operadores para campos [array-valued](https://docs.mongodb.com/manual/reference/operator/query-array/index.html) (valores de array).
 
 Primero, veremos `$all`.
 
-`$all` hace coincidir los campos de la matriz con una matriz de elementos.
+`$all` hace coincidir los campos del array con un array de elementos.
 
-Para que un documento coincida con un filtro usando $ all, todos los elementos que estamos buscando deben incluirse en ese campo de matriz.
+Para que un documento coincida con un filtro usando `$all`, todos los elementos que estamos buscando deben incluirse en ese campo de array.
+
+```sh
+db.movieDetails.find({genres: {$all: ["Comedy", "Crime", "Drama"]}}, 
+                     {_id: 0, title: 1, genres: 1}).pretty()
+```
 
 Ahora no necesariamente tienen que estar en este orden, pero cada uno de estos debe ocurrir en el campo del género en este ejemplo.
 
-Así que aquí, estamos filtrando por documentos que han sido clasificados como pertenecientes a los géneros de comedia, crimen y drama.
+Así que aquí, estamos filtrando por documentos que han sido clasificados como pertenecientes a los géneros de `Comedy`, `Crime` y `Drama`.
 
-Teniendo en cuenta la sintaxis de $ all, tenga en cuenta que se especifica como el valor del campo que estaba buscando en nuestro filtro, y que $ all tiene, como valor, una matriz.
+Teniendo en cuenta la sintaxis de `$all`, tenga en cuenta que se especifica como el valor del campo que estaba buscando en nuestro filtro, y que `$all` tiene, como valor, un array.
 
 Y si intentamos esta consulta en el Shell de mongo, vemos que, de hecho, cada uno de los resultados de búsqueda contiene estos tres géneros en su campo de géneros.
 
-Tenga en cuenta también que si atenuamos un poco nuestra consulta y, en su lugar, buscamos películas que caigan en los géneros de comedia y drama, entonces vemos una mezcla de películas, todas las cuales tienen comedia y drama entre sus géneros, pero que también enumere otros géneros, ya sea romance, aventura, suspenso u otra cosa.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({genres: {$all: ["Comedy", "Crime", "Drama"]}}, 
+...                      {_id: 0, title: 1, genres: 1}).pretty()
+{ "title" : "Down by Law", "genres" : [ "Comedy", "Crime", "Drama" ] }
+{
+	"title" : "Tod den Hippies!! Es lebe der Punk!",
+	"genres" : [
+		"Comedy",
+		"Crime",
+		"Drama"
+	]
+}
+{ "title" : "Mr. Brooks", "genres" : [ "Comedy", "Crime", "Drama" ] }
+{
+	"title" : "Brødrene Dal og mysteriet med Karl XIIs gamasjer",
+	"genres" : [
+		"Comedy",
+		"Crime",
+		"Drama"
+	]
+}
+{ "title" : "O.K. Garage", "genres" : [ "Comedy", "Drama", "Crime" ] }
+{ "title" : "The Ax", "genres" : [ "Comedy", "Crime", "Drama" ] }
+{ "title" : "Ex Drummer", "genres" : [ "Comedy", "Crime", "Drama" ] }
+{
+	"title" : "Au revoir Taipei",
+	"genres" : [
+		"Comedy",
+		"Crime",
+		"Drama"
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY>
+```
 
-Entonces eso es $ todo.
+Tenga en cuenta también que si atenuamos un poco nuestra consulta y, en su lugar, buscamos películas que caigan en los géneros de `Comedy` y `Drama`, 
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({genres: {$all: ["Comedy", "Drama"]}}, 
+...                      {_id: 0, title: 1, genres: 1}).pretty()
+{
+	"title" : "Love Actually",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Shakespeare in Love",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Love & Other Drugs",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Punch-Drunk Love",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Show Me Love",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "There's No Business Like Show Business",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Musical"
+	]
+}
+{ "title" : "Dead Poets Society", "genres" : [ "Comedy", "Drama" ] }
+{ "title" : "The Kid", "genres" : [ "Comedy", "Drama", "Family" ] }
+{
+	"title" : "The Cowboy Way",
+	"genres" : [
+		"Action",
+		"Comedy",
+		"Drama"
+	]
+}
+{
+	"title" : "The Cowboy and the Lady",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Quick Gun Murugun: Misadventures of an Indian Cowboy",
+	"genres" : [
+		"Action",
+		"Comedy",
+		"Drama"
+	]
+}
+{
+	"title" : "Wild Tales",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Thriller"
+	]
+}
+{ "title" : "Down by Law", "genres" : [ "Comedy", "Crime", "Drama" ] }
+{
+	"title" : "Son in Law",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Law of Desire",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Thriller"
+	]
+}
+{
+	"title" : "Homeward Bound: The Incredible Journey",
+	"genres" : [
+		"Adventure",
+		"Comedy",
+		"Drama"
+	]
+}
+{ "title" : "City Island", "genres" : [ "Comedy", "Drama" ] }
+{ "title" : "Night on Earth", "genres" : [ "Comedy", "Drama" ] }
+{
+	"title" : "I Could Never Be Your Woman",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+{
+	"title" : "Murphy's Romance",
+	"genres" : [
+		"Comedy",
+		"Drama",
+		"Romance"
+	]
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+entonces vemos una mezcla de películas, todas las cuales tienen `Comedy` y `Drama` entre sus géneros, pero que también enumere otros géneros, ya sea `Romance`, `Adventure`, `Thriller` u otra cosa.
+
+Entonces esto es `$all`.
 
 ## 10. Examen
 
