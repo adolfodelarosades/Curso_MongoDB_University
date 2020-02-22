@@ -2814,6 +2814,22 @@ Connect to our class Atlas cluster from the mongo shell or Compass and view the 
 
 How many documents contain at least one score in the results array that is greater than or equal to 70 and less than 80?
 
+Enter answer here: 744
 
-Enter answer here:
+Solution:
 
+The answer is 744. You can find this answer in the mongo shell or in Compass.
+
+In the mongo shell, assuming you've connected to the M001 class Atlas cluster, you can issue the following commands to find this value.
+
+use results
+
+```sh
+db.scores.find({results: {$elemMatch: {$gte: 70, $lt: 80}}}).count()
+```
+
+In Compass, navigate to the results.scores collection and then apply the following filter in either the Schema or Documents view.
+
+```sh
+{results: {$elemMatch: {$gte: 70, $lt: 80}}}
+```
