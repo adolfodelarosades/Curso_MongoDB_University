@@ -2427,7 +2427,32 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY>
 
 Entonces ese es el operador `$elemMatch`.
 
-## 14. Examen
+## 14. Examen Array Operators: $elemMatch
+
+**Problem:**
+
+In the M001 class Atlas cluster you will find a database added just for this week of the course. It is called `results`. Within this database you will find two collections: `surveys` and `scores`. Documents in the `results.surveys` collection have the following schema.
+
+```js
+{_id: ObjectId("5964e8e5f0df64e7bc2d7373"),
+results: [{product: "abc", score: 10}, {product: "xyz", score: 9}]}
+```
+
+The field called `results` that has an array as its value. This array contains survey results for products and lists the product name and the survey score for each product.
+
+How many documents in the `results.surveys` collection contain a score of 7 for the product, "abc"?
+
+Choose the best answer:
+
+* 35
+
+* 124
+
+* 172
+
+* 220
+
+* 301
 
 ## 15. Tema: Operador `$regex`
 
