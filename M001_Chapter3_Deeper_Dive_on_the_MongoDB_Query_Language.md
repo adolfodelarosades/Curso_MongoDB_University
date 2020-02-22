@@ -1369,7 +1369,173 @@ Solution:
 
 ### Transcripción
 
-## 12. Examen
+Ahora echemos un vistazo a `$size`.
+
+Utilizamos `$size` para hacer coincidir los documentos en función de la longitud de un array.
+
+El campo `countries` en la colección de detalles de la película estipula el país en el que se filmó la película.
+
+En los casos en que la película se filmó en más de un país, verá varios países en la lista de países.
+
+<img src="/images/c3/11-countries.png">
+
+Esta consulta identificará las películas que se filmaron en un solo país, porque para el campo array de `countries` estamos especificando un filtro de modo que veamos en nuestros resultados de búsqueda que tienen un tamaño o longitud de uno para el array de `countries.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({countries: {$size: 1}}).pretty()
+{
+	"_id" : ObjectId("5e3fc385d519ebad6471fd9e"),
+	"title" : "A Million Ways to Die in the West",
+	"year" : 2014,
+	"rated" : "R",
+	"runtime" : 116,
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Comedy",
+		"Western"
+	],
+	"director" : "Seth MacFarlane",
+	"writers" : [
+		"Seth MacFarlane",
+		"Alec Sulkin",
+		"Wellesley Wild"
+	],
+	"actors" : [
+		"Seth MacFarlane",
+		"Charlize Theron",
+		"Amanda Seyfried",
+		"Liam Neeson"
+	],
+	"plot" : "As a cowardly farmer begins to fall for the mysterious new woman in town, he must put his new-found courage to the test when her husband, a notorious gun-slinger, announces his arrival.",
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTQ0NDcyNjg0MV5BMl5BanBnXkFtZTgwMzk4NTA4MTE@._V1_SX300.jpg",
+	"imdb" : {
+		"id" : "tt2557490",
+		"rating" : 6.1,
+		"votes" : 126592
+	},
+	"tomato" : {
+		"meter" : 33,
+		"image" : "rotten",
+		"rating" : 4.9,
+		"reviews" : 188,
+		"fresh" : 62,
+		"consensus" : "While it offers a few laughs and boasts a talented cast, Seth MacFarlane's overlong, aimless A Million Ways to Die in the West is a disappointingly scattershot affair.",
+		"userMeter" : 40,
+		"userRating" : 3,
+		"userReviews" : 62945
+	},
+	"metacritic" : 44,
+	"awards" : {
+		"wins" : 0,
+		"nominations" : 6,
+		"text" : "6 nominations."
+	},
+	"type" : "movie"
+}
+{
+	"_id" : ObjectId("5e3fc385d519ebad6471fd9f"),
+	"title" : "Wild Wild West",
+	"year" : 1999,
+	"rated" : "PG-13",
+	"runtime" : 106,
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Action",
+		"Western",
+		"Comedy"
+	],
+	"director" : "Barry Sonnenfeld",
+	"writers" : [
+		"Jim Thomas",
+		"John Thomas",
+		"S.S. Wilson",
+		"Brent Maddock",
+		"Jeffrey Price",
+		"Peter S. Seaman"
+	],
+	"actors" : [
+		"Will Smith",
+		"Kevin Kline",
+		"Kenneth Branagh",
+		"Salma Hayek"
+	],
+	"plot" : "The two best hired guns in the West must save President Grant from the clutches of a nineteenth-century inventor-villain.",
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BNDI5NDk5MjgxMl5BMl5BanBnXkFtZTcwNjI1MTUyMQ@@._V1_SX300.jpg",
+	"imdb" : {
+		"id" : "tt0120891",
+		"rating" : 4.8,
+		"votes" : 124558
+	},
+	"tomato" : {
+		"meter" : 17,
+		"image" : "rotten",
+		"rating" : 4.1,
+		"reviews" : 130,
+		"fresh" : 22,
+		"consensus" : "Bombastic, manic, and largely laugh-free, Wild Wild West is a bizarre misfire in which greater care was lavished upon the special effects than on the script.",
+		"userMeter" : 28,
+		"userRating" : 2.7,
+		"userReviews" : 463740
+	},
+	"metacritic" : 38,
+	"awards" : {
+		"wins" : 10,
+		"nominations" : 11,
+		"text" : "10 wins & 11 nominations."
+	},
+	"type" : "movie"
+}
+```
+
+Y si nos desplazamos por nuestros resultados, podemos ver que, de hecho, solo se incluye un país para cada uno de estos documentos.
+
+Contrastando esto con una serie de otras películas que hemos visto, si en lugar de mostrar los resultados que tenemos en cuenta, 
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({countries: {$size: 1}}).count()
+1915
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+podemos ver que 1,915 documentos en nuestra colección de detalles de películas tienen solo un país en la lista, 
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({}).count()
+2295
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+en comparación con los 2,295 documentos en toda la colección.
+
+Y ese es el `$size`.
+
+## 12. Examen Array Operators: `$size`
+
+**Problem:**
+
+Connect to our class Atlas cluster from the mongo shell or Compass and view the `100YWeatherSmall.data` collection. How many documents in this collection contain exactly two elements in the `sections` array field?
+
+Choose the best answer:
+
+* 114
+
+* 670
+
+* 2656 :+1:
+
+* 10700
+
+* 25678
+
+Solution:
+
+```sh
+{sections: {$size: 2}}
+```
 
 ## 13. Tema: Operador de Array: `$elemMatch`
 
