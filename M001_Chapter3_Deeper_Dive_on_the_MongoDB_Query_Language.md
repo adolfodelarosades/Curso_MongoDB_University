@@ -761,7 +761,7 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({viewerRating: {$typ
 
 Si desea revisar cómo filtrar otros tipos, consulte la documentación.
 
-Incluye una cobertura integral para todos los tipos de valor por los que puede filtrar, junto con detalles adicionales sobre el operador `$type`.
+Incluye una cobertura integral para todos los tipos de valor por los que puede filtrar, junto con detalles adicionales sobre el operador [`$type`](https://docs.mongodb.com/manual/reference/operator/query/type/).
 
 `$exists` y `$type` nos permiten hacer meta preguntas sobre los documentos de una colección y, por lo tanto, nos brindan algunas herramientas importantes para trabajar con el soporte de MongoDB para modelos de datos flexibles.
 
