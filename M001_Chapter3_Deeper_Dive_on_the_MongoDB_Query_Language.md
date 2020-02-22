@@ -2653,9 +2653,140 @@ Quiero ignorar, por ejemplo, cualquier documento donde el campo comience con la 
 
 Así que echemos un vistazo a eso.
 
-Y de hecho, hagamos esta versión proyectando el título y el campo de `premios.text`.
+Y de hecho, hagamos esta versión proyectando el título y el campo de `awards.text`.
+
+```js
+db.movieDetails.find({"awards.text": {$regex: /^Won .*/}}, {_id: 0, title: 1, "awards.text": 1}).pretty()
+```
 
 Y pueden ver que estamos recuperando el tipo de documentos que queremos, todos ganadores del Oscar.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({"awards.text": {$regex: /^Won .*/}}, {_id: 0, title: 1, "awards.text": 1}).pretty()
+{
+	"title" : "West Side Story",
+	"awards" : {
+		"text" : "Won 10 Oscars. Another 18 wins & 11 nominations."
+	}
+}
+{
+	"title" : "How the West Was Won",
+	"awards" : {
+		"text" : "Won 3 Oscars. Another 7 wins & 5 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode IV - A New Hope",
+	"awards" : {
+		"text" : "Won 6 Oscars. Another 38 wins & 27 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode V - The Empire Strikes Back",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 15 wins & 17 nominations."
+	}
+}
+{
+	"title" : "Star Trek",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 22 wins & 77 nominations."
+	}
+}
+{
+	"title" : "Shakespeare in Love",
+	"awards" : {
+		"text" : "Won 7 Oscars. Another 55 wins & 85 nominations."
+	}
+}
+{
+	"title" : "2001: A Space Odyssey",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 13 wins & 7 nominations."
+	}
+}
+{
+	"title" : "The Adventures of Robin Hood",
+	"awards" : {
+		"text" : "Won 3 Oscars. Another 2 wins & 2 nominations."
+	}
+}
+{
+	"title" : "The Adventures of Priscilla, Queen of the Desert",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 9 wins & 16 nominations."
+	}
+}
+{
+	"title" : "The Last Picture Show",
+	"awards" : {
+		"text" : "Won 2 Oscars. Another 16 wins & 22 nominations."
+	}
+}
+{
+	"title" : "The Greatest Show on Earth",
+	"awards" : {
+		"text" : "Won 2 Oscars. Another 4 wins & 5 nominations."
+	}
+}
+{
+	"title" : "Pirates of the Caribbean: Dead Man's Chest",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 41 wins & 48 nominations."
+	}
+}
+{
+	"title" : "Dead Poets Society",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 17 wins & 18 nominations."
+	}
+}
+{
+	"title" : "Alien",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 15 wins & 19 nominations."
+	}
+}
+{
+	"title" : "Butch Cassidy and the Sundance Kid",
+	"awards" : {
+		"text" : "Won 4 Oscars. Another 16 wins & 14 nominations."
+	}
+}
+{
+	"title" : "All Quiet on the Western Front",
+	"awards" : {
+		"text" : "Won 2 Oscars. Another 5 wins & 2 nominations."
+	}
+}
+{
+	"title" : "All Quiet on the Western Front",
+	"awards" : {
+		"text" : "Won 1 Golden Globe. Another 1 win & 6 nominations."
+	}
+}
+{
+	"title" : "Midnight Cowboy",
+	"awards" : {
+		"text" : "Won 3 Oscars. Another 24 wins & 15 nominations."
+	}
+}
+{
+	"title" : "The Cowboy and the Lady",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 2 nominations."
+	}
+}
+{
+	"title" : "Top Gun",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 9 wins & 5 nominations."
+	}
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 
 Entonces, ese es un ejemplo muy simple de usar el operador `$regex`.
 
