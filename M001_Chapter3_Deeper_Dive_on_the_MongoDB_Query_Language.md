@@ -1341,7 +1341,29 @@ entonces vemos una mezcla de películas, todas las cuales tienen `Comedy` y `Dra
 
 Entonces esto es `$all`.
 
-## 10. Examen
+## 10. Examen Array Operators: `$all`
+
+**Problem:**
+
+Connect to our class Atlas cluster from the mongo shell or Compass and view the `100YWeatherSmall.data` collection. The `sections` field in this collection identifies supplementary readings available in a given document by a three-character code. How many documents list: "AG1", "MD1", and "OA1" among the codes in their `sections` array. Your count should include all documents that include these three codes regardless of what other codes are also listed.
+
+Choose the best answer:
+
+* 2000
+
+* 9803
+
+* 10200 :+1+
+
+* 15442
+
+* 17348
+
+Solution:
+
+```sh
+{sections: {$all: ["AG1", "MD1", "OA1"]}}
+```
 
 ## 11. Tema: Operador de Array: `$size`
 
