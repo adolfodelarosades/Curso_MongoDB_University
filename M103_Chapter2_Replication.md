@@ -37,3 +37,91 @@ Conceptos básicos de replicación y administración de conjuntos de réplicas
 29. Examen
 30. Laboratorio - Preocupación de lectura y preferencias de lectura
 
+## 1. Tema: ¿Qué es la replicación?
+
+### Transcripción
+
+## 2. Examen
+
+## 3. Tema: Conjunto de réplicas MongoDB
+
+### Transcripción
+
+## 4. Examen
+
+## 5. Tema: Configuración de un conjunto de réplicas
+
+### Transcripción
+
+## 6. Examen
+
+## 7. Laboratorio: iniciar un conjunto de réplicas localmente
+
+## 8. Tema: Documento de configuración de replicación
+
+### Transcripción
+
+## 9. Examen
+
+## 10. Tema: Comandos de replicación
+
+### Transcripción
+
+## 11. Examen
+
+## 12. Tema: DB local: Parte 1
+
+### Transcripción
+
+## 13. Tema: DB local: Parte 2
+
+### Transcripción
+
+## 14. Examen
+
+## 15. Tema: reconfigurar un conjunto de réplicas en ejecución
+
+### Transcripción
+
+## 16. Examen
+
+## 17. Laboratorio: eliminar y volver a agregar un nodo
+
+## 18. Tema: Lee y escribe en un conjunto de réplicas
+
+### Transcripción
+
+## 19. Examen
+
+## 20. Tema: conmutación por error y elecciones
+
+### Transcripción
+
+## 21. Examen
+
+## 22. Tema: Escribir inquietudes: Parte 1
+
+### Transcripción
+
+## 23. Tema: Escribir inquietudes: Parte 2
+
+### Transcripción
+
+## 24. Examen
+
+## 25. Laboratorio: escribe con conmutación por error
+
+## 26. Tema: Leer preocupaciones
+
+### Transcripción
+
+## 27. Examen
+
+## 28. Tema: Leer preferencias
+
+### Transcripción
+
+## 29. Examen
+
+## 30. Laboratorio - Preocupación de lectura y preferencias de lectura
+
