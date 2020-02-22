@@ -2446,13 +2446,19 @@ Choose the best answer:
 
 * 35
 
-* 124
+* 124 :+1:
 
 * 172
 
 * 220
 
 * 301
+
+Solution:
+
+```js
+{results: {$elemMatch: {product: "abc", score: 7}}}
+```
 
 ## 15. Tema: Operador `$regex`
 
