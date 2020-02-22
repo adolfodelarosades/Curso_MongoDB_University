@@ -1549,15 +1549,27 @@ Para esto, me gustaría que imaginen que hemos agregado un campo más a nuestro 
 
 Ahora realmente no hemos hecho esto, pero supongamos que lo hicimos.
 
-Este campo, llamado `boxOffice`, refleja los ingresos de taquilla para todos los países en los que se lanzó una película.
+```sh
+boxOffice: [ { "country": "USA", "revenue": 228.4 },
+             { "country": "Australia", "revenue": 19.6 },
+             { "country": "UK", "revenue": 33.9 },
+             { "country": "Germany", "revenue": 16.2 },
+             { "country": "France", "revenue": 19.8 } ]
+```
+
+Este campo, llamado `boxOffice` (taquilla), refleja los ingresos de taquilla (box office revenue) para todos los países en los que se lanzó una película.
 
 Imagine que todos los documentos de nuestra colección de detalles de películas contengan dicha clave, y suponga que el valor de esta clave es un array con documentos incrustados como entradas.
 
 Cada elemento de array para `boxOffice`, enumera el país y los ingresos en millones para cada uno de esos países.
 
-Ahora supongamos que nos gustaría hacer coincidir todos los documentos donde los ingresos para el país Alemania son mayores de 17 millones.
+Ahora supongamos que nos gustaría hacer coincidir todos los documentos donde los ingresos para el país `Germany` son mayores de 17 millones.
 
-Tenga en cuenta que un documento de detalles de la película con los ingresos de taquilla enumerados aquí no coincidiría con esta consulta porque los ingresos enumerados para Alemania aquí son 16.2 millones, que obviamente es menos de 17 millones.
+```sh
+db.movieDetails.find({"boxOffice.country": "Germany", "boxOffice.revenue": {$gt: 17}})
+```
+
+Tenga en cuenta que un documento de detalles de la película con los ingresos de taquilla enumerados arriba `{ "country": "Germany", "revenue": 16.2 }` no coincidiría con esta consulta porque los ingresos enumerados para Alemania aquí son 16.2 millones, que obviamente es menos de 17 millones.
 
 Podríamos pensar que una consulta que satisfaga este objetivo sería algo como esto.
 
@@ -1585,6 +1597,118 @@ Por otra parte, recuerde que el shell es un intérprete de JavaScript.
 
 Voy a usar `findOne` para localizar la película, `The Martian`, y voy a asignar ese documento a esta variable, `martian`.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> martian = db.movieDetails.findOne({title: "The Martian"})
+{
+	"_id" : ObjectId("5e3fc386d519ebad64720693"),
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+	"genres" : [
+		"Adventure",
+		"Drama",
+		"Sci-Fi"
+	],
+	"director" : "Ridley Scott",
+	"writers" : [
+		"Drew Goddard",
+		"Andy Weir"
+	],
+	"actors" : [
+		"Matt Damon",
+		"Jessica Chastain",
+		"Kristen Wiig",
+		"Jeff Daniels"
+	],
+	"plot" : "During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.",
+	"imdb" : {
+		"id" : "tt3659388",
+		"rating" : 8.2,
+		"votes" : 187881
+	},
+	"tomato" : {
+		"meter" : 93,
+		"image" : "certified",
+		"rating" : 7.9,
+		"reviews" : 283,
+		"fresh" : 261,
+		"consensus" : "Smart, thrilling, and surprisingly funny, The Martian offers a faithful adaptation of the bestselling book that brings out the best in leading man Matt Damon and director Ridley Scott.",
+		"userMeter" : 92,
+		"userRating" : 4.3,
+		"userReviews" : 105024
+	},
+	"metacritic" : 80,
+	"type" : "movie",
+	"poster" : "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg",
+	"awards" : {
+		"wins" : 8,
+		"nominations" : 14,
+		"text" : "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+	},
+	"reviews" : [
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-12T09:00:00Z"),
+			"reviewer" : "Spencer H.",
+			"text" : "The Martian could have been a sad drama film, instead it was a ,hilarious film with a little bit of drama added to it. The Martian is what ,everybody wants from a space adventure. Ridley Scott can still make great ,movies and this is one of his best."
+		},
+		{
+			"rating" : 2.5,
+			"date" : ISODate("2016-01-12T07:00:00Z"),
+			"reviewer" : "Matthew Samuel",
+			"text" : "There have been better movies made about space, and there are ,elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ,and film cliches."
+		},
+		{
+			"rating" : 5,
+			"date" : ISODate("2016-01-13T09:00:00Z"),
+			"reviewer" : "Jarrad C",
+			"text" : "The Martian Review: There are some movies you know going into them that they're going to be great.,The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ,(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ,was happy that it ended)"
+		},
+		{
+			"rating" : 3,
+			"date" : ISODate("2016-01-14T08:00:00Z"),
+			"reviewer" : "hunterjt13",
+			"text" : "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ,about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ,out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ,significance that is both poignant and naively inspiring."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-15T09:00:00Z"),
+			"reviewer" : "Eugene B",
+			"text" : "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ,an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+		},
+		{
+			"rating" : 3.5,
+			"date" : ISODate("2016-01-16T10:00:00Z"),
+			"reviewer" : "Kevin M. W",
+			"text" : "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ,learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ,presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ,we'll overcome every adversity)."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-17T11:00:00Z"),
+			"reviewer" : "Drake T",
+			"text" : "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ,Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ,An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> martian
+{
+	"_id" : ObjectId("5e3fc386d519ebad64720693"),
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+...	
+```
+
 Entonces mi consulta fue exitosa.
 
 Y si simplemente escribo `martian`, el intérprete mostrará el valor de esta variable, que de hecho es esta película.
@@ -1597,11 +1721,283 @@ Lo que haré eventualmente es insertar una versión de este documento que conten
 
 Y no quiero obtener un error de `_id` duplicado, así que voy a eliminar ese campo de mi objeto `martian`.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> delete martian._id
+true
+MongoDB Enterprise Cluster0-shard-0:PRIMARY>
+```
+
 Ahora, si vuelvo a mirar este documento, puedo ver que el campo `_id` ha sido eliminado.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> martian
+{
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+	"genres" : [
+		"Adventure",
+		"Drama",
+		"Sci-Fi"
+	],
+	"director" : "Ridley Scott",
+	"writers" : [
+		"Drew Goddard",
+		"Andy Weir"
+	],
+	"actors" : [
+		"Matt Damon",
+		"Jessica Chastain",
+		"Kristen Wiig",
+		"Jeff Daniels"
+	],
+	"plot" : "During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.",
+	"imdb" : {
+		"id" : "tt3659388",
+		"rating" : 8.2,
+		"votes" : 187881
+	},
+	"tomato" : {
+		"meter" : 93,
+		"image" : "certified",
+		"rating" : 7.9,
+		"reviews" : 283,
+		"fresh" : 261,
+		"consensus" : "Smart, thrilling, and surprisingly funny, The Martian offers a faithful adaptation of the bestselling book that brings out the best in leading man Matt Damon and director Ridley Scott.",
+		"userMeter" : 92,
+		"userRating" : 4.3,
+		"userReviews" : 105024
+	},
+	"metacritic" : 80,
+	"type" : "movie",
+	"poster" : "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg",
+	"awards" : {
+		"wins" : 8,
+		"nominations" : 14,
+		"text" : "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+	},
+	"reviews" : [
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-12T09:00:00Z"),
+			"reviewer" : "Spencer H.",
+			"text" : "The Martian could have been a sad drama film, instead it was a ,hilarious film with a little bit of drama added to it. The Martian is what ,everybody wants from a space adventure. Ridley Scott can still make great ,movies and this is one of his best."
+		},
+		{
+			"rating" : 2.5,
+			"date" : ISODate("2016-01-12T07:00:00Z"),
+			"reviewer" : "Matthew Samuel",
+			"text" : "There have been better movies made about space, and there are ,elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ,and film cliches."
+		},
+		{
+			"rating" : 5,
+			"date" : ISODate("2016-01-13T09:00:00Z"),
+			"reviewer" : "Jarrad C",
+			"text" : "The Martian Review: There are some movies you know going into them that they're going to be great.,The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ,(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ,was happy that it ended)"
+		},
+		{
+			"rating" : 3,
+			"date" : ISODate("2016-01-14T08:00:00Z"),
+			"reviewer" : "hunterjt13",
+			"text" : "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ,about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ,out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ,significance that is both poignant and naively inspiring."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-15T09:00:00Z"),
+			"reviewer" : "Eugene B",
+			"text" : "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ,an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+		},
+		{
+			"rating" : 3.5,
+			"date" : ISODate("2016-01-16T10:00:00Z"),
+			"reviewer" : "Kevin M. W",
+			"text" : "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ,learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ,presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ,we'll overcome every adversity)."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-17T11:00:00Z"),
+			"reviewer" : "Drake T",
+			"text" : "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ,Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ,An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Ahora, lo que me gustaría hacer es agregar un campo `boxOffice` al asunto simplemente configurando `boxOffice` igual a este array, y tenga en cuenta que este array es la misma que hemos estado viendo en este ejemplo.
 
+```sh
+martian.boxOffice = [
+    {"country": "USA", "revenue": 228.4},
+    {"country": "Australia", "revenue": 19.6},
+    {"country": "UK", "revenue": 33.9},
+    {"country": "Germany", "revenue": 16.2},
+    {"country": "France", "revenue": 19.8}
+]
+```
+
+```
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> martian.boxOffice = [
+...     {"country": "USA", "revenue": 228.4},
+...     {"country": "Australia", "revenue": 19.6},
+...     {"country": "UK", "revenue": 33.9},
+...     {"country": "Germany", "revenue": 16.2},
+...     {"country": "France", "revenue": 19.8}
+... ]
+[
+	{
+		"country" : "USA",
+		"revenue" : 228.4
+	},
+	{
+		"country" : "Australia",
+		"revenue" : 19.6
+	},
+	{
+		"country" : "UK",
+		"revenue" : 33.9
+	},
+	{
+		"country" : "Germany",
+		"revenue" : 16.2
+	},
+	{
+		"country" : "France",
+		"revenue" : 19.8
+	}
+]
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Ahora, si vuelvo a mirar mi documento `martian`, puedo ver que de hecho tiene un campo `boxOffice` con cada uno de los elementos que hemos estado viendo.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> martian
+{
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+	"genres" : [
+		"Adventure",
+		"Drama",
+		"Sci-Fi"
+	],
+	"director" : "Ridley Scott",
+	"writers" : [
+		"Drew Goddard",
+		"Andy Weir"
+	],
+	"actors" : [
+		"Matt Damon",
+		"Jessica Chastain",
+		"Kristen Wiig",
+		"Jeff Daniels"
+	],
+	"plot" : "During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.",
+	"imdb" : {
+		"id" : "tt3659388",
+		"rating" : 8.2,
+		"votes" : 187881
+	},
+	"tomato" : {
+		"meter" : 93,
+		"image" : "certified",
+		"rating" : 7.9,
+		"reviews" : 283,
+		"fresh" : 261,
+		"consensus" : "Smart, thrilling, and surprisingly funny, The Martian offers a faithful adaptation of the bestselling book that brings out the best in leading man Matt Damon and director Ridley Scott.",
+		"userMeter" : 92,
+		"userRating" : 4.3,
+		"userReviews" : 105024
+	},
+	"metacritic" : 80,
+	"type" : "movie",
+	"poster" : "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg",
+	"awards" : {
+		"wins" : 8,
+		"nominations" : 14,
+		"text" : "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+	},
+	"reviews" : [
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-12T09:00:00Z"),
+			"reviewer" : "Spencer H.",
+			"text" : "The Martian could have been a sad drama film, instead it was a ,hilarious film with a little bit of drama added to it. The Martian is what ,everybody wants from a space adventure. Ridley Scott can still make great ,movies and this is one of his best."
+		},
+		{
+			"rating" : 2.5,
+			"date" : ISODate("2016-01-12T07:00:00Z"),
+			"reviewer" : "Matthew Samuel",
+			"text" : "There have been better movies made about space, and there are ,elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ,and film cliches."
+		},
+		{
+			"rating" : 5,
+			"date" : ISODate("2016-01-13T09:00:00Z"),
+			"reviewer" : "Jarrad C",
+			"text" : "The Martian Review: There are some movies you know going into them that they're going to be great.,The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ,(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ,was happy that it ended)"
+		},
+		{
+			"rating" : 3,
+			"date" : ISODate("2016-01-14T08:00:00Z"),
+			"reviewer" : "hunterjt13",
+			"text" : "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ,about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ,out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ,significance that is both poignant and naively inspiring."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-15T09:00:00Z"),
+			"reviewer" : "Eugene B",
+			"text" : "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ,an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+		},
+		{
+			"rating" : 3.5,
+			"date" : ISODate("2016-01-16T10:00:00Z"),
+			"reviewer" : "Kevin M. W",
+			"text" : "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ,learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ,presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ,we'll overcome every adversity)."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-17T11:00:00Z"),
+			"reviewer" : "Drake T",
+			"text" : "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ,Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ,An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+		}
+	],
+	"boxOffice" : [
+		{
+			"country" : "USA",
+			"revenue" : 228.4
+		},
+		{
+			"country" : "Australia",
+			"revenue" : 19.6
+		},
+		{
+			"country" : "UK",
+			"revenue" : 33.9
+		},
+		{
+			"country" : "Germany",
+			"revenue" : 16.2
+		},
+		{
+			"country" : "France",
+			"revenue" : 19.8
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 
 Así que ahora hemos actualizado este objeto en la memoria para contener el campo `boxOffice`.
 
@@ -1609,27 +2005,293 @@ Insertemos esto en nuestra colección de detalles de películas.
 
 Para esto, vamos a utilizar el método `insertOne`, y podemos ver en la respuesta que nuestra inserción fue exitosa.
 
-Y aquí está el `ObjectId` del documento recién insertado.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.insertOne(martian)
+{
+	"acknowledged" : true,
+	"insertedId" : ObjectId("5e51799f4af81827a8ba2cbe")
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y aquí está el `ObjectId("5e51799f4af81827a8ba2cbe")` del documento recién insertado .
 
 Podemos verificar esto nuevamente, y haciendo una búsqueda rápida de la película, `The Martian`.
+
+<img src="/images/c3/13-the-martian.png">
 
 Aquí podemos ver que tenemos dos documentos devueltos, y que el segundo de ellos contiene nuestro array `boxOffice`.
 
 Ahora, si probamos nuestra consulta que no usa `$elemMatch`, podemos ver que coincide con nuestro documento recién creado.
 
-De hecho, incluso coincidirá con esta consulta porque hay una entrada en el array `boxOffice`, la de EE. UU., Que es mayor que 228.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({"boxOffice.country": "Germany", "boxOffice.revenue": {$gt: 17}}).pretty()
+{
+	"_id" : ObjectId("5e51799f4af81827a8ba2cbe"),
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+	"genres" : [
+		"Adventure",
+		"Drama",
+		"Sci-Fi"
+	],
+	"director" : "Ridley Scott",
+	"writers" : [
+		"Drew Goddard",
+		"Andy Weir"
+	],
+	"actors" : [
+		"Matt Damon",
+		"Jessica Chastain",
+		"Kristen Wiig",
+		"Jeff Daniels"
+	],
+	"plot" : "During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.",
+	"imdb" : {
+		"id" : "tt3659388",
+		"rating" : 8.2,
+		"votes" : 187881
+	},
+	"tomato" : {
+		"meter" : 93,
+		"image" : "certified",
+		"rating" : 7.9,
+		"reviews" : 283,
+		"fresh" : 261,
+		"consensus" : "Smart, thrilling, and surprisingly funny, The Martian offers a faithful adaptation of the bestselling book that brings out the best in leading man Matt Damon and director Ridley Scott.",
+		"userMeter" : 92,
+		"userRating" : 4.3,
+		"userReviews" : 105024
+	},
+	"metacritic" : 80,
+	"type" : "movie",
+	"poster" : "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg",
+	"awards" : {
+		"wins" : 8,
+		"nominations" : 14,
+		"text" : "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+	},
+	"reviews" : [
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-12T09:00:00Z"),
+			"reviewer" : "Spencer H.",
+			"text" : "The Martian could have been a sad drama film, instead it was a ,hilarious film with a little bit of drama added to it. The Martian is what ,everybody wants from a space adventure. Ridley Scott can still make great ,movies and this is one of his best."
+		},
+		{
+			"rating" : 2.5,
+			"date" : ISODate("2016-01-12T07:00:00Z"),
+			"reviewer" : "Matthew Samuel",
+			"text" : "There have been better movies made about space, and there are ,elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ,and film cliches."
+		},
+		{
+			"rating" : 5,
+			"date" : ISODate("2016-01-13T09:00:00Z"),
+			"reviewer" : "Jarrad C",
+			"text" : "The Martian Review: There are some movies you know going into them that they're going to be great.,The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ,(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ,was happy that it ended)"
+		},
+		{
+			"rating" : 3,
+			"date" : ISODate("2016-01-14T08:00:00Z"),
+			"reviewer" : "hunterjt13",
+			"text" : "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ,about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ,out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ,significance that is both poignant and naively inspiring."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-15T09:00:00Z"),
+			"reviewer" : "Eugene B",
+			"text" : "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ,an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+		},
+		{
+			"rating" : 3.5,
+			"date" : ISODate("2016-01-16T10:00:00Z"),
+			"reviewer" : "Kevin M. W",
+			"text" : "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ,learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ,presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ,we'll overcome every adversity)."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-17T11:00:00Z"),
+			"reviewer" : "Drake T",
+			"text" : "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ,Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ,An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+		}
+	],
+	"boxOffice" : [
+		{
+			"country" : "USA",
+			"revenue" : 228.4
+		},
+		{
+			"country" : "Australia",
+			"revenue" : 19.6
+		},
+		{
+			"country" : "UK",
+			"revenue" : 33.9
+		},
+		{
+			"country" : "Germany",
+			"revenue" : 16.2
+		},
+		{
+			"country" : "France",
+			"revenue" : 19.8
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+De hecho, incluso coincidirá con esta consulta 
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({"boxOffice.country": "Germany", "boxOffice.revenue": {$gt: 228}}).pretty()
+{
+	"_id" : ObjectId("5e51799f4af81827a8ba2cbe"),
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+	"genres" : [
+		"Adventure",
+		"Drama",
+		"Sci-Fi"
+	],
+	"director" : "Ridley Scott",
+	"writers" : [
+		"Drew Goddard",
+		"Andy Weir"
+	],
+	"actors" : [
+		"Matt Damon",
+		"Jessica Chastain",
+		"Kristen Wiig",
+		"Jeff Daniels"
+	],
+	"plot" : "During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.",
+	"imdb" : {
+		"id" : "tt3659388",
+		"rating" : 8.2,
+		"votes" : 187881
+	},
+	"tomato" : {
+		"meter" : 93,
+		"image" : "certified",
+		"rating" : 7.9,
+		"reviews" : 283,
+		"fresh" : 261,
+		"consensus" : "Smart, thrilling, and surprisingly funny, The Martian offers a faithful adaptation of the bestselling book that brings out the best in leading man Matt Damon and director Ridley Scott.",
+		"userMeter" : 92,
+		"userRating" : 4.3,
+		"userReviews" : 105024
+	},
+	"metacritic" : 80,
+	"type" : "movie",
+	"poster" : "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg",
+	"awards" : {
+		"wins" : 8,
+		"nominations" : 14,
+		"text" : "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+	},
+	"reviews" : [
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-12T09:00:00Z"),
+			"reviewer" : "Spencer H.",
+			"text" : "The Martian could have been a sad drama film, instead it was a ,hilarious film with a little bit of drama added to it. The Martian is what ,everybody wants from a space adventure. Ridley Scott can still make great ,movies and this is one of his best."
+		},
+		{
+			"rating" : 2.5,
+			"date" : ISODate("2016-01-12T07:00:00Z"),
+			"reviewer" : "Matthew Samuel",
+			"text" : "There have been better movies made about space, and there are ,elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ,and film cliches."
+		},
+		{
+			"rating" : 5,
+			"date" : ISODate("2016-01-13T09:00:00Z"),
+			"reviewer" : "Jarrad C",
+			"text" : "The Martian Review: There are some movies you know going into them that they're going to be great.,The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ,(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ,was happy that it ended)"
+		},
+		{
+			"rating" : 3,
+			"date" : ISODate("2016-01-14T08:00:00Z"),
+			"reviewer" : "hunterjt13",
+			"text" : "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ,about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ,out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ,significance that is both poignant and naively inspiring."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-15T09:00:00Z"),
+			"reviewer" : "Eugene B",
+			"text" : "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ,an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+		},
+		{
+			"rating" : 3.5,
+			"date" : ISODate("2016-01-16T10:00:00Z"),
+			"reviewer" : "Kevin M. W",
+			"text" : "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ,learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ,presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ,we'll overcome every adversity)."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-17T11:00:00Z"),
+			"reviewer" : "Drake T",
+			"text" : "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ,Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ,An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+		}
+	],
+	"boxOffice" : [
+		{
+			"country" : "USA",
+			"revenue" : 228.4
+		},
+		{
+			"country" : "Australia",
+			"revenue" : 19.6
+		},
+		{
+			"country" : "UK",
+			"revenue" : 33.9
+		},
+		{
+			"country" : "Germany",
+			"revenue" : 16.2
+		},
+		{
+			"country" : "France",
+			"revenue" : 19.8
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+porque hay una entrada en el array `boxOffice`, la de USA, Que es mayor que 228.
 
 Esto demuestra que necesitamos usar `$elemMatch` para realizar este tipo de filtro correctamente.
 
 Así es como lo hacemos.
 
-Tenga en cuenta que cuando publico esta consulta, no se devuelven resultados.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({boxOffice: {$elemMatch: {"country": "Germany", "revenue": {$gt: 17}}}})
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Tenga en cuenta que cuando ejecuto esta consulta, no se devuelven resultados.
 
 Hablemos un poco al respecto.
 
 Esta consulta no devuelve ningún resultado porque está haciendo lo correcto.
 
-Está filtrando documentos que tienen un solo elemento en el array `boxOffice` que enumera el valor de Alemania para el país y un valor de ingresos que es mayor que 17.
+Está filtrando documentos que tienen un solo elemento en el array `boxOffice` que enumera el valor de `Germany` para el país y un valor de ingresos(revenue) que es mayor que 17.
 
 Y de nuevo, son 17 millones.
 
@@ -1637,7 +2299,131 @@ Entonces, la sintaxis aquí es especificar el campo en el que desea filtrar.
 
 `$elemMatch` espera un documento como su valor, y dentro de ese documento usted especifica selectores que luego se utilizarán para identificar al menos un elemento en este array que coincida con todos estos criterios.
 
-Ahora encontraremos el marciano si cambiamos nuestra consulta para buscar ingresos de taquilla alemanes mayores de 16 millones porque hay un elemento en el array de `boxOffice` donde el país es Alemania, y los ingresos son mayores de 16.
+Ahora encontraremos el marciano si cambiamos nuestra consulta para buscar ingresos de taquilla alemanes mayores de 16 millones porque hay un elemento en el array de `boxOffice` donde el país es `Germany`, y los ingresos son mayores de 16.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({boxOffice: {$elemMatch: {"country": "Germany", "revenue": {$gt: 16}}}}).pretty()
+{
+	"_id" : ObjectId("5e51799f4af81827a8ba2cbe"),
+	"title" : "The Martian",
+	"year" : 2015,
+	"rated" : "PG-13",
+	"runtime" : 144,
+	"countries" : [
+		"USA",
+		"UK"
+	],
+	"genres" : [
+		"Adventure",
+		"Drama",
+		"Sci-Fi"
+	],
+	"director" : "Ridley Scott",
+	"writers" : [
+		"Drew Goddard",
+		"Andy Weir"
+	],
+	"actors" : [
+		"Matt Damon",
+		"Jessica Chastain",
+		"Kristen Wiig",
+		"Jeff Daniels"
+	],
+	"plot" : "During a manned mission to Mars, Astronaut Mark Watney is presumed dead after a fierce storm and left behind by his crew. But Watney has survived and finds himself stranded and alone on the hostile planet. With only meager supplies, he must draw upon his ingenuity, wit and spirit to subsist and find a way to signal to Earth that he is alive.",
+	"imdb" : {
+		"id" : "tt3659388",
+		"rating" : 8.2,
+		"votes" : 187881
+	},
+	"tomato" : {
+		"meter" : 93,
+		"image" : "certified",
+		"rating" : 7.9,
+		"reviews" : 283,
+		"fresh" : 261,
+		"consensus" : "Smart, thrilling, and surprisingly funny, The Martian offers a faithful adaptation of the bestselling book that brings out the best in leading man Matt Damon and director Ridley Scott.",
+		"userMeter" : 92,
+		"userRating" : 4.3,
+		"userReviews" : 105024
+	},
+	"metacritic" : 80,
+	"type" : "movie",
+	"poster" : "https://m.media-amazon.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SY1000_CR0,0,675,1000_AL_.jpg",
+	"awards" : {
+		"wins" : 8,
+		"nominations" : 14,
+		"text" : "Nominated for 3 Golden Globes. Another 8 wins & 14 nominations."
+	},
+	"reviews" : [
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-12T09:00:00Z"),
+			"reviewer" : "Spencer H.",
+			"text" : "The Martian could have been a sad drama film, instead it was a ,hilarious film with a little bit of drama added to it. The Martian is what ,everybody wants from a space adventure. Ridley Scott can still make great ,movies and this is one of his best."
+		},
+		{
+			"rating" : 2.5,
+			"date" : ISODate("2016-01-12T07:00:00Z"),
+			"reviewer" : "Matthew Samuel",
+			"text" : "There have been better movies made about space, and there are ,elements of the film that are borderline amateur, such as weak dialogue, an uneven tone, ,and film cliches."
+		},
+		{
+			"rating" : 5,
+			"date" : ISODate("2016-01-13T09:00:00Z"),
+			"reviewer" : "Jarrad C",
+			"text" : "The Martian Review: There are some movies you know going into them that they're going to be great.,The Martian was not only great but exceeded all my expectations as well. A return to form from director Ridley Scott ,(Alien, Blade Runner) who directed last year's abysmal 'Exodus: Gods and Kings (which I adeptly gave 1/5 because I ,was happy that it ended)"
+		},
+		{
+			"rating" : 3,
+			"date" : ISODate("2016-01-14T08:00:00Z"),
+			"reviewer" : "hunterjt13",
+			"text" : "An astronaut/botanist is stranded on Mars and must rely upon ingenuity to survive. It's hard to divorce my opinions ,about this film from my opinions of the book, for after the film I thought that they had adapted the book but left ,out all the good parts. The cut that bleeds most is the final chapter, which gives the whole story a philosophical ,significance that is both poignant and naively inspiring."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-15T09:00:00Z"),
+			"reviewer" : "Eugene B",
+			"text" : "This novel-adaptation is humorous, intelligent and captivating in all its visual-grandeur. The Martian highlights ,an impeccable Matt Damon, power-stacked ensemble and Ridley Scott's masterful direction, which is back in full form."
+		},
+		{
+			"rating" : 3.5,
+			"date" : ISODate("2016-01-16T10:00:00Z"),
+			"reviewer" : "Kevin M. W",
+			"text" : "Personable sci-fi flick from Ridley Scott that updates the old Robinson Crusoe stuck on a desert isle (and how he ,learns to survive) trope. First off, make that a deserted planet. Mars. And the background and the hope this film ,presents is grounded on is our quest to reach beyond the limits of Earth's gravity (and so it loudly parades that ,we'll overcome every adversity)."
+		},
+		{
+			"rating" : 4.5,
+			"date" : ISODate("2016-01-17T11:00:00Z"),
+			"reviewer" : "Drake T",
+			"text" : "A declaration of love for the potato, science and the indestructible will to survive. While it clearly is the Matt ,Damon show (and he is excellent), the supporting cast may be among the strongest seen on film in the last 10 years. ,An engaging, exciting, funny and beautifully filmed adventure thriller no one should miss."
+		}
+	],
+	"boxOffice" : [
+		{
+			"country" : "USA",
+			"revenue" : 228.4
+		},
+		{
+			"country" : "Australia",
+			"revenue" : 19.6
+		},
+		{
+			"country" : "UK",
+			"revenue" : 33.9
+		},
+		{
+			"country" : "Germany",
+			"revenue" : 16.2
+		},
+		{
+			"country" : "France",
+			"revenue" : 19.8
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 
 Entonces ese es el operador `$elemMatch`.
 
