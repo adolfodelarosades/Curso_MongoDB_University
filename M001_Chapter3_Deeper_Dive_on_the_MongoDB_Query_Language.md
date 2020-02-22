@@ -2464,4 +2464,68 @@ Solution:
 
 ### Transcripción
 
+MongoDB admite un operador de consulta que nos permite usar expresiones regulares para unir campos con valores de cadena.
+
+Si está buscando una búsqueda de texto más completa, le recomiendo que vea el operador de texto y los índices de texto completo.
+
+La búsqueda de texto completo está fuera del alcance de este curso, pero lo menciono aquí porque está relacionado con `$regex` y puede ser de su interés.
+
+Ahora, para usar el operador `$regex`, debe tener una comprensión bastante buena de las expresiones regulares, pero es importante que sepa que este operador existe para las situaciones en las que las expresiones regulares tienen sentido para una aplicación.
+
+Ahora en nuestra colección de detalles de películas, los documentos tienen un campo de premios que tiene como valor un documento incrustado con un campo llamado texto.
+
+Este texto describe los premios que ha recibido una película determinada.
+
+Y para este conjunto de datos en particular dada la forma en que se generó, si una película tiene uno o fue nominado para un Oscar, verá que se refleja en la primera palabra de este campo de texto.
+
+Este campo tiene un cierto patrón que sigue al informar sobre los premios para películas, y podemos ver eso reflejado si solo hacemos un poco de proyección en toda la colección.
+
+Entonces, lo que voy a hacer es ejecutar una consulta de búsqueda, y todos estaban ejecutando esta consulta fina para hacer esta proyección.
+
+La forma en que lo hacemos es simplemente especificando un documento vacío como nuestro filtro.
+
+Este documento vacío coincidirá con todos los documentos de la colección.
+
+Entonces, para las películas ganadoras del Oscar, tendemos a ver la palabra uno primero y nominadas primero para las películas nominadas al Oscar.
+
+Ahora hay algunas otras palabras que siguen el mismo patrón, pero para los propósitos de este ejemplo, sigamos adelante y usemos el hecho de que los premios Oscar están estipulados de esta manera.
+
+Aquí tenemos un ejemplo del uso del operador `$regex`.
+
+Si no está familiarizado con las expresiones regulares, esta sintaxis probablemente sea un poco confusa, pero lo aclararemos.
+
+Una explicación completa de las expresiones regulares está fuera del alcance de esta lección en particular, pero esencialmente estas barras delimitan la expresión regular.
+
+El símbolo de intercalación aquí significa comenzar desde el principio de cualquier campo que estemos haciendo coincidir, en este caso, con el campo `awards.text`.
+
+Al comienzo del valor de ese campo, queremos hacer coincidir exactamente una `W` mayúscula, una `O` minúscula, una `N` minúscula.
+
+Entonces este punto es un comodín.
+
+Se estipula que deberíamos hacer coincidir cualquier carácter, y luego con el asterisco aquí estamos haciendo coincidir cualquier carácter varias veces.
+
+En resumen, con lo que esta expresión regular coincide es la palabra ganada al comienzo del campo de texto para el documento incrustado de premios.
+
+Y no nos importa lo que viene después de que la palabra ganó.
+
+Puede ser cualquier cosa.
+
+Y lo que realmente necesito hacer aquí es hacer esto un poco más preciso, y poner un espacio aquí para indicar que debe haber un espacio después de que la palabra ganó.
+
+Quiero ignorar, por ejemplo, cualquier documento donde el campo comience con la palabra maravilla o alguna otra palabra que tenga estas tres letras al principio.
+
+Así que echemos un vistazo a eso.
+
+Y de hecho, hagamos esta versión proyectando el título y el campo de `premios.text`.
+
+Y pueden ver que estamos recuperando el tipo de documentos que queremos, todos ganadores del Oscar.
+
+Entonces, ese es un ejemplo muy simple de usar el operador `$regex`.
+
+Si tiene un caso de uso en el que las expresiones regulares son importantes, es donde tiene un campo de cadena y desea hacer coincidir documentos que tienen un patrón particular de texto en ese campo, el operador `$regex` es el que debe usar.
+
+Y si tiene ese caso de uso, le recomiendo que profundice en el uso de este operador.
+
+Hay una gran flexibilidad allí.
+
 ## 16. Problema de desafío: Valor Único en un Array de Integers
