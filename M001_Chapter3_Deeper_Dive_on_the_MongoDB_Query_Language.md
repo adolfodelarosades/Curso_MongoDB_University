@@ -466,7 +466,6 @@ Using the `$in` operator, filter the `video.movieDetails` collection to determin
 
 Choose the best answer:
 
-
 * 0
 
 * 3 :+1:
@@ -508,21 +507,49 @@ Así que echemos un vistazo a un ejemplo de `$exist` primero.
 
 Para esto, veremos nuevamente el clúster Atlas clase M001 y la colección `video.movies`.
 
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/100YWeatherSmall?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show dbs
+100YWeatherSmall  0.128GB
+admin             0.000GB
+aggregations      0.067GB
+citibike          0.367GB
+city              0.002GB
+config            0.000GB
+coursera-agg      0.083GB
+local             0.940GB
+mflix             0.449GB
+results           0.000GB
+ships             0.001GB
+video             0.513GB
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+movies
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 Dentro de la colección de películas, tenemos bastantes películas antiguas.
 
 Muchas de estas películas son anteriores al sistema de clasificación de películas MPAA.
 
-Lo que podríamos querer hacer con una aplicación es probar la existencia de una calificación.
+Lo que podríamos querer hacer con una aplicación es probar la existencia de una calificación(rating).
 
 Aquí en Compass, me he conectado al grupo de clase Atlas.
 
-Filtremos por documentos que contengan un campo de calificación MPAA.
+Filtremos por documentos que contengan el campo de calificación MPAA `{mpaaRating: {$exists: true}}`.
 
-Entonces, la sintaxis de `$exist` es que especificamos que la clave estaba interesada en probar la existencia de.
+Entonces, la sintaxis de `$exist` es que especificamos la clave(key) en la que estamos interesados en probar su existencia.
 
-Y como el valor de esa clave en nuestro filtro, proporcionamos un documento que tiene `$exist` como clave y un valor de verdadero o falso.
+Y como el valor de esa clave en nuestro filtro, proporcionamos un documento que tiene `$exist` como key y un valor de verdadero o falso.
 
 Si el valor que especificamos aquí es verdadero, entonces haremos coincidir los documentos que contienen esta clave.
+
+<img src="/images/c3/5-exists-true.png">
 
 Y si es falso, haremos coincidir los documentos que no contienen la clave.
 
@@ -530,7 +557,9 @@ Tenga en cuenta que los documentos que contienen la clave de calificación MPAA 
 
 Hagamos lo contrario ahora y establezca `$exist` en false.
 
-Ahora podemos ver que las películas recuperadas en respuesta a esta consulta no contienen ningún campo de calificación MPAA.
+<img src="/images/c3/5-exists-false.png">
+
+Ahora podemos ver que las películas recuperadas en respuesta a esta consulta no contienen ningún campo de calificación MPAA (`mpaaRating`).
 
 Si nos desplazamos a través de la vista de esquema, vemos que aquí, donde debería aparecer la calificación MPAA, no es así.
 
@@ -542,45 +571,199 @@ No es un valor que se usa comúnmente en bases de datos relacionales para filas 
 
 Y para este ejemplo, vamos a cambiar rápidamente a nuestro clúster de sandbox Atlas y echar un vistazo a la colección de detalles de la película.
 
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+MongoDB shell version v4.2.2
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show dbs
+admin               0.000GB
+local               1.635GB
+sample_airbnb       0.053GB
+sample_geospatial   0.001GB
+sample_mflix        0.042GB
+sample_supplies     0.001GB
+sample_training     0.068GB
+sample_weatherdata  0.004GB
+video               0.002GB
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+movieDetails
+moviesScratch
+reviews
+```
+
 Algunos usuarios de MongoDB prefieren incluir una clave y simplemente establecer su valor en nulo para documentos que no tienen valor para ese campo.
 
-Para admitir consultas de valores nulos, si filtra algo como esto, tomate.consensus nulo, este filtro coincidirá con ambos documentos que tienen explícitamente el valor establecido en nulo, como vemos en este documento, y aquellos que no contienen la clave tomate.consensus, como vemos en este documento, que no solo no tiene tomate.consensus sino que no tiene el período de campo de tomate.
+Para admitir consultas de valores nulos, si filtra algo como esto, `{"tomato.consensus": null})`, este filtro coincidirá con ambos documentos que tienen explícitamente el valor establecido en nulo, como vemos en este documento, 
 
-Para las colecciones que contienen documentos con valores nulos para algunos campos, inevitablemente se encontrará con esto.
+```sh
+...
+"imdb" : {
+		"id" : "tt0073629",
+		"rating" : 7.4,
+		"votes" : 97249
+	},
+	"tomato" : {
+		"meter" : 80,
+		"image" : "fresh",
+		"rating" : 6.8,
+		"reviews" : 41,
+		"fresh" : 33,
+		"consensus" : null,
+		"userMeter" : 85,
+		"userRating" : 3.6,
+		"userReviews" : 364776
+	},
+	"metacritic" : 58,
+	"awards" : {
+		"wins" : 2,
+		"nominations" : 4,
+		"text" : "2 wins & 4 nominations."
+	},
+...
+```
+
+y aquellos que no contienen la clave `tomate.consensus`, como vemos en este documento, 
+
+```sh
+"imdb" : {
+		"id" : "tt0067328",
+		"rating" : 8.1,
+		"votes" : 29830
+	},
+	"awards" : {
+		"wins" : 16,
+		"nominations" : 22,
+		"text" : "Won 2 Oscars. Another 16 wins & 22 nominations."
+	},
+	"type" : "movie"
+```
+
+que no solo no tiene `tomate.consensus` sino que no tiene el campo período de `tomato` (tomato field period).
+
+**Para las colecciones que contienen documentos con valores nulos para algunos campos, inevitablemente se encontrará con esto.**
 
 Así que mantente atento.
 
-Ahora echemos un vistazo al operador $ type.
+Ahora echemos un vistazo al operador `$type`.
 
-Seguiremos trabajando con nuestra colección video.movies para nuestro ejemplo.
+Seguiremos trabajando con nuestra colección `video.movies` para nuestro ejemplo.
 
-Echa un vistazo al campo de calificación del espectador.
+Echa un vistazo al campo de calificación del espectador (`viewerRating`).
 
-Lo que vemos aquí en la vista de esquema para video.movies es que el tipo de valor para la calificación del espectador realmente depende del documento que veamos.
+<img src="/images/c3/5-viewer-rating.png">
 
-Algunos tienen un tipo de valor para doble, algunos tienen un tipo de valor de Int32, otros tienen un tipo de valor de indefinido.
+Lo que vemos aquí en la vista de esquema para `video.movies` es que el tipo de valor para la calificación del espectador realmente depende del documento que veamos.
 
-Podemos filtrar los documentos que tienen un tipo de valor particular para un campo utilizando el operador $ type.
+Algunos tienen un tipo de valor para doble, algunos tienen un tipo de valor de Int32, otros tienen un tipo de valor de indefinido (`undefined`).
+
+Podemos filtrar los documentos que tienen un tipo de valor particular para un campo utilizando el operador `$type`.
 
 Veamos un ejemplo.
 
-Y para esto, me gustaría volver al caparazón de Mongo.
+Y para esto, me gustaría volver al Shell de Mongo.
 
 Aquí tengo un shell conectado al clúster Atlas clase M001.
 
+
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/100YWeatherSmall?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show dbs
+100YWeatherSmall  0.128GB
+admin             0.000GB
+aggregations      0.067GB
+citibike          0.367GB
+city              0.002GB
+config            0.000GB
+coursera-agg      0.083GB
+local             0.940GB
+mflix             0.449GB
+results           0.000GB
+ships             0.001GB
+video             0.513GB
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+movies
+
+```
+
 Con este comando, nuestro filtro solo coincidirá con los documentos de la colección video.movies que tengan un valor para viewerRating que sea un entero de 32 bits.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({viewerRating: {$type: "int"}}).pretty()
+{
+	"_id" : ObjectId("58c59c6d99d4ee0af9e13851"),
+	"title" : "El derrumbamiento del Ejèrcito Rojo",
+	"year" : 1939,
+	"imdbId" : "tt0030050",
+	"genre" : "Documentary, War",
+	"viewerRating" : 1,
+	"viewerVotes" : 6,
+	"runtime" : 72,
+	"director" : "Antonio Calvache",
+	"cast" : [
+		"Miguel Cabanellas",
+		"Conde de Rodezno",
+		"Von Faupel",
+		"Raimundo Fern�ndez Cuesta"
+	]
+}
+{
+	"_id" : ObjectId("58c59c7299d4ee0af9e1e322"),
+	"title" : "Godfather's Fury",
+	"year" : 1978,
+	"imdbId" : "tt0077619",
+	"genre" : "Adventure, Crime",
+	"viewerRating" : 1,
+....
+```
 
 Y podemos ver que en cada uno de estos documentos, la clasificación del espectador es, de hecho, un número entero.
 
-Puedo voltear esto y buscar solo dobles en su lugar.
+Puedo cambiar esto y buscar solo `doubles` en su lugar.
 
 Y aquí podemos ver que estos son valores de coma flotante.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({viewerRating: {$type: "double"}}).pretty()
+{
+	"_id" : ObjectId("58c59c7199d4ee0af9e1d3ea"),
+	"title" : "Ich denk', mich tritt ein Pferd",
+	"year" : 1975,
+	"imdbId" : "tt0073143",
+	"genre" : "",
+	"viewerRating" : 1.1,
+	"viewerVotes" : 28,
+	"runtime" : 91,
+	"director" : "Theo Maria Werner",
+	"cast" : [
+		"Uschi Glas",
+		"Michael Cramer",
+		"Susi Engel",
+		"Barbara Nielsen"
+	],
+	"language" : "German"
+}
+{
+	"_id" : ObjectId("58c59c7699d4ee0af9e2625b"),
+	"title" : "Die Tunnelgangster von Berlin",
+	"year" : 1996,
+	"imdbId" : "tt0114744",
+	"genre" : "Crime, Thriller",
+	"viewerRating" : 1.1,
+...
+```
+
 Si desea revisar cómo filtrar otros tipos, consulte la documentación.
 
-Incluye una cobertura integral para todos los tipos de valor por los que puede filtrar, junto con detalles adicionales sobre el operador $ type.
+Incluye una cobertura integral para todos los tipos de valor por los que puede filtrar, junto con detalles adicionales sobre el operador `$type`.
 
-$ existe y $ type nos permiten hacer meta preguntas sobre los documentos de una colección y, por lo tanto, nos brindan algunas herramientas importantes para trabajar con el soporte de MongoDB para modelos de datos flexibles.
+`$exists` y `$type` nos permiten hacer meta preguntas sobre los documentos de una colección y, por lo tanto, nos brindan algunas herramientas importantes para trabajar con el soporte de MongoDB para modelos de datos flexibles.
 
 ## 6. Examen
 
