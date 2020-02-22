@@ -1133,13 +1133,39 @@ Choose the best answer:
 
 * 2000
 
-* 2331
+* 2331 :+1:
 
 * 3105
+
+Solution:
+
+```sh
+{$or: [{watlev: "always dry"},{depth: 0}]}
+```
 
 ## 9. Tema: Operador de Array: `$all`
 
 ### Transcripción
+
+Ahora veamos a los operadores para array-valued fields (campos con valores de array).
+
+Primero, veremos `$all`.
+
+`$all` hace coincidir los campos de la matriz con una matriz de elementos.
+
+Para que un documento coincida con un filtro usando $ all, todos los elementos que estamos buscando deben incluirse en ese campo de matriz.
+
+Ahora no necesariamente tienen que estar en este orden, pero cada uno de estos debe ocurrir en el campo del género en este ejemplo.
+
+Así que aquí, estamos filtrando por documentos que han sido clasificados como pertenecientes a los géneros de comedia, crimen y drama.
+
+Teniendo en cuenta la sintaxis de $ all, tenga en cuenta que se especifica como el valor del campo que estaba buscando en nuestro filtro, y que $ all tiene, como valor, una matriz.
+
+Y si intentamos esta consulta en el Shell de mongo, vemos que, de hecho, cada uno de los resultados de búsqueda contiene estos tres géneros en su campo de géneros.
+
+Tenga en cuenta también que si atenuamos un poco nuestra consulta y, en su lugar, buscamos películas que caigan en los géneros de comedia y drama, entonces vemos una mezcla de películas, todas las cuales tienen comedia y drama entre sus géneros, pero que también enumere otros géneros, ya sea romance, aventura, suspenso u otra cosa.
+
+Entonces eso es $ todo.
 
 ## 10. Examen
 
