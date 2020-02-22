@@ -1119,7 +1119,23 @@ Antes de cerrar esta lección, volveré a Compass y eliminaré ese documento que
 
 Nuevamente, recuerde que `$and` se usa en situaciones en las que necesitamos especificar múltiples criterios en el mismo campo.
 
-## 8. Examen
+## 8. Examen Logical Operators
+
+**Problem:**
+
+Connect to our class Atlas cluster from the mongo shell or Compass and view the `ships.shipwrecks` collection. In this collection, `watlev` describes the water level at the shipwreck site and `depth` describes how far below sea level the ship rests. How many documents in the `ships.shipwrecks` collection match either of the following criteria: `watlev` equal to "always dry" or `depth` equal to 0.
+
+Choose the best answer:
+
+* 501
+
+* 1644
+
+* 2000
+
+* 2331
+
+* 3105
 
 ## 9. Tema: Operador de Array: `$all`
 
