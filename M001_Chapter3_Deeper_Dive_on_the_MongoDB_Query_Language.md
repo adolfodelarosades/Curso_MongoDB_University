@@ -1541,6 +1541,106 @@ Solution:
 
 ### Transcripción
 
+Uno de los operadores de consulta más potentes para un aumento es `$elemMatch`.
+
+Para considerar un ejemplo de `$elemMatch`, tendremos que rascarnos un poco la cabeza.
+
+Para esto, me gustaría que imaginen que hemos agregado un campo más a nuestro conjunto de datos de detalles de la película.
+
+Ahora realmente no hemos hecho esto, pero supongamos que lo hicimos.
+
+Este campo, llamado `boxOffice`, refleja los ingresos de taquilla para todos los países en los que se lanzó una película.
+
+Imagine que todos los documentos de nuestra colección de detalles de películas contengan dicha clave, y suponga que el valor de esta clave es un array con documentos incrustados como entradas.
+
+Cada elemento de array para `boxOffice`, enumera el país y los ingresos en millones para cada uno de esos países.
+
+Ahora supongamos que nos gustaría hacer coincidir todos los documentos donde los ingresos para el país Alemania son mayores de 17 millones.
+
+Tenga en cuenta que un documento de detalles de la película con los ingresos de taquilla enumerados aquí no coincidiría con esta consulta porque los ingresos enumerados para Alemania aquí son 16.2 millones, que obviamente es menos de 17 millones.
+
+Podríamos pensar que una consulta que satisfaga este objetivo sería algo como esto.
+
+Donde simplemente especificamos `boxOffice.country` como Alemania y `boxOffice.revenue` como mayor que 17.
+
+Nuevamente, dada la forma en que configuramos `boxOffice`, en realidad son 17 millones.
+
+Ahora este filtro recuperará documentos que coincidan con estos dos selectores.
+
+Sin embargo, los selectores no necesitan coincidir en el mismo elemento de array.
+
+Entonces, un documento que tenga este array como su valor para `boxOffice` coincidiría porque hay un elemento para el que el país es Alemania aquí, y otro elemento para el cual los ingresos son mayores a 17.
+
+Y, de hecho, todos los demás elementos de este array tienen un valor que es mayor que 17.
+
+Veamos un ejemplo.
+
+Voy a crear un solo documento en nuestra colección de detalles de películas con un campo `boxOffice`.
+
+Ir a nuestro shell mongo, y aquí estoy conectado a mi clúster de sandbox Atlas.
+
+Voy a usar la base de datos de `video`.
+
+Por otra parte, recuerde que el shell es un intérprete de JavaScript.
+
+Voy a usar `findOne` para localizar la película, `The Martian`, y voy a asignar ese documento a esta variable, `martian`.
+
+Entonces mi consulta fue exitosa.
+
+Y si simplemente escribo `martian`, el intérprete mostrará el valor de esta variable, que de hecho es esta película.
+
+Entonces, ahora en el shell en la memoria, tengo un objeto que refleja la película, `The Martian`, de nuestra colección de detalles de la película, y una referencia a ese objeto en mi variable `martian`.
+
+Ahora este documento contiene un `_id`.
+
+Lo que haré eventualmente es insertar una versión de este documento que contenga el campo `boxOffice`.
+
+Y no quiero obtener un error de `_id` duplicado, así que voy a eliminar ese campo de mi objeto `martian`.
+
+Ahora, si vuelvo a mirar este documento, puedo ver que el campo `_id` ha sido eliminado.
+
+Ahora, lo que me gustaría hacer es agregar un campo `boxOffice` al asunto simplemente configurando `boxOffice` igual a este array, y tenga en cuenta que este array es la misma que hemos estado viendo en este ejemplo.
+
+Ahora, si vuelvo a mirar mi documento `martian`, puedo ver que de hecho tiene un campo `boxOffice` con cada uno de los elementos que hemos estado viendo.
+
+Así que ahora hemos actualizado este objeto en la memoria para contener el campo `boxOffice`.
+
+Insertemos esto en nuestra colección de detalles de películas.
+
+Para esto, vamos a utilizar el método `insertOne`, y podemos ver en la respuesta que nuestra inserción fue exitosa.
+
+Y aquí está el `ObjectId` del documento recién insertado.
+
+Podemos verificar esto nuevamente, y haciendo una búsqueda rápida de la película, `The Martian`.
+
+Aquí podemos ver que tenemos dos documentos devueltos, y que el segundo de ellos contiene nuestro array `boxOffice`.
+
+Ahora, si probamos nuestra consulta que no usa `$elemMatch`, podemos ver que coincide con nuestro documento recién creado.
+
+De hecho, incluso coincidirá con esta consulta porque hay una entrada en el array `boxOffice`, la de EE. UU., Que es mayor que 228.
+
+Esto demuestra que necesitamos usar `$elemMatch` para realizar este tipo de filtro correctamente.
+
+Así es como lo hacemos.
+
+Tenga en cuenta que cuando publico esta consulta, no se devuelven resultados.
+
+Hablemos un poco al respecto.
+
+Esta consulta no devuelve ningún resultado porque está haciendo lo correcto.
+
+Está filtrando documentos que tienen un solo elemento en el array `boxOffice` que enumera el valor de Alemania para el país y un valor de ingresos que es mayor que 17.
+
+Y de nuevo, son 17 millones.
+
+Entonces, la sintaxis aquí es especificar el campo en el que desea filtrar.
+
+`$elemMatch` espera un documento como su valor, y dentro de ese documento usted especifica selectores que luego se utilizarán para identificar al menos un elemento en este array que coincida con todos estos criterios.
+
+Ahora encontraremos el marciano si cambiamos nuestra consulta para buscar ingresos de taquilla alemanes mayores de 16 millones porque hay un elemento en el array de `boxOffice` donde el país es Alemania, y los ingresos son mayores de 16.
+
+Entonces ese es el operador `$elemMatch`.
+
 ## 14. Examen
 
 ## 15. Tema: Operador `$regex`
