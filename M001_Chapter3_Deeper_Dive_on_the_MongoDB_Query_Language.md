@@ -2464,6 +2464,10 @@ Solution:
 
 ### Transcripción
 
+[Evaluation](https://docs.mongodb.com/manual/reference/operator/query/#evaluation)
+[Evaluation Query Operators](https://docs.mongodb.com/manual/reference/operator/query-evaluation/)
+[`$regex`](https://docs.mongodb.com/manual/reference/operator/query/regex/index.html)
+
 MongoDB admite un operador de consulta que nos permite usar expresiones regulares para unir campos con valores de cadena.
 
 Si está buscando una búsqueda de texto más completa, le recomiendo que vea el operador de texto y los índices de texto completo.
@@ -2472,13 +2476,23 @@ La búsqueda de texto completo está fuera del alcance de este curso, pero lo me
 
 Ahora, para usar el operador `$regex`, debe tener una comprensión bastante buena de las expresiones regulares, pero es importante que sepa que este operador existe para las situaciones en las que las expresiones regulares tienen sentido para una aplicación.
 
-Ahora en nuestra colección de detalles de películas, los documentos tienen un campo de premios que tiene como valor un documento incrustado con un campo llamado texto.
+Ahora en nuestra colección de detalles de películas, los documentos tienen un campo de premios que tiene como valor un documento incrustado con un campo llamado `text`.
+
+<img src="/images/c3/15-west.png">
 
 Este texto describe los premios que ha recibido una película determinada.
+
+```js
+text: "Won 10 Oscars. Another 18 wins & 11 nominations."
+```
 
 Y para este conjunto de datos en particular dada la forma en que se generó, si una película tiene uno o fue nominado para un Oscar, verá que se refleja en la primera palabra de este campo de texto.
 
 Este campo tiene un cierto patrón que sigue al informar sobre los premios para películas, y podemos ver eso reflejado si solo hacemos un poco de proyección en toda la colección.
+
+```js
+db.movieDetails.find({}, {_id: 0, "title": 1, "awards.text": 1}).pretty()
+```
 
 Entonces, lo que voy a hacer es ejecutar una consulta de búsqueda, y todos estaban ejecutando esta consulta fina para hacer esta proyección.
 
@@ -2486,33 +2500,156 @@ La forma en que lo hacemos es simplemente especificando un documento vacío como
 
 Este documento vacío coincidirá con todos los documentos de la colección.
 
-Entonces, para las películas ganadoras del Oscar, tendemos a ver la palabra uno primero y nominadas primero para las películas nominadas al Oscar.
+```js
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({}, {_id: 0, "title": 1, "awards.text": 1}).pretty()
+{
+	"title" : "Once Upon a Time in the West",
+	"awards" : {
+		"text" : "4 wins & 5 nominations."
+	}
+}
+{
+	"title" : "A Million Ways to Die in the West",
+	"awards" : {
+		"text" : "6 nominations."
+	}
+}
+{
+	"title" : "Wild Wild West",
+	"awards" : {
+		"text" : "10 wins & 11 nominations."
+	}
+}
+{
+	"title" : "West Side Story",
+	"awards" : {
+		"text" : "Won 10 Oscars. Another 18 wins & 11 nominations."
+	}
+}
+{
+	"title" : "Slow West",
+	"awards" : {
+		"text" : "2 wins & 9 nominations."
+	}
+}
+{
+	"title" : "An American Tail: Fievel Goes West",
+	"awards" : {
+		"text" : ""
+	}
+}
+{ "title" : "Red Rock West", "awards" : { "text" : "3 nominations." } }
+{
+	"title" : "How the West Was Won",
+	"awards" : {
+		"text" : "Won 3 Oscars. Another 7 wins & 5 nominations."
+	}
+}
+{
+	"title" : "Journey to the West",
+	"awards" : {
+		"text" : "1 win & 12 nominations."
+	}
+}
+{
+	"title" : "West of Memphis",
+	"awards" : {
+		"text" : "Nominated for 1 BAFTA Film Award. Another 9 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode IV - A New Hope",
+	"awards" : {
+		"text" : "Won 6 Oscars. Another 38 wins & 27 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode V - The Empire Strikes Back",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 15 wins & 17 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode VI - Return of the Jedi",
+	"awards" : {
+		"text" : "Nominated for 4 Oscars. Another 15 wins & 15 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode I - The Phantom Menace",
+	"awards" : {
+		"text" : "Nominated for 3 Oscars. Another 17 wins & 59 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode III - Revenge of the Sith",
+	"awards" : {
+		"text" : "Nominated for 1 Oscar. Another 21 wins & 49 nominations."
+	}
+}
+{
+	"title" : "Star Trek",
+	"awards" : {
+		"text" : "Won 1 Oscar. Another 22 wins & 77 nominations."
+	}
+}
+{
+	"title" : "Star Wars: Episode II - Attack of the Clones",
+	"awards" : {
+		"text" : "Nominated for 1 Oscar. Another 13 wins & 47 nominations."
+	}
+}
+{
+	"title" : "Star Trek Into Darkness",
+	"awards" : {
+		"text" : "Nominated for 1 Oscar. Another 6 wins & 44 nominations."
+	}
+}
+{
+	"title" : "Star Trek: First Contact",
+	"awards" : {
+		"text" : "Nominated for 1 Oscar. Another 8 wins & 19 nominations."
+	}
+}
+{
+	"title" : "Star Trek II: The Wrath of Khan",
+	"awards" : {
+		"text" : "2 wins & 9 nominations."
+	}
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Entonces, para las películas ganadoras del Oscar, tendemos a ver la palabra `Won` primero o `Nominated` primero para las películas nominadas al Oscar.
 
 Ahora hay algunas otras palabras que siguen el mismo patrón, pero para los propósitos de este ejemplo, sigamos adelante y usemos el hecho de que los premios Oscar están estipulados de esta manera.
 
 Aquí tenemos un ejemplo del uso del operador `$regex`.
 
+```js
+db.movieDetails.find({"awards.text": {$regex: /^Won.*/}}).pretty()
+```
+
 Si no está familiarizado con las expresiones regulares, esta sintaxis probablemente sea un poco confusa, pero lo aclararemos.
 
-Una explicación completa de las expresiones regulares está fuera del alcance de esta lección en particular, pero esencialmente estas barras delimitan la expresión regular.
+Una explicación completa de las expresiones regulares está fuera del alcance de esta lección en particular, pero esencialmente estas barras delimitan la expresión regular ("/ /").
 
-El símbolo de intercalación aquí significa comenzar desde el principio de cualquier campo que estemos haciendo coincidir, en este caso, con el campo `awards.text`.
+El símbolo de "caret" (^) aquí significa comenzar desde el principio de cualquier campo que estemos haciendo coincidir, en este caso, con el campo `awards.text`.
 
 Al comienzo del valor de ese campo, queremos hacer coincidir exactamente una `W` mayúscula, una `O` minúscula, una `N` minúscula.
 
-Entonces este punto es un comodín.
+El punto (.) es un comodín. Se estipula que deberíamos hacer coincidir cualquier carácter, y luego con el asterisco ( * ) aquí estamos haciendo coincidir cualquier carácter varias veces.
 
-Se estipula que deberíamos hacer coincidir cualquier carácter, y luego con el asterisco aquí estamos haciendo coincidir cualquier carácter varias veces.
+En resumen, con lo que esta expresión regular `/^Won.* /` coincide es con la palabra `Won` al comienzo del campo `text` para el documento incrustado de `awards`.
 
-En resumen, con lo que esta expresión regular coincide es la palabra ganada al comienzo del campo de texto para el documento incrustado de premios.
-
-Y no nos importa lo que viene después de que la palabra ganó.
+Y no nos importa lo que viene después de que la palabra `Won`.
 
 Puede ser cualquier cosa.
 
-Y lo que realmente necesito hacer aquí es hacer esto un poco más preciso, y poner un espacio aquí para indicar que debe haber un espacio después de que la palabra ganó.
+Y lo que realmente necesito hacer aquí es hacer esto un poco más preciso, y poner un espacio aquí `/^Won.* /` para indicar que debe haber un espacio después de que la palabra `Won`.
 
-Quiero ignorar, por ejemplo, cualquier documento donde el campo comience con la palabra maravilla o alguna otra palabra que tenga estas tres letras al principio.
+Quiero ignorar, por ejemplo, cualquier documento donde el campo comience con la palabra `Wonder` o alguna otra palabra que tenga estas tres letras al principio.
 
 Así que echemos un vistazo a eso.
 
