@@ -2830,6 +2830,9 @@ db.scores.find({results: {$elemMatch: {$gte: 70, $lt: 80}}}).count()
 
 In Compass, navigate to the results.scores collection and then apply the following filter in either the Schema or Documents view.
 
+<img src="/images/c3/16-problem.png">
+
+
 ```sh
 {results: {$elemMatch: {$gte: 70, $lt: 80}}}
 ```
