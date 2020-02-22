@@ -794,7 +794,7 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY>
 
 ### Transcripción
 
-En esta lección, vamos a considerar operadores lógicos.
+En esta lección, vamos a considerar [Operadores Lógicos](https://docs.mongodb.com/manual/reference/operator/query-logical/index.html).
 
 En particular, nos vamos a centrar en `$or` y `$and`.
 
@@ -804,27 +804,103 @@ Pero en esta lección, vamos a ver solo `$or` y `$and`.
 
 Echemos un vistazo a un ejemplo usando el operador `$or`.
 
-Lo que vamos a hacer aquí es buscar documentos basados en su calificación(rating) utilizando tanto el medidor de tomate (tomato meter), que es producido por las revisiones del público en general que se preocupa por comentar, como el metacrítico (metacritic), que es un puntaje generado en base a las revisiones de críticos de cine.
+Lo que vamos a hacer aquí es buscar documentos basados en su calificación(rating) utilizando tanto el `tomato.meter`, que es producido por las revisiones del público en general que se preocupa por comentar, como el `metacritic`, que es un puntaje generado en base a las revisiones de críticos de cine.
 
 Ahora, la suposición incluida en esta consulta es que el público en general es un calificador más fácil que los críticos de cine.
 
-Estamos buscando documentos en nuestra colección de detalles de películas que tengan una `tomato.meter` mayor que 95 o una calificación metacrítica mayor de 88.
+Estamos buscando documentos en nuestra colección `movieDetails` que tengan una `tomato.meter` mayor que 95 o una calificación `metacritic` mayor de 88.
 
 Veamos la sintaxis aquí.
 
-`$or` toma como valor un array en la que especificamos selectores.
+```js
+db.movieDetails.find({$or: [{"tomato.meter": {$gt: 95}},                               
+                            {"metacritic": {$gt: 88}}]},
+                     {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+```
 
-En este caso, estamos usando más de 95 para el `tomato.meter` y más de 88 para el `metacritic`.
+`$or` toma como valor un array en el que especificamos selectores.
+
+En este caso, estamos usando mayor de 95 para el `tomato.meter` y mayor de 88 para el `metacritic`.
 
 Ahora ejecutemos esta consulta y echemos un vistazo a los resultados.
 
-Podemos ver que "Toy Story 3" en realidad coincide con ambos criterios.
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+MongoDB shell version v4.2.2
+connecting to: mongodb://cluster0-shard-00-00-3bh0e.mongodb.net:27017,cluster0-shard-00-01-3bh0e.mongodb.net:27017,cluster0-shard-00-02-3bh0e.mongodb.net:27017/test?authSource=admin&compressors=disabled&gssapiServiceName=mongodb&replicaSet=Cluster0-shard-0&ssl=true
+2020-02-22T15:49:31.194+0100 I  NETWORK  [js] Starting new replica set monitor for Cluster0-shard-0/cluster0-shard-00-00-3bh0e.mongodb.net:27017,cluster0-shard-00-01-3bh0e.mongodb.net:27017,cluster0-shard-00-02-3bh0e.mongodb.net:27017
+2020-02-22T15:49:31.195+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-00-3bh0e.mongodb.net:27017
+2020-02-22T15:49:31.195+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-01-3bh0e.mongodb.net:27017
+2020-02-22T15:49:31.195+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-02-3bh0e.mongodb.net:27017
+2020-02-22T15:49:31.446+0100 I  NETWORK  [ReplicaSetMonitor-TaskExecutor] Confirmed replica set for Cluster0-shard-0 is Cluster0-shard-0/cluster0-shard-00-00-3bh0e.mongodb.net:27017,cluster0-shard-00-01-3bh0e.mongodb.net:27017,cluster0-shard-00-02-3bh0e.mongodb.net:27017
+Implicit session: session { "id" : UUID("35e9a66a-5d5d-4c22-8af1-0bcf1d9efc38") }
+MongoDB server version: 4.2.3
+Error while trying to show server startup warnings: user is not allowed to do action [getLog] on [admin.]
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show dbs
+admin               0.000GB
+local               1.635GB
+sample_airbnb       0.053GB
+sample_geospatial   0.001GB
+sample_mflix        0.042GB
+sample_supplies     0.001GB
+sample_training     0.068GB
+sample_weatherdata  0.004GB
+video               0.002GB
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use video
+switched to db video
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+movieDetails
+moviesScratch
+reviews
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({$or: [{"tomato.meter": {$gt: 95}},                       
+...                                                                      {"metacritic": {$gt: 88}}]},
+...                                                               {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+{ "title" : "Once Upon a Time in the West", "tomato" : { "meter" : 98 }, "metacritic" : 80 }
+{ "title" : "Star Wars: Episode IV - A New Hope", "tomato" : { "meter" : 94 }, "metacritic" : 92 }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "tomato" : { "meter" : 99 }, "metacritic" : 96 }
+{ "title" : "2001: A Space Odyssey", "tomato" : { "meter" : 96 }, "metacritic" : 86 }
+{ "title" : "The Adventures of Robin Hood", "tomato" : { "meter" : 100 }, "metacritic" : 97 }
+{ "title" : "The Truman Show", "tomato" : { "meter" : 94 }, "metacritic" : 90 }
+{ "title" : "Quiz Show", "tomato" : { "meter" : 96 }, "metacritic" : 88 }
+{ "title" : "Evil Dead II", "tomato" : { "meter" : 98 }, "metacritic" : 69 }
+{ "title" : "Alien", "tomato" : { "meter" : 97 }, "metacritic" : 83 }
+{ "title" : "The Kid with a Bike", "tomato" : { "meter" : 96 }, "metacritic" : 87 }
+{ "title" : "Drugstore Cowboy", "tomato" : { "meter" : 100 }, "metacritic" : 82 }
+{ "title" : "Raiders of the Lost Ark", "tomato" : { "meter" : 96 }, "metacritic" : 90 }
+{ "title" : "Lost in Translation", "tomato" : { "meter" : 95 }, "metacritic" : 89 }
+{ "title" : "Big", "tomato" : { "meter" : 97 }, "metacritic" : 72 }
+{ "title" : "Groundhog Day", "tomato" : { "meter" : 96 }, "metacritic" : 72 }
+{ "title" : "The Night of the Hunter", "tomato" : { "meter" : 98 }, "metacritic" : 99 }
+{ "title" : "Toy Story", "tomato" : { "meter" : 100 }, "metacritic" : 92 }
+{ "title" : "Toy Story 3", "tomato" : { "meter" : 99 }, "metacritic" : 92 }
+{ "title" : "Toy Story 2", "tomato" : { "meter" : 100 }, "metacritic" : 88 }
+{ "title" : "The Straight Story", "tomato" : { "meter" : 96 }, "metacritic" : 86 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
 
-Tiene una calificación de `tomato.meter` mayor de 95 y una puntuación metacrítica mayor de 92.
+```
 
-Y luego aquí hay uno en el que el público en general y los críticos estamos bastante separados en la calificación de esta película, este es el documento para el "Día de la Marmota".
+Podemos ver que "Toy Story 3" en realidad coincide con ambos criterios .
+
+```js
+{ "title" : "Toy Story 3", "tomato" : { "meter" : 99 }, "metacritic" : 92 }
+```
+
+Tiene una calificación de `tomato.meter` mayor de 95 y una puntuación `metacritic` mayor de 92.
+
+Y luego aquí hay uno en el que el público en general y los críticos estamos bastante separados en la calificación de esta película, este es el documento para el "Día de la Marmota (Groundhog Day)".
+
+```js
+{ "title" : "Groundhog Day", "tomato" : { "meter" : 96 }, "metacritic" : 72 }
+```
 
 Entonces, de nuevo,`$or` toma un array como argumento.
+
+```js
+db.movieDetails.find({$or: [{"tomato.meter": {$gt: 95}},                               
+                            {"metacritic": {$gt: 88}}]},
+                     {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+```
 
 Los elementos del array son selectores.
 
@@ -834,43 +910,161 @@ Ahora veamos el operador `$and`.
 
 Algo que quiero señalar sobre `$and` es que es necesario solo en ciertas situaciones.
 
-Por ejemplo, podríamos usar `$and` aquí y restringir los resultados a aquellas películas donde tanto el puntaje metacrítico como el puntaje del `tomato.meter` fueron altos.
+Por ejemplo, podríamos usar `$and` aquí y restringir los resultados a aquellas películas donde tanto el puntaje `metacritic` como el puntaje del `tomato.meter` fueron altos.
+
+```js
+db.movieDetails.find({$and: [{"tomato.meter": {$gt: 95}},                               
+                             {"metacritic": {$gt: 88}}]},
+                     {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+```
 
 Veamos un ejemplo de eso.
 
-Así que ahora solo se nos devuelven películas en las que tanto el `tomato.meter` como los puntajes metacríticos son altos.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({$and: [{"tomato.meter": {$gt: 95}},                               
+...                             {"metacritic": {$gt: 88}}]},
+...                      {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "tomato" : { "meter" : 99 }, "metacritic" : 96 }
+{ "title" : "The Adventures of Robin Hood", "tomato" : { "meter" : 100 }, "metacritic" : 97 }
+{ "title" : "Raiders of the Lost Ark", "tomato" : { "meter" : 96 }, "metacritic" : 90 }
+{ "title" : "The Night of the Hunter", "tomato" : { "meter" : 98 }, "metacritic" : 99 }
+{ "title" : "Toy Story", "tomato" : { "meter" : 100 }, "metacritic" : 92 }
+{ "title" : "Toy Story 3", "tomato" : { "meter" : 99 }, "metacritic" : 92 }
+{ "title" : "The Wizard of Oz", "tomato" : { "meter" : 99 }, "metacritic" : 100 }
+{ "title" : "L.A. Confidential", "tomato" : { "meter" : 99 }, "metacritic" : 90 }
+{ "title" : "La Dolce Vita", "tomato" : { "meter" : 96 }, "metacritic" : 93 }
+{ "title" : "E.T. the Extra-Terrestrial", "tomato" : { "meter" : 98 }, "metacritic" : 94 }
+{ "title" : "Au Hasard Balthazar", "tomato" : { "meter" : 100 }, "metacritic" : 100 }
+{ "title" : "Toy Story 3", "tomato" : { "meter" : 99 }, "metacritic" : 92 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
 
-Pero lo que hay que tener en cuenta es que el operador`$and` en esta consulta en particular es superfluo.
+```
+
+Así que ahora solo se nos devuelven películas en las que tanto el `tomato.meter` como los puntajes `metacritic` son altos.
+
+Pero lo que hay que tener en cuenta es que el operador `$and` en esta consulta en particular es superfluo.
+
+```js
+db.movieDetails.find({$and: [{"tomato.meter": {$gt: 95}},                               
+                             {"metacritic": {$gt: 88}}]},
+                     {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+```
 
 La razón es que la consulta que acabamos de hacer aquí es equivalente a esta.
+
+```js
+db.movieDetails.find({"tomato.meter": {$gt: 95},                               
+                      "metacritic": {$gt: 88}},
+                     {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+```
 
 Los selectores en un filtro ya están implícitamente unidos.
 
 Y podemos ver que si aplicamos esta consulta sin el uso de `$and` que obtenemos exactamente los mismos resultados de búsqueda.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({"tomato.meter": {$gt: 95},                               
+...                                                                "metacritic": {$gt: 88}},
+...                                                               {_id: 0, title: 1, "tomato.meter": 1, "metacritic": 1})
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "tomato" : { "meter" : 99 }, "metacritic" : 96 }
+{ "title" : "The Adventures of Robin Hood", "tomato" : { "meter" : 100 }, "metacritic" : 97 }
+{ "title" : "Raiders of the Lost Ark", "tomato" : { "meter" : 96 }, "metacritic" : 90 }
+{ "title" : "The Night of the Hunter", "tomato" : { "meter" : 98 }, "metacritic" : 99 }
+{ "title" : "Toy Story", "tomato" : { "meter" : 100 }, "metacritic" : 92 }
+{ "title" : "Toy Story 3", "tomato" : { "meter" : 99 }, "metacritic" : 92 }
+{ "title" : "The Wizard of Oz", "tomato" : { "meter" : 99 }, "metacritic" : 100 }
+{ "title" : "L.A. Confidential", "tomato" : { "meter" : 99 }, "metacritic" : 90 }
+{ "title" : "La Dolce Vita", "tomato" : { "meter" : 96 }, "metacritic" : 93 }
+{ "title" : "E.T. the Extra-Terrestrial", "tomato" : { "meter" : 98 }, "metacritic" : 94 }
+{ "title" : "Au Hasard Balthazar", "tomato" : { "meter" : 100 }, "metacritic" : 100 }
+{ "title" : "Toy Story 3", "tomato" : { "meter" : 99 }, "metacritic" : 92 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Entonces, ¿por qué hay un `$and` un operador?
 
 La razón es porque a veces necesitamos especificar el mismo campo más de una vez en un filtro.
 
+```js
+db.movieDetails.find({$and: [{"metacritic": {$ne: null}},
+                             {"metacritic": {$exists: true}}]},
+                     {_id: 0, title: 1, "metacritic": 1})
+```
+
 Si intentara hacer esto, usando solo un filtro simple, no obtendría los resultados deseados porque las claves en un documento JSON deben ser únicas.
 
-Por ejemplo, si nuestra consulta fuera esta, el último uso de la clave metacrítica sería el utilizado.
+Por ejemplo, si nuestra consulta fuera esta, el último uso de la clave `metacritic` sería el utilizado.
+
+```js
+db.movieDetails.find({$and: [{"metacritic": null},
+                             {"metacritic": {$exists: true}}]},
+                     {_id: 0, title: 1, "metacritic": 1})
+```
 
 El operador `$and` me permite especificar múltiples restricciones en el mismo campo en situaciones como esta donde necesito hacerlo.
 
-En este caso, necesitamos todos los documentos para los cuales metacrítico no es igual a nulo, pero existe.
+En este caso, necesitamos todos los documentos para los cuales `metacritic` no es igual a nulo, pero existe.
+
+```js
+db.movieDetails.find({$and: [{"metacritic": {$ne: null}},
+                             {"metacritic": {$exists: true}}]},
+                     {_id: 0, title: 1, "metacritic": 1})
+```
 
 Recuerde que nulo coincidirá con las claves que realmente tienen el valor nulo y las que no contienen la clave en absoluto.
 
-Este tipo de consulta podría ser útil para una aplicación en la que sabemos que tenemos un poco de datos sucios donde posiblemente hay campos que tienen un valor metacrítico que es igual a nulo.
+Este tipo de consulta podría ser útil para una aplicación en la que sabemos que tenemos un poco de datos sucios donde posiblemente hay campos que tienen un valor `metacritic` que es igual a nulo.
 
-Pero lo que realmente queremos es que todos nuestros valores metacríticos tengan un valor numérico de algún tipo.
+Pero lo que realmente queremos es que todos nuestros valores `metacritic` tengan un valor numérico de algún tipo.
 
 Y si ejecuto esto, entonces obtengo documentos donde existe el campo `metacritic` y donde tengo un valor distinto de nulo para ese campo.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({$and: [{"metacritic": {$ne: null}},
+...                                                                       {"metacritic": {$exists: true}}]},
+...                                                               {_id: 0, title: 1, "metacritic": 1})
+{ "title" : "Once Upon a Time in the West", "metacritic" : 80 }
+{ "title" : "A Million Ways to Die in the West", "metacritic" : 44 }
+{ "title" : "Wild Wild West", "metacritic" : 38 }
+{ "title" : "Slow West", "metacritic" : 72 }
+{ "title" : "Journey to the West", "metacritic" : 68 }
+{ "title" : "West of Memphis", "metacritic" : 80 }
+{ "title" : "Star Wars: Episode IV - A New Hope", "metacritic" : 92 }
+{ "title" : "Star Wars: Episode V - The Empire Strikes Back", "metacritic" : 79 }
+{ "title" : "Star Wars: Episode VI - Return of the Jedi", "metacritic" : 52 }
+{ "title" : "Star Wars: Episode I - The Phantom Menace", "metacritic" : 51 }
+{ "title" : "Star Wars: Episode III - Revenge of the Sith", "metacritic" : 68 }
+{ "title" : "Star Trek", "metacritic" : 82 }
+{ "title" : "Star Wars: Episode II - Attack of the Clones", "metacritic" : 54 }
+{ "title" : "Star Trek Into Darkness", "metacritic" : 72 }
+{ "title" : "Star Trek: First Contact", "metacritic" : 71 }
+{ "title" : "Star Trek II: The Wrath of Khan", "metacritic" : 71 }
+{ "title" : "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb", "metacritic" : 96 }
+{ "title" : "Love Actually", "metacritic" : 55 }
+{ "title" : "Shakespeare in Love", "metacritic" : 87 }
+{ "title" : "I Love You, Man", "metacritic" : 70 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
 Y siempre podemos cambiar esto para ver solo documentos donde `metacritic` es nulo y el campo realmente existe.
 
+```sh
+db.movieDetails.find({$and: [{"metacritic": null},
+                             {"metacritic": {$exists: true}}]},
+                     {_id: 0, title: 1, "metacritic": 1})
+
+```
+
 Ejecutemos esta consulta en su lugar.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({$and: [{"metacritic": null},
+...                                                                       {"metacritic": {$exists: true}}]},
+...                                                               {_id: 0, title: 1, "metacritic": 1})
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Ahora, en realidad no hay ningún documento de este tipo en esta colección.
 
@@ -882,13 +1076,17 @@ Para esto, voy a ir a Compass.
 
 Y a pesar de que el documento que estamos buscando ya está aquí, me gustaría limitar el conjunto de resultados que estamos viendo solo a este documento.
 
-Aplicando ese filtro, vemos un documento devuelto y que de hecho es "Once Upon a Time in the West".
+Aplicando ese filtro `{title: "Once Upon a Time in the West"}`, vemos un documento devuelto y que de hecho es "Once Upon a Time in the West".
+
+<img src="/images/c3/7-once.png">
 
 Ahora, para crear un documento que tenga un valor nulo para `metacritic`, lo que voy a hacer aquí es usar el botón copiar documento que veo a la derecha de mi documento aquí en la interfaz de Compass.
 
 Eso muestra un modal con una copia de ese documento y me da la oportunidad de insertarlo.
 
 Pero antes de insertarlo, lo que quiero hacer es ir al campo `metacritic`, cambiar su valor a nulo y asegurarme de que también cambie su tipo a nulo.
+
+<img src="/images/c3/7-clone.png">
 
 Entonces lo que haré es insertarlo.
 
@@ -898,11 +1096,24 @@ Cuando lo inserte, se creará otro valor de ID de puntaje para mí.
 
 Y ahora tengo dos documentos que tienen este título.
 
+<img src="/images/c3/7-once-2.png">
+
 El primero es el documento original.
 
 Y el segundo es mi copia con `metacritic` establecido en nulo.
 
 Ahora, si ejecuto esa misma consulta en un shell, podemos ver que coincidimos con el documento que acabamos de insertar.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({$and: [{"metacritic": null},
+...                              {"metacritic": {$exists: true}}]},
+...                      {_id: 0, title: 1, "metacritic": 1})
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movieDetails.find({$and: [{"metacritic": null},
+...                              {"metacritic": {$exists: true}}]},
+...                      {_id: 0, title: 1, "metacritic": 1})
+{ "title" : "Once Upon a Time in the West", "metacritic" : null }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Antes de cerrar esta lección, volveré a Compass y eliminaré ese documento que inserté para limpiarlo después de mí mismo.
 
