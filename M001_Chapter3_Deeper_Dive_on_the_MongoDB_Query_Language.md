@@ -765,7 +765,30 @@ Incluye una cobertura integral para todos los tipos de valor por los que puede f
 
 `$exists` y `$type` nos permiten hacer meta preguntas sobre los documentos de una colección y, por lo tanto, nos brindan algunas herramientas importantes para trabajar con el soporte de MongoDB para modelos de datos flexibles.
 
-## 6. Examen
+## 6. Examen Element Operators
+
+Connect to our class Atlas cluster from the mongo shell or Compass and answer the following question. How many documents in the `100YWeatherSmall.data` collection do **NOT** contain the key `atmosphericPressureChange`.
+
+Choose the best answer:
+
+* 1
+
+* 2679
+
+* 10345
+
+* 33989
+
+* 40668 :+1:
+
+
+Solution:
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.data.find({atmosphericPressureChange : {$exists: false} }).count()
+40668
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 ## 7. Tema: Operadores Lógicos
 
