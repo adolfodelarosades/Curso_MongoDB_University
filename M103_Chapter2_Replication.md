@@ -49,15 +49,26 @@ Pero primero, hablemos sobre qué es la replicación.
 
 **La replicación es el concepto de mantener múltiples copias de sus datos.**
 
+<img src="images/m103/c2/2-1-replication.png">
+
 Este es un concepto realmente importante en MongoDB, pero realmente en cualquier sistema de base de datos.
 
 La razón principal por la que es necesaria la replicación es porque nunca puede asumir que todos sus servidores siempre estarán disponibles.
 
+<img src="images/m103/c2/2-1-servers.png">
+
 Si tiene que realizar tareas de mantenimiento en un centro de datos o un desastre borra sus datos por completo, sus servidores experimentarán tiempo de inactividad en algún momento.
+
+<img src="images/m103/c2/2-1-servers-mantenimiento.png">
+
+<img src="images/m103/c2/2-1-servers-desastre.png">
 
 El punto de replicación es asegurarse de que en caso de que su servidor se caiga, aún puede acceder a sus datos.
 
 Este concepto se llama **disponibilidad**(availability).
+
+<img src="images/m103/c2/2-1-availability.png">
+
 
 Una base de datos que no usa replicación solo tiene un único servidor de base de datos, y nos referimos a estos como nodos independientes (standalone nodes).
 
