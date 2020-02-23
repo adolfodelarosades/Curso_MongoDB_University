@@ -1,5 +1,7 @@
 # Examen final
 
+[Certificado](http://university.mongodb.com/course_completion/24879e9c-7fdd-4fa8-9109-501982579300)
+
 ### 6 Items
 
 Cualquier tema de este curso podría abordarse en el examen final.
@@ -213,3 +215,17 @@ MIO
 ```sh
 {$and: [{cast: {$in: ["Jack Nicholson", "John Huston"]}}, {viewerRating: {$gt: 7}}, {mpaaRating: "R"}]}
 ```
+
+## Conclusion
+
+Congratulations!
+
+You've just finished all the chapters. Now you can see your course grade and download your proof of completion.
+
+Your Final Grade:
+
+100%
+Passed
+
+[Certificado](http://university.mongodb.com/course_completion/24879e9c-7fdd-4fa8-9109-501982579300)
+
