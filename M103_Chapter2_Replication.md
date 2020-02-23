@@ -93,7 +93,7 @@ La **disponibilidad** y la **redundancia de datos** son propiedades típicas de 
 
 La replicación de datos puede tomar una de dos formas.
 
-Hay replicación binaria y replicación basada en sentencias.
+Hay replicación binaria y replicación basada en sentencias (binary replication and statement-based replication).
 
 Echaremos un vistazo a las diferencias entre estos dos enfoques, y comenzaremos con la replicación binaria.
 
@@ -101,9 +101,9 @@ Digamos que insertamos este documento en nuestra base de datos.
 
 Una vez completada la escritura, tenemos unos pocos bytes en el disco que se escribieron para contener algunos datos nuevos.
 
-La forma en que funciona la replicación binaria es examinando los bytes exactos que cambiaron en los archivos de datos y registrando esos cambios en un registro binario.
+La forma en que funciona la replicación binaria es examinando los bytes exactos que cambiaron en los archivos de datos y registrando esos cambios en un **binary log** (registro binario).
 
-Los nodos secundarios reciben una copia del registro binario y escriben los datos especificados que cambiaron a las ubicaciones exactas de bytes que se especifican en el registro binario.
+Los nodos secundarios reciben una copia del **binary log** (registro binario) y escriben los datos especificados que cambiaron a las ubicaciones exactas de bytes que se especifican en el **binary log** (registro binario).
 
 La replicación de datos de esta manera es bastante fácil en las secundarias porque obtienen instrucciones realmente específicas sobre qué bytes cambiar y a qué cambiarlos.
 
@@ -111,7 +111,7 @@ Y, de hecho, los secundarios ni siquiera son conscientes de las declaraciones qu
 
 Esto puede ser bueno porque no hay contexto sobre los datos necesarios para replicar una escritura.
 
-Sin embargo, el uso de la replicación binaria supone que el sistema operativo es coherente en todo el conjunto de réplicas.
+Sin embargo, el uso de la binary replication (replicación binaria) supone que el sistema operativo es coherente en todo el conjunto de réplicas.
 
 Por ejemplo, si nuestro nodo primario ejecuta Windows, los secundarios no pueden usar el mismo registro binario si ejecutan Linux.
 
@@ -119,27 +119,27 @@ Y si tienen el mismo sistema operativo, todas las máquinas en el conjunto de r�
 
 Entonces, Windows x86 o x64 y la misma versión del servidor de base de datos que se ejecuta en cada máquina.
 
-En otras palabras, el uso de la replicación binaria requiere una consistencia muy estricta en todas las máquinas que se ejecutan en un conjunto de réplicas.
+En otras palabras, el uso de la binary replication (replicación binaria) requiere una consistencia muy estricta en todas las máquinas que se ejecutan en un conjunto de réplicas.
 
 Incluso olvidarse de actualizar el servidor de la base de datos en uno de los nodos podría generar datos corruptos.
 
-La replicación basada en declaraciones es más o menos lo que parece.
+La Statement-based replication (replicación basada en declaraciones) es más o menos lo que parece.
 
-Después de que se completa una escritura en el nodo primario, la declaración de escritura en sí misma se almacena en el registro de operaciones, y los secundarios luego sincronizan sus registros de operación con el registro de operaciones primario y reproducen cualquier declaración nueva en sus propios datos.
+Después de que se completa una escritura en el nodo primario, la declaración de escritura en sí misma se almacena en el **oplog** (registro de operaciones), y los secundarios luego sincronizan sus **oplog** (registro de operaciones) con el **oplog** (registro de operaciones) primario y reproducen cualquier declaración nueva en sus propios datos.
 
 Este enfoque funciona independientemente del sistema operativo o el conjunto de instrucciones de los nodos en el conjunto de réplica.
 
-MongoDB utiliza la replicación basada en instrucciones, pero los comandos correctos en realidad sufren una pequeña transformación antes de almacenarse en el registro de operaciones.
+MongoDB utiliza la statement-based replication (replicación basada en instrucciones), pero los comandos correctos en realidad sufren una pequeña transformación antes de almacenarse en el **oplog** (registro de operaciones).
 
-MongoDB utiliza la replicación basada en instrucciones, pero los comandos correctos en realidad sufren una pequeña transformación antes de almacenarse en el registro de operaciones.
+Y el objetivo aquí de la transformación es asegurarse de que las declaraciones almacenadas en el oplog se puedan aplicar un número indefinido de veces sin dejar de generar el mismo estado de datos.
 
-Esta propiedad se llama idempotencia.
+Esta propiedad se llama **idempotencia**.
 
-Por ejemplo, supongamos que tenemos una declaración que incrementó las vistas pagas en un sitio web en 1.
+Por ejemplo, supongamos que tenemos una declaración que incrementó las paid views (vistas pagas) en un sitio web en 1.
 
 El primario ya aplicó esta declaración a sus datos, por lo que sabe que después de incrementar el uso de la página en 1, el total de visitas de la página pasó de 1,000 a 1,001.
 
-En realidad, transformaría esta declaración en una declaración que establece vistas de página en 1.001 y luego la almacena en el registro de operaciones.
+En realidad, transformaría esta declaración en una declaración que establece vistas de página en 1.001 y luego la almacena en el oplog registro de operaciones.
 
 Cuando las declaraciones se replican de esta manera, podemos reproducir el registro de operaciones tantas veces como queramos sin preocuparnos por la consistencia de los datos.
 
@@ -155,7 +155,7 @@ Por otro lado, la replicación basada en sentencias en MongoDB escribe los coman
 
 Sin embargo, las declaraciones no están vinculadas a un sistema operativo específico ni a ninguna dependencia a nivel de máquina.
 
-Por lo tanto, existen pocas restricciones en las máquinas en un conjunto de réplicas en MongoDB.
+Por lo tanto, existen pocas restricciones en las máquinas en un replica set en MongoDB.
 
 Esto es valioso para cualquier solución multiplataforma que requiera múltiples sistemas operativos en el mismo conjunto de réplicas.
 
