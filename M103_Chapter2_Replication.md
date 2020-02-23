@@ -47,6 +47,8 @@ MongoDB utiliza asíncrona, replicación basada en sentencias porque es independ
 
 Pero primero, hablemos sobre qué es la replicación.
 
+<img src="images/m103/c2/2-1-replication-0.png">
+
 **La replicación es el concepto de mantener múltiples copias de sus datos.**
 
 <img src="images/m103/c2/2-1-replication.png">
