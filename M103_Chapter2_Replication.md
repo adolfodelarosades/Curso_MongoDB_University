@@ -113,27 +113,43 @@ uno de los nodos secundarios puede tomar su lugar como primario en un proceso co
 
 Los nodos deciden específicamente qué secundaria se convertirá en primaria a través de una **elección**.
 
+<img src="images/m103/c2/2-1-election.png">
+
 Y este nombre no es una coincidencia.
 
 Los nodos secundarios en realidad votan entre sí para decidir qué secundaria se convertirá en la primaria.
+
+<img src="images/m103/c2/2-1-vote.png">
 
 En un replica set duradero, la **failover** (conmutación por error) puede tener lugar rápidamente, de modo que no se pierdan datos, y las aplicaciones que usan los datos continuarán comunicándose con el replica set como si nunca hubiera pasado nada.
 
 Y una vez que el nodo vuelve a funcionar, y es seguro que puede ponerse al día y sincronizarse en la última copia de los datos, se unirá al replica set automáticamente.
 
+<img src="images/m103/c2/2-1-replicaset-6.png">
+
 La **disponibilidad** y la **redundancia de datos** son propiedades típicas de una solución de base de datos duradera.
 
 La replicación de datos puede tomar una de dos formas.
+
+<img src="images/m103/c2/2-1-replication-type.png">
 
 Hay replicación binaria y replicación basada en sentencias (binary replication and statement-based replication).
 
 Echaremos un vistazo a las diferencias entre estos dos enfoques, y comenzaremos con la replicación binaria.
 
+<img src="images/m103/c2/2-1-binary.png">
+
 Digamos que insertamos este documento en nuestra base de datos.
+
+<img src="images/m103/c2/2-1-document.png">
 
 Una vez completada la escritura, tenemos unos pocos bytes en el disco que se escribieron para contener algunos datos nuevos.
 
+<img src="images/m103/c2/2-1-data.png">
+
 La forma en que funciona la replicación binaria es examinando los bytes exactos que cambiaron en los archivos de datos y registrando esos cambios en un **binary log** (registro binario).
+
+<img src="images/m103/c2/2-1-data-2.png">
 
 Los nodos secundarios reciben una copia del **binary log** (registro binario) y escriben los datos especificados que cambiaron a las ubicaciones exactas de bytes que se especifican en el **binary log** (registro binario).
 
@@ -144,6 +160,8 @@ Y, de hecho, los secundarios ni siquiera son conscientes de las declaraciones qu
 Esto puede ser bueno porque no hay contexto sobre los datos necesarios para replicar una escritura.
 
 Sin embargo, el uso de la binary replication (replicación binaria) supone que el sistema operativo es coherente en todo el conjunto de réplicas.
+
+<img src="images/m103/c2/2-1-windows.png">
 
 Por ejemplo, si nuestro nodo primario ejecuta Windows, los secundarios no pueden usar el mismo registro binario si ejecutan Linux.
 
