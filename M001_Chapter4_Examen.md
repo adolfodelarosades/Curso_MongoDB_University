@@ -95,15 +95,15 @@ Attempts Remaining:3 Attempts left
 Choose the best answer:
 
 
-2 :+1:
+* 2 :+1:
 
-3
+* 3
 
-11
+* 11
 
-47
+* 47
 
-114
+* 114
 
 
 Solution:
@@ -130,3 +130,86 @@ MIO
 {$and: [{tripduration: {$eq: null}}, {tripduration: {$exists: true}} ]}
 ```
 
+## Question 5
+
+**Problem:**
+
+Please connect to our **class Atlas cluster** and view the `video.movies` collection.
+
+Which of the queries below would produce output documents that resemble the following. Check all that apply.
+
+```sh
+{ "title" : "P.S. I Love You" }
+{ "title" : "Love Actually" }
+{ "title" : "Shakespeare in Love" }
+```
+
+NOTE: We are not asking you to consider specifically which documents would be output from the queries below, but rather what fields the output documents would contain.
+
+Check all answers that apply:
+
+
+* db.movies.find({title: "Muppets from Space"}, {title: 1})
+
+* db.movies.find({year: 1964}, {title: 1, _id: 0}) :+1:
+
+* db.movies.find({}, {title: 1})
+
+* db.movies.find({}, {title: 1, _id: 0}) :+1:
+
+* db.movies.find({}, {title})
+
+* db.movies.find({title: ""}, {title: 1})
+
+
+Solution:
+
+The key to answering this question is in understanding how projection works in find() queries. Specifically, we're looking for queries that include projection documents such as the following.
+
+```sh
+{title: 1, _id: 0}
+```
+
+## Question 6
+
+**Problem:**
+
+Please connect to our **class Atlas cluster** from the mongo shell or Compass and view the `video.movies` collection.
+
+How many movies match the following criteria? - The cast includes either of the following actors: "Jack Nicholson", "John Huston". - The `viewerRating` is greater than 7. - The `mpaaRating` is "R".
+
+Choose the best answer:
+
+* 1
+
+* 5
+
+* 8 :+1:
+
+* 19
+
+* 26
+
+Solution:
+
+You can find this answer in the mongo shell or in Compass.
+
+In the mongo shell, assuming you've connected to the M001 class Atlas cluster, you can issue the following commands to find this value.
+
+```sh
+use video
+
+db.movies.find({cast: {$in: ["Jack Nicholson", "John Huston"]}, viewerRating: {$gt: 7}, mpaaRating: "R"}).count()
+```
+
+In Compass, navigate to the `video.movies` collection and then apply the following filter in either the Schema or Documents view.
+
+```sh
+{cast: {$in: ["Jack Nicholson", "John Huston"]}, viewerRating: {$gt: 7}, mpaaRating: "R"}
+```
+
+MIO
+
+```sh
+{$and: [{cast: {$in: ["Jack Nicholson", "John Huston"]}}, {viewerRating: {$gt: 7}}, {mpaaRating: "R"}]}
+```
