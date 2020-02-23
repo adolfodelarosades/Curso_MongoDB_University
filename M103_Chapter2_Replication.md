@@ -237,7 +237,36 @@ Esto es valioso para cualquier solución multiplataforma que requiera múltiples
 
 <img src="images/m103/c2/2-1-resumen.png">
 
-## 2. Examen
+## 2. Examen What is Replication?
+
+**Problem:**
+
+Which of the following are true about binary replication and statement-based replication?
+
+Check all answers that apply:
+
+* Statement-based replication is platform independent. :+1:
+
+* MongoDB uses statement-based replication, not binary replication. :+1:
+
+* Binary replication is more accurate than statement-based replication.
+
+**Correct answers:**
+
+**Statement-based replication is platform independent.**
+
+Statement-based replication is agnostic of operating system, because statements do not depend on a specific byte makeup or instruction set.
+
+**MongoDB uses statement-based replication, not binary replication.**
+
+MongoDB uses a small variation of statement-based replication which reduces statements to idempotent versions so they can be repeated.
+
+**Incorrect answer:**
+
+**Binary replication is more accurate than statement-based replication.**
+
+Both methods of replication are accurate; however they do vary in speed and variability across operating systems.
+
 
 ## 3. Tema: Conjunto de réplicas MongoDB
 
