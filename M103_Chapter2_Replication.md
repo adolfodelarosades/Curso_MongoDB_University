@@ -165,19 +165,35 @@ Sin embargo, el uso de la binary replication (replicación binaria) supone que e
 
 Por ejemplo, si nuestro nodo primario ejecuta Windows, los secundarios no pueden usar el mismo registro binario si ejecutan Linux.
 
+<img src="images/m103/c2/2-1-windows-linux.png">
+
 Y si tienen el mismo sistema operativo, todas las máquinas en el conjunto de réplicas deben tener el mismo conjunto de instrucciones.
 
 Entonces, Windows x86 o x64 y la misma versión del servidor de base de datos que se ejecuta en cada máquina.
+
+<img src="images/m103/c2/2-1-versiones.png">
 
 En otras palabras, el uso de la binary replication (replicación binaria) requiere una consistencia muy estricta en todas las máquinas que se ejecutan en un conjunto de réplicas.
 
 Incluso olvidarse de actualizar el servidor de la base de datos en uno de los nodos podría generar datos corruptos.
 
+<img src="images/m103/c2/2-1-corrupted-data.png">
+
 La Statement-based replication (replicación basada en declaraciones) es más o menos lo que parece.
 
-Después de que se completa una escritura en el nodo primario, la declaración de escritura en sí misma se almacena en el **oplog** (registro de operaciones), y los secundarios luego sincronizan sus **oplog** (registro de operaciones) con el **oplog** (registro de operaciones) primario y reproducen cualquier declaración nueva en sus propios datos.
+<img src="images/m103/c2/2-1-statement.png">
+
+Después de que se completa una escritura en el nodo primario, la declaración de escritura en sí misma se almacena en el **oplog** (registro de operaciones), 
+
+<img src="images/m103/c2/2-1-oplog.png">
+
+y los secundarios luego sincronizan sus **oplog** (registro de operaciones) con el **oplog** (registro de operaciones) primario y reproducen cualquier declaración nueva en sus propios datos.
+
+<img src="images/m103/c2/2-1-statement-2.png">
 
 Este enfoque funciona independientemente del sistema operativo o el conjunto de instrucciones de los nodos en el conjunto de réplica.
+
+<img src="images/m103/c2/2-1-statement-3.png">
 
 MongoDB utiliza la statement-based replication (replicación basada en instrucciones), pero los comandos correctos en realidad sufren una pequeña transformación antes de almacenarse en el **oplog** (registro de operaciones).
 
@@ -185,13 +201,21 @@ Y el objetivo aquí de la transformación es asegurarse de que las declaraciones
 
 Esta propiedad se llama **idempotencia**.
 
+<img src="images/m103/c2/2-1-idempotence.png">
+
 Por ejemplo, supongamos que tenemos una declaración que incrementó las paid views (vistas pagas) en un sitio web en 1.
 
+<img src="images/m103/c2/2-1-inc.png">
+
 El primario ya aplicó esta declaración a sus datos, por lo que sabe que después de incrementar el uso de la página en 1, el total de visitas de la página pasó de 1,000 a 1,001.
+
+<img src="images/m103/c2/2-1-inc-2.png">
 
 En realidad, transformaría esta declaración en una declaración que establece vistas de página en 1.001 y luego la almacena en el oplog registro de operaciones.
 
 Cuando las declaraciones se replican de esta manera, podemos reproducir el registro de operaciones tantas veces como queramos sin preocuparnos por la consistencia de los datos.
+
+<img src="images/m103/c2/2-1-manytimes.png">
 
 Ahora echemos un vistazo a los pros y los contras de la replicación binaria y basada en sentencias.
 
@@ -208,6 +232,8 @@ Sin embargo, las declaraciones no están vinculadas a un sistema operativo espec
 Por lo tanto, existen pocas restricciones en las máquinas en un replica set en MongoDB.
 
 Esto es valioso para cualquier solución multiplataforma que requiera múltiples sistemas operativos en el mismo conjunto de réplicas.
+
+<img src="images/m103/c2/2-1-resumen.png">
 
 ## 2. Examen
 
