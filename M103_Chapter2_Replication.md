@@ -69,12 +69,15 @@ Este concepto se llama **disponibilidad**(availability).
 
 <img src="images/m103/c2/2-1-availability.png">
 
-
 Una base de datos que no usa replicación solo tiene un único servidor de base de datos, y nos referimos a estos como nodos independientes (standalone nodes).
+
+<img src="images/m103/c2/2-1-standalone.png">
 
 En una configuración independiente, las bases de datos pueden atender lecturas y escrituras solo mientras ese nodo único está en funcionamiento.
 
 Pero si el nodo se cae, perdemos todo el acceso a esos datos.
+
+<img src="images/m103/c2/2-1-standalone-fallo.png">
 
 Nuestras lecturas y escrituras no llegarán al servidor.
 
@@ -82,13 +85,31 @@ Ahora en una solución replicada, tenemos un par de nodos adicionales a la mano,
 
 En MongoDB, un grupo de nodos que tienen copias de los mismos datos se denomina **replica set** conjunto de réplicas.
 
-Y en un replica set, todos los datos se manejan de manera predeterminada en uno de los nodos, y depende de los nodos restantes del conjunto sincronizarse con él y replicar cualquier dato nuevo que se haya escrito a través de un mecanismo asíncrono.
+<img src="images/m103/c2/2-1-replicaset.png">
+
+Y en un replica set, todos los datos se manejan de manera predeterminada en uno de los nodos, 
+
+<img src="images/m103/c2/2-1-replicaset-1.png">
+
+y depende de los nodos restantes del conjunto sincronizarse con él y replicar cualquier dato nuevo que se haya escrito a través de un mecanismo asíncrono.
+
+<img src="images/m103/c2/2-1-replicaset-2.png">
 
 El nodo donde se envían los datos se denomina **nodo primario**, y todos los demás nodos se denominan **nodos secundarios**.
 
+<img src="images/m103/c2/2-1-replicaset-3.png">
+
 El objetivo aquí es que todos los nodos se mantengan consistentes entre sí.
 
-Entonces, si nuestra aplicación está usando la base de datos y el nodo primario se cae, uno de los nodos secundarios puede tomar su lugar como primario en un proceso conocido como **failover** (conmutación por error).
+Entonces, si nuestra aplicación está usando la base de datos y el nodo primario se cae, 
+
+<img src="images/m103/c2/2-1-replicaset-4.png">
+
+uno de los nodos secundarios puede tomar su lugar como primario en un proceso conocido como **failover** (conmutación por error).
+
+<img src="images/m103/c2/2-1-replicaset-5.png">
+
+<img src="images/m103/c2/2-1-failover.png">
 
 Los nodos deciden específicamente qué secundaria se convertirá en primaria a través de una **elección**.
 
