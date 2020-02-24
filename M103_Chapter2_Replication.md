@@ -1739,6 +1739,126 @@ El primero que vamos a cubrir es `rs.status`.
 
 `rs.status` se usa para informar sobre el estado general de cada nodo en el conjunto.
 
+```sh
+MongoDB Enterprise m103-repl:PRIMARY> rs.status()
+{
+	"set" : "m103-repl",
+	"date" : ISODate("2020-02-24T22:02:58.124Z"),
+	"myState" : 1,
+	"term" : NumberLong(1),
+	"syncingTo" : "",
+	"syncSourceHost" : "",
+	"syncSourceId" : -1,
+	"heartbeatIntervalMillis" : NumberLong(2000),
+	"optimes" : {
+		"lastCommittedOpTime" : {
+			"ts" : Timestamp(1582581776, 1),
+			"t" : NumberLong(1)
+		},
+		"readConcernMajorityOpTime" : {
+			"ts" : Timestamp(1582581776, 1),
+			"t" : NumberLong(1)
+		},
+		"appliedOpTime" : {
+			"ts" : Timestamp(1582581776, 1),
+			"t" : NumberLong(1)
+		},
+		"durableOpTime" : {
+			"ts" : Timestamp(1582581776, 1),
+			"t" : NumberLong(1)
+		}
+	},
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.103.100:27001",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 7989,
+			"optime" : {
+				"ts" : Timestamp(1582581776, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2020-02-24T22:02:56Z"),
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"electionTime" : Timestamp(1582573984, 2),
+			"electionDate" : ISODate("2020-02-24T19:53:04Z"),
+			"configVersion" : 3,
+			"self" : true,
+			"lastHeartbeatMessage" : ""
+		},
+		{
+			"_id" : 1,
+			"name" : "m103:27002",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 7262,
+			"optime" : {
+				"ts" : Timestamp(1582581776, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(1582581776, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2020-02-24T22:02:56Z"),
+			"optimeDurableDate" : ISODate("2020-02-24T22:02:56Z"),
+			"lastHeartbeat" : ISODate("2020-02-24T22:02:56.698Z"),
+			"lastHeartbeatRecv" : ISODate("2020-02-24T22:02:56.699Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "",
+			"syncingTo" : "192.168.103.100:27001",
+			"syncSourceHost" : "192.168.103.100:27001",
+			"syncSourceId" : 0,
+			"infoMessage" : "",
+			"configVersion" : 3
+		},
+		{
+			"_id" : 2,
+			"name" : "m103:27003",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 7250,
+			"optime" : {
+				"ts" : Timestamp(1582581776, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(1582581776, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2020-02-24T22:02:56Z"),
+			"optimeDurableDate" : ISODate("2020-02-24T22:02:56Z"),
+			"lastHeartbeat" : ISODate("2020-02-24T22:02:56.699Z"),
+			"lastHeartbeatRecv" : ISODate("2020-02-24T22:02:56.698Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "",
+			"syncingTo" : "192.168.103.100:27001",
+			"syncSourceHost" : "192.168.103.100:27001",
+			"syncSourceId" : 0,
+			"infoMessage" : "",
+			"configVersion" : 3
+		}
+	],
+	"ok" : 1,
+	"operationTime" : Timestamp(1582581776, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582581776, 1),
+		"signature" : {
+			"hash" : BinData(0,"1yVYWpLfu4uqhn5m+z0Z2oeZdGs="),
+			"keyId" : NumberLong("6797103509075394561")
+		}
+	}
+}
+MongoDB Enterprise m103-repl:PRIMARY> 
+```
+
 Los datos que obtiene del `heartbeat` (latido) enviado entre nodos intermedios en el conjunto.
 
 Debido a que depende de los `heartbeat` para estos datos, en realidad puede estar unos segundos desactualizado.
@@ -1779,6 +1899,55 @@ Y también nos da información sobre el conjunto de réplica en sí.
 
 La salida es mucho más fácil de leer que `rs.status` solo porque su salida es mucho más corta.
 
+```sh
+MongoDB Enterprise m103-repl:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27001",
+		"m103:27002",
+		"m103:27003"
+	],
+	"setName" : "m103-repl",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "192.168.103.100:27001",
+	"me" : "192.168.103.100:27001",
+	"electionId" : ObjectId("7fffffff0000000000000001"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582581866, 1),
+			"t" : NumberLong(1)
+		},
+		"lastWriteDate" : ISODate("2020-02-24T22:04:26Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582581866, 1),
+			"t" : NumberLong(1)
+		},
+		"majorityWriteDate" : ISODate("2020-02-24T22:04:26Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-24T22:04:32.907Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582581866, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582581866, 1),
+		"signature" : {
+			"hash" : BinData(0,"qqTq/k/BNGbYECMhBAeDFngwrwg="),
+			"keyId" : NumberLong("6797103509075394561")
+		}
+	}
+}
+MongoDB Enterprise m103-repl:PRIMARY> 
+
+```
+
 Como podemos ver, la lista de hosts es mucho más corta en este comando, y podemos verificar fácilmente si este nodo es secundario.
 
 En este caso, no es porque el secundario sea falso.
@@ -1793,6 +1962,14 @@ Entonces, solo quiero señalar aquí que cuando escribimos este comando con par�
 
 Pero podemos eliminar los paréntesis para ver qué se está ejecutando realmente en segundo plano.
 
+```sh
+MongoDB Enterprise m103-repl:PRIMARY> rs.isMaster
+function () {
+    return db.isMaster();
+}
+MongoDB Enterprise m103-repl:PRIMARY> 
+```
+
 Y podemos ver que `rs.isMaster` es en realidad solo un contenedor alrededor de una función llamada `db.isMaster`.
 
 Notarás que muchos de los comandos `rs.com` en Mongo Shell son solo envoltorios alrededor de los comandos `db`.
@@ -1801,11 +1978,43 @@ Como nota al margen, este es el comando que utilizan los controladores para desc
 
 Para obtener más información al respecto, puede seguir la referencia en las notas de la conferencia.
 
-El siguiente comando es `db.serverStatus`.
+El siguiente comando es **`db.serverStatus`**.
 
 Este comando nos da mucha información sobre el proceso MongoD, pero solo veremos la sección llamada `repl`.
 
 La salida de este comando será muy similar a la salida de `rs.isMaster`.
+
+```sh
+MongoDB Enterprise m103-repl:PRIMARY> db.serverStatus()['repl']
+{
+	"hosts" : [
+		"192.168.103.100:27001",
+		"m103:27002",
+		"m103:27003"
+	],
+	"setName" : "m103-repl",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "192.168.103.100:27001",
+	"me" : "192.168.103.100:27001",
+	"electionId" : ObjectId("7fffffff0000000000000001"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582582066, 1),
+			"t" : NumberLong(1)
+		},
+		"lastWriteDate" : ISODate("2020-02-24T22:07:46Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582582066, 1),
+			"t" : NumberLong(1)
+		},
+		"majorityWriteDate" : ISODate("2020-02-24T22:07:46Z")
+	},
+	"rbid" : 1
+}
+MongoDB Enterprise m103-repl:PRIMARY> 
+```
 
 Como podemos ver, la salida de este comando es muy similar a la salida de `rs.isMaster` con la excepción de un campo aquí.
 
@@ -1821,11 +2030,57 @@ Nos dará marcas de tiempo exactas para el primer y último evento que ocurrió 
 
 Así que este es un informe rápido sobre la duración actual del registro de operaciones en el tiempo y en megabytes.
 
+```sh
+MongoDB Enterprise m103-repl:PRIMARY> rs.printReplicationInfo()
+configured oplog size:   1722.11328125MB
+log length start to end: 8162secs (2.27hrs)
+oplog first event time:  Mon Feb 24 2020 19:53:04 GMT+0000 (UTC)
+oplog last event time:   Mon Feb 24 2020 22:09:06 GMT+0000 (UTC)
+now:                     Mon Feb 24 2020 22:09:13 GMT+0000 (UTC)
+MongoDB Enterprise m103-repl:PRIMARY> 
+```
+
 Y recuerde que el primer evento en el registro de operaciones está sujeto a cambios porque el registro de operaciones es una colección limitada, y periódicamente se vacía para dejar espacio para nuevos datos.
 
 En esta lección, hemos aprendido que hay varias formas diferentes de verificar el estado de un conjunto de réplicas, y cada una es importante por derecho propio.
 
-## 11. Examen
+## 11. Examen Replication Commands
+
+**Problem:**
+
+What information can be obtained from running `rs.printReplicationInfo()`?
+
+Check all answers that apply:
+
+* The time of the earliest entry in the oplog. :+1:
+
+* The earliest statement entered in the oplog.
+
+* The time of the latest entry in the oplog. :+1:
+
+* The current primary in the replica set.
+
+* The last statement entered in the oplog.
+
+**Correct answers:**
+
+**The time of the earliest entry in the oplog.**
+
+**The time of the latest entry in the oplog.**
+
+`rs.printReplicationInfo()` gives us the times of the earliest and latest entries in the oplog.
+
+**Incorrect answers:**
+
+**The earliest statement entered in the oplog.**
+
+**The last statement entered in the oplog.**
+
+`rs.printReplicationInfo()` will only return timestamps for oplog statements; the statements themselves can be found in local.oplog.rs.
+
+**The current primary in the replica set.**
+
+`rs.printReplicationInfo()` only contains information pertaining to the node where the command was run.
 
 ## 12. Tema: DB local: Parte 1
 
