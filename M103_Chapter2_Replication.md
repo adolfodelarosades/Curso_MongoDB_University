@@ -1502,7 +1502,7 @@ vagrant@m103:~$ validate_lab_initialize_local_replica_set
 Enter answer here: 5a4d32f979235b109001c7bc
 
 
-## 8. Tema: Documento de configuración de replicación
+## 8. Tema: Documento de Configuración de Replicación
 
 ### Transcripción
 
@@ -1512,6 +1512,8 @@ En particular, analizaremos qué opciones de configuración de replica set tenem
 
 El documento de configuración del replica set es un documento BSON simple que gestionamos utilizando una representación JSON donde la configuración o nuestros replica set se definen y se comparten en todos los nodos que están configurados en los conjuntos.
 
+<img src="images/m103/c2/2-8-replication-configuration.png">
+
 Podemos establecer cambios manualmente en este documento para configurar un replica set de acuerdo con la topología esperada y las opciones generales de replicación.
 
 Aunque podemos hacer esto simplemente editando dichos documentos usando el shell `mongo.db`, también podemos usar un conjunto de ayudantes de shell como `rs.add`, `initiate`, `remove`, etc. 
@@ -1520,37 +1522,61 @@ Eso nos ayudará a facilitar la configuración y administración de esta misma c
 
 Hay una buena cantidad de opciones de configuración diferentes a nuestra disposición, como puede ver en el documento de opciones de configuración de línea de base.
 
+<img src="images/m103/c2/2-8-configuration-options.png">
+
 Esto puede sonar un poco desalentador, pero en realidad, es un conjunto de opciones bastante sencillo.
 
 Y para esta lección, en particular, vamos a ver solo un conjunto de estas opciones de configuración: las básicas y fundamentales y las que vamos a utilizar a lo largo del curso.
 
+<img src="images/m103/c2/2-8-configuration-set.png">
+
 Todas las otras opciones están fuera del alcance de este curso.
 
-Pero comencemos con el campo `_id`.
+Pero comencemos con el campo **`_id`**.
+
+<img src="images/m103/c2/2-8-id.png">
 
 Este campo se establece con el nombre del replica set.
 
 Este es un valor de cadena que coincide con el replica set definido por el servidor.
 
-Cada vez que comenzamos nuestro mongoD y proporcionamos un nombre `--replSet` a nuestro mongoD, lo que significa que este mongoD pertenecerá al conjunto, o estableciendo ese mismo nombre en el archivo de configuración, por ejemplo, nuestro archivo `etc/mongodb.conf`, Estamos estableciendo un valor específico para ser utilizado como un nombre de replica set.
+Cada vez que comenzamos nuestro mongoD y proporcionamos un nombre `--replSet` a nuestro mongoD, lo que significa que este mongoD pertenecerá al conjunto, o estableciendo ese mismo nombre en el archivo de configuración, por ejemplo, nuestro archivo `etc/mongodb.conf`
 
-El mismo valor debe coincidir con el campo `_id` de nuestro documento de configuración del conjunto de réplicas.
+<img src="images/m103/c2/2-8-id-2.png">
+
+Estamos estableciendo un valor específico para ser utilizado como un nombre de replica set.
+
+El mismo valor debe coincidir con el campo `_id` de nuestro documento de configuración del replica set.
+
+<img src="images/m103/c2/2-8-id-3.png">
 
 En caso de que tengamos valores diferentes de la configuración `_id` y el nombre del replica set definidas, terminamos con un mensaje de error.
 
-Obtenemos una configuración de replica set incorrecta, indicando que estamos intentando iniciar el replica set con un nombre diferente desde el que se ha establecido como --replSet o en el archivo de configuración.
+<img src="images/m103/c2/2-8-id-4.png">
+
+Obtenemos una configuración de replica set incorrecta, indicando que estamos intentando iniciar el replica set con un nombre diferente desde el que se ha establecido como `--replSet` o en el archivo de configuración.
+
+<img src="images/m103/c2/2-8-id-5.png">
 
 Esta es una protección contra configuraciones incorrectas o la adición incorrecta del servidor a los replica sets incorrectos.
 
-El siguiente campo es la versión.
+El siguiente campo es la **`version`**.
+
+<img src="images/m103/c2/2-8-version.png">
 
 Ahora, una versión es solo un número entero que se incrementa cada vez que cambia la configuración actual de nuestro replica set.
 
+<img src="images/m103/c2/2-8-version-2.png">
+
 Si, por ejemplo, agregamos un nodo a nuestro replica set y si nuestra versión solía ser la número 1, incrementamos el valor.
+
+<img src="images/m103/c2/2-8-version-3.png">
 
 Cada vez que cambiamos una topología, cambiamos la configuración de un conjunto de réplicas o hacemos algo como cambiar el número de votos de un host dado, eso incrementará automáticamente el número de versión.
 
-El siguiente campo en línea es members.
+<img src="images/m103/c2/2-8-version-4.png">
+
+El siguiente campo en línea es **members**.
 
 Y los members es donde se define la topología de nuestro replica set.
 
