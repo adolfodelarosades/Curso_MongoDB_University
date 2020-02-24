@@ -1642,6 +1642,8 @@ La prioridad debe ser 0 cuando oculto es igual a verdadero.
 
 Y finalmente, tenemos **`slaveDelay`**.
 
+<img src="images/m103/c2/2-8-slaved.png">
+
 slaveDelay es un valor entero que determina un intervalo de demora de replicación en segundos.
 
 El valor predeterminado es 0.
@@ -1652,11 +1654,17 @@ Estos miembros retrasados mantienen una copia de los datos que reflejan un estad
 
 Por ejemplo, si tenemos nuestra opción slaveDelay a 3.600 segundos, lo que significa 1 hora, eso significará que dicho miembro replicará datos de los otros nodos en los conjuntos que ocurrieron hace 1 hora.
 
+<img src="images/m103/c2/2-8-slaved-2.png">
+
 Al configurar esta opción como esclavo, también implica que su nodo estará oculto y la prioridad se establecerá en 0.
+
+<img src="images/m103/c2/2-8-slaved-3.png">
 
 Ah sí, y casi lo olvido.
 
 También tenemos el campo `_id` dentro del subdocumento de miembros.
+
+<img src="images/m103/c2/2-8-id-6.png">
 
 Esto es solo un identificador único de cada elemento en el array.
 
@@ -1666,11 +1674,21 @@ Una vez establecido, este valor no se puede cambiar.
 
 Ahora, de nuevo, hay mucho más que podemos configurar dentro de los documentos de configuración del replica set.
 
-Parece una configuración en la que podemos definir varios atributos de protocolo de replicación diferentes o cosas como la versión del protocolo y configsvr que se verán más adelante en este curso.
+<img src="images/m103/c2/2-8-all.png">
+
+**`settings`** en la que podemos definir varios atributos de protocolo de replicación diferentes 
+
+<img src="images/m103/c2/2-8-all-2.png">
+
+o cosas como la **`protocolVersion`** y **`configsvr`** que se verán más adelante en este curso.
+
+<img src="images/m103/c2/2-8-all-3.png">
 
 Pero los usos reales de estas opciones para el curso básico de administración están fuera de alcance.
 
 Recapitulemos.
+
+<img src="images/m103/c2/2-8-resumen.png">
 
 El documento de configuración de replicación se utiliza para configurar nuestros replica set.
 
