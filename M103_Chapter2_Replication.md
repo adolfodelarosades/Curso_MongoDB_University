@@ -1089,7 +1089,41 @@ Usamos `rs.status` y `rs.isMaster` en esta lección, y esos comandos tienen dife
 
 Y le instaría a explorarlos para descubrir cuál se ajusta a su caso de uso.
 
-## 6. Examen
+## 6. Examen Setting Up a Replica Set
+
+**Problem:**
+
+Which of the following is/are true about setting up a replica set?
+
+Check all answers that apply:
+
+* All nodes in a replica set must be run on the same port.
+
+* When connecting to a replica set, the mongo shell will redirect the connection to the primary node. :+1:
+
+* rs.initiate() must be run on every node in the replica set.
+
+* Enabling internal authentication in a replica set implicitly enables client authentication. :+1:
+
+**Correct answers:**
+
+* **Enabling internal authentication in a replica set implicitly enables client authentication.**
+
+This is true; if nodes authenticate to each other, clients must authenticate to the cluster.
+
+* **When connecting to a replica set, the mongo shell will redirect the connection to the primary node.**
+
+This is true; even if an election is held and there is temporarily no primary, the shell will wait to connect until a primary is elected.
+
+**Incorrect answers:**
+
+* **All nodes in a replica set must be run on the same port.**
+
+This is incorrect; in fact, the nodes should be run on different ports. Ideally, they would each run on different machines.
+
+* **`rs.initiate()` must be run on every node in the replica set.**
+
+This is incorrect; rs.initiate() should only be run on one node in the replica set.
 
 ## 7. Laboratorio: iniciar un conjunto de réplicas localmente
 
