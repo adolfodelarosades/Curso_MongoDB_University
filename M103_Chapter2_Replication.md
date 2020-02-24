@@ -981,15 +981,6 @@ mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
 ```
 
 
-```sh
-
-```
-
-
-```sh
-
-```
-
 Entonces este es el comando que vamos a usar para conectarnos al conjunto de réplicas.
 
 Y además de autenticar aquí con una contraseña de nombre de usuario, tenemos que especificar el nombre de la réplica establecida en el nombre del host.
@@ -1004,9 +995,13 @@ Entonces esa es la que nos conectó el shell.
 
 Entonces este comando, `rs.status` es una forma útil de obtener un informe de estado en nuestro conjunto de réplicas.
 
-Mira, nos da el nombre del conjunto.
+```sh
+$ rs.status()
+```
 
-Nos da cuánto tiempo son los intervalos entre latidos.
+Mira, nos da el nombre del set.
+
+Nos da cuánto tiempo son los intervalos entre latidos `heartbeatIntervalMillis`.
 
 Por defecto, son 2000 milisegundos, lo que significa que los nodos están hablando entre sí cada dos segundos.
 
@@ -1014,35 +1009,81 @@ Podemos desplazarnos hacia abajo para obtener una lista de los miembros del conj
 
 En este caso, es solo un miembro, al cual estamos conectados, el primario actual.
 
-Entonces, este es el comando que usamos para agregar nuevos nodos a nuestro conjunto de réplicas, `rs.add`, y todo lo que tenemos que especificar aquí es el nombre de host, que es solo el nombre de host del cuadro Vagrant y el puerto que ese nodo está ejecutando en.
 
+```sh
+
+```
+
+
+Entonces, este es el comando que usamos para agregar nuevos nodos a nuestro conjunto de réplicas, `rs.add`, 
+
+y todo lo que tenemos que especificar aquí es el nombre de host, que es solo el nombre de host del cuadro Vagrant y el puerto que ese nodo está ejecutando.
+
+
+```sh
+rs.add("m103:27012")
+```
 Ahora que funcionó.
 
 Solo voy a hacer lo mismo para nuestro tercer nodo.
 
+```sh
+rs.add("m103:27013")
+```
+
 Solo voy a verificar `rs.isMaster`.
+
+```sh
+rs.isMaster()
+```
 
 Y podemos ver que nuestro replica set ahora tiene tres nodos.
 
 Entonces, ahora que hemos agregado esos dos nodos a nuestro replica set y los hemos conectado, pueden replicar datos entre sí.
 
+<img src="images/m103/c2/2-5-replicaset-4.png">
+
 Una cosa que quiero señalar en este momento es que el primario actual se está ejecutando en el puerto 27011.
+
+<img src="images/m103/c2/2-5-replicaset-5.png">
 
 Y podríamos verificar eso a partir de la salida de `rs.isMaster`, donde dice que primario es, de hecho, el nodo que se ejecuta en 27011.
 
-Sin embargo, podemos forzar una elección para que una nota diferente se vuelva primaria.
+```sh
+rs.isMaster()
+```
+
+Sin embargo, podemos forzar una elección para que un nodo diferente se vuelva primario.
 
 Y el comando que usamos para hacer eso se llama `rs.stepDown`.
 
-Ahora, el comando de reducción es lo que usamos para reducir de forma segura la primaria actual a una secundaria y forzar una elección.
+```sh
+rs.stepDown()
+```
+
+Ahora, el comando `stepDown` es lo que usamos para reducir de forma segura el primario actual a un secundario y forzar una elección.
 
 El error que estamos obteniendo aquí es porque el shell está tratando de conectarnos con el primario, pero los secundarios todavía están en el proceso de elegir un primario, por lo que no hay un primario en este momento.
 
+```sh
+ERROR
+```
+
 Tan pronto como uno sea elegido, el shell nos conectará con él, lo que acaba de hacer.
 
-Si volvemos a ejecutar `rs.isMaster`, podemos verificar que ahora este nodo es el primario actual, a diferencia de 27011, que era el primario antes.
+```sh
+NO ERROR
+```
+
+Si volvemos a ejecutar `rs.isMaster`, podemos verificar que ahora este nodo `CUAL` es el primario actual, a diferencia de 27011, que era el primario antes.
+
+```sh
+rs.isMaster()
+```
 
 Entonces, para resumir, hemos cubierto cómo iniciar un conjunto de réplicas, cómo puede agregar nodos al conjunto de réplicas y cómo verificar el estado del conjunto de réplicas.
+
+<img src="images/m103/c2/2-5-resumen.png">
 
 Usamos `rs.status` y `rs.isMaster` en esta lección, y esos comandos tienen diferentes salidas para diferentes casos de uso.
 
