@@ -284,25 +284,35 @@ Los miembros del conjunto de réplicas pueden tener uno de dos roles diferentes.
 
 El nodo puede ser primario donde este nodo sirve todas las lecturas y todas las escrituras.
 
+<img src="images/m103/c2/2-3-replicaset.png">
+
 O nodo secundario donde la responsabilidad de este nodo es replicar toda la información, y luego servir como una alta disponibilidad para el nodo en caso de falla del primario.
 
 Los secundarios obtendrán los datos del primario a través de un mecanismo de replicación asincrónica.
 
-Cada vez que una aplicación escribe algunos datos en el conjunto de réplicas, ese derecho lo maneja el nodo primario.
+Cada vez que una aplicación escribe algunos datos en el replica set, ese derecho lo maneja el nodo primario.
+
+<img src="images/m103/c2/2-3-client.png">
 
 Y luego los datos se replican en los nodos secundarios.
+
+<img src="images/m103/c2/2-3-client-2.png">
 
 Ahora este mecanismo de replicación se basa en un protocolo que gestiona la forma en que los secundarios deben leer los datos del primario.
 
 En MongoDB, este protocolo de replicación síncrona puede tener diferentes versiones.
 
-Tenemos PV1 y PV0.
+<img src="images/m103/c2/2-3-client-3.png">
+
+Tenemos **PV1** y **PV0**.
 
 Las diferentes versiones del protocolo de replicación variarán ligeramente en la forma en que la durabilidad y la disponibilidad se verán forzadas en todo el conjunto.
 
 Actualmente, la versión 1 del protocolo, o PV1, es la versión predeterminada.
 
-Este protocolo se basa en el protocolo RAFT.
+<img src="images/m103/c2/2-3-client-4.png">
+
+Este protocolo se basa en el protocolo **RAFT**.
 
 Si no está familiarizado con el protocolo RAFT, en las notas de esta lección, encontrará información detallada sobre RAFT.
 
@@ -310,11 +320,15 @@ Solo tenga en cuenta por ahora que las versiones anteriores de MongoDB usaban la
 
 Por ahora, nos centraremos en PV1.
 
-En el corazón de este mecanismo de replicación está nuestro registro de operaciones, u oplog para abreviar.
+En el corazón de este mecanismo de replicación está nuestro registro de operaciones, u **oplog** para abreviar.
+
+<img src="images/m103/c2/2-3-oplog.png">
 
 El oplog es un bloqueo basado en segmentos que realiza un seguimiento de todas las operaciones de escritura reconocidas por los conjuntos de réplica.
 
 Cada vez que una escritura se aplica con éxito al nodo primario, se registrará en el oplog en su forma idempotente.
+
+<img src="images/m103/c2/2-3-oplog-2.png">
 
 Analizaremos los detalles de idempotencia más adelante.
 
@@ -324,7 +338,9 @@ Y el resultado final de esa operación siempre dará como resultado el mismo res
 
 Más sobre esto más adelante.
 
-Además de un rol primario o secundario, un miembro del conjunto de réplicas también se puede configurar como árbitro.
+Además de un rol primario o secundario, un miembro del conjunto de réplicas también se puede configurar como **árbitro**.
+
+<img src="images/m103/c2/2-3-arbiter.png">
 
 Un árbitro es un miembro que no tiene datos.
 
@@ -332,49 +348,63 @@ Su mera existencia es servir como un desempate entre los secundarios en una elec
 
 Y, obviamente, si no tiene datos, nunca puede convertirse en primario.
 
-Los conjuntos de réplica son resistentes a fallas.
+<img src="images/m103/c2/2-3-arbiter-2.png">
 
-Eso significa que tienen un mecanismo de conmutación por error que requiere que la mayoría de los nodos en un conjunto de réplica estén disponibles para que se elija una primaria.
+Los replica sets son resistentes a fallas.
+
+Eso significa que tienen un mecanismo de conmutación por error (failover) que requiere que la mayoría de los nodos en un replica set estén disponibles para que se elija una primaria.
 
 En este caso particular, supongamos que perdemos el acceso a nuestro primario.
 
-Si no tenemos una primaria, no podremos escribir, y eso no es bueno.
+<img src="images/m103/c2/2-3-replicaset-failure.png">
+
+Si no tenemos un primario, no podremos escribir, y eso no es bueno.
 
 Entonces, necesitamos despejar entre los nodos restantes del conjunto, ¿cuál podría convertirse en el nuevo primario?
 
 Eso es a través de una elección, que se incrusta en los detalles de la versión política.
 
+<img src="images/m103/c2/2-3-election.png">
+
 Cómo se elige una primaria o por qué esto: un nodo particular se convierte en primario en lugar de otro.
 
 Está fuera de alcance por ahora, pero tenga en cuenta que los detalles de estos estarán relacionados con la versión de protocolo que pueda tener su sistema.
 
-Por ahora, solo tenga en cuenta que existe un mecanismo de conmutación por error.
+Por ahora, solo tenga en cuenta que existe un mecanismo de conmutación por error (failover mechanism).
 
-Es importante tener en cuenta que siempre debe tener al menos un número impar de nodos en su conjunto de réplicas.
+Es importante tener en cuenta que siempre debe tener al menos un **número impar de nodos en su replica set**.
 
 En caso de un número par de nodos, asegúrese de que la mayoría esté constantemente disponible.
+
+<img src="images/m103/c2/2-3-replicaset-four.png">
 
 En esta forma de conjunto de réplicas, necesitará tener al menos tres nodos para estar disponibles.
 
 La lista de los miembros del conjunto de réplica en sus opciones de configuración define la topología del conjunto de réplica.
 
+<img src="images/m103/c2/2-3-replicaset-four-2.png">
+
 Cualquier cambio de topología desencadenará una elección.
 
-Agregar miembros al conjunto, fallar miembros o cambiar cualquiera de los aspectos de configuración del conjunto de réplica se percibirá como un cambio de topología.
+Agregar miembros al conjunto, fallas en miembros o cambiar cualquiera de los aspectos de configuración del conjunto de réplica se percibirá como un cambio de topología.
 
-La topología de un conjunto de réplica se define en la configuración del conjunto de réplica.
+La topología de un replica set se define en la configuración del replica set.
 
-La configuración del conjunto de réplicas se define en uno de los nodos y luego se comparte entre todos los miembros a través del mecanismo de replicación.
+La configuración del replica set se define en uno de los nodos y luego se comparte entre todos los miembros a través del mecanismo de replicación.
 
 Examinaremos los documentos de configuración de replicación en detalle más adelante.
 
 En este caso, tenemos cuatro miembros y necesito llamar su atención sobre una situación específica.
 
-Esta topología ofrece exactamente el mismo número de fallas que un conjunto de réplicas de tres nodos.
+<img src="images/m103/c2/2-3-replicaset-four-3.png">
 
-solo puede permitirse perder un miembro.
+Esta topología ofrece exactamente el mismo número de fallas que un replica set de tres nodos.
+
+Solo puede permitirse perder un miembro.
 
 En caso de perder dos de ellos, no tendremos mayoría disponible fuera de los sets.
+
+<img src="images/m103/c2/2-3-replicaset-four-4.png">
 
 ¿Por qué?
 
@@ -386,11 +416,17 @@ Tener ese nodo adicional no proporcionará disponibilidad adicional del servicio
 
 Solo otra copia redundante de nuestros datos, lo cual es bueno, pero no necesariamente por razones de disponibilidad.
 
-Ahora, los conjuntos de réplicas pueden llegar hasta 50 miembros.
+Ahora, los replica sets pueden llegar hasta 50 miembros.
+
+<img src="images/m103/c2/2-3-replicaset-50.png">
 
 Y esto podría ser útil, especialmente para la distribución geográfica de nuestros datos donde queremos copias de nuestros datos más cerca de nuestros usuarios y aplicaciones, o simplemente en múltiples ubicaciones para la redundancia.
 
+<img src="images/m103/c2/2-3-replicaset-50-2.png">
+
 Pero solo un máximo de siete de esos miembros pueden ser miembros con derecho a voto.
+
+<img src="images/m103/c2/2-3-replicaset-7-voting.png">
 
 Más de siete miembros pueden hacer que las rondas electorales tomen demasiado tiempo, con poco o ningún beneficio por motivos de disponibilidad y coherencia.
 
@@ -398,9 +434,13 @@ Entonces, entre esos siete nodos, uno de ellos se convertirá en el primario y l
 
 Ahora, si por alguna razón no podemos o no queremos tener un nodo con datos, pero aún así podemos realizar una conmutación por error entre nodos, podemos agregar un miembro del conjunto de réplicas como árbitro.
 
-Dicho esto, los árbitros causan importantes problemas de consistencia en los sistemas de datos distribuidos.
+<img src="images/m103/c2/2-3-arbiter-3.png">
+
+Dicho esto, **los árbitros causan importantes problemas de consistencia en los sistemas de datos distribuidos**.
 
 Por lo tanto, le recomendamos que los use con cuidado.
+
+<img src="images/m103/c2/2-3-arbiter-4.png">
 
 En mi opinión personal, el uso de árbitros es una opción muy sensible y potencialmente dañina en muchas implementaciones.
 
@@ -410,29 +450,50 @@ Dentro de los nodos secundarios, estos también se pueden configurar para que te
 
 Podemos definir nodos ocultos, por ejemplo.
 
+<img src="images/m103/c2/2-3-hidden.png">
+
 El propósito de un nodo oculto es proporcionar cargas de trabajo específicas de solo lectura, o tener copias sobre sus datos que están ocultos de la aplicación.
 
 Los nodos ocultos también se pueden configurar con un retraso en su proceso de replicación.
 
-Llamamos a estos nodos retrasados.
+Llamamos a estos nodos **delayed** (retrasados).
 
-El propósito de tener nodos retrasados ​​es permitir la resistencia a la corrupción a nivel de aplicación, sin depender de archivos de copia de seguridad en frío para recuperarse de tal evento.
+<img src="images/m103/c2/2-3-delayed.png">
 
-Si tenemos un nodo retrasado, digamos una hora, y si su DBA cae accidentalmente una colección, tenemos una hora para recuperar todos los datos del nodo retrasado sin necesidad de volver al archivo de copia de seguridad para recuperar en cualquier momento que Se creó una copia de seguridad.
+El propósito de tener nodos delayed es permitir la resistencia a la corrupción a nivel de aplicación, sin depender de archivos de copia de seguridad en frío para recuperarse de tal evento.
+
+Si tenemos un nodo delayed, digamos una hora, y si su DBA pierde accidentalmente una colección, tenemos una hora para recuperar todos los datos del nodo delayed sin necesidad de volver al archivo de copia de seguridad para recuperar en cualquier momento que se creó una copia de seguridad.
 
 Permitiéndonos tener copias de seguridad en caliente.
 
 Recapitulemos lo que acabamos de aprender en esta conferencia.
 
-Los conjuntos de réplica son grupos de procesos mongod que comparten los mismos datos entre todos los miembros del conjunto.
+<img src="images/m103/c2/2-3-resumen.png">
 
-Proporcionan un mecanismo de alta disponibilidad y conmutación por error para nuestra aplicación, lo que hace que el servicio en caso de falla.
+Los creplica sets son grupos de procesos mongod que comparten los mismos datos entre todos los miembros del conjunto.
 
-La conmutación por error es compatible con la mayoría de los nodos que eligen entre ellos quién debería ser el nuevo nodo primario en cada momento.
+Proporcionan un mecanismo de alta disponibilidad y conmutación por error (failover) para nuestra aplicación, lo que hace que el servicio no caiga en caso de falla.
 
-Los conjuntos de réplicas son un sistema dinámico, significa que los miembros pueden tener diferentes roles en diferentes momentos y pueden configurarse para abordar un propósito funcional específico, como abordar la lectura en las cargas de trabajo, o configurarse para retrasarse a tiempo para permitir copias de seguridad en caliente.
+La conmutación por error(failover) es compatible con la mayoría de los nodos que eligen entre ellos quién debería ser el nuevo nodo primario en cada momento.
 
-## 4. Examen
+Los replica sets son un sistema dinámico, significa que los miembros pueden tener diferentes roles en diferentes momentos y pueden configurarse para abordar un propósito funcional específico, como abordar la lectura en las cargas de trabajo, o configurarse para retrasarse a tiempo para permitir copias de seguridad en caliente.
+
+## 4. Examen MongoDB Replica Set
+
+**Problem:**
+
+Which of the following are true for replica sets in MongoDB?
+
+Check all answers that apply:
+
+* We can have up to 50 voting members in a replica set.
+
+* Replica set members have a fixed role assigned.
+
+* We should always use arbiters.
+
+* Replica sets provide high availability.
+
 
 ## 5. Tema: Configuración de un conjunto de réplicas
 
