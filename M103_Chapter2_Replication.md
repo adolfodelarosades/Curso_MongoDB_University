@@ -1700,9 +1700,32 @@ Hay una gran cantidad de otras opciones de configuración que tratan con mecanis
 
 Estamos fuera de alcance en eso, pero tenga en cuenta que hay mucho más en el documento de replica set que puede configurar.
 
-## 9. Examen
+## 9. Examen Replication Configuration Document
+
+**Problem:**
+
+Which of the following fields are included in the replica set configuration document?
+
+Check all answers that apply:
+
+* `_id` :+1:
+
+* `version` :+1:
+
+* `members` :+1:
 
 ## 10. Tema: Comandos de replicación
+
+### Instrucción de este tema
+
+Comandos cubiertos en este tema:
+
+```sh
+rs.status()
+rs.isMaster()
+db.serverStatus()['repl']
+rs.printReplicationInfo()
+```
 
 ### Transcripción
 
