@@ -720,7 +720,7 @@ Y esta configuración debería resultarle bastante familiar si ha seguido las le
 
 En realidad, no necesitamos cambiar ninguna de estas configuraciones para habilitar la replicación, solo necesitamos agregar algunas líneas.
 
-Entonces, esta línea permite la autenticación de archivos clave en nuestro clúster, lo que exige que todos los miembros del replica set se autentiquen entre sí utilizando un archivo clave que creamos aquí.
+Entonces, esta línea `keyFile: /var/mongodb/pki/m103-keyfile` permite la autenticación de archivos clave en nuestro clúster, lo que exige que todos los miembros del replica set se autentiquen entre sí utilizando un archivo clave que creamos aquí.
 
 ```sh
 storage:
@@ -741,9 +741,16 @@ processManagement:
 
 Y crearemos este en un minuto.
 
-Esto se suma a la autenticación del cliente que habilitamos en la línea anterior.
+Esto se suma a la autenticación del cliente que habilitamos en la línea anterior `authorization: enabled`.
 
 Entonces creamos este archivo de clave usando OpenSSL, y lo colocamos en el directorio que especificamos en nuestro archivo de configuración.
+
+```sh
+sudo mkdir -p /var/mongodb/pki/
+sudo chown vagrant:vagrant /var/mongodb/pki/
+openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+chmod 400 /var/mongodb/pki/m103-keyfile
+```
 
 Pero en este momento, nuestros procesos mongod en realidad no pueden usar este archivo de clave porque no tienen los permisos para leerlo.
 
@@ -751,19 +758,66 @@ Entonces, lo que vamos a hacer es cambiar los permisos usando `chmod` para permi
 
 600 (400) aquí solo especifica nuevos permisos.
 
-Entonces, habilitar la autenticación de archivos clave aquí habilita implícitamente la autenticación del cliente que habilitamos en la línea anterior, pero voy a dejar ambos aquí por el momento solo por claridad.
+Entonces, habilitar la autenticación de archivos clave aquí `keyFile: /var/mongodb/pki/m103-keyfile` habilita implícitamente la autenticación del cliente que habilitamos en la línea anterior `authorization: enabled`, pero voy a dejar ambos aquí por el momento solo por claridad.
+
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27011
+security:
+  authorization: enabled
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+```
 
 Este es un recordatorio de que, además de autenticarse con el cliente, nuestros nodos también se autentican entre sí.
 
 Entonces esta es la última línea que tenemos que agregar a nuestro archivo de configuración para permitir la replicación en este nodo.
 
+```sh
+replication:
+  replSetName: m103-example
+```
+
 Y todo lo que hace es especificar el nombre del conjunto de réplicas del que este nodo formará parte.
 
-Ahora todo lo que tenemos que hacer es crear la ruta de DB que nombramos aquí.
+```sh
+storage:
+  dbPath: /var/mongodb/db/node1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27011
+security:
+  authorization: enabled
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Ahora todo lo que tenemos que hacer es crear la ruta de DB que nombramos aquí `dbPath: /var/mongodb/db/node1`.
 
 Y en realidad podemos usar este archivo para iniciar un mongod.
 
 Así que aquí solo estoy creando mi ruta de DB, y ahora puedo iniciar el mongod usando nuestro archivo de configuración.
+
+```sh
+$ mkdir -p /var/mongodb/db/node1
+$ mongod -f node1.conf
+```
 
 Y hemos comenzado con éxito nuestro primer nodo.
 
@@ -771,27 +825,110 @@ Así que ahora tenemos un nodo y solo nos quedan dos más.
 
 Entonces, este comando simplemente está copiando el archivo que acabamos de crear en un nuevo archivo llamado `node2.conf` porque los otros dos nodos tendrán configuraciones muy similares.
 
+```sh
+cp node1.conf node2.conf
+```
+
 Básicamente podemos copiar este, cambiar tres líneas y lanzar un nuevo nodo.
 
 Nunca subestimes el poder de copiar y pegar.
 
-Voy a hacer lo mismo para nuestro tercer nodo aquí, y luego editaré el segundo.
+Voy a hacer lo mismo para nuestro tercer nodo aquí
+
+```sh
+cp node2.conf node3.conf
+```
+
+, y luego editaré el segundo.
+
+
+```sh
+vi node2.conf
+```
 
 Entonces, las tres cosas que necesitamos cambiar en este archivo son la ruta de la base de datos, el número de puerto y la ruta del registro.
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node2
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27012
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node2/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Guardar el archivo y salir de vi:
+
+```sh
+:wq
+```
 
 Una vez que hacemos eso, en realidad estamos bien para comenzar un nuevo nodo.
 
 Así que aquí acabo de crear la ruta para el nodo 2 y la estoy iniciando con mongod.
 
+```sh
+$ mkdir /var/mongodb/db/node2
+$ mongod -f node2.conf
+
+MAS TEXTO
+```
+
 Y ahora tenemos dos nodos en nuestro conjunto.
 
 Solo voy a hacer lo mismo para nuestro tercer archivo de configuración, y notaré que los tres nodos en el conjunto de réplica hacen referencia al mismo archivo de clave.
 
+```sh
+vi node3.conf
+```
+
+```sh
+vi node3.conf
+
+storage:
+  dbPath: /var/mongodb/db/node3
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27013
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node3/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+```sh
+$ mkdir /var/mongodb/db/node3
+$ mongod -f node3.conf
+
+MAS TEXTO
+```
+
 Por lo general, estas instancias mongod se estarían ejecutando en diferentes máquinas, pero debido a que se están ejecutando en la misma máquina, todas compartirán el mismo archivo de clave y usarán el mismo para autenticarse entre sí.
+
+```sh
+keyFile: /var/mongodb/pki/m103-keyfile
+```
 
 Normalmente, este archivo de clave se copiará en cada máquina donde se ejecuta cada mongod.
 
 Entonces, en este punto, comenzamos tres procesos mongod que eventualmente formarán un conjunto de réplicas.
+
+<img src="images/m103/c2/2-5-replicaset-2.png">
 
 Pero en este momento, no pueden replicar datos.
 
@@ -802,6 +939,9 @@ Son ciegos al mundo que los rodea.
 Necesitamos habilitar la comunicación entre los nodos para que puedan permanecer sincronizados.
 
 Así que solo voy a conectarme al nodo uno aquí.
+
+
+
 
 Entonces uso este comando `rs.initiate` para iniciar el conjunto de réplicas.
 
