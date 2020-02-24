@@ -492,7 +492,7 @@ Check all answers that apply:
 
 * We should always use arbiters.
 
-* Replica sets provide high availability.
+* Replica sets provide high availability. :+1:
 
 
 ## 5. Tema: Configuración de un conjunto de réplicas
