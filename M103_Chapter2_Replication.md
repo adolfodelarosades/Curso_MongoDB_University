@@ -689,6 +689,154 @@ rs.isMaster()
 
 ### Transcripción
 
+Muy bien, así que en esta lección, vamos a iniciar un replica set locales.
+
+Comenzaremos lanzando independientemente tres procesos mongod y no podrán comunicarse entre sí hasta que los conectemos, en ese momento podrán replicar datos para nosotros.
+
+Entonces este es el archivo de configuración para el nodo independiente.
+
+Lo hemos llamado nodo 1.
+
+Y esta configuración debería resultarle bastante familiar si ha seguido las lecciones anteriores.
+
+En realidad, no necesitamos cambiar ninguna de estas configuraciones para habilitar la replicación, solo necesitamos agregar algunas líneas.
+
+Entonces, esta línea permite la autenticación de archivos clave en nuestro clúster, lo que exige que todos los miembros del replica set se autentiquen entre sí utilizando un archivo clave que creamos aquí.
+
+Y crearemos este en un minuto.
+
+Esto se suma a la autenticación del cliente que habilitamos en la línea anterior.
+
+Entonces creamos este archivo de clave usando OpenSSL, y lo colocamos en el directorio que especificamos en nuestro archivo de configuración.
+
+Pero en este momento, nuestros procesos mongod en realidad no pueden usar este archivo de clave porque no tienen los permisos para leerlo.
+
+Entonces, lo que vamos a hacer es cambiar los permisos usando `chmod` para permitirles leer el archivo.
+
+600 (400) aquí solo especifica nuevos permisos.
+
+Entonces, habilitar la autenticación de archivos clave aquí habilita implícitamente la autenticación del cliente que habilitamos en la línea anterior, pero voy a dejar ambos aquí por el momento solo por claridad.
+
+Este es un recordatorio de que, además de autenticarse con el cliente, nuestros nodos también se autentican entre sí.
+
+Entonces esta es la última línea que tenemos que agregar a nuestro archivo de configuración para permitir la replicación en este nodo.
+
+Y todo lo que hace es especificar el nombre del conjunto de réplicas del que este nodo formará parte.
+
+Ahora todo lo que tenemos que hacer es crear la ruta de DB que nombramos aquí.
+
+Y en realidad podemos usar este archivo para iniciar un mongod.
+
+Así que aquí solo estoy creando mi ruta de DB, y ahora puedo iniciar el mongod usando nuestro archivo de configuración.
+
+Y hemos comenzado con éxito nuestro primer nodo.
+
+Así que ahora tenemos un nodo y solo nos quedan dos más.
+
+Entonces, este comando simplemente está copiando el archivo que acabamos de crear en un nuevo archivo llamado `node2.conf` porque los otros dos nodos tendrán configuraciones muy similares.
+
+Básicamente podemos copiar este, cambiar tres líneas y lanzar un nuevo nodo.
+
+Nunca subestimes el poder de copiar y pegar.
+
+Voy a hacer lo mismo para nuestro tercer nodo aquí, y luego editaré el segundo.
+
+Entonces, las tres cosas que necesitamos cambiar en este archivo son la ruta de la base de datos, el número de puerto y la ruta del registro.
+
+Una vez que hacemos eso, en realidad estamos bien para comenzar un nuevo nodo.
+
+Así que aquí acabo de crear la ruta para el nodo 2 y la estoy iniciando con mongod.
+
+Y ahora tenemos dos nodos en nuestro conjunto.
+
+Solo voy a hacer lo mismo para nuestro tercer archivo de configuración, y notaré que los tres nodos en el conjunto de réplica hacen referencia al mismo archivo de clave.
+
+Por lo general, estas instancias mongod se estarían ejecutando en diferentes máquinas, pero debido a que se están ejecutando en la misma máquina, todas compartirán el mismo archivo de clave y usarán el mismo para autenticarse entre sí.
+
+Normalmente, este archivo de clave se copiará en cada máquina donde se ejecuta cada mongod.
+
+Entonces, en este punto, comenzamos tres procesos mongod que eventualmente formarán un conjunto de réplicas.
+
+Pero en este momento, no pueden replicar datos.
+
+Y, de hecho, no saben que hay otros nodos por ahí.
+
+Son ciegos al mundo que los rodea.
+
+Necesitamos habilitar la comunicación entre los nodos para que puedan permanecer sincronizados.
+
+Así que solo voy a conectarme al nodo uno aquí.
+
+Entonces uso este comando `rs.initiate` para iniciar el conjunto de réplicas.
+
+Y en realidad necesitamos ejecutarlo en uno de los nodos.
+
+Como lo ejecutamos aquí, solo tenemos que agregar los otros dos nodos desde este nodo.
+
+Sin embargo, tenemos habilitada la autenticación del cliente, por lo que no podemos agregar otros nodos al conjunto hasta que creamos un usuario y luego nos conectamos como ese usuario.
+
+Muy bien, entonces este comando creó nuestro súper usuario `m103`, llamado `m103-admin`, que tiene acceso de root y se autentica en la base de datos de administración.
+
+Ahora voy a salir de este mongod y luego volver a iniciar sesión como ese usuario.
+
+Entonces este es el comando que vamos a usar para conectarnos al conjunto de réplicas.
+
+Y además de autenticar aquí con una contraseña de nombre de usuario, tenemos que especificar el nombre de la réplica establecida en el nombre del host.
+
+Esto le indicará al shell mongo que se conecte directamente al conjunto de réplicas, en lugar de solo este nodo que especificamos.
+
+Lo que va a hacer el shell es usar este nodo para descubrir cuál es el primario actual del conjunto de réplicas y luego conectarse a ese nodo.
+
+En este caso, obviamente solo hay un nodo en el conjunto y ese nodo es el primario.
+
+Entonces esa es la que nos conectó el shell.
+
+Entonces este comando, `rs.status` es una forma útil de obtener un informe de estado en nuestro conjunto de réplicas.
+
+Mira, nos da el nombre del conjunto.
+
+Nos da cuánto tiempo son los intervalos entre latidos.
+
+Por defecto, son 2000 milisegundos, lo que significa que los nodos están hablando entre sí cada dos segundos.
+
+Podemos desplazarnos hacia abajo para obtener una lista de los miembros del conjunto.
+
+En este caso, es solo un miembro, al cual estamos conectados, el primario actual.
+
+Entonces, este es el comando que usamos para agregar nuevos nodos a nuestro conjunto de réplicas, `rs.add`, y todo lo que tenemos que especificar aquí es el nombre de host, que es solo el nombre de host del cuadro Vagrant y el puerto que ese nodo está ejecutando en.
+
+Ahora que funcionó.
+
+Solo voy a hacer lo mismo para nuestro tercer nodo.
+
+Solo voy a verificar `rs.isMaster`.
+
+Y podemos ver que nuestro replica set ahora tiene tres nodos.
+
+Entonces, ahora que hemos agregado esos dos nodos a nuestro replica set y los hemos conectado, pueden replicar datos entre sí.
+
+Una cosa que quiero señalar en este momento es que el primario actual se está ejecutando en el puerto 27011.
+
+Y podríamos verificar eso a partir de la salida de `rs.isMaster`, donde dice que primario es, de hecho, el nodo que se ejecuta en 27011.
+
+Sin embargo, podemos forzar una elección para que una nota diferente se vuelva primaria.
+
+Y el comando que usamos para hacer eso se llama `rs.stepDown`.
+
+Ahora, el comando de reducción es lo que usamos para reducir de forma segura la primaria actual a una secundaria y forzar una elección.
+
+El error que estamos obteniendo aquí es porque el shell está tratando de conectarnos con el primario, pero los secundarios todavía están en el proceso de elegir un primario, por lo que no hay un primario en este momento.
+
+Tan pronto como uno sea elegido, el shell nos conectará con él, lo que acaba de hacer.
+
+Si volvemos a ejecutar `rs.isMaster`, podemos verificar que ahora este nodo es el primario actual, a diferencia de 27011, que era el primario antes.
+
+Entonces, para resumir, hemos cubierto cómo iniciar un conjunto de réplicas, cómo puede agregar nodos al conjunto de réplicas y cómo verificar el estado del conjunto de réplicas.
+
+Usamos `rs.status` y `rs.isMaster` en esta lección, y esos comandos tienen diferentes salidas para diferentes casos de uso.
+
+Y le instaría a explorarlos para descubrir cuál se ajusta a su caso de uso.
+
 ## 6. Examen
 
 ## 7. Laboratorio: iniciar un conjunto de réplicas localmente
