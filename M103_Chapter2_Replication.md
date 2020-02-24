@@ -497,6 +497,196 @@ Check all answers that apply:
 
 ## 5. Tema: Configuración de un conjunto de réplicas
 
+### Notas de lectura
+
+Lea más sobre los [comandos VI](http://www.lagmonster.org/docs/vi.html).
+
+**Errata**
+
+En el minuto 1:08, Matt muestra cómo cambiar los permisos del archivo de clave para permitir que el proceso `mongod` lea el archivo usando el modo demasiado permisivo, 600. Un conjunto de permisos más correcto sería usar **400**. Hemos reflejado eso en el instrucciones de lectura a continuación.
+
+**Instrucciones de lectura**
+
+*Nota: En el video, utilizamos el antiguo nombre de host* `"m103.mongodb.university"` que se ha cambiado a `"m103"`. *Hemos actualizado todos los siguientes comandos en consecuencia*.
+
+El archivo de configuración para el primer nodo (`node1.conf`):
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27011
+security:
+  authorization: enabled
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Crear el archivo de claves y establecer permisos en él:
+
+```sh
+sudo mkdir -p /var/mongodb/pki/
+sudo chown vagrant:vagrant /var/mongodb/pki/
+openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+chmod 400 /var/mongodb/pki/m103-keyfile
+```
+
+Crear el dbpath para **node1**:
+
+```sh
+mkdir -p /var/mongodb/db/node1
+```
+
+Iniciar una `mongod` con `node1.conf`:
+
+```sh
+mongod -f node1.conf
+```
+
+Copiando `node1.conf` a `node2.conf` y `node3.conf`:
+
+```sh
+cp node1.conf node2.conf
+cp node2.conf node3.conf
+```
+
+Editar `node2.conf` usando `vi`:
+
+```sh
+vi node2.conf
+```
+
+Guardar el archivo y salir de `vi`:
+
+```sh
+:wq
+```
+
+`node2.conf`, después de cambiar `dbpath`, `port` y `logpath`:
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node2
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27012
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node2/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+`node3.conf`, después de cambiar `dbpath`, `port`, y `logpath`:
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node3
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27013
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node3/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Crear los directorios de datos para `node2` y `node3`:
+
+```sh
+mkdir /var/mongodb/db/{node2,node3}
+```
+
+Inicio de procesos mongod con `node2.conf` y `node3.conf`:
+
+```sh
+mongod -f node2.conf
+mongod -f node3.conf
+```
+
+Cononectarse a `node1`:
+
+```sh
+mongo --port 27011
+```
+
+Inicializando el replica set:
+
+```sh
+rs.initiate()
+```
+
+Crear un user:
+
+```sh
+use admin
+db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+```
+
+Saliendo del Shell Mongo y conectándose a todo el replica set:
+
+```sh
+exit
+mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
+-p "m103-pass" --authenticationDatabase "admin"
+```
+
+Obtención del estado del replica set:
+
+```sh
+rs.status()
+```
+
+Agregar otros miembros al replica set:
+
+```sh
+rs.add("m103:27012")
+rs.add("m103:27013")
+```
+
+Obtención de una descripción general de la topología del replica set:
+
+```sh
+rs.isMaster()
+```
+
+Dar de baja el primario actual:
+
+```sh
+rs.stepDown()
+```
+
+Comprobación de la descripción general del replica set después de la elección:
+
+```sh
+rs.isMaster()
+```
+
 ### Transcripción
 
 ## 6. Examen
