@@ -938,12 +938,19 @@ Son ciegos al mundo que los rodea.
 
 Necesitamos habilitar la comunicación entre los nodos para que puedan permanecer sincronizados.
 
+<img src="images/m103/c2/2-5-replicaset-3.png">
+
 Así que solo voy a conectarme al nodo uno aquí.
 
-
-
+```sh
+$ mongo --port 27011
+```
 
 Entonces uso este comando `rs.initiate` para iniciar el conjunto de réplicas.
+
+```sh
+$ rs.initiate()
+```
 
 Y en realidad necesitamos ejecutarlo en uno de los nodos.
 
@@ -953,7 +960,35 @@ Sin embargo, tenemos habilitada la autenticación del cliente, por lo que no pod
 
 Muy bien, entonces este comando creó nuestro súper usuario `m103`, llamado `m103-admin`, que tiene acceso de root y se autentica en la base de datos de administración.
 
+```sh
+$ use admin
+$ db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+```
+
 Ahora voy a salir de este mongod y luego volver a iniciar sesión como ese usuario.
+
+
+```sh
+exit
+mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
+-p "m103-pass" --authenticationDatabase "admin"
+```
+
+
+```sh
+
+```
+
+
+```sh
+
+```
 
 Entonces este es el comando que vamos a usar para conectarnos al conjunto de réplicas.
 
