@@ -1163,25 +1163,25 @@ mkdir /var/mongodb/db/{1,2,3}
 
 Once your configuration files are complete, you can start up the replica set:
 
-1. Start a mongod process with the first config file (on port 27001). This mongod process will act as the primary node in your replica set (at least, until an election occurs).
+1. Start a mongod process with the first config file (on port **27001**). This mongod process will act as the primary node in your replica set (at least, until an election occurs).
 
-2. Now use the mongo shell to connect to this node. On this node, and only this node, initiate your replica set with rs.initiate(). Remember that this will only work if you are connected from localhost.
+2. Now use the mongo shell to connect to this node. On this node, and **only** this node, initiate your replica set with `rs.initiate()`. Remember that this will only work if you are connected from `localhost`.
 
-3. Once you run rs.initiate(), the node automatically configures a default replication configuration and elects itself as a primary. Use rs.status() to check the status of the replica set. The shell prompt will read PRIMARY once the initiation process completes successfully.
+3. Once you run `rs.initiate()`, the node automatically configures a default replication configuration and elects itself as a primary. Use `rs.status()` to check the status of the replica set. The shell prompt will read `PRIMARY` once the initiation process completes successfully.
 
 4. Because the replica set uses a keyfile for internal authentication, clients must authenticate before performing any actions.
 
-   While still connected to the primary node, create an admin user for your cluster using the localhost exception. As a reminder, here are the requirements for this user:
+   While still connected to the primary node, create an admin user for your cluster using the `localhost` exception. As a reminder, here are the requirements for this user:
 
-   * Role: root on admin database
-   * Username: m103-admin
-   * Password: m103-pass
+   * Role: `root` on `admin` database
+   * Username: `m103-admin`
+   * Password: `m103-pass`
 
 5. Now exit the mongo shell and start the other two mongod processes with their respective configuration files.
 
-6. Reconnect to your primary node as m103-admin and add the other two nodes to your replica set. Remember to use the IP address of the Vagrant box 192.168.103.100 when adding these nodes.
+6. Reconnect to your primary node as `m103-admin` and add the other two nodes to your replica set. Remember to use the IP address of the Vagrant box `192.168.103.100` when adding these nodes.
 
-7. Once your other two members have been successfully added, run rs.status() to check that the members array has three nodes - one labeled PRIMARY and two labeled SECONDARY.
+7. Once your other two members have been successfully added, run `rs.status()` to check that the `members` array has three nodes - one labeled `PRIMARY` and two labeled `SECONDARY`.
 
 Now run the validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
 
