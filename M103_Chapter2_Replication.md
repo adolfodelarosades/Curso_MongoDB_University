@@ -746,10 +746,10 @@ Esto se suma a la autenticación del cliente que habilitamos en la línea anteri
 Entonces creamos este archivo de clave usando OpenSSL, y lo colocamos en el directorio que especificamos en nuestro archivo de configuración.
 
 ```sh
-sudo mkdir -p /var/mongodb/pki/
-sudo chown vagrant:vagrant /var/mongodb/pki/
-openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
-chmod 400 /var/mongodb/pki/m103-keyfile
+vagrant@m103:~$ sudo mkdir -p /var/mongodb/pki/
+vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/pki/
+vagrant@m103:~$ openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+vagrant@m103:~$ chmod 400 /var/mongodb/pki/m103-keyfile
 ```
 
 Pero en este momento, nuestros procesos mongod en realidad no pueden usar este archivo de clave porque no tienen los permisos para leerlo.
@@ -815,8 +815,13 @@ Y en realidad podemos usar este archivo para iniciar un mongod.
 Así que aquí solo estoy creando mi ruta de DB, y ahora puedo iniciar el mongod usando nuestro archivo de configuración.
 
 ```sh
-$ mkdir -p /var/mongodb/db/node1
-$ mongod -f node1.conf
+vagrant@m103:~$ mkdir -p /var/mongodb/db/node1
+vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/node1/
+vagrant@m103:~$ mongod -f ./node1.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 2404
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
 
 Y hemos comenzado con éxito nuestro primer nodo.
@@ -826,7 +831,7 @@ Así que ahora tenemos un nodo y solo nos quedan dos más.
 Entonces, este comando simplemente está copiando el archivo que acabamos de crear en un nuevo archivo llamado `node2.conf` porque los otros dos nodos tendrán configuraciones muy similares.
 
 ```sh
-cp node1.conf node2.conf
+vagrant@m103:~$ cp node1.conf node2.conf
 ```
 
 Básicamente podemos copiar este, cambiar tres líneas y lanzar un nuevo nodo.
@@ -836,7 +841,7 @@ Nunca subestimes el poder de copiar y pegar.
 Voy a hacer lo mismo para nuestro tercer nodo aquí
 
 ```sh
-cp node2.conf node3.conf
+vagrant@m103:~$ cp node2.conf node3.conf
 ```
 
 , y luego editaré el segundo.
@@ -877,19 +882,20 @@ Una vez que hacemos eso, en realidad estamos bien para comenzar un nuevo nodo.
 Así que aquí acabo de crear la ruta para el nodo 2 y la estoy iniciando con mongod.
 
 ```sh
-$ mkdir /var/mongodb/db/node2
-$ mongod -f node2.conf
+vagrant@m103:~$ mkdir /var/mongodb/db/node2
 
-MAS TEXTO
+vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/node2
+
+vagrant@m103:~$ mongod -f node2.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 2455
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
 
 Y ahora tenemos dos nodos en nuestro conjunto.
 
 Solo voy a hacer lo mismo para nuestro tercer archivo de configuración, y notaré que los tres nodos en el conjunto de réplica hacen referencia al mismo archivo de clave.
-
-```sh
-vi node3.conf
-```
 
 ```sh
 vi node3.conf
@@ -912,17 +918,18 @@ replication:
 ```
 
 ```sh
-$ mkdir /var/mongodb/db/node3
-$ mongod -f node3.conf
+vagrant@m103:~$ mkdir /var/mongodb/db/node3
 
-MAS TEXTO
+vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/node2
+
+vagrant@m103:~$ mongod -f node3.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 2495
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
 
-Por lo general, estas instancias mongod se estarían ejecutando en diferentes máquinas, pero debido a que se están ejecutando en la misma máquina, todas compartirán el mismo archivo de clave y usarán el mismo para autenticarse entre sí.
-
-```sh
-keyFile: /var/mongodb/pki/m103-keyfile
-```
+Por lo general, estas instancias mongod se estarían ejecutando en diferentes máquinas, pero debido a que se están ejecutando en la misma máquina, todas compartirán el mismo archivo de clave `keyFile: /var/mongodb/pki/m103-keyfile` y usarán el mismo para autenticarse entre sí.
 
 Normalmente, este archivo de clave se copiará en cada máquina donde se ejecuta cada mongod.
 
@@ -943,13 +950,37 @@ Necesitamos habilitar la comunicación entre los nodos para que puedan permanece
 Así que solo voy a conectarme al nodo uno aquí.
 
 ```sh
-$ mongo --port 27011
+vagrant@m103:~$ mongo --port 27011
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27011/?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("e3080836-f968-458b-a416-41bb33d46053") }
+MongoDB server version: 3.6.17
+MongoDB Enterprise > 
+
 ```
 
 Entonces uso este comando `rs.initiate` para iniciar el conjunto de réplicas.
 
 ```sh
-$ rs.initiate()
+MongoDB Enterprise m103-example:PRIMARY> rs.initiate()
+{
+	"info2" : "no configuration specified. Using a default configuration for the set",
+	"me" : "192.168.103.100:27011",
+	"info" : "try querying local.system.replset to see current configuration",
+	"ok" : 0,
+	"errmsg" : "already initialized",
+	"code" : 23,
+	"codeName" : "AlreadyInitialized",
+	"operationTime" : Timestamp(1582567520, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582567520, 1),
+		"signature" : {
+			"hash" : BinData(0,"dz+tLQF1l21yDuvszF08KAkSn64="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
 Y en realidad necesitamos ejecutarlo en uno de los nodos.
@@ -958,34 +989,63 @@ Como lo ejecutamos aquí, solo tenemos que agregar los otros dos nodos desde est
 
 Sin embargo, tenemos habilitada la autenticación del cliente, por lo que no podemos agregar otros nodos al conjunto hasta que creamos un usuario y luego nos conectamos como ese usuario.
 
-Muy bien, entonces este comando creó nuestro súper usuario `m103`, llamado `m103-admin`, que tiene acceso de root y se autentica en la base de datos de administración.
+Muy bien, entonces con el siguiente comando creó nuestro súper usuario `m103`, llamado `m103-admin`, que tiene acceso de root y se autentica en la base de datos `admin`.
 
 ```sh
-$ use admin
-$ db.createUser({
-  user: "m103-admin",
-  pwd: "m103-pass",
-  roles: [
-    {role: "root", db: "admin"}
-  ]
-})
+MongoDB Enterprise m103-example:PRIMARY> use admin
+switched to db admin
+
+MongoDB Enterprise m103-example:PRIMARY> db.createUser({
+...   user: "m103-admin",
+...   pwd: "m103-pass",
+...   roles: [
+...     {role: "root", db: "admin"}
+...   ]
+... })
+Successfully added user: {
+	"user" : "m103-admin",
+	"roles" : [
+		{
+			"role" : "root",
+			"db" : "admin"
+		}
+	]
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
 Ahora voy a salir de este mongod y luego volver a iniciar sesión como ese usuario.
 
-
 ```sh
-exit
-mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin"
--p "m103-pass" --authenticationDatabase "admin"
-```
+MongoDB Enterprise m103-example:PRIMARY> exit
+bye
 
+vagrant@m103:~$ mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://192.168.103.100:27011/?authSource=admin&gssapiServiceName=mongodb&replicaSet=m103-example
+2020-02-24T18:10:39.096+0000 I NETWORK  [thread1] Starting new replica set monitor for m103-example/192.168.103.100:27011
+2020-02-24T18:10:39.097+0000 I NETWORK  [thread1] Successfully connected to 192.168.103.100:27011 (1 connections now open to 192.168.103.100:27011 with a 5 second timeout)
+Implicit session: session { "id" : UUID("5d9da307-cdec-4eee-93b1-58be6e987724") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-24T17:43:17.073+0000 I STORAGE  [initandlisten] 
+2020-02-24T17:43:17.073+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-24T17:43:17.073+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:43:17.847+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Entonces este es el comando que vamos a usar para conectarnos al conjunto de réplicas.
 
 Y además de autenticar aquí con una contraseña de nombre de usuario, tenemos que especificar el nombre de la réplica establecida en el nombre del host.
 
-Esto le indicará al shell mongo que se conecte directamente al conjunto de réplicas, en lugar de solo este nodo que especificamos.
+Esto le indicará al Shell Mongo que se conecte directamente al replica set, en lugar de solo este nodo que especificamos.
 
 Lo que va a hacer el shell es usar este nodo para descubrir cuál es el primario actual del conjunto de réplicas y luego conectarse a ese nodo.
 
@@ -996,12 +1056,74 @@ Entonces esa es la que nos conectó el shell.
 Entonces este comando, `rs.status` es una forma útil de obtener un informe de estado en nuestro conjunto de réplicas.
 
 ```sh
-$ rs.status()
+MongoDB Enterprise m103-example:PRIMARY> rs.status()
+{
+	"set" : "m103-example",
+	"date" : ISODate("2020-02-24T18:12:55.931Z"),
+	"myState" : 1,
+	"term" : NumberLong(1),
+	"syncingTo" : "",
+	"syncSourceHost" : "",
+	"syncSourceId" : -1,
+	"heartbeatIntervalMillis" : NumberLong(2000),
+	"optimes" : {
+		"lastCommittedOpTime" : {
+			"ts" : Timestamp(1582567970, 1),
+			"t" : NumberLong(1)
+		},
+		"readConcernMajorityOpTime" : {
+			"ts" : Timestamp(1582567970, 1),
+			"t" : NumberLong(1)
+		},
+		"appliedOpTime" : {
+			"ts" : Timestamp(1582567970, 1),
+			"t" : NumberLong(1)
+		},
+		"durableOpTime" : {
+			"ts" : Timestamp(1582567970, 1),
+			"t" : NumberLong(1)
+		}
+	},
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.103.100:27011",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 1779,
+			"optime" : {
+				"ts" : Timestamp(1582567970, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2020-02-24T18:12:50Z"),
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"electionTime" : Timestamp(1582567469, 2),
+			"electionDate" : ISODate("2020-02-24T18:04:29Z"),
+			"configVersion" : 1,
+			"self" : true,
+			"lastHeartbeatMessage" : ""
+		}
+	],
+	"ok" : 1,
+	"operationTime" : Timestamp(1582567970, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582567970, 1),
+		"signature" : {
+			"hash" : BinData(0,"doEUCG+b9bZOJWbWCxB3hbFLDM0="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
-Mira, nos da el nombre del set.
+Mira, nos da el nombre del set `"set" : "m103-example"`.
 
-Nos da cuánto tiempo son los intervalos entre latidos `heartbeatIntervalMillis`.
+Nos da cuánto tiempo son los intervalos entre latidos `"heartbeatIntervalMillis" : NumberLong(2000)`.
 
 Por defecto, son 2000 milisegundos, lo que significa que los nodos están hablando entre sí cada dos segundos.
 
@@ -1011,14 +1133,33 @@ En este caso, es solo un miembro, al cual estamos conectados, el primario actual
 
 
 ```sh
-
+"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.103.100:27011",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 1779,
+			"optime" : {
+				"ts" : Timestamp(1582567970, 1),
+				"t" : NumberLong(1)
+			},
+			"optimeDate" : ISODate("2020-02-24T18:12:50Z"),
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"electionTime" : Timestamp(1582567469, 2),
+			"electionDate" : ISODate("2020-02-24T18:04:29Z"),
+			"configVersion" : 1,
+			"self" : true,
+			"lastHeartbeatMessage" : ""
+		}
+	],
 ```
 
-
-Entonces, este es el comando que usamos para agregar nuevos nodos a nuestro conjunto de réplicas, `rs.add`, 
-
-y todo lo que tenemos que especificar aquí es el nombre de host, que es solo el nombre de host del cuadro Vagrant y el puerto que ese nodo está ejecutando.
-
+Entonces, este es el comando que usamos para agregar nuevos nodos a nuestro conjunto de réplicas, `rs.add`, y todo lo que tenemos que especificar aquí es el nombre de host, que es solo el nombre de host del cuadro Vagrant y el puerto que ese nodo está ejecutando.
 
 ```sh
 rs.add("m103:27012")
