@@ -689,19 +689,55 @@ rs.isMaster()
 
 ### Transcripción
 
-Muy bien, así que en esta lección, vamos a iniciar un replica set locales.
+Muy bien, así que en esta lección, vamos a iniciar un replica set local.
 
 Comenzaremos lanzando independientemente tres procesos mongod y no podrán comunicarse entre sí hasta que los conectemos, en ese momento podrán replicar datos para nosotros.
 
+<img src="images/m103/c2/2-5-replicaset.png">
+
 Entonces este es el archivo de configuración para el nodo independiente.
 
-Lo hemos llamado nodo 1.
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27011
+security:
+  authorization: enabled  
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+```
+
+Lo hemos llamado node 1.
 
 Y esta configuración debería resultarle bastante familiar si ha seguido las lecciones anteriores.
 
 En realidad, no necesitamos cambiar ninguna de estas configuraciones para habilitar la replicación, solo necesitamos agregar algunas líneas.
 
 Entonces, esta línea permite la autenticación de archivos clave en nuestro clúster, lo que exige que todos los miembros del replica set se autentiquen entre sí utilizando un archivo clave que creamos aquí.
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27011
+security:
+  authorization: enabled
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+```
 
 Y crearemos este en un minuto.
 
