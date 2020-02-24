@@ -1572,7 +1572,7 @@ Si, por ejemplo, agregamos un nodo a nuestro replica set y si nuestra versión s
 
 <img src="images/m103/c2/2-8-version-3.png">
 
-Cada vez que cambiamos una topología, cambiamos la configuración de un conjunto de réplicas o hacemos algo como cambiar el número de votos de un host dado, eso incrementará automáticamente el número de versión.
+Cada vez que cambiamos una topología, cambiamos la configuración de un replica set o hacemos algo como cambiar el número de votos de un host dado, eso incrementará automáticamente el número de versión.
 
 <img src="images/m103/c2/2-8-version-4.png">
 
@@ -1580,17 +1580,23 @@ El siguiente campo en línea es **members**.
 
 Y los members es donde se define la topología de nuestro replica set.
 
+<img src="images/m103/c2/2-8-members.png">
+
 Cada elemento del array de miembros es un subdocumento que contiene los miembros del nodo del replica set.
 
 Cada uno tiene un host compuesto por el host name y port.
 
 En este caso, por ejemplo, tenemos `m103:27017`.
 
+<img src="images/m103/c2/2-8-members-2.png">
+
 Luego tenemos un conjunto de indicadores que determinan el papel de los nodos dentro del replica set.
 
 El `arbiterOnly` se explica por sí mismo.
 
 Esto significa que el nodo no retendrá ningún dato, y su contribución al conjunto es asegurar el quórum en las elecciones.
+
+<img src="images/m103/c2/2-8-members-3.png">
 
 `hidden--` es otro indicador que establece el nodo en función oculta.
 
@@ -1602,9 +1608,11 @@ No están relacionados con la naturaleza operativa de su aplicación.
 
 Por ejemplo, tener un nodo que maneje todos los informes o lecturas de BI.
 
-Ambos indicadores están configurados en falso de forma predeterminada.
+Ambos indicadores están configurados en `false` de forma predeterminada.
 
-Entonces tenemos prioridad, y la prioridad es un valor entero que nos permite establecer una jerarquía dentro del replica set.
+**`priority`** la prioridad es un valor entero que nos permite establecer una jerarquía dentro del replica set.
+
+<img src="images/m103/c2/2-8-priority.png">
 
 Podemos establecer prioridades entre 0 y 1,000.
 
@@ -1616,17 +1624,23 @@ Establecer la prioridad en 0 efectivamente excluye a ese miembro de convertirse 
 
 En el caso, estamos configurando un miembro para que sea solo árbitro, eso implica que la prioridad debe establecerse en 0.
 
+<img src="images/m103/c2/2-8-priority-2.png">
+
 Lo mismo se aplicaría para hidden.
 
 La prioridad aquí también debe convertirse en 0.
+
+<img src="images/m103/c2/2-8-priority-3.png">
 
 Si la nota está oculta, nunca puede volverse primaria porque la aplicación no la verá.
 
 De lo contrario, se producirá un error en el que una nueva configuración del replica set es incompatible.
 
+<img src="images/m103/c2/2-8-priority-4.png">
+
 La prioridad debe ser 0 cuando oculto es igual a verdadero.
 
-Y finalmente, tenemos slaveDelay.
+Y finalmente, tenemos **`slaveDelay`**.
 
 slaveDelay es un valor entero que determina un intervalo de demora de replicación en segundos.
 
