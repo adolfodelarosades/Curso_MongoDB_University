@@ -404,7 +404,7 @@ Solo puede permitirse perder un miembro.
 
 En caso de perder dos de ellos, no tendremos mayoría disponible fuera de los sets.
 
-<img src="images/m103/c2/2-3-replicaset-four-4.png">
+<img src="images/m103/c2/2-3-replicase-four-4.png">
 
 ¿Por qué?
 
