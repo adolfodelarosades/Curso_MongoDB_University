@@ -1499,12 +1499,146 @@ Now run the validation script in your vagrant and outside the mongo shell and en
 vagrant@m103:~$ validate_lab_initialize_local_replica_set
 ```
 
-Enter answer here:
+Enter answer here: 5a4d32f979235b109001c7bc
 
 
 ## 8. Tema: Documento de configuración de replicación
 
 ### Transcripción
+
+En esta lección, vamos a diseccionar la configuración de replicación.
+
+En particular, analizaremos qué opciones de configuración de replica set tenemos y cómo se reflejan esas opciones en el documento de opciones de configuración.
+
+El documento de configuración del replica set es un documento BSON simple que gestionamos utilizando una representación JSON donde la configuración o nuestros replica set se definen y se comparten en todos los nodos que están configurados en los conjuntos.
+
+Podemos establecer cambios manualmente en este documento para configurar un replica set de acuerdo con la topología esperada y las opciones generales de replicación.
+
+Aunque podemos hacer esto simplemente editando dichos documentos usando el shell `mongo.db`, también podemos usar un conjunto de ayudantes de shell como `rs.add`, `initiate`, `remove`, etc. eso nos ayudará a facilitar la configuración y administración de esta misma configuración.
+
+Hay una buena cantidad de opciones de configuración diferentes a nuestra disposición, como puede ver en el documento de opciones de configuración de línea de base.
+
+Esto puede sonar un poco desalentador, pero en realidad, es un conjunto de opciones bastante sencillo.
+
+Y para esta lección, en particular, vamos a ver solo un conjunto de estas opciones de configuración: las básicas y fundamentales y las que vamos a utilizar a lo largo del curso.
+
+Todas las otras opciones están fuera del alcance de este curso.
+
+Pero comencemos con el campo `_id`.
+
+Este campo se establece con el nombre del replica set.
+
+Este es un valor de cadena que coincide con el conjunto de réplicas definido por el servidor.
+
+Cada vez que comenzamos nuestro mongoD y proporcionamos un nombre --replSet a nuestro mongoD, lo que significa que este mongoD pertenecerá al conjunto, o estableciendo ese mismo nombre en el archivo de configuración, por ejemplo, nuestro archivo `etc/mongodb.conf`, Estamos estableciendo un valor específico para ser utilizado como un nombre de replica set.
+
+El mismo valor debe coincidir con el campo `_id` de nuestro documento de configuración del conjunto de réplicas.
+
+En caso de que tengamos valores diferentes de la configuración `_id` y el nombre del replica set definidas, terminamos con un mensaje de error.
+
+Obtenemos una configuración de replica set incorrecta, indicando que estamos intentando iniciar el replica set con un nombre diferente desde el que se ha establecido como --replSet o en el archivo de configuración.
+
+Esta es una protección contra configuraciones incorrectas o la adición incorrecta del servidor a los replica sets incorrectos.
+
+El siguiente campo es la versión.
+
+Ahora, una versión es solo un número entero que se incrementa cada vez que cambia la configuración actual de nuestro replica set.
+
+Si, por ejemplo, agregamos un nodo a nuestro replica set y si nuestra versión solía ser la número 1, incrementamos el valor.
+
+Cada vez que cambiamos una topología, cambiamos la configuración de un conjunto de réplicas o hacemos algo como cambiar el número de votos de un host dado, eso incrementará automáticamente el número de versión.
+
+El siguiente campo en línea es miembros.
+
+Y los miembros es donde se define la topología de nuestro replica set.
+
+Cada elemento del array de miembros es un subdocumento que contiene los miembros del nodo del replica set.
+
+Cada uno tiene un host compuesto por el nombre de host y el puerto.
+
+En este caso, por ejemplo, tenemos `m103:27017`.
+
+Luego tenemos un conjunto de indicadores que determinan el papel de los nodos dentro del conjunto de réplicas.
+
+El árbitro solo se explica por sí mismo.
+
+Esto significa que el nodo no retendrá ningún dato, y su contribución al conjunto es asegurar el quórum en las elecciones.
+
+oculto: es otro indicador que establece el nodo en función oculta.
+
+Un nodo oculto no es visible para la aplicación, lo que significa que cada vez que emitimos algo como un RS es un comando maestro, este nodo no aparecerá en la lista.
+
+Los nodos int son útiles para situaciones en las que queremos que un nodo particular admita operaciones específicas.
+
+No están relacionados con la naturaleza operativa de su aplicación.
+
+Por ejemplo, tener un nodo que maneje todos los informes o lecturas de BI.
+
+Ambos indicadores están configurados en falso de forma predeterminada.
+
+Entonces tenemos prioridad, y la prioridad es un valor entero que nos permite establecer una jerarquía dentro del conjunto de réplicas.
+
+Podemos establecer prioridades entre 0 y 1,000.
+
+Los miembros con mayor prioridad tienden a ser elegidos en las primarias con mayor frecuencia.
+
+Un cambio en la prioridad de un nodo desencadenará una elección porque se percibirá como un cambio de topología.
+
+Establecer la prioridad en 0 efectivamente excluye a ese miembro de convertirse en primario.
+
+En el caso, estamos configurando un miembro para que sea solo árbitro, eso implica que la prioridad debe establecerse en 0.
+
+Lo mismo se aplicaría para oculto.
+
+La prioridad aquí también debe convertirse en 0.
+
+Si la nota está oculta, nunca puede volverse primaria porque la aplicación no la verá.
+
+De lo contrario, se producirá un error en el que una nueva configuración del conjunto de réplicas es incompatible.
+
+La prioridad debe ser 0 cuando oculto es igual a verdadero.
+
+Y finalmente, tenemos slaveDelay.
+
+slaveDelay es un valor entero que determina un intervalo de demora de replicación en segundos.
+
+El valor predeterminado es 0.
+
+Esta opción habilitará nodos retrasados.
+
+Estos miembros retrasados mantienen una copia de los datos que reflejan un estado en algún momento en el pasado, aplicando ese retraso en segundos.
+
+Por ejemplo, si tenemos nuestra opción slaveDelay a 3.600 segundos, lo que significa 1 hora, eso significará que dicho miembro replicará datos de los otros nodos en los conjuntos que ocurrieron hace 1 hora.
+
+Al configurar esta opción como esclavo, también implica que su nodo estará oculto y la prioridad se establecerá en 0.
+
+Ah sí, y casi lo olvido.
+
+También tenemos el campo `_id` dentro del subdocumento de miembros.
+
+Esto es solo un identificador único de cada elemento en el array.
+
+Es un campo entero simple que se establece una vez que tenemos un miembro para el replica set.
+
+Una vez establecido, este valor no se puede cambiar.
+
+Ahora, de nuevo, hay mucho más que podemos configurar dentro de los documentos de configuración del conjunto de réplicas.
+
+Parece una configuración en la que podemos definir varios atributos de protocolo de replicación diferentes o cosas como la versión del protocolo y configsvr que se verán más adelante en este curso.
+
+Pero los usos reales de estas opciones para el curso básico de administración están fuera de alcance.
+
+Recapitulemos.
+
+El documento de configuración de replicación se utiliza para configurar nuestros replica set.
+
+Aquí es donde se definen las propiedades de nuestros replica set, y el documento se comparte entre todos los miembros del conjunto.
+
+El campo de miembros es donde se determinará un montón de nuestra configuración básica: qué nodos son parte del conjunto, qué roles tienen y qué tipo de topología queremos definir se establece en este campo.
+
+Hay una gran cantidad de otras opciones de configuración que tratan con mecanismos de replicación internos o configuraciones generales de los conjuntos.
+
+Estamos fuera de alcance en eso, pero tenga en cuenta que hay mucho más en el documento de replica set que puede configurar.
 
 ## 9. Examen
 
