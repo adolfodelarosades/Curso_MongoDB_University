@@ -1162,23 +1162,100 @@ En este caso, es solo un miembro, al cual estamos conectados, el primario actual
 Entonces, este es el comando que usamos para agregar nuevos nodos a nuestro conjunto de réplicas, `rs.add`, y todo lo que tenemos que especificar aquí es el nombre de host, que es solo el nombre de host del cuadro Vagrant y el puerto que ese nodo está ejecutando.
 
 ```sh
-rs.add("m103:27012")
+MongoDB Enterprise m103-example:PRIMARY> rs.add("m103:27012")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1582571070, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582571070, 1),
+		"signature" : {
+			"hash" : BinData(0,"L+ddF1hw5wdj2EMhxP+VhQzDrac="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
+
 Ahora que funcionó.
 
 Solo voy a hacer lo mismo para nuestro tercer nodo.
 
 ```sh
-rs.add("m103:27013")
+MongoDB Enterprise m103-example:PRIMARY> rs.add("m103:27013")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1582571128, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582571128, 1),
+		"signature" : {
+			"hash" : BinData(0,"LY/2N0LMnI1pj6B7bd20tOd6aZY="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
-Solo voy a verificar `rs.isMaster`.
+Solo voy a verificar con `rs.isMaster`.
 
 ```sh
-rs.isMaster()
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "192.168.103.100:27011",
+	"me" : "192.168.103.100:27011",
+	"electionId" : ObjectId("7fffffff0000000000000001"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582571181, 1),
+			"t" : NumberLong(1)
+		},
+		"lastWriteDate" : ISODate("2020-02-24T19:06:21Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582571181, 1),
+			"t" : NumberLong(1)
+		},
+		"majorityWriteDate" : ISODate("2020-02-24T19:06:21Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-24T19:06:29.251Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582571181, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582571181, 1),
+		"signature" : {
+			"hash" : BinData(0,"pYBSJ9iA5h080WPeTcIGDzL5HwE="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
 Y podemos ver que nuestro replica set ahora tiene tres nodos.
+
+```sh
+"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+```
 
 Entonces, ahora que hemos agregado esos dos nodos a nuestro replica set y los hemos conectado, pueden replicar datos entre sí.
 
@@ -1188,10 +1265,54 @@ Una cosa que quiero señalar en este momento es que el primario actual se está 
 
 <img src="images/m103/c2/2-5-replicaset-5.png">
 
-Y podríamos verificar eso a partir de la salida de `rs.isMaster`, donde dice que primario es, de hecho, el nodo que se ejecuta en 27011.
+Y podríamos verificar eso a partir de la salida de `rs.isMaster`, donde dice que primario es `"primary" : "192.168.103.100:27011",`, de hecho, el nodo que se ejecuta en 27011.
 
 ```sh
-rs.isMaster()
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "192.168.103.100:27011",
+	"me" : "192.168.103.100:27011",
+	"electionId" : ObjectId("7fffffff0000000000000001"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582571181, 1),
+			"t" : NumberLong(1)
+		},
+		"lastWriteDate" : ISODate("2020-02-24T19:06:21Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582571181, 1),
+			"t" : NumberLong(1)
+		},
+		"majorityWriteDate" : ISODate("2020-02-24T19:06:21Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-24T19:06:29.251Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582571181, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582571181, 1),
+		"signature" : {
+			"hash" : BinData(0,"pYBSJ9iA5h080WPeTcIGDzL5HwE="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
 Sin embargo, podemos forzar una elección para que un nodo diferente se vuelva primario.
@@ -1199,27 +1320,75 @@ Sin embargo, podemos forzar una elección para que un nodo diferente se vuelva p
 Y el comando que usamos para hacer eso se llama `rs.stepDown`.
 
 ```sh
-rs.stepDown()
-```
+MongoDB Enterprise m103-example:PRIMARY> rs.stepDown()
+2020-02-24T19:09:48.251+0000 E QUERY    [thread1] Error: error doing query: failed: network error while attempting to run command 'replSetStepDown' on host '192.168.103.100:27011'  :
+DB.prototype.runCommand@src/mongo/shell/db.js:168:1
+DB.prototype.adminCommand@src/mongo/shell/db.js:186:16
+rs.stepDown@src/mongo/shell/utils.js:1397:12
+@(shell):1:1
+2020-02-24T19:09:48.251+0000 I NETWORK  [thread1] Marking host 192.168.103.100:27011 as failed :: caused by :: Location40657: Last known master host cannot be reached
+2020-02-24T19:09:48.251+0000 I NETWORK  [thread1] Socket closed remotely, no longer connected (idle 9 secs, remote host 192.168.103.100:27011)
+2020-02-24T19:09:48.254+0000 I NETWORK  [thread1] Successfully connected to 192.168.103.100:27011 (1 connections now open to 192.168.103.100:27011 with a 5 second timeout)
+2020-02-24T19:09:48.255+0000 W NETWORK  [thread1] Unable to reach primary for set m103-example
+2020-02-24T19:09:48.759+0000 W NETWORK  [thread1] Unable to reach primary for set m103-example
+2020-02-24T19:09:49.262+0000 W NETWORK  [thread1] Unable to reach primary for set m103-example
+MongoDB Enterprise m103-example:PRIMARY> 
 
-Ahora, el comando `stepDown` es lo que usamos para reducir de forma segura el primario actual a un secundario y forzar una elección.
+```
+Ahora, el comando `rs.stepDown()` es lo que usamos para reducir de forma segura el primario actual a un secundario y forzar una elección.
 
 El error que estamos obteniendo aquí es porque el shell está tratando de conectarnos con el primario, pero los secundarios todavía están en el proceso de elegir un primario, por lo que no hay un primario en este momento.
 
-```sh
-ERROR
-```
-
 Tan pronto como uno sea elegido, el shell nos conectará con él, lo que acaba de hacer.
 
-```sh
-NO ERROR
-```
-
-Si volvemos a ejecutar `rs.isMaster`, podemos verificar que ahora este nodo `CUAL` es el primario actual, a diferencia de 27011, que era el primario antes.
+Si volvemos a ejecutar `rs.isMaster`, podemos verificar que ahora este nodo `"primary" : "m103:27012"` es el primario actual, a diferencia de 27011, que era el primario antes.
 
 ```sh
-rs.isMaster()
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "m103:27012",
+	"me" : "m103:27012",
+	"electionId" : ObjectId("7fffffff0000000000000002"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582571489, 1),
+			"t" : NumberLong(2)
+		},
+		"lastWriteDate" : ISODate("2020-02-24T19:11:29Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582571489, 1),
+			"t" : NumberLong(2)
+		},
+		"majorityWriteDate" : ISODate("2020-02-24T19:11:29Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-24T19:11:29.645Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582571489, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582571489, 1),
+		"signature" : {
+			"hash" : BinData(0,"lTtGNn5lVOQu5xV7I3QcAveGgQM="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
 Entonces, para resumir, hemos cubierto cómo iniciar un conjunto de réplicas, cómo puede agregar nodos al conjunto de réplicas y cómo verificar el estado del conjunto de réplicas.
