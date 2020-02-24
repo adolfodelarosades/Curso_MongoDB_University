@@ -1729,6 +1729,102 @@ rs.printReplicationInfo()
 
 ### Transcripción
 
+En esta lección, cubriremos algunos de los comandos que usamos para recopilar información sobre un conjunto de réplicas.
+
+Probablemente haya notado que hay muchas formas diferentes de verificar el estado de un conjunto de réplicas porque cada nodo emite mucha información.
+
+Cada comando de replicación proporciona un subconjunto diferente de esta información.
+
+El primero que vamos a cubrir es `rs.status`.
+
+`rs.status` se usa para informar sobre el estado general de cada nodo en el conjunto.
+
+Los datos que obtiene del `heartbeat` (latido) enviado entre nodos intermedios en el conjunto.
+
+Debido a que depende de los `heartbeat` para estos datos, en realidad puede estar unos segundos desactualizado.
+
+Este comando nos brinda la mayor cantidad de información para cada nodo específico.
+
+Podemos ver que para un nodo dado obtenemos el estado del nodo.
+
+En este caso, es el primario.
+
+Tenemos el `up time` tiempo de actividad, que es el número de segundos que esta nota se ha estado ejecutando.
+
+Y tenemos el `optime`, que es la última vez que este nodo aplicó una operación desde su `oplog`.
+
+También hay estadísticas de `heartbeat` latidos para cada nodo, pero no para el nodo en el que ejecutamos este comando.
+
+Esto se debe a que las estadísticas de `heartbeat` latidos son relativas al lugar donde se ejecutó `rs.status`.
+
+Sabemos que se ejecutó a partir de esto porque la marca propia en este nodo es verdadera.
+
+Podemos desplazarnos hacia abajo a uno de los otros nodos y ver que tenemos algunas estadísticas de heartbeats aquí abajo.
+
+Porque sabemos que el primario era desde donde se ejecutaba este comando.
+
+Sabemos que el último latido se refiere a la última vez que este nodo recibió con éxito un latido del primario.
+
+Por el contrario, el último heartbeat recibido se refiere a la última vez que el primario recibió con éxito un heartbeat de esta nota.
+
+Podemos ver la frecuencia real de heartbeat en este conjunto a través de un intervalo de heartbeat millis.
+
+En este caso, este conjunto se ejecuta con el valor predeterminado de 2.000 milisegundos, lo que significa que los nodos se hablan entre sí cada dos segundos.
+
+El siguiente comando que vamos a cubrir es `rs.isMaster`.
+
+Este describe el rol del nodo desde donde ejecutamos este comando.
+
+Y también nos da información sobre el conjunto de réplica en sí.
+
+La salida es mucho más fácil de leer que `rs.status` solo porque su salida es mucho más corta.
+
+Como podemos ver, la lista de hosts es mucho más corta en este comando, y podemos verificar fácilmente si este nodo es secundario.
+
+En este caso, no es porque el secundario sea falso.
+
+O si este es el principal, y su maestro es cierto en este caso.
+
+También nos da el nombre del nodo primario en el conjunto, independientemente de dónde ejecutamos este comando.
+
+En este caso, obviamente, lo ejecutamos desde la primaria, por lo que esta bandera primaria solo va a decir lo mismo que yo.
+
+Entonces, solo quiero señalar aquí que cuando escribimos este comando con paréntesis después, llamamos a este método.
+
+Pero podemos eliminar los paréntesis para ver qué se está ejecutando realmente en segundo plano.
+
+Y podemos ver que `rs.isMaster` es en realidad solo un contenedor alrededor de una función llamada `db.isMaster`.
+
+Notarás que muchos de los comandos `rs.com` en Mongo Shell son solo envoltorios alrededor de los comandos `db`.
+
+Como nota al margen, este es el comando que utilizan los controladores para descubrir el rol de cada nodo en el conjunto de réplicas.
+
+Para obtener más información al respecto, puede seguir la referencia en las notas de la conferencia.
+
+El siguiente comando es `db.serverStatus`.
+
+Este comando nos da mucha información sobre el proceso MongoD, pero solo veremos la sección llamada `repl`.
+
+La salida de este comando será muy similar a la salida de `rs.isMaster`.
+
+Como podemos ver, la salida de este comando es muy similar a la salida de `rs.isMaster` con la excepción de un campo aquí.
+
+El `rbid` no está incluido en `rs.isMaster`.
+
+Y todo lo que hace es contar el número de reversiones que se han producido en este nodo.
+
+El último comando que vamos a cubrir es `rs.printReplicationInfo`.
+
+Este comando solo tiene datos sobre el registro de operaciones y específicamente solo el registro de operaciones para el nodo al que estamos conectados actualmente.
+
+Nos dará marcas de tiempo exactas para el primer y último evento que ocurrió en el registro de operaciones para ese nodo.
+
+Así que este es un informe rápido sobre la duración actual del registro de operaciones en el tiempo y en megabytes.
+
+Y recuerde que el primer evento en el registro de operaciones está sujeto a cambios porque el registro de operaciones es una colección limitada, y periódicamente se vacía para dejar espacio para nuevos datos.
+
+En esta lección, hemos aprendido que hay varias formas diferentes de verificar el estado de un conjunto de réplicas, y cada una es importante por derecho propio.
+
 ## 11. Examen
 
 ## 12. Tema: DB local: Parte 1
