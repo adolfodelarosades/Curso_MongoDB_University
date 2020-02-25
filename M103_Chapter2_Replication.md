@@ -2548,27 +2548,27 @@ Recuerde, aunque **puede** escribir datos en la base de datos `local`, no debe h
 
 ### Transcripción
 
-Después de iniciar nuestro nodo y agregar el nodo al conjunto de réplica, se crea la colección oplog.rs.
+Después de iniciar nuestro nodo y agregar el nodo al replica set, se crea la colección `oplog.rs`.
 
 Por defecto, como mencioné antes, tomamos el 5% del disco disponible.
 
 Pero este valor también se puede configurar configurándolo a través del tamaño del registro en megabytes en la sección de replicación de nuestro archivo de configuración.
 
-A medida que las operaciones se registran en el oplog, como insertar o eliminar o crear operaciones de tipo de colección, la colección oplog.rs comienza a acumular las operaciones y declaraciones, hasta que alcanza el límite de tamaño de oplog.
+A medida que las operaciones se registran en el oplog, como insertar o eliminar o crear operaciones de tipo de colección, la colección `oplog.rs` comienza a acumular las operaciones y declaraciones, hasta que alcanza el límite de tamaño de oplog.
 
-Una vez que eso sucede, las primeras operaciones en nuestro registro de operaciones comienzan a sobrescribirse con las operaciones más nuevas.
+Una vez que eso sucede, las primeras operaciones en nuestro oplog comienzan a sobrescribirse con las operaciones más nuevas.
 
-El tiempo que lleva completar completamente nuestro registro de operaciones y comenzar a reescribir las primeras declaraciones determina la ventana de replicación.
+El tiempo que lleva completar completamente nuestro roplog y comenzar a reescribir las primeras declaraciones determina la ventana de replicación.
 
 La ventana de replicación es un aspecto importante para monitorear porque afectaremos la cantidad de tiempo que el conjunto de réplica puede permitir que un nodo esté inactivo sin requerir intervención humana para la recuperación automática.
 
-Cada nodo en nuestro conjunto de réplicas tiene su propio oplog.
+Cada nodo en nuestro replica set tiene su propio oplog.
 
-A medida que las escrituras y las operaciones llegan al nodo primario, se capturan en el registro de operaciones.
+A medida que las escrituras y las operaciones llegan al nodo primario, se capturan en el oplog.
 
-Y luego los nodos secundarios replican esos datos y los aplican en su propio registro de operaciones.
+Y luego los nodos secundarios replican esos datos y los aplican en su propio oplog.
 
-Ahora, si por alguna razón uno de los nodos se desconecta, ya sea porque van a realizar algún mantenimiento, o hay algún tipo de problema de red, o algún tiempo de inactividad del servidor de cualquier tipo, y el servidor sigue funcionando, el conjunto de réplicas continúa acumulándose Nuevas escrituras: para que el servidor pueda ponerse al día con los nodos restantes, deberá descubrir qué es un punto común en el que todos pueden ver lo que sucedió en el pasado.
+Ahora, si por alguna razón uno de los nodos se desconecta, ya sea porque van a realizar algún mantenimiento, o hay algún tipo de problema de red, o algún tiempo de inactividad del servidor de cualquier tipo, y el servidor sigue funcionando, el replica set continúa acumulándose Nuevas escrituras: para que el servidor pueda ponerse al día con los nodos restantes, deberá descubrir qué es un punto común en el que todos pueden ver lo que sucedió en el pasado.
 
 Básicamente, lo que sucederá es que un nodo en recuperación verificará su última entrada de oplog e intentará encontrarlo en uno de los nodos disponibles.
 
@@ -2582,13 +2582,13 @@ Por ejemplo, las fuentes de sincronización pueden tener diferentes tamaños de 
 
 Sin embargo, si nuestro tamaño de registro es mayor y puede acomodar más cambios en el sistema, podemos permitir que nuestros nodos estén inactivos por más tiempo y aún así poder volver a conectarse una vez que se vuelvan a activar.
 
-Por lo tanto, el tamaño de nuestra colección oplog.rs es un aspecto importante a tener en cuenta.
+Por lo tanto, el tamaño de nuestra colección `oplog.rs` es un aspecto importante a tener en cuenta.
 
 En resumen, la ventana de replicación medida en horas será proporcional a la carga de su sistema.
 
 Deberías vigilar eso.
 
-La otra cosa buena es que nuestro tamaño de oplog.rs se puede cambiar.
+La otra cosa buena es que nuestro tamaño de `oplog.rs` se puede cambiar.
 
 Y tenemos una buena cantidad de buena documentación que le indica cómo hacerlo como tarea administrativa.
 
@@ -2602,7 +2602,7 @@ Voy a crear una colección llamada mensajes.
 
 Una vez que creo eso, puedo ver esa colección allí creada.
 
-Ahora, si salto a mi base de datos local y busco en nuestros oplog.rs, excluyendo cualquier operación periódica de noop mantenida por el servidor, puedo encontrar aquí las instrucciones que crean esta colección en el oplog.
+Ahora, si salto a mi base de datos local y busco en nuestros `oplog.rs`, excluyendo cualquier operación periódica de noop mantenida por el servidor, puedo encontrar aquí las instrucciones que crean esta colección en el oplog.
 
 Genial, esto es realmente bueno.
 
@@ -2626,7 +2626,7 @@ Digamos que quiero asegurarme de que estos mensajes aquí tengan un autor.
 
 Así que voy a establecer un nuevo campo llamado autor con el valor llamado, bueno, mi propio nombre: Norberto.
 
-Una vez que haga esto, y tenga en cuenta que esta es una sola operación, una UpdateOne, que modificó y combinó 100 documentos diferentes.
+Una vez que haga esto, y tenga en cuenta que esta es una sola operación, una `UpdateOne`, que modificó y combinó 100 documentos diferentes.
 
 Si volvemos a lo local, y si buscamos más operaciones, puedo ver que hay una operación de actualización, o varias operaciones de actualización - op es igual a u significa una actualización - para todos los documentos afectados en esta colección.
 
@@ -2640,7 +2640,7 @@ A veces es fácil descartar el hecho de que la idempotencia podría generar much
 
 Un último punto que quiero llamar su atención es que, por favor, no cambie ninguna de esta información presente en ninguna de esta colección.
 
-Contrariamente a o que MC Hammer solía decir, de hecho, puede tocar esto, dado el conjunto correcto de permisos.
+Contrariamente a lo que MC Hammer solía decir, de hecho, puede tocar esto, dado el conjunto correcto de permisos.
 
 Pero por favor no lo hagas.
 
@@ -2652,7 +2652,7 @@ Dicho esto, y para demostrarle que puede hacer algún daño, intentemos escribir
 
 Voy a seguir adelante y en mi colección local, inserte un mensaje que diga que no puede tocar esto.
 
-Y si lo buscamos en nuestros oplog.rs, no lo encontraremos.
+Y si lo buscamos en nuestros `oplog.rs`, no lo encontraremos.
 
 Debe tener en cuenta que estos datos que acabo de escribir en esta base de datos en particular, ahí está, mi colección local, están escritos en la base de datos local.
 
@@ -2664,7 +2664,7 @@ La base de datos local es como Las Vegas.
 
 Lo que sucede en local, se queda en local.
 
-Ningún otro nodo en el conjunto verá esos datos, excepto obviamente por los oplog.rs, que están leyendo y aplicándolos por su cuenta.
+Ningún otro nodo en el conjunto verá esos datos, excepto obviamente por los `oplog.rs`, que están leyendo y aplicándolos por su cuenta.
 
 Cualquier otra cosa que desee mantener local, puede escribir aquí.
 
@@ -2676,13 +2676,13 @@ La base de datos local contiene información muy importante y no debe ser desord
 
 Cambiar los datos en su registro de operaciones o en cualquiera de las colecciones de configuración afectará la configuración en el mecanismo de replicación.
 
-Oplog.rs es fundamental para nuestro mecanismo de replicación.
+`oplog.rs` es fundamental para nuestro mecanismo de replicación.
 
 Todo lo que necesita ser replicado será almacenado y registrado en el blog de manera idempotente.
 
 El tamaño de nuestro oplog afectará la ventana de replicación y debe ser monitoreado de cerca.
 
-Cualquier dato escrito en la base de datos local que no esté escrito en oplog.rs o que cambie cualquiera de las colecciones de configuración del sistema permanecerá allí y no se replicará.
+Cualquier dato escrito en la base de datos local que no esté escrito en `oplog.rs` o que cambie cualquiera de las colecciones de configuración del sistema permanecerá allí y no se replicará.
 
 ## 14. Examen
 
