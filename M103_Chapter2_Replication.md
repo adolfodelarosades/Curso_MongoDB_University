@@ -2312,7 +2312,6 @@ Server has startup warnings:
 2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
 2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
 MongoDB Enterprise m103-example:PRIMARY> 
-
 ```
 
 #### Conectarme al Replica Set del Curso
@@ -2328,7 +2327,6 @@ connecting to: mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-s
 Implicit session: session { "id" : UUID("e46722c5-10c4-41c2-8f46-c61ac1a6ae24") }
 MongoDB server version: 3.6.17
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
-
 ```
 
 Ahora que estoy conectado a un replica set, y puede ver aquí desde el mensaje que estoy conectado a una réplica M103 y a su primario.
@@ -2353,36 +2351,110 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY>
 
 Genial, pero ¿para qué son estos?
 
-La mayoría de estas colecciones, como me, startup log, system replica set, system rollback ID, or replica set election, and min val son colecciones mantenidas internamente por el servidor.
-yo, el registro de inicio, el conjunto de réplicas del sistema, la ID de reversión del sistema o la elección del conjunto de réplicas, y el mínimo, son colecciones mantenidas internamente por el servidor.
+<img src="images/m103/c2/2-12-collections.png">
+
+La mayoría de estas colecciones, como `me`, `startup_log`, `system.replset`, `system.rollback.id`, o `replset.election`, y  `replset.minvalid` son colecciones mantenidas internamente por el servidor.
 
 Realmente no varían tanto, y la información que contienen son datos de configuración simples, nada demasiado interesante allí.
 
 Pero donde las cosas se ponen realmente interesantes es con una colección en particular: `oplog.rs`.
 
-`oplog.rs` es el punto central de nuestro mecanismo de replicación.
+**`oplog.rs` es el punto central de nuestro mecanismo de replicación.**
 
-Esta es la colección de oplog que hará un seguimiento de todas las declaraciones que se replican en nuestro conjunto de réplicas.
+Esta es la colección de `oplog` que hará un seguimiento de todas las declaraciones que se replican en nuestro conjunto de réplicas.
 
 Cada pieza de información y operaciones que necesitan ser replicadas se registrarán en esta colección.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.oplog.rs.find().pretty()
+{
+	"ts" : Timestamp(1560827583, 1),
+	"t" : NumberLong(57),
+	"h" : NumberLong("-5595341604350583338"),
+	"v" : 2,
+	"op" : "n",
+	"ns" : "",
+	"wall" : ISODate("2019-06-18T03:13:03.301Z"),
+	"o" : {
+		"msg" : "periodic noop"
+	}
+}
+{
+	"ts" : Timestamp(1560827593, 1),
+	"t" : NumberLong(57),
+	"h" : NumberLong("2636313012311016051"),
+	"v" : 2,
+	"op" : "n",
+	"ns" : "",
+	"wall" : ISODate("2019-06-18T03:13:13.301Z"),
+	"o" : {
+		"msg" : "periodic noop"
+	}
+}
+...
+```
 
 Hay algunas cosas sobre la colección `oplog.rs` que debes conocer.
 
 En primer lugar, es una colección capada.
 
+<img src="images/m103/c2/2-12-capped.png">
+
 **Capada significa que el tamaño de esta colección está limitado a un tamaño específico.**
 
-Si recopilamos las estadísticas de nuestra colección `oplog.rs` en esta variable, hay una bandera llamada `.capped` que nos dirá que esta colección está, de hecho, limitada.
+Si recopilamos las estadísticas de nuestra colección `oplog.rs` en esta variable `stats`, hay una bandera llamada `.capped` que nos dirá que esta colección está, de hecho, limitada.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var stats = db.oplog.rs.stats()
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> stats.capped
+true
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Puedes ver el tamaño de esta colección.
 
-También podemos ver el tamaño máximo (`max size`) de la colección particular.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> stats.size
+1856842408
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+También podemos ver el tamaño máximo (`maxSize`) de la colección particular.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> stats.maxSize
+NumberLong(1871434496)
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Ahora, si desea ver las estadísticas en una unidad de megabytes, puede ver que esta colección aquí contiene casi 2 gigabytes de datos: 1.8 gigabytes.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var stats = db.oplog.rs.stats(1024*1024)
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> stats.maxSize
+1784
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Por defecto, la colección `oplog.rs` ocupará el 5% de su disco libre.
 
-En mi caso, tengo casi 36 gigabytes de datos disponibles.
+En mi caso, tengo casi 33 gigabytes de datos disponibles.
+
+```sh
+vagrant@m103:~$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+udev            996M   12K  996M   1% /dev
+tmpfs           201M  364K  200M   1% /run
+/dev/sda1        40G  5.0G   33G  14% /
+none            4.0K     0  4.0K   0% /sys/fs/cgroup
+none            5.0M     0  5.0M   0% /run/lock
+none           1001M     0 1001M   0% /run/shm
+none            100M     0  100M   0% /run/user
+none            932G  686G  246G  74% /shared
+none            932G  686G  246G  74% /dataset
+none            932G  686G  246G  74% /vagrant
+vagrant@m103:~$ 
+```
 
 Así que 1,8 gigabytes me dan ese 5%.
 
@@ -2390,9 +2462,19 @@ El tamaño de nuestro registro de operaciones determinará nuestra ventana de re
 
 Ahora, también podemos ver parte de esa información en `printReplicationInfo`, donde aquí, que proporciona el estado actual de mi oplog.
 
-Estamos configurados para esos 1,819 megabytes.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> rs.printReplicationInfo()
+configured oplog size:   1784.739013671875MB
+log length start to end: 21801542secs (6055.98hrs)
+oplog first event time:  Tue Jun 18 2019 03:13:03 GMT+0000 (UTC)
+oplog last event time:   Tue Feb 25 2020 11:12:05 GMT+0000 (UTC)
+now:                     Tue Feb 25 2020 11:12:07 GMT+0000 (UTC)
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-La longitud del registro comienza a terminar es de aproximadamente 362 segundos, 0.1 horas, una muy corta.
+Estamos configurados para esos 1,784 megabytes.
+
+La longitud del registro comienza a terminar es de aproximadamente 21801542 segundos, 6055.98 horas, una muy larga.
 
 Y se calcula en función de la hora del primer evento y del último evento.
 
