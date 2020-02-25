@@ -2118,6 +2118,70 @@ Check all answers that apply:
 
 ## 12. Tema: DB local: Parte 1
 
+### Notas de lectura
+
+Instrucciones de lectura
+
+Hacer un directorio de datos e iniciar un proceso mongod para un standalone node(nodo independiente):
+
+```sh
+mkdir allbymyselfdb
+mongod --dbpath allbymyselfdb
+```
+
+Todas las instancias de MongoDB comienzan con dos bases de datos predeterminadas, **admin** y **local**:
+
+```sh
+mongo
+show dbs
+```
+
+Mostrar colecciones de la base de datos local (esto muestra más colecciones de un conjunto de réplicas que de un nodo independiente):
+
+```sh
+use local
+show collections
+```
+
+Consultando el oplog después de conectarse a un conjunto de réplicas:
+
+```sh
+use local
+db.oplog.rs.find()
+```
+
+Obteniendo información sobre el oplog. Recuerde que el oplog es una colección limitada (capped), lo que significa que puede crecer hasta un tamaño preconfigurado antes de que comience a sobrescribir las entradas más antiguas con las más nuevas. Lo siguiente determinará si una colección está capped, cuál es el tamaño y cuál es el tamaño máximo.
+
+Almacenar estadísticas de oplog como una variable llamada `stats`:
+
+```sh
+var stats = db.oplog.rs.stats()
+```
+
+Verificando que esta colección esté capada (crecerá a un tamaño preconfigurado antes de que comience a sobrescribir las entradas más antiguas con las más nuevas):
+
+```sh
+stats.capped
+```
+
+Obteniendo el tamaño actual del oplog:
+
+```sh
+stats.size
+```
+
+Obteniendo el límite de tamaño del oplog:
+
+```sh
+stats.maxSize
+```
+
+Obtención de datos de registro de operaciones actuales (incluidos el primer y último horario de eventos y el tamaño de registro de operaciones configurado):
+
+```sh
+rs.printReplicationInfo()
+```
+
 ### Transcripción
 
 ## 13. Tema: DB local: Parte 2
