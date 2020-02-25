@@ -2184,6 +2184,95 @@ rs.printReplicationInfo()
 
 ### Transcripción
 
+En esta lección, vamos a echar un vistazo rápido a una base de datos fundamental y al antiguo proceso de replicación: nuestro querida y dulce BD Local.
+
+En el momento en que comenzamos nuestro MongoDB, como lo estoy haciendo ahora, hay un nodo independiente (standalone node).
+
+Y una vez que me conecte a ese nodo, podemos ver dos espacios de nombres (name spaces) diferentes, o bases de datos, si lo prefiere.
+
+Tenemos **admin**, que comprende todos los datos de administración y donde la mayoría de nuestros comandos de administración como `db.shutdownServer`, por ejemplo, deben ejecutarse o se ejecutarán.
+
+Y tenemos locales.
+
+Así que saltemos al local por un segundo.
+
+Y podemos ver que, en este caso, un nodo independiente, por sí solo.
+
+El DB local tiene solo una colección: `startup.log`.
+
+Nada extraordinario hasta el momento, ya que este `startup_log` solo contiene el registro de inicio de este nodo en particular, como dice el tipo de dicho.
+
+Entonces, conectemos a nuestro replica set y veamos cómo funcionan estos locales una vez que estemos en la tierra del replica set.
+
+Ahora que estoy conectado a un replica set, y puede ver aquí desde el mensaje que estoy conectado a una réplica M103 y a su primario.
+
+Si uso local y muestro las colecciones, entonces aquí tenemos un poco más de información, o al menos un poco más de colecciones en este escenario.
+
+Genial, pero ¿para qué son estos?
+
+La mayoría de estas colecciones, como me, startup log, system replica set, system rollback ID, or replica set election, and min val son colecciones mantenidas internamente por el servidor.
+yo, el registro de inicio, el conjunto de réplicas del sistema, la ID de reversión del sistema o la elección del conjunto de réplicas, y el mínimo, son colecciones mantenidas internamente por el servidor.
+
+Realmente no varían tanto, y la información que contienen son datos de configuración simples, nada demasiado interesante allí.
+
+Pero donde las cosas se ponen realmente interesantes es con una colección en particular: `oplog.rs`.
+
+`oplog.rs` es el punto central de nuestro mecanismo de replicación.
+
+Esta es la colección de oplog que hará un seguimiento de todas las declaraciones que se replican en nuestro conjunto de réplicas.
+
+Cada pieza de información y operaciones que necesitan ser replicadas se registrarán en esta colección.
+
+Hay algunas cosas sobre la colección `oplog.rs` que debes conocer.
+
+En primer lugar, es una colección capada.
+
+**Capada significa que el tamaño de esta colección está limitado a un tamaño específico.**
+
+Si recopilamos las estadísticas de nuestra colección `oplog.rs` en esta variable, hay una bandera llamada `.capped` que nos dirá que esta colección está, de hecho, limitada.
+
+Puedes ver el tamaño de esta colección.
+
+También podemos ver el tamaño máximo (`max size`) de la colección particular.
+
+Ahora, si desea ver las estadísticas en una unidad de megabytes, puede ver que esta colección aquí contiene casi 2 gigabytes de datos: 1.8 gigabytes.
+
+Por defecto, la colección `oplog.rs` ocupará el 5% de su disco libre.
+
+En mi caso, tengo casi 36 gigabytes de datos disponibles.
+
+Así que 1,8 gigabytes me dan ese 5%.
+
+El tamaño de nuestro registro de operaciones determinará nuestra ventana de replicación: la cantidad de tiempo que llevará completar su registro de operaciones.
+
+Ahora, también podemos ver parte de esa información en `printReplicationInfo`, donde aquí, que proporciona el estado actual de mi oplog.
+
+Estamos configurados para esos 1,819 megabytes.
+
+La longitud del registro comienza a terminar es de aproximadamente 362 segundos, 0.1 horas, una muy corta.
+
+Y se calcula en función de la hora del primer evento y del último evento.
+
+Ahora, como pueden ver, no he hecho mucho hasta ahora.
+
+Y a partir de ahora, donde estamos ahora en este momento, veo que no he hecho mucho en este replica set en particular.
+
+Por lo tanto, el tiempo calculado para completar el oplog es relativamente bajo.
+
+Pero espera solo un segundo.
+
+Pensé que el tamaño del oplog se midió en tamaño, por lo tanto, es megabytes, pero ¿estamos hablando de horas?
+
+No temas, joven padawan.
+
+Lo que está sucediendo aquí es que MongoDB le informará cuánto tiempo llevará, dada la carga de trabajo actual, cuánto tiempo llevará comenzar a sobrescribir las entradas en su oplog (registro de operaciones).
+
+En este caso, no he estado haciendo mucho, por lo tanto, mi carga de trabajo es bastante baja.
+
+Por lo tanto, solo tomará aproximadamente 0.1 horas llenar el oplog(registro de operaciones), lo que no es realmente predecible en este momento.
+
+Necesitamos más datos para calcular correctamente cuánto tiempo se tarda en llenar nuestro oplog(registro de operaciones).
+
 ## 13. Tema: DB local: Parte 2
 
 ### Transcripción
