@@ -1729,15 +1729,27 @@ rs.printReplicationInfo()
 
 ### Transcripción
 
-En esta lección, cubriremos algunos de los comandos que usamos para recopilar información sobre un conjunto de réplicas.
+En esta lección, cubriremos algunos de los comandos que usamos para recopilar información sobre un replica set.
 
-Probablemente haya notado que hay muchas formas diferentes de verificar el estado de un conjunto de réplicas porque cada nodo emite mucha información.
+<img src="images/m103/c2/2-10-replicaset.png">
+
+Probablemente haya notado que hay muchas formas diferentes de verificar el estado de un replica set porque cada nodo emite mucha información.
 
 Cada comando de replicación proporciona un subconjunto diferente de esta información.
 
-El primero que vamos a cubrir es `rs.status`.
+#### El primero que vamos a cubrir es `rs.status`.
+
+<img src="images/m103/c2/2-10-status.png">
 
 `rs.status` se usa para informar sobre el estado general de cada nodo en el conjunto.
+
+<img src="images/m103/c2/2-10-status-2.png">
+
+Los datos que obtiene del `heartbeat` (latido) enviado entre nodos intermedios en el conjunto.
+
+Debido a que depende de los `heartbeat` para estos datos, en realidad puede estar unos segundos desactualizado.
+
+Este comando nos brinda la mayor cantidad de información para cada nodo específico.
 
 ```sh
 MongoDB Enterprise m103-repl:PRIMARY> rs.status()
@@ -1859,43 +1871,55 @@ MongoDB Enterprise m103-repl:PRIMARY> rs.status()
 MongoDB Enterprise m103-repl:PRIMARY> 
 ```
 
-Los datos que obtiene del `heartbeat` (latido) enviado entre nodos intermedios en el conjunto.
-
-Debido a que depende de los `heartbeat` para estos datos, en realidad puede estar unos segundos desactualizado.
-
-Este comando nos brinda la mayor cantidad de información para cada nodo específico.
-
-Podemos ver que para un nodo dado obtenemos el estado del nodo.
+Podemos ver que para un nodo dado obtenemos el estado del nodo `"stateStr" : "PRIMARY",`.
 
 En este caso, es el primario.
 
-Tenemos el `up time` tiempo de actividad, que es el número de segundos que esta nota se ha estado ejecutando.
+Tenemos el `"uptime" : 7989` tiempo de actividad, que es el número de segundos que este nodo se ha estado ejecutando.
 
-Y tenemos el `optime`, que es la última vez que este nodo aplicó una operación desde su `oplog`.
+Y tenemos el `"optime"`
+
+```sh
+	"optime" : {
+		"ts" : Timestamp(1582581776, 1),
+		"t" : NumberLong(1)
+	},
+```
+
+, que es la última vez que este nodo aplicó una operación desde su `oplog`.
 
 También hay estadísticas de `heartbeat` latidos para cada nodo, pero no para el nodo en el que ejecutamos este comando.
 
 Esto se debe a que las estadísticas de `heartbeat` latidos son relativas al lugar donde se ejecutó `rs.status`.
 
-Sabemos que se ejecutó a partir de esto porque la marca propia en este nodo es verdadera.
+Sabemos que se ejecutó a partir de esto porque la marca propia en este nodo es verdadera `"self" : true,`.
 
 Podemos desplazarnos hacia abajo a uno de los otros nodos y ver que tenemos algunas estadísticas de heartbeats aquí abajo.
 
+```sh
+"lastHeartbeat" : ISODate("2020-02-24T22:02:56.698Z"),
+"lastHeartbeatRecv" : ISODate("2020-02-24T22:02:56.699Z"),
+```
+
 Porque sabemos que el primario era desde donde se ejecutaba este comando.
 
-Sabemos que el último latido se refiere a la última vez que este nodo recibió con éxito un latido del primario.
+Sabemos que el último latido (`lastHeartbeat`) se refiere a la última vez que este nodo recibió con éxito un latido del primario.
 
-Por el contrario, el último heartbeat recibido se refiere a la última vez que el primario recibió con éxito un heartbeat de esta nota.
+Por el contrario, el último heartbeat recibido(`lastHeartbeatRecv`) se refiere a la última vez que el primario recibió con éxito un `heartbeat` de esta nota.
 
-Podemos ver la frecuencia real de heartbeat en este conjunto a través de un intervalo de heartbeat millis.
+Podemos ver la frecuencia real de `heartbeat` en este conjunto a través de `"heartbeatIntervalMillis" : NumberLong(2000)`.
 
 En este caso, este conjunto se ejecuta con el valor predeterminado de 2.000 milisegundos, lo que significa que los nodos se hablan entre sí cada dos segundos.
 
-El siguiente comando que vamos a cubrir es `rs.isMaster`.
+#### El siguiente comando que vamos a cubrir es `rs.isMaster`
+
+<img src="images/m103/c2/2-10-ismaster.png">
 
 Este describe el rol del nodo desde donde ejecutamos este comando.
 
-Y también nos da información sobre el conjunto de réplica en sí.
+Y también nos da información sobre el replica set.
+
+<img src="images/m103/c2/2-10-ismaster-2.png">
 
 La salida es mucho más fácil de leer que `rs.status` solo porque su salida es mucho más corta.
 
@@ -1950,13 +1974,13 @@ MongoDB Enterprise m103-repl:PRIMARY>
 
 Como podemos ver, la lista de hosts es mucho más corta en este comando, y podemos verificar fácilmente si este nodo es secundario.
 
-En este caso, no es porque el secundario sea falso.
+En este caso, no es porque el secundario es falso `"secondary" : false`.
 
-O si este es el principal, y su maestro es cierto en este caso.
+O si este es el principal, en `"ismaster" : true,` en este caso.
 
 También nos da el nombre del nodo primario en el conjunto, independientemente de dónde ejecutamos este comando.
 
-En este caso, obviamente, lo ejecutamos desde la primaria, por lo que esta bandera primaria solo va a decir lo mismo que yo.
+En este caso, obviamente, lo ejecutamos desde el primario, por lo que esta bandera primaria `"primary" : "192.168.103.100:27001",` solo va a decir lo mismo que yo.
 
 Entonces, solo quiero señalar aquí que cuando escribimos este comando con paréntesis después, llamamos a este método.
 
@@ -1972,15 +1996,19 @@ MongoDB Enterprise m103-repl:PRIMARY>
 
 Y podemos ver que `rs.isMaster` es en realidad solo un contenedor alrededor de una función llamada `db.isMaster`.
 
-Notarás que muchos de los comandos `rs.com` en Mongo Shell son solo envoltorios alrededor de los comandos `db`.
+**Notarás que muchos de los comandos `rs.commands` en Mongo Shell son solo envoltorios alrededor de los `db.commands`.**
 
-Como nota al margen, este es el comando que utilizan los controladores para descubrir el rol de cada nodo en el conjunto de réplicas.
+Como nota al margen, este es el comando que utilizan los controladores para descubrir el rol de cada nodo en el replica set.
 
 Para obtener más información al respecto, puede seguir la referencia en las notas de la conferencia.
 
-El siguiente comando es **`db.serverStatus`**.
+#### El siguiente comando es **`db.serverStatus`**.
+
+<img src="images/m103/c2/2-10-serverstatus.png">
 
 Este comando nos da mucha información sobre el proceso MongoD, pero solo veremos la sección llamada `repl`.
+
+<img src="images/m103/c2/2-10-serverstatus-2.png">
 
 La salida de este comando será muy similar a la salida de `rs.isMaster`.
 
@@ -2018,15 +2046,19 @@ MongoDB Enterprise m103-repl:PRIMARY>
 
 Como podemos ver, la salida de este comando es muy similar a la salida de `rs.isMaster` con la excepción de un campo aquí.
 
-El `rbid` no está incluido en `rs.isMaster`.
+El `"rbid" : 1` no está incluido en `rs.isMaster`.
 
-Y todo lo que hace es contar el número de reversiones que se han producido en este nodo.
+Y todo lo que hace es contar el número de rollbacks que se han producido en este nodo.
 
-El último comando que vamos a cubrir es `rs.printReplicationInfo`.
+#### El último comando que vamos a cubrir es `rs.printReplicationInfo`.
+
+<img src="images/m103/c2/2-10-print.png">
 
 Este comando solo tiene datos sobre el registro de operaciones y específicamente solo el registro de operaciones para el nodo al que estamos conectados actualmente.
 
 Nos dará marcas de tiempo exactas para el primer y último evento que ocurrió en el registro de operaciones para ese nodo.
+
+<img src="images/m103/c2/2-10-print-2.png">
 
 Así que este es un informe rápido sobre la duración actual del registro de operaciones en el tiempo y en megabytes.
 
@@ -2042,7 +2074,9 @@ MongoDB Enterprise m103-repl:PRIMARY>
 
 Y recuerde que el primer evento en el registro de operaciones está sujeto a cambios porque el registro de operaciones es una colección limitada, y periódicamente se vacía para dejar espacio para nuevos datos.
 
-En esta lección, hemos aprendido que hay varias formas diferentes de verificar el estado de un conjunto de réplicas, y cada una es importante por derecho propio.
+En esta lección, hemos aprendido que hay varias formas diferentes de verificar el estado de un replica set, y cada una es importante por derecho propio.
+
+<img src="images/m103/c2/2-10-resumen.png">
 
 ## 11. Examen Replication Commands
 
