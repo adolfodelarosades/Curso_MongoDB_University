@@ -2500,7 +2500,189 @@ Necesitamos más datos para calcular correctamente cuánto tiempo se tarda en ll
 
 ## 13. Tema: DB local: Parte 2
 
+### Notas de lectura
+
+Instrucciones de lectura
+
+Crear nuevo namespace `m103.messages`:
+
+```sh
+use m103
+db.createCollection('messages')
+```
+
+Consulta el oplog, filtra los latidos del corazón (`"periodic noop"`) y solo devuelve la última entrada:
+
+```sh
+use local
+db.oplog.rs.find( { "o.msg": { $ne: "periodic noop" } } ).sort( { $natural: -1 } ).limit(1).pretty()
+``` 
+
+Insertar 100 documentos diferentes:
+
+```sh
+use m103
+for ( i=0; i< 100; i++) { db.messages.insert( { 'msg': 'not yet', _id: i } ) }
+db.messages.count()
+```
+
+Consultando el oplog para encontrar todas las operaciones relacionadas con `m103.messages`:
+
+```sh
+use local
+db.oplog.rs.find({"ns": "m103.messages"}).sort({$natural: -1})
+```
+
+Ilustrando que una declaración de actualización puede generar muchas entradas en el oplog:
+
+```sh
+use m103
+db.messages.updateMany( {}, { $set: { author: 'norberto' } } )
+use local
+db.oplog.rs.find( { "ns": "m103.messages" } ).sort( { $natural: -1 } )
+```
+
+Remember, even though you can write data to the local db, you should not.
+
+Recuerde, aunque **puede** escribir datos en la base de datos `local`, no debe hacerlo.
+
 ### Transcripción
+
+Después de iniciar nuestro nodo y agregar el nodo al conjunto de réplica, se crea la colección oplog.rs.
+
+Por defecto, como mencioné antes, tomamos el 5% del disco disponible.
+
+Pero este valor también se puede configurar configurándolo a través del tamaño del registro en megabytes en la sección de replicación de nuestro archivo de configuración.
+
+A medida que las operaciones se registran en el oplog, como insertar o eliminar o crear operaciones de tipo de colección, la colección oplog.rs comienza a acumular las operaciones y declaraciones, hasta que alcanza el límite de tamaño de oplog.
+
+Una vez que eso sucede, las primeras operaciones en nuestro registro de operaciones comienzan a sobrescribirse con las operaciones más nuevas.
+
+El tiempo que lleva completar completamente nuestro registro de operaciones y comenzar a reescribir las primeras declaraciones determina la ventana de replicación.
+
+La ventana de replicación es un aspecto importante para monitorear porque afectaremos la cantidad de tiempo que el conjunto de réplica puede permitir que un nodo esté inactivo sin requerir intervención humana para la recuperación automática.
+
+Cada nodo en nuestro conjunto de réplicas tiene su propio oplog.
+
+A medida que las escrituras y las operaciones llegan al nodo primario, se capturan en el registro de operaciones.
+
+Y luego los nodos secundarios replican esos datos y los aplican en su propio registro de operaciones.
+
+Ahora, si por alguna razón uno de los nodos se desconecta, ya sea porque van a realizar algún mantenimiento, o hay algún tipo de problema de red, o algún tiempo de inactividad del servidor de cualquier tipo, y el servidor sigue funcionando, el conjunto de réplicas continúa acumulándose Nuevas escrituras: para que el servidor pueda ponerse al día con los nodos restantes, deberá descubrir qué es un punto común en el que todos pueden ver lo que sucedió en el pasado.
+
+Básicamente, lo que sucederá es que un nodo en recuperación verificará su última entrada de oplog e intentará encontrarlo en uno de los nodos disponibles.
+
+Una vez que lo encuentre, simplemente volverá a aplicar todas las operaciones desde ese punto y se pondrá al día con los nodos restantes de los conjuntos.
+
+Sin embargo, si no puede encontrar la misma operación común en el oplog de los nodos restantes debido a que el oplog ya ha girado y no hay un punto fuente de sincronización como la última operación, el nodo no podrá recuperarse y sincronizarse automáticamente con el resto de el conjunto, se coloca en modo de recuperación.
+
+Ahora, no todos los nodos deben ser iguales.
+
+Por ejemplo, las fuentes de sincronización pueden tener diferentes tamaños de registro.
+
+Sin embargo, si nuestro tamaño de registro es mayor y puede acomodar más cambios en el sistema, podemos permitir que nuestros nodos estén inactivos por más tiempo y aún así poder volver a conectarse una vez que se vuelvan a activar.
+
+Por lo tanto, el tamaño de nuestra colección oplog.rs es un aspecto importante a tener en cuenta.
+
+En resumen, la ventana de replicación medida en horas será proporcional a la carga de su sistema.
+
+Deberías vigilar eso.
+
+La otra cosa buena es que nuestro tamaño de oplog.rs se puede cambiar.
+
+Y tenemos una buena cantidad de buena documentación que le indica cómo hacerlo como tarea administrativa.
+
+Otro aspecto a conocer sobre esta colección es que, dada la naturaleza idempotente de las instrucciones, una única actualización puede dar lugar a varias operaciones diferentes en esta colección.
+
+Déjame mostrarte cómo funciona esto.
+
+Voy a usar esta base de datos aquí-- M03.
+
+Voy a crear una colección llamada mensajes.
+
+Una vez que creo eso, puedo ver esa colección allí creada.
+
+Ahora, si salto a mi base de datos local y busco en nuestros oplog.rs, excluyendo cualquier operación periódica de noop mantenida por el servidor, puedo encontrar aquí las instrucciones que crean esta colección en el oplog.
+
+Genial, esto es realmente bueno.
+
+Ahora volvamos a nuestra colección M103.
+
+E insertemos algunos documentos solo por diversión.
+
+Ahí tienes.
+
+Insertamos 100 documentos con el mensaje, todavía no.
+
+Si sigo adelante y los cuento, puedo ver 100 documentos allí, genial.
+
+Si vuelvo a mi base de datos local y busco esos mensajes, puedo ver que puedo encontrar esos insertos: la operación allí es un inserto.
+
+Y el objeto que se inserta es uno de los 100 documentos insertados, genial.
+
+Pero ahora hagamos una simple actualización Muchas operaciones.
+
+Digamos que quiero asegurarme de que estos mensajes aquí tengan un autor.
+
+Así que voy a establecer un nuevo campo llamado autor con el valor llamado, bueno, mi propio nombre: Norberto.
+
+Una vez que haga esto, y tenga en cuenta que esta es una sola operación, una UpdateOne, que modificó y combinó 100 documentos diferentes.
+
+Si volvemos a lo local, y si buscamos más operaciones, puedo ver que hay una operación de actualización, o varias operaciones de actualización - op es igual a u significa una actualización - para todos los documentos afectados en esta colección.
+
+Entonces, una sola instrucción, una actualización, muchas, en nuestra primaria, produjo 100 operaciones diferentes en nuestra bitácora.
+
+Ahora esta es la magia de la idempotencia.
+
+Se consciente de esto.
+
+A veces es fácil descartar el hecho de que la idempotencia podría generar muchas más operaciones en nuestro registro de operaciones que la cantidad de comandos realmente emitidos por el cliente.
+
+Un último punto que quiero llamar su atención es que, por favor, no cambie ninguna de esta información presente en ninguna de esta colección.
+
+Contrariamente a o que MC Hammer solía decir, de hecho, puede tocar esto, dado el conjunto correcto de permisos.
+
+Pero por favor no lo hagas.
+
+Esto podría afectar enormemente la forma en que funciona su réplica.
+
+Así que trata de no perder el tiempo con esta colección.
+
+Dicho esto, y para demostrarle que puede hacer algún daño, intentemos escribir en esta base de datos local.
+
+Voy a seguir adelante y en mi colección local, inserte un mensaje que diga que no puede tocar esto.
+
+Y si lo buscamos en nuestros oplog.rs, no lo encontraremos.
+
+Debe tener en cuenta que estos datos que acabo de escribir en esta base de datos en particular, ahí está, mi colección local, están escritos en la base de datos local.
+
+Eso significa que es local para esta instancia en particular.
+
+Los datos escritos en esta colección no se replicarán.
+
+La base de datos local es como Las Vegas.
+
+Lo que sucede en local, se queda en local.
+
+Ningún otro nodo en el conjunto verá esos datos, excepto obviamente por los oplog.rs, que están leyendo y aplicándolos por su cuenta.
+
+Cualquier otra cosa que desee mantener local, puede escribir aquí.
+
+Pero no le recomendamos que haga nada de eso a menos que realmente sepa lo que está haciendo.
+
+Resumamos rápidamente lo que acabamos de aprender.
+
+La base de datos local contiene información muy importante y no debe ser desordenada.
+
+Cambiar los datos en su registro de operaciones o en cualquiera de las colecciones de configuración afectará la configuración en el mecanismo de replicación.
+
+Oplog.rs es fundamental para nuestro mecanismo de replicación.
+
+Todo lo que necesita ser replicado será almacenado y registrado en el blog de manera idempotente.
+
+El tamaño de nuestro oplog afectará la ventana de replicación y debe ser monitoreado de cerca.
+
+Cualquier dato escrito en la base de datos local que no esté escrito en oplog.rs o que cambie cualquiera de las colecciones de configuración del sistema permanecerá allí y no se replicará.
 
 ## 14. Examen
 
