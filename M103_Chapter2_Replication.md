@@ -2188,25 +2188,168 @@ En esta lección, vamos a echar un vistazo rápido a una base de datos fundament
 
 En el momento en que comenzamos nuestro MongoDB, como lo estoy haciendo ahora, hay un nodo independiente (standalone node).
 
-Y una vez que me conecte a ese nodo, podemos ver dos espacios de nombres (name spaces) diferentes, o bases de datos, si lo prefiere.
+```sh
+vagrant@m103:~$ 
+vagrant@m103:~$ mkdir allbymyselfdb
+vagrant@m103:~$ mongod --dbpath allbymyselfdb
+```
+
+Y un segunco shell me conecte a ese nodo, 
+
+```sh
+vagrant@m103:~$ mongo
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("9be42300-e732-4d0e-9052-b832d83ee4ba") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-25T10:26:49.922+0000 I STORAGE  [initandlisten] 
+2020-02-25T10:26:49.922+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-25T10:26:49.922+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-25T10:26:50.630+0000 I CONTROL  [initandlisten] 
+2020-02-25T10:26:50.630+0000 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2020-02-25T10:26:50.631+0000 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2020-02-25T10:26:50.631+0000 I CONTROL  [initandlisten] 
+2020-02-25T10:26:50.632+0000 I CONTROL  [initandlisten] ** WARNING: This server is bound to localhost.
+2020-02-25T10:26:50.632+0000 I CONTROL  [initandlisten] **          Remote systems will be unable to connect to this server. 
+2020-02-25T10:26:50.633+0000 I CONTROL  [initandlisten] **          Start the server with --bind_ip <address> to specify which IP 
+2020-02-25T10:26:50.633+0000 I CONTROL  [initandlisten] **          addresses it should serve responses from, or with --bind_ip_all to
+2020-02-25T10:26:50.633+0000 I CONTROL  [initandlisten] **          bind to all interfaces. If this behavior is desired, start the
+2020-02-25T10:26:50.634+0000 I CONTROL  [initandlisten] **          server with --bind_ip 127.0.0.1 to disable this warning.
+2020-02-25T10:26:50.634+0000 I CONTROL  [initandlisten] 
+2020-02-25T10:26:50.634+0000 I CONTROL  [initandlisten] 
+2020-02-25T10:26:50.634+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-25T10:26:50.634+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-25T10:26:50.634+0000 I CONTROL  [initandlisten] 
+2020-02-25T10:26:50.635+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-25T10:26:50.635+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-25T10:26:50.635+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise > 
+
+```
+Una vez ya conectado escribo el comando:
+
+```sh
+MongoDB Enterprise > show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+MongoDB Enterprise > 
+```
+
+podemos ver dos(3) espacios de nombres (name spaces) diferentes, o bases de datos, si lo prefiere.
 
 Tenemos **admin**, que comprende todos los datos de administración y donde la mayoría de nuestros comandos de administración como `db.shutdownServer`, por ejemplo, deben ejecutarse o se ejecutarán.
 
-Y tenemos locales.
+Y tenemos **local**.
 
-Así que saltemos al local por un segundo.
+Así que usemos **local** por un segundo.
 
-Y podemos ver que, en este caso, un nodo independiente, por sí solo.
 
-El DB local tiene solo una colección: `startup.log`.
+```sh
+MongoDB Enterprise > use local
+switched to db local
+MongoDB Enterprise > 
+```
 
-Nada extraordinario hasta el momento, ya que este `startup_log` solo contiene el registro de inicio de este nodo en particular, como dice el tipo de dicho.
+Y mostremos sus colecciones:
+
+
+```sh
+MongoDB Enterprise > show collections
+startup_log
+MongoDB Enterprise > 
+```
+
+La BD local tiene solo una colección: `startup_log`.
+
+Nada extraordinario hasta el momento, ya que este `startup_log` solo contiene el registro de inicio de este nodo en particular.
 
 Entonces, conectemos a nuestro replica set y veamos cómo funcionan estos locales una vez que estemos en la tierra del replica set.
+
+#### Conectarme al Replica Set Creado Localmente 
+```sh
+vagrant@m103:~$ mongod -f ./node1.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 6018
+ERROR: child process failed, exited with error number 51
+To see additional information in this output, start without the "--fork" option.
+vagrant@m103:~$ 
+
+vagrant@m103:~$ mongod -f ./node2.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 6025
+ERROR: child process failed, exited with error number 51
+To see additional information in this output, start without the "--fork" option.
+vagrant@m103:~$ 
+
+vagrant@m103:~$ mongod -f ./node3.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 6033
+ERROR: child process failed, exited with error number 51
+To see additional information in this output, start without the "--fork" option.
+vagrant@m103:~$ 
+
+vagrant@m103:~$ mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://192.168.103.100:27011/?authSource=admin&gssapiServiceName=mongodb&replicaSet=m103-example
+2020-02-25T10:43:22.529+0000 I NETWORK  [thread1] Starting new replica set monitor for m103-example/192.168.103.100:27011
+2020-02-25T10:43:22.531+0000 I NETWORK  [thread1] Successfully connected to 192.168.103.100:27011 (1 connections now open to 192.168.103.100:27011 with a 5 second timeout)
+2020-02-25T10:43:22.532+0000 I NETWORK  [thread1] Successfully connected to m103:27012 (1 connections now open to m103:27012 with a 5 second timeout)
+2020-02-25T10:43:22.532+0000 I NETWORK  [thread1] changing hosts to m103-example/192.168.103.100:27011,m103:27012,m103:27013 from m103-example/192.168.103.100:27011
+2020-02-25T10:43:22.534+0000 I NETWORK  [ReplicaSetMonitor-TaskExecutor-0] Successfully connected to m103:27013 (1 connections now open to m103:27013 with a 5 second timeout)
+Implicit session: session { "id" : UUID("f09597ad-6816-4d9c-9121-abaca9c88343") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] 
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:PRIMARY> 
+
+```
+
+#### Conectarme al Replica Set del Curso
+
+```sh
+vagrant@m103:~$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/test?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl --username m001-student --password m001-mongodb-basics
+MongoDB shell version v3.6.17
+connecting to: mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/test?authSource=admin&gssapiServiceName=mongodb&replicaSet=Cluster0-shard-0
+2020-02-25T10:47:01.252+0000 I NETWORK  [thread1] Starting new replica set monitor for Cluster0-shard-0/cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017
+2020-02-25T10:47:01.787+0000 I NETWORK  [thread1] Successfully connected to cluster0-shard-00-02-jxeqq.mongodb.net:27017 (1 connections now open to cluster0-shard-00-02-jxeqq.mongodb.net:27017 with a 5 second timeout)
+2020-02-25T10:47:01.788+0000 I NETWORK  [ReplicaSetMonitor-TaskExecutor-0] Successfully connected to cluster0-shard-00-00-jxeqq.mongodb.net:27017 (1 connections now open to cluster0-shard-00-00-jxeqq.mongodb.net:27017 with a 5 second timeout)
+2020-02-25T10:47:02.358+0000 I NETWORK  [ReplicaSetMonitor-TaskExecutor-0] Successfully connected to cluster0-shard-00-01-jxeqq.mongodb.net:27017 (1 connections now open to cluster0-shard-00-01-jxeqq.mongodb.net:27017 with a 5 second timeout)
+Implicit session: session { "id" : UUID("e46722c5-10c4-41c2-8f46-c61ac1a6ae24") }
+MongoDB server version: 3.6.17
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 
 Ahora que estoy conectado a un replica set, y puede ver aquí desde el mensaje que estoy conectado a una réplica M103 y a su primario.
 
 Si uso local y muestro las colecciones, entonces aquí tenemos un poco más de información, o al menos un poco más de colecciones en este escenario.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use local
+switched to db local
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+clustermanager
+me
+oplog.rs
+replset.election
+replset.minvalid
+replset.oplogTruncateAfterPoint
+startup_log
+system.replset
+system.rollback.id
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Genial, pero ¿para qué son estos?
 
