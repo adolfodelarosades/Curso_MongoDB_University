@@ -2550,23 +2550,39 @@ Recuerde, aunque **puede** escribir datos en la base de datos `local`, no debe h
 
 Después de iniciar nuestro nodo y agregar el nodo al replica set, se crea la colección `oplog.rs`.
 
+<img src="images/m103/c2/2-13-oplog.png">
+
 Por defecto, como mencioné antes, tomamos el 5% del disco disponible.
+
+<img src="images/m103/c2/2-13-oplog-2.png">
 
 Pero este valor también se puede configurar configurándolo a través del tamaño del registro en megabytes en la sección de replicación de nuestro archivo de configuración.
 
 A medida que las operaciones se registran en el oplog, como insertar o eliminar o crear operaciones de tipo de colección, la colección `oplog.rs` comienza a acumular las operaciones y declaraciones, hasta que alcanza el límite de tamaño de oplog.
 
+<img src="images/m103/c2/2-13-oplog-3.png">
+
 Una vez que eso sucede, las primeras operaciones en nuestro oplog comienzan a sobrescribirse con las operaciones más nuevas.
 
-El tiempo que lleva completar completamente nuestro roplog y comenzar a reescribir las primeras declaraciones determina la ventana de replicación.
+<img src="images/m103/c2/2-13-oplog-4.png">
+
+El tiempo que lleva completar completamente nuestro oplog y comenzar a reescribir las primeras declaraciones determina la ventana de replicación.
+
+<img src="images/m103/c2/2-13-oplog-5.png">
 
 La ventana de replicación es un aspecto importante para monitorear porque afectaremos la cantidad de tiempo que el conjunto de réplica puede permitir que un nodo esté inactivo sin requerir intervención humana para la recuperación automática.
 
 Cada nodo en nuestro replica set tiene su propio oplog.
 
+<img src="images/m103/c2/2-13-replicaset.png">
+
 A medida que las escrituras y las operaciones llegan al nodo primario, se capturan en el oplog.
 
+<img src="images/m103/c2/2-13-replicaset-2.png">
+
 Y luego los nodos secundarios replican esos datos y los aplican en su propio oplog.
+
+<img src="images/m103/c2/2-13-replicaset-3.png">
 
 Ahora, si por alguna razón uno de los nodos se desconecta, ya sea porque van a realizar algún mantenimiento, o hay algún tipo de problema de red, o algún tiempo de inactividad del servidor de cualquier tipo, y el servidor sigue funcionando, el replica set continúa acumulándose Nuevas escrituras: para que el servidor pueda ponerse al día con los nodos restantes, deberá descubrir qué es un punto común en el que todos pueden ver lo que sucedió en el pasado.
 
