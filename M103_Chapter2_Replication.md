@@ -2818,9 +2818,13 @@ Ahora esta es la magia de la **idempotencia**.
 
 Se consciente de esto.
 
+<img src="images/m103/c2/2-13-oplog-8.png">
+
 A veces es fácil descartar el hecho de que la idempotencia podría generar muchas más operaciones en nuestro registro de operaciones que la cantidad de comandos realmente emitidos por el cliente.
 
 Un último punto que quiero llamar su atención es que, por favor, no cambie ninguna de esta información presente en ninguna de esta colección.
+
+<img src="images/m103/c2/2-13-collections.png">
 
 Contrariamente a lo que MC Hammer solía decir, de hecho, puede tocar esto, dado el conjunto correcto de permisos.
 
@@ -2834,9 +2838,15 @@ Dicho esto, y para demostrarle que puede hacer algún daño, intentemos escribir
 
 Voy a seguir adelante y en mi colección local, inserte un mensaje que diga que no puede tocar esto.
 
+<img src="images/m103/c2/2-13-code-1.png">
+
 Y si lo buscamos en nuestros `oplog.rs`, no lo encontraremos.
 
-Debe tener en cuenta que estos datos que acabo de escribir en esta base de datos en particular, ahí está, mi colección local, están escritos en la base de datos local.
+<img src="images/m103/c2/2-13-code-2.png">
+
+Debe tener en cuenta que estos datos que acabo de escribir en esta base de datos en particular, -- ahí está, `mylocalcollection` --, están escritos en la base de datos local.
+
+<img src="images/m103/c2/2-13-code-3.png">
 
 Eso significa que es local para esta instancia en particular.
 
@@ -2854,9 +2864,11 @@ Pero no le recomendamos que haga nada de eso a menos que realmente sepa lo que e
 
 Resumamos rápidamente lo que acabamos de aprender.
 
+<img src="images/m103/c2/2-13-resumen.png">
+
 La base de datos local contiene información muy importante y no debe ser desordenada.
 
-Cambiar los datos en su registro de operaciones o en cualquiera de las colecciones de configuración afectará la configuración en el mecanismo de replicación.
+Cambiar los datos en su oplog o en cualquiera de las colecciones de configuración afectará la configuración en el mecanismo de replicación.
 
 `oplog.rs` es fundamental para nuestro mecanismo de replicación.
 
