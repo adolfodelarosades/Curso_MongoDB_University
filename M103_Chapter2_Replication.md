@@ -2584,27 +2584,56 @@ Y luego los nodos secundarios replican esos datos y los aplican en su propio opl
 
 <img src="images/m103/c2/2-13-replicaset-3.png">
 
-Ahora, si por alguna razón uno de los nodos se desconecta, ya sea porque van a realizar algún mantenimiento, o hay algún tipo de problema de red, o algún tiempo de inactividad del servidor de cualquier tipo, y el servidor sigue funcionando, el replica set continúa acumulándose Nuevas escrituras: para que el servidor pueda ponerse al día con los nodos restantes, deberá descubrir qué es un punto común en el que todos pueden ver lo que sucedió en el pasado.
+Ahora, si por alguna razón uno de los nodos se desconecta, ya sea porque van a realizar algún mantenimiento, o hay algún tipo de problema de red, o algún tiempo de inactividad del servidor de cualquier tipo,
+
+<img src="images/m103/c2/2-13-replicaset-4.png">
+
+ y el servidor sigue funcionando, 
+ 
+ <img src="images/m103/c2/2-13-replicaset-5.png">
+ 
+ el replica set continúa acumulándose nuevas escrituras: para que el servidor pueda ponerse al día con los nodos restantes, deberá descubrir qué es un punto común en el que todos pueden ver lo que sucedió en el pasado.
+
+<img src="images/m103/c2/2-13-replicaset-6.png">
+
 
 Básicamente, lo que sucederá es que un nodo en recuperación verificará su última entrada de oplog e intentará encontrarlo en uno de los nodos disponibles.
 
+<img src="images/m103/c2/2-13-replicaset-7.png">
+
 Una vez que lo encuentre, simplemente volverá a aplicar todas las operaciones desde ese punto y se pondrá al día con los nodos restantes de los conjuntos.
 
-Sin embargo, si no puede encontrar la misma operación común en el oplog de los nodos restantes debido a que el oplog ya ha girado y no hay un punto fuente de sincronización como la última operación, el nodo no podrá recuperarse y sincronizarse automáticamente con el resto de el conjunto, se coloca en modo de recuperación.
+<img src="images/m103/c2/2-13-replicaset-8.png">
+
+Sin embargo, si no puede encontrar la misma operación común en el oplog de los nodos restantes debido a que el oplog ya ha girado y no hay un punto fuente de sincronización como la última operación,
+
+<img src="images/m103/c2/2-13-replicaset-9.png">
+
+el nodo no podrá recuperarse y sincronizarse automáticamente con el resto de el conjunto, se coloca en modo de recuperación.
+
+<img src="images/m103/c2/2-13-replicaset-10.png">
 
 Ahora, no todos los nodos deben ser iguales.
+
+<img src="images/m103/c2/2-13-replicaset-11.png">
 
 Por ejemplo, las fuentes de sincronización pueden tener diferentes tamaños de registro.
 
 Sin embargo, si nuestro tamaño de registro es mayor y puede acomodar más cambios en el sistema, podemos permitir que nuestros nodos estén inactivos por más tiempo y aún así poder volver a conectarse una vez que se vuelvan a activar.
 
+<img src="images/m103/c2/2-13-replicaset-12.png">
+
 Por lo tanto, el tamaño de nuestra colección `oplog.rs` es un aspecto importante a tener en cuenta.
 
 En resumen, la ventana de replicación medida en horas será proporcional a la carga de su sistema.
 
+<img src="images/m103/c2/2-13-oplog-6.png">
+
 Deberías vigilar eso.
 
 La otra cosa buena es que nuestro tamaño de `oplog.rs` se puede cambiar.
+
+<img src="images/m103/c2/2-13-oplog-7.png">
 
 Y tenemos una buena cantidad de buena documentación que le indica cómo hacerlo como tarea administrativa.
 
