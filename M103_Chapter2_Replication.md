@@ -2878,7 +2878,48 @@ El tamaño de nuestro oplog afectará la ventana de replicación y debe ser moni
 
 Cualquier dato escrito en la base de datos local que no esté escrito en `oplog.rs` o que cambie cualquiera de las colecciones de configuración del sistema permanecerá allí y no se replicará.
 
-## 14. Examen
+## 14. Examen Local DB: Part 2
+
+
+**Problem:**
+
+Which of the following is true?
+
+Check all answers that apply:
+
+* The `oplog.rs` collection contains all operations that will be replicated. :+1:
+
+* You cannot write to the `local` database.
+
+* The `local` database does not allow the creation of other collections.
+
+* We should drop the `oplog.rs` collection from time to time to avoid it becoming too big.
+
+* The local database will not be replicated. :+1:
+
+**Correct answers:**
+
+**The** local **database will not be replicated**.
+
+Any data written to this database will not be replicated across the different nodes of the set.
+
+**The `oplog.rs` collection contains all operations that will be replicated**.
+
+The `oplog.rs` collection holds all the statements that get replicated across the different replica set members.
+
+**Incorrect answers:**
+
+**You cannot write to the `local` database.**
+
+Given the correct permissions, an authorized user can write data to the `local` db. That said, we strongly advise against that.
+
+**The `local` database does not allow the creation of other collections.**
+
+Although we discourage it, you can write new collections to the local database.
+
+**We should drop the `oplog.rs` collection from time to time to avoid it becoming too big.**
+
+We cap the `oplog.rs` collection instead of dropping it entirely.
 
 ## 15. Tema: reconfigurar un conjunto de réplicas en ejecución
 
