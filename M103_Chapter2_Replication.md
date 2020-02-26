@@ -2641,19 +2641,84 @@ Otro aspecto a conocer sobre esta colección es que, dada la naturaleza idempote
 
 Déjame mostrarte cómo funciona esto.
 
-Voy a usar esta base de datos aquí-- M03.
+```sh
+192:~ adolfodelarosa$ mongo "mongodb+srv://cluster0-3bh0e.mongodb.net/test"  --username m001-student --password m001-mongodb-basics
+```
 
-Voy a crear una colección llamada mensajes.
+Voy a usar esta base de datos `m103`.
+
+Voy a crear una colección llamada `'messages'`.
 
 Una vez que creo eso, puedo ver esa colección allí creada.
 
-Ahora, si salto a mi base de datos local y busco en nuestros `oplog.rs`, excluyendo cualquier operación periódica de noop mantenida por el servidor, puedo encontrar aquí las instrucciones que crean esta colección en el oplog.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use m103
+switched to db m103
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.createCollection('messages')
+{
+	"ok" : 1,
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582740039, 1),
+		"signature" : {
+			"hash" : BinData(0,"Rs265mL8LZYWwZILKyDpwvC/IiM="),
+			"keyId" : NumberLong("6778805621249540098")
+		}
+	},
+	"operationTime" : Timestamp(1582740039, 1)
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+messages
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Ahora, si cambio a mi base de datos `local` y busco en nuestros `oplog.rs`, excluyendo cualquier operación `"periodic noop"` mantenida por el servidor, puedo encontrar aquí las instrucciones que crean esta colección en el oplog.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use local
+switched to db local                         
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.oplog.rs.find({"o.msg": {$ne: "periodic noop"}})
+                                                        .sort({$natural: -1}).limit(1).pretty()
+{
+	"ts" : Timestamp(1582740039, 1),
+	"t" : NumberLong(6),
+	"h" : NumberLong(0),
+	"v" : 2,
+	"op" : "c",
+	"ns" : "m103.$cmd",
+	"ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"),
+	"wall" : ISODate("2020-02-26T18:00:39.361Z"),
+	"o" : {
+		"create" : "messages",
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "m103.messages"
+		}
+	}
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Genial, esto es realmente bueno.
 
-Ahora volvamos a nuestra colección M103.
+Ahora volvamos a nuestra BD `m103`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use m103
+switched to db m103
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 E insertemos algunos documentos solo por diversión.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> for ( i=0; i < 100; i++) { db.messages.insert({'msg': 'not yet', _id: i}) }
+WriteResult({ "nInserted" : 1 })
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Ahí tienes.
 
@@ -2661,7 +2726,42 @@ Insertamos 100 documentos con el mensaje, todavía no.
 
 Si sigo adelante y los cuento, puedo ver 100 documentos allí, genial.
 
-Si vuelvo a mi base de datos local y busco esos mensajes, puedo ver que puedo encontrar esos insertos: la operación allí es un inserto.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.messages.count()
+100
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Si vuelvo a mi base de datos local y busco esos mensajes, puedo ver que puedo encontrar esos inserts: la operación allí es un insert `"op" : "i"`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use local
+switched to db local
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.oplog.rs.find({"ns": "m103.messages"}).sort({$natural: -1 })
+{ "ts" : Timestamp(1582740791, 19), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.687Z"), "o" : { "_id" : 99, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 18), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.650Z"), "o" : { "_id" : 98, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 17), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.613Z"), "o" : { "_id" : 97, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 16), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.576Z"), "o" : { "_id" : 96, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 15), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.539Z"), "o" : { "_id" : 95, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 14), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.500Z"), "o" : { "_id" : 94, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 13), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.463Z"), "o" : { "_id" : 93, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 12), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.426Z"), "o" : { "_id" : 92, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 11), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.388Z"), "o" : { "_id" : 91, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 10), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.351Z"), "o" : { "_id" : 90, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 9), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.314Z"), "o" : { "_id" : 89, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 8), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.277Z"), "o" : { "_id" : 88, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 7), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.240Z"), "o" : { "_id" : 87, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 6), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.203Z"), "o" : { "_id" : 86, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 5), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.166Z"), "o" : { "_id" : 85, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 4), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.129Z"), "o" : { "_id" : 84, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 3), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.092Z"), "o" : { "_id" : 83, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 2), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.055Z"), "o" : { "_id" : 82, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740791, 1), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:11.018Z"), "o" : { "_id" : 81, "msg" : "not yet" } }
+{ "ts" : Timestamp(1582740790, 26), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "i", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "wall" : ISODate("2020-02-26T18:13:10.980Z"), "o" : { "_id" : 80, "msg" : "not yet" } }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
 
 Y el objeto que se inserta es uno de los 100 documentos insertados, genial.
 
@@ -2669,15 +2769,52 @@ Pero ahora hagamos una simple actualización Muchas operaciones.
 
 Digamos que quiero asegurarme de que estos mensajes aquí tengan un autor.
 
-Así que voy a establecer un nuevo campo llamado autor con el valor llamado, bueno, mi propio nombre: Norberto.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use m103
+switched to db m103
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.messages.updateMany({}, {$set: {author: 'adolfo'}})
+{ "acknowledged" : true, "matchedCount" : 100, "modifiedCount" : 100 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Así que voy a establecer un nuevo campo llamado autor con el valor llamado, bueno, mi propio nombre: Adolfo.
 
 Una vez que haga esto, y tenga en cuenta que esta es una sola operación, una `UpdateOne`, que modificó y combinó 100 documentos diferentes.
 
-Si volvemos a lo local, y si buscamos más operaciones, puedo ver que hay una operación de actualización, o varias operaciones de actualización - op es igual a u significa una actualización - para todos los documentos afectados en esta colección.
+Si volvemos a lo `local`, y si buscamos más operaciones, puedo ver que hay una operación de actualización, o varias operaciones de actualización - `"op" : "u"` significa una actualización - para todos los documentos afectados en esta colección.
 
-Entonces, una sola instrucción, una actualización, muchas, en nuestra primaria, produjo 100 operaciones diferentes en nuestra bitácora.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use local
+switched to db local
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.oplog.rs.find({"ns": "m103.messages"}).sort({$natural: -1 })
+{ "ts" : Timestamp(1582741291, 100), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 99 }, "wall" : ISODate("2020-02-26T18:21:31.559Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 99), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 98 }, "wall" : ISODate("2020-02-26T18:21:31.559Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 98), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 97 }, "wall" : ISODate("2020-02-26T18:21:31.559Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 97), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 96 }, "wall" : ISODate("2020-02-26T18:21:31.559Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 96), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 95 }, "wall" : ISODate("2020-02-26T18:21:31.559Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 95), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 94 }, "wall" : ISODate("2020-02-26T18:21:31.559Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 94), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 93 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 93), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 92 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 92), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 91 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 91), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 90 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 90), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 89 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 89), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 88 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 88), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 87 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 87), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 86 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 86), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 85 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 85), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 84 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 84), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 83 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 83), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 82 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 82), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 81 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+{ "ts" : Timestamp(1582741291, 81), "t" : NumberLong(6), "h" : NumberLong(0), "v" : 2, "op" : "u", "ns" : "m103.messages", "ui" : UUID("54206d01-59ed-4de1-858f-783879728e90"), "o2" : { "_id" : 80 }, "wall" : ISODate("2020-02-26T18:21:31.558Z"), "o" : { "$v" : 1, "$set" : { "author" : "adolfo" } } }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
 
-Ahora esta es la magia de la idempotencia.
+```
+
+Entonces, una sola instrucción, - un `updateMany` -, en nuestro nodo primario, produjo 100 operaciones diferentes en nuestro oplog.
+
+Ahora esta es la magia de la **idempotencia**.
 
 Se consciente de esto.
 
