@@ -3762,6 +3762,64 @@ Secondary nodes can be converted to hidden nodes while the replica set is runnin
 
 ## 17. Laboratorio: eliminar y volver a agregar un nodo
 
+Lab - Remove and Re-Add a Node
+
+**Problem:**
+
+In this lab, you will make your replica set more flexible. In the previous lab, we've configured the replica set cluster using the exact IP address. However, if we configured the server with a different IP address (e.g. going from a fixed IP to DNS server for IP address resolution), this would break the replication mechanism since the nodes won't be able to reach each other with the original IP address.
+
+In this lab, you will modify the replica set so one of the nodes uses the hostname `m103`, the virtual machine hostname, instead of the external IP address of the Vagrant box.
+
+To correctly reconfigure this node, you will have to remove the node from the replica set, and then add it back with the correct hostname. For this lab, you only need to do this for one of the nodes in the set.
+
+Some tips that will help the validator pass:
+
+* The configuration of the nodes should **not** change - the hostname `m103` is already bound to the IP address `192.168.103.100`
+* The nodes should still run on ports **27001**, **27002**, **27003**
+* The name of your replica set should still be `m103-repl`
+
+**Note**: Please make sure that the hostname `m103` is getting mapped to `192.168.103.100` and not `127.0.0.1`. You can verify this by running this command `ping m103` at the vagrant prompt and it should resolve to `192.168.103.100`. If this is not happening then please refer [this post]() in the discussion forum to update it.
+
+When you're finished, run the validation script in your vagrant and outside the mongo shell and enter the validation key you receive below. If you receive an error, it should give you some idea of what went wrong.
+
+```sh
+vagrant@m103:~$ validate_lab_remove_readd_node
+```
+
+Enter answer here:
+
+See detailed answer:
+
+We don't have to change the config files of our `mongod` instances, because the current `bind_ip` resolves the IP address of **m103** hostname.
+
+To remove a node from the replica set, simply use `rs.remove()`:
+
+```sh
+rs.remove("192.168.103.100:27003")
+```
+
+Once the node is removed, we can just add him back again, using the `hostname` instead: **m103**:
+
+```sh
+rs.add("m103:27003")
+```
+
+Below is a snippet of the output from running `rs.status()`:
+
+```sh
+"members" : [
+  {
+    "_id" : 8,
+    "name" : "m103:27003",
+    "health" : 1,
+    "state" : 2,
+    "stateStr" : "SECONDARY",
+  }
+]
+```
+
+Notice that the name of this replica set member now says `"m103:27003"`.
+
 ## 18. Tema: Lee y escribe en un conjunto de réplicas
 
 ### Transcripción
