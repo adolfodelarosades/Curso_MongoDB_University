@@ -3718,7 +3718,47 @@ Entonces, para recapitular, en esta lección cubrimos cómo agregar árbitros y 
 
 Y también cubrimos cómo reconfigurar un replica set mientras aún se está ejecutando.
 
-## 16. Examen
+## 16. Examen Reconfiguring a Running Replica Set
+
+**Problem:**
+
+What is true about hidden nodes?
+
+Check all answers that apply:
+
+* Hidden nodes are a type of arbiter.
+
+* Hidden nodes can become primary.
+
+* Hidden nodes vote in elections. :+1:
+
+* Hidden nodes replicate data. :+1:
+
+* Secondary nodes cannot become hidden nodes without going offline.
+
+**Correct answers:**
+
+**Hidden nodes vote in elections.**
+
+Hidden nodes can never become the primary, but they can still vote in elections.
+
+**Hidden nodes replicate data.**
+
+Hidden nodes replicate data from the primary, although they are invisible to client applications.
+
+**Incorrect answers:**
+
+**Hidden nodes can become primary.**
+
+Hidden nodes must have priority 0.
+
+**Hidden nodes are a type of arbiter.**
+
+Hidden nodes and arbiters are different types of replica set members; arbiters hold no data while hidden nodes replicate from the oplog.
+
+**Secondary nodes must be restarted before converting to hidden nodes.**
+
+Secondary nodes can be converted to hidden nodes while the replica set is running, using rs.reconfig().
 
 ## 17. Laboratorio: eliminar y volver a agregar un nodo
 
