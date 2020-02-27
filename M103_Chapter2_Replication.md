@@ -1501,7 +1501,48 @@ vagrant@m103:~$ validate_lab_initialize_local_replica_set
 
 Enter answer here: 5a4d32f979235b109001c7bc
 
-
+MIO
+```sh
+  241  vi mongod-repl-1.conf
+  242  vi mongod-repl-2.conf
+  243  cp mongod-repl-1.conf mongod-repl-2.conf
+  244  cp mongod-repl-1.conf mongod-repl-3.conf
+  245  vi mongod-repl-2.conf
+  246  vi mongod-repl-3.conf
+  247  cls
+  248  clear
+  249  mkdir -p /var/mongodb/pki
+  250  sudo chown vagrant:vagrant -R /var/mongodb
+  251  openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+  252  mkdir -p /var/mongodb/pki/
+  253  sudo chown vagrant:vagrant -R /var/mongodb
+  254  openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+  255  sudo chown vagrant:vagrant -R /var/mongodb/pki/
+  256  openssl rand -base64 741 > /var/mongodb/pki/m103-keyfile
+  257  chmod 600 /var/mongodb/pki/m103-keyfile
+  258  mkdir /var/mongodb/db/{1,2,3}
+  259  sudo chown vagrant:vagrant /var/mongodb/db/1/
+  260  sudo chown vagrant:vagrant /var/mongodb/db/2/
+  261  sudo chown vagrant:vagrant /var/mongodb/db/3/
+  262  mongod -f ./mongod-repl-1.conf
+  263  vi mongod-repl-1.conf
+  264  vi mongod-repl-2.conf
+  265  vi mongod-repl-3.conf
+  266  vi mongod-repl-2.conf
+  267  cls
+  268  clear
+  269  mongod -f mongod-repl-1.conf
+  270  ls
+  271  vi mongod-repl-1.conf
+  272  mongod -f mongod-repl-1.conf
+  273  mongo --port 27001
+  274  mongod -f mongod-repl-2.conf
+  275  mongod -f mongod-repl-3.conf
+  276  mongo --host "m103-repl/192.168.103.100:27001" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+  277  validate_lab_initialize_local_replica_set
+  278  mongo --host "m103-repl/192.168.103.100:27001" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+ 
+```
 **See detailed answer:**
 
 Below is an example of a valid config file for the first node in our replica set:
@@ -3838,7 +3879,7 @@ When you're finished, run the validation script in your vagrant and outside the 
 vagrant@m103:~$ validate_lab_remove_readd_node
 ```
 
-Enter answer here:
+Enter answer here: 5a4fff19c0324e9feb9f60b9  (Fuera de Tiempo)
 
 **See detailed answer:**
 
@@ -3872,7 +3913,285 @@ Below is a snippet of the output from running `rs.status()`:
 
 Notice that the name of this replica set member now says `"m103:27003"`.
 
+MIO
+
+```sh
+vagrant@m103:~$ mongo --host "m103-repl/192.168.103.100:27001" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://192.168.103.100:27001/?authSource=admin&gssapiServiceName=mongodb&replicaSet=m103-repl
+2020-02-27T17:47:40.909+0000 I NETWORK  [thread1] Starting new replica set monitor for m103-repl/192.168.103.100:27001
+2020-02-27T17:47:40.911+0000 I NETWORK  [thread1] Successfully connected to 192.168.103.100:27001 (1 connections now open to 192.168.103.100:27001 with a 5 second timeout)
+2020-02-27T17:47:40.912+0000 I NETWORK  [thread1] Successfully connected to m103:27002 (1 connections now open to m103:27002 with a 5 second timeout)
+2020-02-27T17:47:40.913+0000 I NETWORK  [thread1] changing hosts to m103-repl/192.168.103.100:27001,m103:27002,m103:27003 from m103-repl/192.168.103.100:27001
+2020-02-27T17:47:40.914+0000 I NETWORK  [ReplicaSetMonitor-TaskExecutor-0] Successfully connected to m103:27003 (1 connections now open to m103:27003 with a 5 second timeout)
+Implicit session: session { "id" : UUID("3c022cee-4ab4-486b-ad5c-a3350906d82a") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-24T19:56:15.486+0000 I STORAGE  [initandlisten] 
+2020-02-24T19:56:15.486+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-24T19:56:15.486+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] 
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] 
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T19:56:16.158+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-repl:PRIMARY> rs.remove("192.168.103.100:27003")
+error: couldn't find 192.168.103.100:27003 in [
+	{
+		"_id" : 0,
+		"host" : "192.168.103.100:27001",
+		"arbiterOnly" : false,
+		"buildIndexes" : true,
+		"hidden" : false,
+		"priority" : 1,
+		"tags" : {
+			
+		},
+		"slaveDelay" : NumberLong(0),
+		"votes" : 1
+	},
+	{
+		"_id" : 1,
+		"host" : "m103:27002",
+		"arbiterOnly" : false,
+		"buildIndexes" : true,
+		"hidden" : false,
+		"priority" : 1,
+		"tags" : {
+			
+		},
+		"slaveDelay" : NumberLong(0),
+		"votes" : 1
+	},
+	{
+		"_id" : 2,
+		"host" : "m103:27003",
+		"arbiterOnly" : false,
+		"buildIndexes" : true,
+		"hidden" : false,
+		"priority" : 1,
+		"tags" : {
+			
+		},
+		"slaveDelay" : NumberLong(0),
+		"votes" : 1
+	}
+]
+MongoDB Enterprise m103-repl:PRIMARY> rs.add("m103:27003")
+{
+	"ok" : 0,
+	"errmsg" : "Found two member configurations with same host field, members.2.host == members.3.host == m103:27003",
+	"code" : 103,
+	"codeName" : "NewReplicaSetConfigurationIncompatible",
+	"operationTime" : Timestamp(1582825712, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582825712, 1),
+		"signature" : {
+			"hash" : BinData(0,"E8Z3mR/UvcF+w6vekf7eFYLECqE="),
+			"keyId" : NumberLong("6797103509075394561")
+		}
+	}
+}
+MongoDB Enterprise m103-repl:PRIMARY> rs.status()
+{
+	"set" : "m103-repl",
+	"date" : ISODate("2020-02-27T17:48:45.703Z"),
+	"myState" : 1,
+	"term" : NumberLong(2),
+	"syncingTo" : "",
+	"syncSourceHost" : "",
+	"syncSourceId" : -1,
+	"heartbeatIntervalMillis" : NumberLong(2000),
+	"optimes" : {
+		"lastCommittedOpTime" : {
+			"ts" : Timestamp(1582825722, 1),
+			"t" : NumberLong(2)
+		},
+		"readConcernMajorityOpTime" : {
+			"ts" : Timestamp(1582825722, 1),
+			"t" : NumberLong(2)
+		},
+		"appliedOpTime" : {
+			"ts" : Timestamp(1582825722, 1),
+			"t" : NumberLong(2)
+		},
+		"durableOpTime" : {
+			"ts" : Timestamp(1582825722, 1),
+			"t" : NumberLong(2)
+		}
+	},
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.103.100:27001",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 251210,
+			"optime" : {
+				"ts" : Timestamp(1582825722, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(1582825722, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDate" : ISODate("2020-02-27T17:48:42Z"),
+			"optimeDurableDate" : ISODate("2020-02-27T17:48:42Z"),
+			"lastHeartbeat" : ISODate("2020-02-27T17:48:43.750Z"),
+			"lastHeartbeatRecv" : ISODate("2020-02-27T17:48:44.698Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "",
+			"syncingTo" : "m103:27002",
+			"syncSourceHost" : "m103:27002",
+			"syncSourceId" : 1,
+			"infoMessage" : "",
+			"configVersion" : 3
+		},
+		{
+			"_id" : 1,
+			"name" : "m103:27002",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 251550,
+			"optime" : {
+				"ts" : Timestamp(1582825722, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDate" : ISODate("2020-02-27T17:48:42Z"),
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"electionTime" : Timestamp(1582721555, 1),
+			"electionDate" : ISODate("2020-02-26T12:52:35Z"),
+			"configVersion" : 3,
+			"self" : true,
+			"lastHeartbeatMessage" : ""
+		},
+		{
+			"_id" : 2,
+			"name" : "m103:27003",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 251198,
+			"optime" : {
+				"ts" : Timestamp(1582825722, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(1582825722, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDate" : ISODate("2020-02-27T17:48:42Z"),
+			"optimeDurableDate" : ISODate("2020-02-27T17:48:42Z"),
+			"lastHeartbeat" : ISODate("2020-02-27T17:48:43.750Z"),
+			"lastHeartbeatRecv" : ISODate("2020-02-27T17:48:43.748Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "",
+			"syncingTo" : "m103:27002",
+			"syncSourceHost" : "m103:27002",
+			"syncSourceId" : 1,
+			"infoMessage" : "",
+			"configVersion" : 3
+		}
+	],
+	"ok" : 1,
+	"operationTime" : Timestamp(1582825722, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582825722, 1),
+		"signature" : {
+			"hash" : BinData(0,"OY1832QCW//1rhWbvWZhbiOcM+U="),
+			"keyId" : NumberLong("6797103509075394561")
+		}
+	}
+}
+MongoDB Enterprise m103-repl:PRIMARY> 
+
+```
+
 ## 18. Tema: Lee y escribe en un conjunto de réplicas
+
+### Notas de lectura
+
+**Instrucciones del tema**
+
+*Nota: En el video conferencia, utilizamos el antiguo nombre de host* `"m103.mongodb.university"` que se ha cambiado a `"m103"`. *Hemos actualizado todos los siguientes comandos en consecuencia*.
+
+Conexión al conjunto de réplicas:
+
+```sh
+mongo --host "m103-example/m103:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+```
+
+Comprobación de la topología del replica set:
+
+```sh
+rs.isMaster()
+```
+
+Insertar un documento en una nueva colección:
+
+```sh
+use newDB
+db.new_collection.insert( { "student": "Matt Javaly", "grade": "A+" } )
+```
+
+Conexión directa a un nodo secundario (¡este nodo puede no ser secundario en su replica set!):
+
+```sh
+mongo --host "m103:27012" -u "m103-admin" -p "m103-pass"
+--authenticationDatabase "admin"
+```
+
+Intentando ejecutar un comando de lectura en un nodo secundario (esto debería fallar):
+
+```sh
+show dbs
+```
+
+Habilitar comandos de lectura en un nodo secundario:
+
+```sh
+rs.slaveOk()
+```
+
+Lectura desde un nodo secundario:
+
+```sh
+use newDB
+db.new_collection.find()
+```
+
+Intentando escribir datos directamente en un nodo secundario (esto debería fallar, porque no podemos escribir datos directamente en un nodo secundario):
+
+```sh
+db.new_collection.insert( { "student": "Norberto Leite", "grade": "B+" } )
+```
+
+Apagar el servidor (en ambos nodos secundarios)
+
+```sh
+use admin
+db.shutdownServer()
+```
+
+Conectando directamente al último nodo saludable en nuestro conjunto:
+
+```sh
+mongo --host "m103:27011" -u "m103-admin" -p "m103-pass"
+--authenticationDatabase "admin"
+```
+
+Verificando que el último nodo bajó para convertirse en secundario cuando la mayoría de los nodos del conjunto no estaban disponibles:
+
+```sh
+rs.isMaster()
+```
 
 ### Transcripción
 
