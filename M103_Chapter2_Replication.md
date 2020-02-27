@@ -4195,6 +4195,110 @@ rs.isMaster()
 
 ### Transcripción
 
+Entonces, en esta lección, vamos a echar un vistazo a las lecturas y escrituras en un replica set para tener una idea de cómo funciona el mecanismo de replicación MongoDB.
+
+Así que solo voy a usar este comando para conectarme a nuestro replica set de tres nodos llamado `m103-example`.
+
+Y para averiguar qué nodo en este conjunto es actualmente el principal, voy a ejecutar este comando `rs.isMaster()`.
+
+Y esta salida en realidad nos da mucha información.
+
+Nos da el primario actual, que es el nodo que se ejecuta en el puerto `27011`.
+
+Y también nos da el nodo al que estamos conectados actualmente, yo.
+
+En este caso, es lo mismo que el primario, porque estamos conectados a la réplica establecida a través del shell.
+
+También nos da los otros nodos en este conjunto de réplicas.
+
+Así que voy a crear una nueva base de datos aquí llamada `newDB`.
+
+E inserte un nuevo documento en una nueva colección llamada `newCollection` en `newDB`.
+
+Y me voy a conectar a un secundario para asegurarme de que también reciban la escritura.
+
+Podemos desplazarnos hasta la salida `rs.isMaster` para descubrir cuál de estos nodos es secundario.
+
+Y sabemos que este es el principal, por lo que solo tenemos que conectarnos a uno de estos dos nodos.
+
+Este es el comando que vamos a usar para conectarnos directamente a un nodo secundario en nuestro conjunto de réplicas.
+
+Observe que hemos cambiado el puerto de nodo que hemos seleccionado en nuestro nombre de host.
+
+Y tampoco hemos especificado el nombre del conjunto de réplicas.
+
+Porque si tuviéramos que especificar el nombre del replica set, el shell nos dirigiría automáticamente al primario.
+
+Y en este caso, en realidad queremos conectarnos directamente a un secundario.
+
+Y como podemos ver, el indicador de shell cambia para reflejar que ahora estamos conectados a un nodo secundario.
+
+Entonces podemos comenzar a ejecutar comandos de shell en la nota secundaria, ¿verdad?
+
+No, en realidad no podemos.
+
+Cuando estamos conectados a un nodo secundario, solo podemos ejecutar comandos de lectura después de decirle a MongoDB que estamos seguros de que eso es lo que queremos hacer.
+
+Esto se debe a que MongoDB se equivoca por el lado de la coherencia.
+
+Dado que queremos asegurarnos de que siempre tenga una vista coherente de sus datos, debe decir explícitamente lo contrario si desea leer en las secundarias.
+
+Entonces, este es el comando que vamos a ejecutar para habilitar las operaciones de lectura en el nodo secundario.
+
+Y ahora, nuestro comando `show dbs` debería funcionar realmente.
+
+Y lo hace
+
+Y podemos ver que el comando de escritura fue replicado en el nodo secundario.
+
+Así que aquí he intentado insertar un documento en un nodo secundario.
+
+Y como se esperaba, solo podemos habilitar lecturas en este secundario.
+
+Nunca podremos escribir en un nodo secundario.
+
+El propósito de esto es hacer cumplir una fuerte consistencia en nuestro clúster.
+
+El shell Mongo nos permite saber que no podemos escribir en la secundaria.
+
+Hasta ahora hemos cubierto cómo funcionan las lecturas y escrituras en un replica set cuando está en buen estado.
+
+En el interés de aprender cómo los replica set manejan la crisis, vamos a romper algunas cosas.
+
+Primero, vamos a cerrar este nodo.
+
+Ahora, cuando nos conectamos de nuevo al replica set, ejecutamos `rs.status()` podemos ver que el nodo que cerramos ya no es accesible desde el primario.
+
+Ahora solo voy a cerrar este otro nodo aquí.
+
+Entonces, ahora que hemos apagado dos de los nodos en nuestro replica set, solo queda uno.
+
+Y uno de cada tres no forma una mayoría.
+
+Por lo tanto, en realidad no podremos conectarnos al primario, porque el primario actual, que se estaba ejecutando en este nodo, se ha reducido para convertirse en secundario.
+
+Así que aquí no he especificado el nombre del conjunto de réplicas, porque quiero conectarme directamente a este nodo.
+
+Y como podemos ver, ese nodo ha dejado de ser el secundario.
+
+Podemos verificar eso ejecutando `rs.isMaster()`.
+
+Entonces, como podemos ver, todavía estamos conectados al mismo nodo que antes.
+
+Pero ese nodo ahora es un nodo secundario.
+
+Aunque el nodo primario nunca cayó, perdimos el último secundario que nos dio la mayoría.
+
+Si el replica set ya no puede llegar a la mayoría de los nodos, todos los nodos restantes en el conjunto se convierten en secundarios.
+
+Y debido a que son secundarias, no podemos escribir nada en el replica set, porque no hay primario.
+
+Este es solo otro mecanismo seguro utilizado por el creplica set MongoDB para garantizar la coherencia de los datos.
+
+Así que solo para recapitular.
+
+En esta lección, cubrimos los datos que se replican en un secundario, cómo funciona la lectura de los nodos secundarios y cómo escribir en un replica set cuando la mayoría no está disponible, es decir, no podemos.
+
 ## 19. Examen
 
 ## 20. Tema: conmutación por error y elecciones
