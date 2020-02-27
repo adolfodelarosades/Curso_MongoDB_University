@@ -3133,7 +3133,7 @@ vagrant@m103:~$ mkdir /var/mongodb/db/node4
 vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/node4
 ```
 
-Una vez hecho esto lanzamos el nuevo nodo:
+Así que aquí voy a lanzar un mongod usando el archivo de configuración para nuestro cuarto nodo.
 
 ```sh
 vagrant@m103:~$ mongod -f node4.conf
@@ -3143,8 +3143,6 @@ child process started successfully, parent exiting
 vagrant@m103:~$ 
 ```
 
-
------------
 Para añadir el nodo arbotro:
 
 Copiamos la configuración del nodo 4 al nodo arbitro:
@@ -3187,7 +3185,7 @@ vagrant@m103:~$ mkdir /var/mongodb/db/arbiter
 vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/arbiter
 ```
 
-Una vez hecho esto lanzamos el nuevo nodo:
+Entonces, una vez que comenzamos nuestro nodo4, podemos iniciar nuestro árbitro.
 
 ```sh
 vagrant@m103:~$ mongod -f arbiter.conf
@@ -3197,47 +3195,195 @@ child process started successfully, parent exiting
 vagrant@m103:~$ 
 ```
 
-
-
-***********
-
-Así que aquí solo voy a lanzar un mongod usando un archivo de configuración para nuestro cuarto nodo.
-
-Y los archivos de configuración para el árbitro y el secundario serán muy similares a los de nuestros otros nodos.
-
-Así que no voy a repasarlos aquí, pero puedes encontrarlos adjuntos a la conferencia como folletos.
-
-Entonces, una vez que comenzamos nuestro nodo4, podemos iniciar nuestro árbitro.
-
 Y ahora tenemos los dos nodos que necesitamos.
 
-Y solo tenemos que agregarlos al conjunto.
+Y solo tenemos que agregarlos al replica set, entramos a nuestro Mongo Shell.
+
+```sh
+vagrant@m103:~$ mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+....
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Así que aquí solo estamos agregando el cuarto nodo a nuestro conjunto.
 
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.add("m103:27014")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1582820887, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582820887, 1),
+		"signature" : {
+			"hash" : BinData(0,"qXjueg5mSoSh69J90BSnELmjc3Q="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
 Entonces, cuando agregamos nuestro árbitro, usamos un comando especial llamado `addArb`.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.addArb("m103:28000")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1582820960, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582820960, 1),
+		"signature" : {
+			"hash" : BinData(0,"kCABCim+zcVWA7VXd5+iS9zE0LQ="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Y parece que esto se completó.
 
 Y solo voy a verificar `rs.isMaster` para asegurarme de eso.
 
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013",
+		"m103:27014"
+	],
+	"arbiters" : [
+		"m103:28000"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 5,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "m103:27012",
+	"me" : "m103:27012",
+	"electionId" : ObjectId("7fffffff0000000000000002"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582821011, 1),
+			"t" : NumberLong(2)
+		},
+		"lastWriteDate" : ISODate("2020-02-27T16:30:11Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582821011, 1),
+			"t" : NumberLong(2)
+		},
+		"majorityWriteDate" : ISODate("2020-02-27T16:30:11Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-27T16:30:16.160Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582821011, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582821011, 1),
+		"signature" : {
+			"hash" : BinData(0,"BAImHUTmbbKTiNSRa6RIgZvKr5w="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
 Y podemos ver que nuestro replica set ahora tiene cuatro nodos y un árbitro.
+
+<img src="images/m103/c2/2-15-replicaset-2.png">
 
 Entonces, nuestro replica set se ejecuta con un nodo primario, tres secundarios y un nodo árbitro.
 
 Pero nuestro jefe de ingeniería simplemente nos dijo que tenemos que matar el nodo árbitro porque no tenemos el presupuesto para ello.
 
-Entonces, para el comando remove, simplemente pasamos el puerto donde se ejecutaba nuestro árbitro.
+Entonces, usamos el comando `remove`, simplemente pasamos el puerto donde se ejecutaba nuestro árbitro.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.remove("m103:28000")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1582821297, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582821297, 1),
+		"signature" : {
+			"hash" : BinData(0,"3wMb32vRLU3AkBwgKEhSSS2kTG0="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Y lo hemos eliminado con éxito.
 
-Sin embargo, en este momento replica set está configurada solo tiene cuatro miembros.
+Sin embargo, en este momento nuestro replica set está configurada solo tiene cuatro miembros.
 
 Podemos verificar eso desde `rs.isMaster`.
 
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013",
+		"m103:27014"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 6,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "m103:27012",
+	"me" : "m103:27012",
+	"electionId" : ObjectId("7fffffff0000000000000002"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582821331, 1),
+			"t" : NumberLong(2)
+		},
+		"lastWriteDate" : ISODate("2020-02-27T16:35:31Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582821331, 1),
+			"t" : NumberLong(2)
+		},
+		"majorityWriteDate" : ISODate("2020-02-27T16:35:31Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-27T16:35:36.127Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582821331, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582821331, 1),
+		"signature" : {
+			"hash" : BinData(0,"qvF7DOdvAFejHtoSQik5H8l1Gzo="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+
+```
+
 Nuestra lista de hosts solo tiene cuatro nodos.
 
-Entonces, para remediar este problema de tener un número par de miembros con derecho a voto en el conjunto, no tenemos que eliminar nuestro secundario por completo.
+<img src="images/m103/c2/2-15-replicaset-3.png">
+
+Entonces, para remediar el problema de tener un número par de miembros con derecho a voto en el conjunto, no tenemos que eliminar nuestro secundario por completo.
 
 Solo tenemos que revocar sus privilegios de votación para que nos deje con tres miembros con derecho a voto.
 
@@ -3247,9 +3393,92 @@ Entonces decidimos ser un poco inteligentes.
 
 Además de no ser votante, este secundario también será un nodo oculto.
 
+<img src="images/m103/c2/2-15-replicaset-4.png">
+
 Por lo tanto, podemos reconfigurar este nodo para que esté oculto y sin votación sin eliminarlo o reiniciar el nodo.
 
 Usamos nuestro `rs.conf` para recuperar una configuración de replica set.
+
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.conf()
+{
+	"_id" : "m103-example",
+	"version" : 6,
+	"protocolVersion" : NumberLong(1),
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "192.168.103.100:27011",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 1,
+			"host" : "m103:27012",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 2,
+			"host" : "m103:27013",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 3,
+			"host" : "m103:27014",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		}
+	],
+	"settings" : {
+		"chainingAllowed" : true,
+		"heartbeatIntervalMillis" : 2000,
+		"heartbeatTimeoutSecs" : 10,
+		"electionTimeoutMillis" : 10000,
+		"catchUpTimeoutMillis" : -1,
+		"catchUpTakeoverDelayMillis" : 30000,
+		"getLastErrorModes" : {
+			
+		},
+		"getLastErrorDefaults" : {
+			"w" : 1,
+			"wtimeout" : 0
+		},
+		"replicaSetId" : ObjectId("5e54102d7969353676a7b43b")
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Esto nos da una configuración completa del replica set, incluido el nombre de host y el puerto de cada nodo, así como si el nodo está oculto o es un árbitro.
 
@@ -3257,17 +3486,115 @@ También nos da la cantidad de votos que tiene cada nodo.
 
 Así que aquí solo estoy almacenando la configuración para el conjunto en una variable llamada `cfg`.
 
+```sh
+MongoDB Enterprise m103-example:PRIMARY> cfg = rs.conf()
+{
+	"_id" : "m103-example",
+	"version" : 6,
+	"protocolVersion" : NumberLong(1),
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "192.168.103.100:27011",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 1,
+			"host" : "m103:27012",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 2,
+			"host" : "m103:27013",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 3,
+			"host" : "m103:27014",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		}
+	],
+	"settings" : {
+		"chainingAllowed" : true,
+		"heartbeatIntervalMillis" : 2000,
+		"heartbeatTimeoutSecs" : 10,
+		"electionTimeoutMillis" : 10000,
+		"catchUpTimeoutMillis" : -1,
+		"catchUpTakeoverDelayMillis" : 30000,
+		"getLastErrorModes" : {
+			
+		},
+		"getLastErrorDefaults" : {
+			"w" : 1,
+			"wtimeout" : 0
+		},
+		"replicaSetId" : ObjectId("5e54102d7969353676a7b43b")
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
 Entonces, los miembros aquí son una sección de la configuración que tiene una lista de los nodos en el conjunto.
 
 Y he elegido el nodo en la posición de índice 3 en esa lista.
 
 Y he cambiado el número de votos que tiene a 0.
 
+```sh
+MongoDB Enterprise m103-example:PRIMARY> cfg.members[3].votes = 0
+0
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
 Esto nos dejará con un número impar de miembros votantes en el set.
 
 Y aquí estoy configurando la variable oculta de ese nodo en true para ocultar esta nota de cualquier aplicación cliente.
 
-Y los nodos ocultos nunca pueden convertirse en primarios, por lo que para que este sea un nodo oculto, debemos establecer la prioridad en 0.
+```sh
+MongoDB Enterprise m103-example:PRIMARY> cfg.members[3].hidden = true
+true
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
+Y **los nodos ocultos nunca pueden convertirse en primarios**, por lo que para que este sea un nodo oculto, debemos establecer la prioridad en 0.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> cfg.members[3].priority = 0
+0
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Entonces, este es un nuevo comando, `rs.reconfig`, que usamos para reconfigurar un conjunto de réplicas en ejecución.
 
