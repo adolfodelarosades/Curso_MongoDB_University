@@ -3840,7 +3840,7 @@ vagrant@m103:~$ validate_lab_remove_readd_node
 
 Enter answer here:
 
-See detailed answer:
+**See detailed answer:**
 
 We don't have to change the config files of our `mongod` instances, because the current `bind_ip` resolves the IP address of **m103** hostname.
 
