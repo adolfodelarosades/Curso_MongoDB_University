@@ -3144,6 +3144,60 @@ vagrant@m103:~$
 ```
 
 
+-----------
+Para añadir el nodo arbotro:
+
+Copiamos la configuración del nodo 4 al nodo arbitro:
+
+```sh
+vagrant@m103:~$ cp node4.conf arbiter.conf
+```
+
+Entonces, editamos el archivo `arbiter.conf`:
+
+```sh
+vagrant@m103:~$ vi arbiter.conf
+
+storage:
+  dbPath: /var/mongodb/db/arbiter
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 28000
+systemLog:
+  destination: file
+  path: /var/mongodb/db/arbiter/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Guardar el archivo y salir de vi:
+
+```sh
+:wq
+```
+
+Debemos crear la carpeta para `arbiter` y dar los permisos necesarios:
+
+```sh
+vagrant@m103:~$ mkdir /var/mongodb/db/arbiter
+
+vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/arbiter
+```
+
+Una vez hecho esto lanzamos el nuevo nodo:
+
+```sh
+vagrant@m103:~$ mongod -f arbiter.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 15306
+child process started successfully, parent exiting
+vagrant@m103:~$ 
+```
+
+
 
 ***********
 
