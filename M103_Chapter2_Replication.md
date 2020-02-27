@@ -4199,29 +4199,109 @@ Entonces, en esta lección, vamos a echar un vistazo a las lecturas y escrituras
 
 Así que solo voy a usar este comando para conectarme a nuestro replica set de tres nodos llamado `m103-example`.
 
+```sh
+vagrant@m103:~$ mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+...
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
 Y para averiguar qué nodo en este conjunto es actualmente el principal, voy a ejecutar este comando `rs.isMaster()`.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 7,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "m103:27012",
+	"me" : "m103:27012",
+	"electionId" : ObjectId("7fffffff0000000000000002"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582827921, 1),
+			"t" : NumberLong(2)
+		},
+		"lastWriteDate" : ISODate("2020-02-27T18:25:21Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582827921, 1),
+			"t" : NumberLong(2)
+		},
+		"majorityWriteDate" : ISODate("2020-02-27T18:25:21Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-27T18:25:29.804Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582827921, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582827921, 1),
+		"signature" : {
+			"hash" : BinData(0,"WOtVY6nGi1Tu+MrWM7L1e1CBt1o="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Y esta salida en realidad nos da mucha información.
 
-Nos da el primario actual, que es el nodo que se ejecuta en el puerto `27011`.
+Nos da el primario actual, que es el nodo que se ejecuta en el puerto `27012`.
 
-Y también nos da el nodo al que estamos conectados actualmente, yo.
+Y también nos da el nodo al que estamos conectados actualmente, `"me"`.
+
+
+```sh
+"primary" : "m103:27012",
+"me" : "m103:27012",
+```
 
 En este caso, es lo mismo que el primario, porque estamos conectados a la réplica establecida a través del shell.
 
-También nos da los otros nodos en este conjunto de réplicas.
+También nos da los otros nodos en este replica set.
+
+```sh
+"hosts" : [
+	"192.168.103.100:27011",
+	"m103:27012",
+	"m103:27013"
+],
+```
 
 Así que voy a crear una nueva base de datos aquí llamada `newDB`.
 
-E inserte un nuevo documento en una nueva colección llamada `newCollection` en `newDB`.
+```sh
+MongoDB Enterprise m103-example:PRIMARY> use newDB
+switched to db newDB
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
+E inserte un nuevo documento en una nueva colección llamada `new_collection` en `newDB`.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> db.new_collection.insert({ "student": "Matt Javaly", "grade": "A+" })
+WriteResult({ "nInserted" : 1 })
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Y me voy a conectar a un secundario para asegurarme de que también reciban la escritura.
 
 Podemos desplazarnos hasta la salida `rs.isMaster` para descubrir cuál de estos nodos es secundario.
 
-Y sabemos que este es el principal, por lo que solo tenemos que conectarnos a uno de estos dos nodos.
+Y sabemos que `m103:27012` es el principal, por lo que solo tenemos que conectarnos a uno de los otros dos nodos.
 
-Este es el comando que vamos a usar para conectarnos directamente a un nodo secundario en nuestro conjunto de réplicas.
+Este es el comando que vamos a usar para conectarnos directamente a un nodo secundario en nuestro replica set.
 
 Observe que hemos cambiado el puerto de nodo que hemos seleccionado en nuestro nombre de host.
 
