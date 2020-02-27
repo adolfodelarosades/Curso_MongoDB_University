@@ -3604,20 +3604,119 @@ Es por eso que tomamos una copia de la configuración original y luego la modifi
 
 Tenga en cuenta que la reconfiguración podría desencadenar una elección dependiendo de lo que haya en la nueva configuración.
 
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.reconfig(cfg)
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1582822346, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582822346, 1),
+		"signature" : {
+			"hash" : BinData(0,"nXLrvTSHeIi9AtjLS/st2/oiy4I="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+
+```
+
 Y parecía que esto funcionaba.
 
-Solo voy a verificar que funcionó con `rs.conf para obtener la configuración actual del replica set.
+Solo voy a verificar que funcionó con `rs.conf` para obtener la configuración actual del replica set.
 
-Y parece que este nodo ahora tiene prioridad 0, no puede votar y está oculto.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.conf()
+{
+	"_id" : "m103-example",
+	"version" : 7,
+	"protocolVersion" : NumberLong(1),
+	"members" : [
+		{
+			"_id" : 0,
+			"host" : "192.168.103.100:27011",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 1,
+			"host" : "m103:27012",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 2,
+			"host" : "m103:27013",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : false,
+			"priority" : 1,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 1
+		},
+		{
+			"_id" : 3,
+			"host" : "m103:27014",
+			"arbiterOnly" : false,
+			"buildIndexes" : true,
+			"hidden" : true,
+			"priority" : 0,
+			"tags" : {
+				
+			},
+			"slaveDelay" : NumberLong(0),
+			"votes" : 0
+		}
+	],
+	"settings" : {
+		"chainingAllowed" : true,
+		"heartbeatIntervalMillis" : 2000,
+		"heartbeatTimeoutSecs" : 10,
+		"electionTimeoutMillis" : 10000,
+		"catchUpTimeoutMillis" : -1,
+		"catchUpTakeoverDelayMillis" : 30000,
+		"getLastErrorModes" : {
+			
+		},
+		"getLastErrorDefaults" : {
+			"w" : 1,
+			"wtimeout" : 0
+		},
+		"replicaSetId" : ObjectId("5e54102d7969353676a7b43b")
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
+Y parece que el nodo 4 ahora tiene prioridad 0, no puede votar y está oculto.
 
 Entonces, nuestro replica set todavía tiene cuatro nodos, que es un número par, pero solo un número impar de ellos puede votar.
 
+<img src="images/m103/c2/2-15-replicaset-5.png">
+
 Entonces, para recapitular, en esta lección cubrimos cómo agregar árbitros y nuevos secundarios, dijimos un poco sobre nodos ocultos y agregamos uno a nuestro conjunto.
 
-Y también cubrimos cómo reconfigurar un conjunto de réplicas mientras aún se está ejecutando.
+<img src="images/m103/c2/2-15-resumen.png">
 
-
-### Transcripción
+Y también cubrimos cómo reconfigurar un replica set mientras aún se está ejecutando.
 
 ## 16. Examen
 
