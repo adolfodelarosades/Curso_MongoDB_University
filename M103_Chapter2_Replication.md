@@ -2922,6 +2922,204 @@ Although we discourage it, you can write new collections to the local database.
 We cap the `oplog.rs` collection instead of dropping it entirely.
 
 ## 15. Tema: reconfigurar un conjunto de réplicas en ejecución
+## 15. Tema: Reconfigurar un Replica Set en Ejecución
+
+### Notas de lectura
+
+Instrucciones de lectura
+
+*Nota: En el video de este tema, utilizamos el antiguo nombre de host* `"m103.mongodb.university"` *que se ha cambiado a * `"m103"`. *Hemos actualizado todos los siguientes comandos en consecuencia*.
+
+`node4.conf:`
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/node4
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27014
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node4/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+`arbiter.conf:`
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/arbiter
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 28000
+systemLog:
+  destination: file
+  path: /var/mongodb/db/arbiter/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Inicio de procesos mongod para nuestro cuarto nodo y árbitro:
+
+```sh
+mongod -f node4.conf
+mongod -f arbiter.conf
+```
+
+Desde el Mongo Shell del replica set, agregando el nuevo secundario y el nuevo árbitro:
+
+```sh
+rs.add("m103:27014")
+rs.addArb("m103:28000")
+```
+
+Verificación del replica set después de agregar dos nuevos nodos:
+
+```sh
+rs.isMaster()
+```
+
+Eliminando el árbitro de nuestro replica set:
+
+```sh
+rs.remove("m103:28000")
+```
+
+Asignando la configuración actual a una variable de shell que podemos editar, para reconfigurar el conjunto de réplicas:
+
+```sh
+cfg = rs.conf()
+```
+
+Edición de nuestra nueva variable `cfg` para cambiar la topología, específicamente, modificando `cfg.members`:
+
+```sh
+cfg.members[3].votes = 0
+cfg.members[3].hidden = true
+cfg.members[3].priority = 0
+```
+
+Actualización de nuestro replica set para usar la nueva configuración `cfg`:
+
+```sh
+rs.reconfig(cfg)
+```
+
+### Transcripción
+
+Muy bien, hasta este punto, hemos cubierto conceptos básicos de replicación y cómo implementar un replica set.
+
+Pero en esta lección, vamos a cubrir cómo reconfigurar un conjunto de réplicas mientras aún se está ejecutando.
+
+Entonces, supongamos que nuestro conjunto de réplicas que contiene nuestros datos está funcionando con un nodo primario y dos nodos secundarios.
+
+Nuestro supervisor nos dice que quiere agregar dos nodos más, uno secundario y un árbitro.
+
+Esta será la tipología de nuestro replica set una vez que hayamos agregado nuestros dos nodos.
+
+Y nuestro supervisor quería agregar un secundario y un árbitro en lugar de solo dos secundarios, porque un árbitro es un nodo mucho más barato de mantener.
+
+No necesita copiar o replicar todos los datos de la primaria, pero aún así nos proporciona un número impar de números de votación en el conjunto.
+
+Así que aquí estoy conectado a nuestro replica set, y solo voy a `rs.isMaster` para ver esa tipología realmente rápido.
+
+Y podemos ver que nuestro replica set actualmente tiene tres nodos.
+
+Así que aquí solo voy a lanzar un mongod usando un archivo de configuración para nuestro cuarto nodo.
+
+Y los archivos de configuración para el árbitro y el secundario serán muy similares a los de nuestros otros nodos.
+
+Así que no voy a repasarlos aquí, pero puedes encontrarlos adjuntos a la conferencia como folletos.
+
+Entonces, una vez que comenzamos nuestro nodo4, podemos iniciar nuestro árbitro.
+
+Y ahora tenemos los dos nodos que necesitamos.
+
+Y solo tenemos que agregarlos al conjunto.
+
+Así que aquí solo estamos agregando el cuarto nodo a nuestro conjunto.
+
+Entonces, cuando agregamos nuestro árbitro, usamos un comando especial llamado `addArb`.
+
+Y parece que esto se completó.
+
+Y solo voy a verificar `rs.isMaster` para asegurarme de eso.
+
+Y podemos ver que nuestro replica set ahora tiene cuatro nodos y un árbitro.
+
+Entonces, nuestro replica set se ejecuta con un nodo primario, tres secundarios y un nodo árbitro.
+
+Pero nuestro jefe de ingeniería simplemente nos dijo que tenemos que matar el nodo árbitro porque no tenemos el presupuesto para ello.
+
+Entonces, para el comando remove, simplemente pasamos el puerto donde se ejecutaba nuestro árbitro.
+
+Y lo hemos eliminado con éxito.
+
+Sin embargo, en este momento replica set está configurada solo tiene cuatro miembros.
+
+Podemos verificar eso desde `rs.isMaster`.
+
+Nuestra lista de hosts solo tiene cuatro nodos.
+
+Entonces, para remediar este problema de tener un número par de miembros con derecho a voto en el conjunto, no tenemos que eliminar nuestro secundario por completo.
+
+Solo tenemos que revocar sus privilegios de votación para que nos deje con tres miembros con derecho a voto.
+
+Nuestro jefe de ingeniería también ha estado hablando sobre el uso de un nodo oculto para almacenar copias de seguridad.
+
+Entonces decidimos ser un poco inteligentes.
+
+Además de no ser votante, este secundario también será un nodo oculto.
+
+Por lo tanto, podemos reconfigurar este nodo para que esté oculto y sin votación sin eliminarlo o reiniciar el nodo.
+
+Usamos nuestro `rs.conf` para recuperar una configuración de replica set.
+
+Esto nos da una configuración completa del replica set, incluido el nombre de host y el puerto de cada nodo, así como si el nodo está oculto o es un árbitro.
+
+También nos da la cantidad de votos que tiene cada nodo.
+
+Así que aquí solo estoy almacenando la configuración para el conjunto en una variable llamada `cfg`.
+
+Entonces, los miembros aquí son una sección de la configuración que tiene una lista de los nodos en el conjunto.
+
+Y he elegido el nodo en la posición de índice 3 en esa lista.
+
+Y he cambiado el número de votos que tiene a 0.
+
+Esto nos dejará con un número impar de miembros votantes en el set.
+
+Y aquí estoy configurando la variable oculta de ese nodo en true para ocultar esta nota de cualquier aplicación cliente.
+
+Y los nodos ocultos nunca pueden convertirse en primarios, por lo que para que este sea un nodo oculto, debemos establecer la prioridad en 0.
+
+Entonces, este es un nuevo comando, `rs.reconfig`, que usamos para reconfigurar un conjunto de réplicas en ejecución.
+
+Pasamos nuestra configuración actualizada como argumento, y necesitamos especificar todo este documento.
+
+Es por eso que tomamos una copia de la configuración original y luego la modificamos según lo necesitábamos.
+
+Tenga en cuenta que la reconfiguración podría desencadenar una elección dependiendo de lo que haya en la nueva configuración.
+
+Y parecía que esto funcionaba.
+
+Solo voy a verificar que funcionó con `rs.conf para obtener la configuración actual del replica set.
+
+Y parece que este nodo ahora tiene prioridad 0, no puede votar y está oculto.
+
+Entonces, nuestro replica set todavía tiene cuatro nodos, que es un número par, pero solo un número impar de ellos puede votar.
+
+Entonces, para recapitular, en esta lección cubrimos cómo agregar árbitros y nuevos secundarios, dijimos un poco sobre nodos ocultos y agregamos uno a nuestro conjunto.
+
+Y también cubrimos cómo reconfigurar un conjunto de réplicas mientras aún se está ejecutando.
+
 
 ### Transcripción
 
