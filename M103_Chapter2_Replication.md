@@ -2922,7 +2922,6 @@ Although we discourage it, you can write new collections to the local database.
 We cap the `oplog.rs` collection instead of dropping it entirely.
 
 ## 15. Tema: reconfigurar un conjunto de réplicas en ejecución
-## 15. Tema: Reconfigurar un Replica Set en Ejecución
 
 ### Notas de lectura
 
@@ -3016,21 +3015,137 @@ rs.reconfig(cfg)
 
 Muy bien, hasta este punto, hemos cubierto conceptos básicos de replicación y cómo implementar un replica set.
 
-Pero en esta lección, vamos a cubrir cómo reconfigurar un conjunto de réplicas mientras aún se está ejecutando.
+Pero en esta lección, vamos a cubrir cómo reconfigurar un replica set mientras aún se está ejecutando.
 
-Entonces, supongamos que nuestro conjunto de réplicas que contiene nuestros datos está funcionando con un nodo primario y dos nodos secundarios.
+Entonces, supongamos que nuestro replica set que contiene nuestros datos está funcionando con un nodo primario y dos nodos secundarios.
+
+<img src="images/m103/c2/2-15-replicaset.png">
 
 Nuestro supervisor nos dice que quiere agregar dos nodos más, uno secundario y un árbitro.
+
+<img src="images/m103/c2/2-15-replicaset-2.png">
 
 Esta será la tipología de nuestro replica set una vez que hayamos agregado nuestros dos nodos.
 
 Y nuestro supervisor quería agregar un secundario y un árbitro en lugar de solo dos secundarios, porque un árbitro es un nodo mucho más barato de mantener.
 
-No necesita copiar o replicar todos los datos de la primaria, pero aún así nos proporciona un número impar de números de votación en el conjunto.
+No necesita copiar o replicar todos los datos del primario, pero aún así nos proporciona un número impar de números de votación en el conjunto.
 
-Así que aquí estoy conectado a nuestro replica set, y solo voy a `rs.isMaster` para ver esa tipología realmente rápido.
+Así que aquí estoy conectado a nuestro replica set, 
+
+```sh
+vagrant@m103:~$ mongo --host "m103-example/192.168.103.100:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+...
+MongoDB Enterprise m103-example:PRIMARY> 
+```
+
+y solo voy a `rs.isMaster` para ver esa tipología realmente rápido.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "m103:27012",
+	"me" : "m103:27012",
+	"electionId" : ObjectId("7fffffff0000000000000002"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582819021, 1),
+			"t" : NumberLong(2)
+		},
+		"lastWriteDate" : ISODate("2020-02-27T15:57:01Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582819021, 1),
+			"t" : NumberLong(2)
+		},
+		"majorityWriteDate" : ISODate("2020-02-27T15:57:01Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-27T15:57:10.513Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582819021, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582819021, 1),
+		"signature" : {
+			"hash" : BinData(0,"5dP2I6LYsArrA/XcK2LWRV+1CZk="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY> 
+```
 
 Y podemos ver que nuestro replica set actualmente tiene tres nodos.
+
+Para añadir el cuarto nodo:
+
+Copiamos la configuración del nodo 3 a l nodo 4:
+
+```sh
+vagrant@m103:~$ cp node3.conf node4.conf
+```
+
+Entonces, editamos el archivo `node4.conf`:
+
+```sh
+vagrant@m103:~$ vi node4.conf
+
+storage:
+  dbPath: /var/mongodb/db/node4
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27014
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node4/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-example
+```
+
+Guardar el archivo y salir de vi:
+
+```sh
+:wq
+```
+
+Debemos crear la carpeta para `node4` y dar los permisos necesarios:
+
+```sh
+vagrant@m103:~$ mkdir /var/mongodb/db/node4
+
+vagrant@m103:~$ sudo chown vagrant:vagrant /var/mongodb/db/node4
+```
+
+Una vez hecho esto lanzamos el nuevo nodo:
+
+```sh
+vagrant@m103:~$ mongod -f node4.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 15236
+child process started successfully, parent exiting
+vagrant@m103:~$ 
+```
+
+
+
+***********
 
 Así que aquí solo voy a lanzar un mongod usando un archivo de configuración para nuestro cuarto nodo.
 
