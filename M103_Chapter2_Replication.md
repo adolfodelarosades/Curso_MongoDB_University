@@ -4297,23 +4297,53 @@ MongoDB Enterprise m103-example:PRIMARY>
 
 Y me voy a conectar a un secundario para asegurarme de que también reciban la escritura.
 
-Podemos desplazarnos hasta la salida `rs.isMaster` para descubrir cuál de estos nodos es secundario.
+Podemos desplazarnos por la salida `rs.isMaster` para descubrir cuál de estos nodos es secundario.
 
 Y sabemos que `m103:27012` es el principal, por lo que solo tenemos que conectarnos a uno de los otros dos nodos.
 
 Este es el comando que vamos a usar para conectarnos directamente a un nodo secundario en nuestro replica set.
 
+```sh
+vagrant@m103:~$ mongo --host "m103:27011" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+...
+MongoDB Enterprise m103-example:SECONDARY> 
+```
+
 Observe que hemos cambiado el puerto de nodo que hemos seleccionado en nuestro nombre de host.
 
-Y tampoco hemos especificado el nombre del conjunto de réplicas.
+Y tampoco hemos especificado el nombre del replica set.
 
-Porque si tuviéramos que especificar el nombre del replica set, el shell nos dirigiría automáticamente al primario.
+**Porque si tuviéramos que especificar el nombre del replica set, el shell nos dirigiría automáticamente al primario.**
 
 Y en este caso, en realidad queremos conectarnos directamente a un secundario.
 
 Y como podemos ver, el indicador de shell cambia para reflejar que ahora estamos conectados a un nodo secundario.
 
-Entonces podemos comenzar a ejecutar comandos de shell en la nota secundaria, ¿verdad?
+Entonces podemos comenzar a ejecutar comandos de shell en el nodo secundaria, ¿verdad?
+
+```sh
+MongoDB Enterprise m103-example:SECONDARY> show dbs
+2020-02-28T10:06:35.382+0000 E QUERY    [thread1] Error: listDatabases failed:{
+	"operationTime" : Timestamp(1582884390, 1),
+	"ok" : 0,
+	"errmsg" : "not master and slaveOk=false",
+	"code" : 13435,
+	"codeName" : "NotMasterNoSlaveOk",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582884390, 1),
+		"signature" : {
+			"hash" : BinData(0,"a91PPVLOG0bEANPM5aU+8DoIuKg="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+} :
+_getErrorWithCode@src/mongo/shell/utils.js:25:13
+Mongo.prototype.getDBs@src/mongo/shell/mongo.js:67:1
+shellHelper.show@src/mongo/shell/utils.js:860:19
+shellHelper@src/mongo/shell/utils.js:750:15
+@(shellhelp2):1:1
+MongoDB Enterprise m103-example:SECONDARY> 
+```
 
 No, en realidad no podemos.
 
@@ -4325,15 +4355,45 @@ Dado que queremos asegurarnos de que siempre tenga una vista coherente de sus da
 
 Entonces, este es el comando que vamos a ejecutar para habilitar las operaciones de lectura en el nodo secundario.
 
+```sh
+MongoDB Enterprise m103-example:SECONDARY> rs.slaveOk()
+MongoDB Enterprise m103-example:SECONDARY> 
+```
+
 Y ahora, nuestro comando `show dbs` debería funcionar realmente.
+
+```sh
+MongoDB Enterprise m103-example:SECONDARY> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.001GB
+newDB   0.000GB
+MongoDB Enterprise m103-example:SECONDARY> 
+```
 
 Y lo hace
 
 Y podemos ver que el comando de escritura fue replicado en el nodo secundario.
 
+```sh
+MongoDB Enterprise m103-example:SECONDARY> use newDB
+switched to db newDB
+MongoDB Enterprise m103-example:SECONDARY> show collections
+new_collection
+MongoDB Enterprise m103-example:SECONDARY> db.new_collection.find()
+{ "_id" : ObjectId("5e580afbe038a84ad59ad0c9"), "student" : "Matt Javaly", "grade" : "A+" }
+MongoDB Enterprise m103-example:SECONDARY> 
+```
+
 Así que aquí he intentado insertar un documento en un nodo secundario.
 
-Y como se esperaba, solo podemos habilitar lecturas en este secundario.
+```sh
+MongoDB Enterprise m103-example:SECONDARY> db.new_collection.insert({ "student": "Adolfo de la Rosa", "grade": "B+" })
+WriteResult({ "writeError" : { "code" : 10107, "errmsg" : "not master" } })
+MongoDB Enterprise m103-example:SECONDARY> 
+```
+
+Y como se esperaba, solo podemos hacer lecturas en este secundario.
 
 Nunca podremos escribir en un nodo secundario.
 
@@ -4347,9 +4407,201 @@ En el interés de aprender cómo los replica set manejan la crisis, vamos a romp
 
 Primero, vamos a cerrar este nodo.
 
-Ahora, cuando nos conectamos de nuevo al replica set, ejecutamos `rs.status()` podemos ver que el nodo que cerramos ya no es accesible desde el primario.
+```
+MongoDB Enterprise m103-example:SECONDARY> use admin
+switched to db admin
+MongoDB Enterprise m103-example:SECONDARY> db.shutdownServer()
+server should be down...
+2020-02-28T10:15:41.090+0000 I NETWORK  [thread1] trying reconnect to m103:27011 (192.168.103.100) failed
+2020-02-28T10:15:41.091+0000 W NETWORK  [thread1] Failed to connect to 192.168.103.100:27011, in(checking socket for error after poll), reason: Connection refused
+2020-02-28T10:15:41.091+0000 I NETWORK  [thread1] reconnect m103:27011 (192.168.103.100) failed failed 
+2020-02-28T10:15:41.094+0000 I NETWORK  [thread1] trying reconnect to m103:27011 (192.168.103.100) failed
+2020-02-28T10:15:41.094+0000 W NETWORK  [thread1] Failed to connect to 192.168.103.100:27011, in(checking socket for error after poll), reason: Connection refused
+2020-02-28T10:15:41.094+0000 I NETWORK  [thread1] reconnect m103:27011 (192.168.103.100) failed failed 
+MongoDB Enterprise > 
+MongoDB Enterprise > ^C
+bye
+2020-02-28T10:16:24.712+0000 I NETWORK  [thread1] trying reconnect to m103:27011 (192.168.103.100) failed
+2020-02-28T10:16:24.712+0000 W NETWORK  [thread1] Failed to connect to 192.168.103.100:27011, in(checking socket for error after poll), reason: Connection refused
+2020-02-28T10:16:24.712+0000 I NETWORK  [thread1] reconnect m103:27011 (192.168.103.100) failed failed 
+2020-02-28T10:16:24.712+0000 I QUERY    [thread1] Failed to end session { id: UUID("1aa78899-1e1a-43d6-bf68-a09f66d83f26") } due to SocketException: socket exception [CONNECT_ERROR] for couldn't connect to server m103:27011, connection attempt failed
+vagrant@m103:~$ 
+```
 
-Ahora solo voy a cerrar este otro nodo aquí.
+Ahora, cuando nos conectamos de nuevo al replica set, ejecutamos `rs.status()` podemos ver que el nodo que cerramos ya no es accesible desde el primario `"stateStr" : "(not reachable/healthy)",`.
+
+```sh
+MongoDB Enterprise m103-example:PRIMARY> rs.status()
+{
+	"set" : "m103-example",
+	"date" : ISODate("2020-02-28T10:18:11.060Z"),
+	"myState" : 1,
+	"term" : NumberLong(2),
+	"syncingTo" : "",
+	"syncSourceHost" : "",
+	"syncSourceId" : -1,
+	"heartbeatIntervalMillis" : NumberLong(2000),
+	"optimes" : {
+		"lastCommittedOpTime" : {
+			"ts" : Timestamp(1582885091, 1),
+			"t" : NumberLong(2)
+		},
+		"readConcernMajorityOpTime" : {
+			"ts" : Timestamp(1582885091, 1),
+			"t" : NumberLong(2)
+		},
+		"appliedOpTime" : {
+			"ts" : Timestamp(1582885091, 1),
+			"t" : NumberLong(2)
+		},
+		"durableOpTime" : {
+			"ts" : Timestamp(1582885091, 1),
+			"t" : NumberLong(2)
+		}
+	},
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "192.168.103.100:27011",
+			"health" : 0,
+			"state" : 8,
+			"stateStr" : "(not reachable/healthy)",
+			"uptime" : 0,
+			"optime" : {
+				"ts" : Timestamp(0, 0),
+				"t" : NumberLong(-1)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(0, 0),
+				"t" : NumberLong(-1)
+			},
+			"optimeDate" : ISODate("1970-01-01T00:00:00Z"),
+			"optimeDurableDate" : ISODate("1970-01-01T00:00:00Z"),
+			"lastHeartbeat" : ISODate("2020-02-28T10:18:10.243Z"),
+			"lastHeartbeatRecv" : ISODate("2020-02-28T10:15:40.186Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "Connection refused",
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"configVersion" : -1
+		},
+		{
+			"_id" : 1,
+			"name" : "m103:27012",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 318085,
+			"optime" : {
+				"ts" : Timestamp(1582885091, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDate" : ISODate("2020-02-28T10:18:11Z"),
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"electionTime" : Timestamp(1582571388, 1),
+			"electionDate" : ISODate("2020-02-24T19:09:48Z"),
+			"configVersion" : 7,
+			"self" : true,
+			"lastHeartbeatMessage" : ""
+		},
+		{
+			"_id" : 2,
+			"name" : "m103:27013",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 163546,
+			"optime" : {
+				"ts" : Timestamp(1582885081, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(1582885081, 1),
+				"t" : NumberLong(2)
+			},
+			"optimeDate" : ISODate("2020-02-28T10:18:01Z"),
+			"optimeDurableDate" : ISODate("2020-02-28T10:18:01Z"),
+			"lastHeartbeat" : ISODate("2020-02-28T10:18:10.185Z"),
+			"lastHeartbeatRecv" : ISODate("2020-02-28T10:18:10.385Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "",
+			"syncingTo" : "m103:27012",
+			"syncSourceHost" : "m103:27012",
+			"syncSourceId" : 1,
+			"infoMessage" : "",
+			"configVersion" : 7
+		},
+		{
+			"_id" : 3,
+			"name" : "m103:27014",
+			"health" : 0,
+			"state" : 6,
+			"stateStr" : "(not reachable/healthy)",
+			"uptime" : 0,
+			"optime" : {
+				"ts" : Timestamp(0, 0),
+				"t" : NumberLong(-1)
+			},
+			"optimeDurable" : {
+				"ts" : Timestamp(0, 0),
+				"t" : NumberLong(-1)
+			},
+			"optimeDate" : ISODate("1970-01-01T00:00:00Z"),
+			"optimeDurableDate" : ISODate("1970-01-01T00:00:00Z"),
+			"lastHeartbeat" : ISODate("2020-02-28T10:18:10.274Z"),
+			"lastHeartbeatRecv" : ISODate("1970-01-01T00:00:00Z"),
+			"pingMs" : NumberLong(0),
+			"lastHeartbeatMessage" : "",
+			"authenticated" : false,
+			"syncingTo" : "",
+			"syncSourceHost" : "",
+			"syncSourceId" : -1,
+			"infoMessage" : "",
+			"configVersion" : -1
+		}
+	],
+	"ok" : 1,
+	"operationTime" : Timestamp(1582885091, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582885091, 1),
+		"signature" : {
+			"hash" : BinData(0,"kr1oysJBl/4YQJMd48ABY0zT5XA="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:PRIMARY>
+```
+
+Ahora solo voy a cerrar este otro nodo `m103:27013`.
+
+
+```sh
+vagrant@m103:~$ mongo --host "m103:27013" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+...
+MongoDB Enterprise m103-example:SECONDARY> use admin
+switched to db admin
+MongoDB Enterprise m103-example:SECONDARY> db.shutdownServer()
+server should be down...
+2020-02-28T10:23:49.970+0000 I NETWORK  [thread1] trying reconnect to m103:27013 (192.168.103.100) failed
+2020-02-28T10:23:49.970+0000 W NETWORK  [thread1] Failed to connect to 192.168.103.100:27013, in(checking socket for error after poll), reason: Connection refused
+2020-02-28T10:23:49.970+0000 I NETWORK  [thread1] reconnect m103:27013 (192.168.103.100) failed failed 
+2020-02-28T10:23:49.974+0000 I NETWORK  [thread1] trying reconnect to m103:27013 (192.168.103.100) failed
+2020-02-28T10:23:49.974+0000 W NETWORK  [thread1] Failed to connect to 192.168.103.100:27013, in(checking socket for error after poll), reason: Connection refused
+2020-02-28T10:23:49.974+0000 I NETWORK  [thread1] reconnect m103:27013 (192.168.103.100) failed failed 
+MongoDB Enterprise > ^C
+bye
+2020-02-28T10:23:55.778+0000 I NETWORK  [thread1] trying reconnect to m103:27013 (192.168.103.100) failed
+2020-02-28T10:23:55.779+0000 W NETWORK  [thread1] Failed to connect to 192.168.103.100:27013, in(checking socket for error after poll), reason: Connection refused
+2020-02-28T10:23:55.780+0000 I NETWORK  [thread1] reconnect m103:27013 (192.168.103.100) failed failed 
+2020-02-28T10:23:55.780+0000 I QUERY    [thread1] Failed to end session { id: UUID("701a68a5-9006-4845-829e-9b424f035b0f") } due to SocketException: socket exception [CONNECT_ERROR] for couldn't connect to server m103:27013, connection attempt failed
+vagrant@m103:~$ 
+```
 
 Entonces, ahora que hemos apagado dos de los nodos en nuestro replica set, solo queda uno.
 
@@ -4357,29 +4609,128 @@ Y uno de cada tres no forma una mayoría.
 
 Por lo tanto, en realidad no podremos conectarnos al primario, porque el primario actual, que se estaba ejecutando en este nodo, se ha reducido para convertirse en secundario.
 
-Así que aquí no he especificado el nombre del conjunto de réplicas, porque quiero conectarme directamente a este nodo.
+```sh
+vagrant@m103:~$ mongo --host "m103:27012" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://m103:27012/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("9afe76ef-5fc4-43c0-863c-af29314b9dc8") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] 
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:RECOVERING> 
+```
 
-Y como podemos ver, ese nodo ha dejado de ser el secundario.
+Así que aquí no he especificado el nombre del replica set, porque quiero conectarme directamente a este nodo.
+
+Y como podemos ver, ese nodo ha dejado de ser el primario, ni tampoco secundario es `RECOVERING`.
 
 Podemos verificar eso ejecutando `rs.isMaster()`.
 
-Entonces, como podemos ver, todavía estamos conectados al mismo nodo que antes.
+```sh
+MongoDB Enterprise m103-example:RECOVERING> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:27011",
+		"m103:27012",
+		"m103:27013"
+	],
+	"setName" : "m103-example",
+	"setVersion" : 7,
+	"ismaster" : false,
+	"secondary" : false,
+	"me" : "m103:27012",
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1582885431, 1),
+			"t" : NumberLong(2)
+		},
+		"lastWriteDate" : ISODate("2020-02-28T10:23:51Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1582885421, 1),
+			"t" : NumberLong(2)
+		},
+		"majorityWriteDate" : ISODate("2020-02-28T10:23:41Z")
+	},
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-02-28T10:27:27.845Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1582885431, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1582885431, 1),
+		"signature" : {
+			"hash" : BinData(0,"DWPn4jM0ZRuMrWsVNBBghG3hORw="),
+			"keyId" : NumberLong("6797075527363461121")
+		}
+	}
+}
+MongoDB Enterprise m103-example:RECOVERING> 
 
-Pero ese nodo ahora es un nodo secundario.
+```
+
+Entonces, como podemos ver, todavía estamos conectados al mismo nodo que antes `"me" : "m103:27012"`.
+
+Pero ese nodo tampoco es un nodo secundario `"secondary" : false,`.
 
 Aunque el nodo primario nunca cayó, perdimos el último secundario que nos dio la mayoría.
 
-Si el replica set ya no puede llegar a la mayoría de los nodos, todos los nodos restantes en el conjunto se convierten en secundarios.
+Si el replica set ya no puede llegar a la mayoría de los nodos, todos los nodos restantes en el conjunto se convierten en secundarios (`RECOVERING`).
 
 Y debido a que son secundarias, no podemos escribir nada en el replica set, porque no hay primario.
 
-Este es solo otro mecanismo seguro utilizado por el creplica set MongoDB para garantizar la coherencia de los datos.
+Este es solo otro mecanismo seguro utilizado por el replica set MongoDB para garantizar la coherencia de los datos.
 
 Así que solo para recapitular.
 
+<img src="images/m103/c2/2-18-resumen.png">
+
 En esta lección, cubrimos los datos que se replican en un secundario, cómo funciona la lectura de los nodos secundarios y cómo escribir en un replica set cuando la mayoría no está disponible, es decir, no podemos.
 
-## 19. Examen
+## 19. Examen Reads and Writes on a Replica Set
+
+**Problem:**
+
+Which of the following is true about reading and writing from secondaries?
+
+Check all answers that apply:
+
+* We have to run rs.slaveOk() before we can read from secondary nodes. :+1:
+
+* Running rs.slaveOk() allows us to read and write from secondaries.
+
+* Connecting to the replica set will automatically connect to a secondary node.
+
+**See detailed answer**
+
+**Correct answers:**
+
+**We have to run `rs.slaveOk()` before we can read from secondary nodes.**
+
+Reads should typically go through the primary node, but rs.slaveOk() allows us to read from secondaries.
+
+**Incorrect answers:**
+
+**Connecting to the replica set will automatically connect to a secondary node.**
+
+This is incorrect; By default, MongoDB will always redirect a Replica Set connection to the primary node. In case of Read Preference being defined in the connection string, that determines other behavior, then the connection might be redirected to connect to a Secondary node, only for read workload. Writes are always sent to the Primary node of the Replica Set cluster.
+
+**Running `rs.slaveOk()` allows us to read and write from secondaries.**
+
+This is incorrect; `rs.slaveOk` only determines that the mongo shell can be set to read data if connected to a Secondary node.
 
 ## 20. Tema: conmutación por error y elecciones
 
