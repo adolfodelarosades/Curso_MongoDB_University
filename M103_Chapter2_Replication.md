@@ -5390,7 +5390,9 @@ Read concern `linearizable` will wait for all prior writes to be replicated to a
 In the following diagram we have:
 
 * W1 : first write operation
+
 * W2 : second write operation
+
 * RL : read with read concern linearizable
 
 <img src="images/m103/c2/readconcern+linearizable.png">
@@ -5401,7 +5403,136 @@ The response for the read operation will wait until all writes, received by the 
 
 ### Transcripción
 
-## 29. Examen
+La preferencia de lectura permite a sus aplicaciones enrutar operaciones de lectura a miembros específicos de un replica set.
+
+La preferencia de lectura es principalmente una configuración del lado del conductor.
+
+Asegúrese de consultar la documentación del controlador para obtener instrucciones completas sobre cómo especificar una preferencia de lectura para sus operaciones de lectura.
+
+Tome este replica set de tres miembros, por ejemplo.
+
+Por defecto, sus aplicaciones leen y escriben datos en el primario.
+
+Con los replica set, los datos se replican a todos los miembros con datos.
+
+Por lo tanto, ambos secundarios tendrían eventualmente copias de los datos primarios.
+
+¿Qué sucede si, en cambio, quisiéramos que nuestra aplicación prefiriera leer de un miembro secundario?
+
+Con la preferencia de lectura, podemos dirigir la aplicación para enrutar su consulta a un miembro secundario del conjunto de réplica, en lugar del primario.
+
+Hay cinco modos de preferencia de lectura compatibles.
+
+La preferencia de lectura primaria enruta todas las operaciones de lectura solo a la primaria.
+
+Esta es la preferencia de lectura predeterminada.
+
+Primaria Las rutas preferidas leen operaciones a la primaria.
+
+Pero si el primario no está disponible, como durante una elección o un evento de conmutación por error, la aplicación puede enrutar las lecturas a un miembro secundario disponible.
+
+Las rutas secundarias leen operaciones solo a los miembros secundarios en el replica set.
+
+Las rutas preferidas secundarias leen operaciones a los miembros secundarios.
+
+Pero si no hay miembros secundarios disponibles, la operación se dirige a la primaria.
+
+Las rutas más cercanas leen operaciones al miembro del replica set con la menor latencia de red al host, independientemente del tipo de miembros.
+
+Esto generalmente admite operaciones de lectura geográficamente locales.
+
+Con lecturas secundarias, siempre tenga en cuenta que, dependiendo de la cantidad de latencia de replicación en un replica set, puede recibir datos obsoletos.
+
+Por ejemplo, supongamos que este replica set recibe una operación de escritura que actualiza este documento, cuyo nombre es Mongo 101, para tener un estado de publicado.
+
+En este momento, el secundario todavía tiene la versión anterior de este documento donde el estado está pendiente.
+
+Si publico una lectura secundaria, al usar la preferencia de lectura más cercana se selecciona el miembro secundario para leer, obtendré una versión anterior de este documento.
+
+Esta tabla le da una idea de algunos de los escenarios en los que usaría una preferencia de lectura determinada.
+
+La gran conclusión aquí es que las lecturas secundarias siempre tienen la posibilidad de devolver datos obsoletos.
+
+La importancia de los datos depende de la demora que haya entre su primario y sus secundarios.
+
+Los replica set distribuidas geográficamente tienen más probabilidades de sufrir lecturas obsoletas, por ejemplo, que un replica set donde todos los miembros están en la misma región geográfica, o incluso en el mismo centro de datos.
+
+Para resumir, la preferencia de lectura le permite elegir a qué miembros del replica set enrutar las operaciones de lectura.
+
+El gran inconveniente de usar una preferencia de lectura, que no sea primaria, es el potencial de las operaciones de lectura obsoleta.
+
+Y la preferencia de lectura más cercana es más útil si desea admitir lecturas geográficamente locales.
+
+Solo recuerde que puede venir con el potencial de leer datos obsoletos.
+
+## 29. Examen Read Preferences
+
+**Problem:**
+
+Which of the following read preference options may result in stale data?
+
+Check all answers that apply:
+
+* secondaryPreferred :+1:
+
+* secondary :+1:
+
+* primaryPreferred :+1:
+
+* nearest :+1:
+
+* primary
+
+**See detailed answer**
+
+When using the default read preference `primary`, data will always be read from the primary node, and will therefore be the most recent copy.
+
+When using any other read preference, data may be read from a secondary node, which could result in reading slightly stale data.
 
 ## 30. Laboratorio - Preocupación de lectura y preferencias de lectura
-asaa
+
+Lab - Read Concern and Read Preferences
+
+**Problem:**
+
+In this lab, you will take advantage of different read preferences to increase the availability of your replica set.
+
+To begin, load the dataset in your Vagrant box into your replica set:
+
+```sh
+mongoimport --drop \
+--host m103-repl/192.168.103.100:27002,192.168.103.100:27001,192.168.103.100:27003 \
+-u "m103-admin" -p "m103-pass" --authenticationDatabase "admin" \
+--db applicationData --collection products /dataset/products.json
+```
+
+You can check that you've loaded the entire dataset by verifying that there are exactly 516784 documents in the `applicationData.products` collection:
+
+```sh
+use applicationData
+db.products.count()
+```
+
+Once the dataset is fully imported into your replica set, you will simulate a node failure. This is similar to the previous lab, but this time you will shut down **two** nodes.
+
+When two of your nodes are unresponsive, you will not be able to connect to the replica set. You will have to connect to the third node, which should be the only healthy node in the cluster.
+
+Which of these `readPreferences` will allow you to read data from this node?
+
+Check all answers that apply:
+
+* secondaryPreferred :+1:
+
+* secondary :+1:
+
+* primaryPreferred :+1:
+
+* primary
+
+* nearest :+1:
+
+See detailed answer
+
+The key concept to understand here is that when two nodes go down in a three-node replica set, the third node becomes a secondary regardless of whether it started as a primary.
+
+Therefore, connecting to the third node is the same as connecting to a secondary node, and any `readPreference` will work except for `primary`, which requires all operations to read from the primary node.
