@@ -5227,7 +5227,143 @@ Nota: A la 1:04, el instructor quería decir: "para documentos **devueltos** por
 
 ### Transcripción
 
-## 27. Examen
+La preocupación de lectura es un complemento de la preocupación de escritura, un mecanismo de reconocimiento para las operaciones de lectura donde los desarrolladores pueden dirigir su aplicación para realizar operaciones de lectura donde los documentos devueltos cumplen con la garantía de durabilidad solicitada.
+
+Considere un replica set donde las aplicaciones insertan un documento, que es reconocido por el primario.
+
+Antes de que el documento pueda replicarse en las secundarias, la aplicación lee ese documento.
+
+De repente, la primaria falla.
+
+El documento que hemos leído aún no se ha replicado en las secundarias.
+
+Cuando el antiguo primario vuelva a estar en línea, esos datos se revertirán como parte del proceso de sincronización.
+
+Si bien puede acceder a los datos retrotraídos manualmente, la aplicación efectivamente tiene un dato que ya no existe en el clúster.
+
+Esto puede causar problemas en la aplicación, dependiendo de su arquitectura.
+
+La preocupación de lectura proporciona una forma de abordar el problema de la durabilidad de los datos durante un evento de conmutación por error.
+
+Al igual que la preocupación de escritura le permite especificar qué tan duraderas deberían ser las operaciones de escritura, la preocupación de lectura le permite a su aplicación especificar una garantía de durabilidad para los documentos escritos por una operación de lectura.
+
+La operación de lectura solo devuelve datos reconocidos como escritos en un número de miembros del replica set especificados en el asunto de lectura.
+
+Puede elegir entre devolver los datos más recientes en un clúster o los datos recibidos por la mayoría de los miembros del clúster.
+
+Una nota realmente importante.
+
+Un documento que no cumple con la preocupación de lectura especificada no es un documento que se garantiza que se perderá.
+
+Simplemente significa que en el momento de la lectura, los datos no se habían propagado a nodos suficientes para cumplir con la garantía de durabilidad solicitada.
+
+Hay cuatro niveles de preocupación de lectura.
+
+Local devuelve los datos más recientes en el clúster.
+
+Cualquier información recién escrita en el primario califica para la preocupación de lectura local.
+
+No hay garantías de que los datos estarán seguros durante un evento de conmutación por error.
+
+Las lecturas locales son las predeterminadas para las operaciones de lectura contra las primarias.
+
+Las inquietudes de lectura disponibles son las mismas que las inquietudes de lectura locales para las implementaciones de replica set.
+
+La preocupación de lectura disponible es el valor predeterminado para operaciones de lectura contra miembros secundarios.
+
+Las lecturas secundarias son un aspecto de la preferencia de lectura de MongoDB, que se trata en una lección posterior.
+
+La principal diferencia entre la preocupación de lectura local y disponible está en el contexto de agrupaciones fragmentadas.
+
+Vamos a hablar más sobre grupos fragmentados más adelante.
+
+Es suficiente saber que la preocupación de lectura disponible tiene un comportamiento especial en grupos fragmentados.
+
+La preocupación de lectura mayoritaria solo devuelve datos que han sido reconocidos como escritos a la mayoría de los miembros del replica set.
+
+Entonces, aquí en nuestro replica set de tres miembros, nuestras operaciones de lectura solo devolverían aquellos documentos escritos tanto en el primario como en el secundario.
+
+La única forma en que los documentos devueltos por una operación de lectura mayoritaria de preocupación de lectura podrían perderse es si la mayoría de los miembros del replica set cayeron y los documentos no se replicaron a los miembros restantes del replica set, lo cual es una situación muy poco probable, dependiendo de su implementación arquitectura.
+
+La preocupación por la lectura mayoritaria proporciona la garantía más fuerte en comparación con las escrituras locales o disponibles.
+
+Pero la compensación es que es posible que no obtenga los datos más recientes o más recientes en su clúster.
+
+Como nota especial, el motor de almacenamiento MMAPv1 no admite la preocupación de escritura de la mayoría.
+
+La preocupación de lectura linealizable se agregó en MongoDB 3.4 y tiene un comportamiento especial.
+
+Al igual que la preocupación de lectura mayoritaria, también solo devuelve datos que se han comprometido mayoritariamente.
+
+Linearizeable va más allá de eso y proporciona funciones de lectura y escritura.
+
+Entonces, ¿cuándo deberías usar lo que lees?
+
+Realmente depende de los requisitos de su aplicación.
+
+Datos rápidos, seguros o más recientes en su clúster.
+
+Elige dos.
+
+Esa es la idea general.
+
+Si desea lecturas rápidas de los últimos datos, la preocupación por la lectura local o disponible debería ser adecuada para usted.
+
+Pero perderá su garantía de durabilidad.
+
+Si desea lecturas rápidas de los datos más seguros, la preocupación de lectura mayoritaria es un buen término medio.
+
+Pero, de nuevo, es posible que no reciba los últimos datos escritos en su clúster.
+
+Si desea lecturas seguras de los últimos datos en el momento de la operación de lectura, entonces linealizar es una buena opción, pero es más probable que sea más lento.
+
+Y es solo un documento de solo lectura.
+
+Una cosa para ser realmente clara es que la preocupación por la lectura no impide eliminar datos mediante una operación CRUD, como eliminar.
+
+Solo estamos hablando de la durabilidad de los datos devueltos por una operación de lectura en el contexto de un evento de conmutación por error.
+
+En una lección posterior, hablaremos sobre la preferencia de lectura, donde puede enrutar sus operaciones de lectura a miembros secundarios.
+
+La preferencia de lectura para los secundarios le permite especificar la preocupación de lectura local o disponible, pero perderá la garantía de obtener los datos más recientes.
+
+Así que recuerda que con las lecturas secundarias, la preocupación por la lectura local y disponible es realmente rápida, pero no necesariamente la última.
+
+Para recapitular, la preocupación de lectura utiliza un mecanismo de reconocimiento para las operaciones de lectura donde las aplicaciones pueden solicitar solo aquellos datos que cumplan con la garantía de durabilidad solicitada.
+
+Hay cuatro opciones de lectura disponibles.
+
+Local y disponible son idénticos para replica set.
+
+Su comportamiento es más distinto en grupos fragmentados.
+
+La preocupación de lectura mayoritaria es su punto medio entre la durabilidad y las lecturas rápidas, pero puede devolver datos obsoletos.
+
+Linearizeable tiene las garantías de durabilidad más sólidas y siempre devuelve los datos más recientes en el contexto de una operación de lectura a cambio de operaciones de lectura potencialmente lentas, así como las restricciones y requisitos generales para usarlo.
+
+Finalmente, puede usar la preocupación de lectura junto con la preocupación de escritura para especificar garantías de durabilidad tanto en lecturas como en escrituras.
+
+Recuerde que los dos trabajan juntos, pero no dependen el uno del otro.
+
+Puede usar preocupación de lectura con preocupación de escritura o preocupación de lectura sin preocupación de escritura.
+
+## 27. Examen Read Concerns
+
+**Problem:**
+
+Which of the following read concerns only return data from write operations that have been committed to a majority of nodes?
+
+Check all answers that apply:
+
+* linearizable
+
+* local
+
+* majority
+
+* available
+
+**See detailed answer**
 
 ## 28. Tema: Leer preferencias
 
