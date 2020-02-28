@@ -5041,11 +5041,189 @@ Si establece `j` en falso, o si el registro en diario está deshabilitado en el 
 
 ### Transcripción
 
-## 24. Examen
+En general, los comandos básicos de escritura admiten todos los problemas de escritura.
 
-## 25. Laboratorio: escribe con conmutación por error
+Ahora, hemos hablado de todo esto en un nivel bastante alto.
 
-## 26. Tema: Leer preocupaciones
+Write concern (Escribir preocupación) tiene mucho más sentido cuando lo ves en acción.
+
+En una lección anterior, le mostramos cómo una aplicación escribe "behave"("comportarse") durante un evento de conmutación por error.
+
+Volvamos a ese ejemplo ahora, pero para hablar sobre la write operation (preocupación por escrito).
+
+Tenemos nuestra réplica de tres miembros configurada con una aplicación que inserta datos en el primario.
+
+Como recordará, los datos se replican desde el primario al secundario.
+
+La write operation predeterminada es una.
+
+Entonces, aunque no establezcamos la write operation explícitamente, la aplicación le asigna implícitamente una preocupación de escritura de uno.
+
+En este punto, sabemos que nuestro primario ha recibido la operación de escritura.
+
+Hemos recibido un reconocimiento basado en nuestra preocupación por escrito.
+
+Como eso coincide con la write operation que solicitamos, estamos listos para comenzar.
+
+Pero, ¿qué pasaría si la primaria fallara en este punto antes de completar la replicación de esta escritura a las secundarias?
+
+Los secundarios no verán la escritura.
+
+Si bien tuvo éxito en un solo nodo, no teníamos garantía de que la escritura se hubiera propagado a los miembros restantes del conjunto de réplicas.
+
+Aunque obtuvimos el nivel de preocupación por escritura que solicitamos, el nivel de garantía era demasiado bajo para acomodar el escenario.
+
+En lo que respecta a nuestra aplicación, esta fue una escritura exitosa.
+
+Pero cuando este primario vuelva a estar en línea, el derecho en realidad se revertirá.
+
+Imaginemos el mismo escenario pero con una write operation de la mayoría.
+
+Eso significa que ahora necesitaríamos un reconocimiento de dos miembros de nuestro replica set de tres miembros.
+
+La aplicación espera hasta que el primario informa que al menos uno de los secundarios también ha confirmado la escritura.
+
+Con dos reconocimientos, la aplicación puede considerar la escritura como un éxito.
+
+Ahora, si el primario se cae, tenemos una garantía razonable de que al menos uno de los secundarios ha recibido la operación de escritura.
+
+Si establezco la preocupación de escritura en tres, la aplicación requerirá un reconocimiento de los tres miembros antes de considerar la escritura exitosa.
+
+En este punto, puede estar pensando, bueno, quiero garantías de durabilidad de los datos.
+
+Entonces, ¿no debería establecer siempre mi preocupación de escritura lo más alta posible?
+
+Bueno, un nivel más fuerte de garantía de durabilidad viene con la compensación.
+
+Específicamente, debe esperar a que lleguen los reconocimientos.
+
+Eso significa que sus operaciones de escritura pueden tardar más de lo requerido si solicitó un acuse de recibo menor o incluso no.
+
+A medida que aumenta el número de nodos del replica set, las operaciones de escritura pueden tardar aún más en volver como exitosas.
+
+Alternativamente, ¿qué sucede si uno de sus secundarios está caído?
+
+En función de nuestra preocupación por la escritura, necesitamos un reconocimiento de tres miembros del conjunto de réplicas.
+
+Esta escritura ahora bloquea hasta que el secundario vuelve a estar en línea, lo que puede llevar más tiempo del aceptable.
+
+Aquí es donde la opción de tiempo de espera `W` es útil.
+
+Puede configurarlo en un tiempo razonable en el que la aplicación deja de esperar y avanza arrojando un error relacionado con la preocupación de escritura.
+
+Recuerde, el error de tiempo de espera no significa que la escritura falló.
+
+Podemos ver aquí que la primaria y al menos una secundaria sí lo reconocieron.
+
+Pero debido a que se agotó el tiempo de espera para la inquietud de escritura solicitada, en lo que respecta a la solicitud, no recibió el nivel de garantía que solicitó.
+
+En general, establecer una `W` de mayoría es un buen punto medio entre escrituras rápidas y garantías de durabilidad.
+
+En resumen, la preocupación de escritura permite que sus aplicaciones soliciten un cierto número de confirmaciones para una operación de escritura para el clúster MongoDB.
+
+Estos reconocimientos representan garantías de durabilidad cada vez mayores para determinadas operaciones de escritura.
+
+La preocupación de escritura viene con un intercambio de velocidad de escritura.
+
+Cuanto mayor sea la garantía que necesita de que un derecho sea duradero, más tiempo requiere la operación de escritura general para completarse.
+
+MongoDB admite una preocupación de escritura en todos los tipos de implementación.
+
+Eso significa que los replica set y clústeres fragmentados independientes son compatibles con la preocupación de escritura.
+
+## 24. Examen Write Concerns: Part 2
+
+**Problem:**
+
+Consider a 3-member replica set, where one secondary is offline. Which of the following write concern levels can still return successfully?
+
+Check all answers that apply:
+
+* 3
+
+* all
+
+* majority :+1:
+
+* online
+
+**See detailed answer**
+
+Majority is the correct answer. "all" and "online" are not valid write concerns. "3" would block indefinitely if one out of three members was offline.
+
+## 25. Laboratorio: Escribe con Failovers (Conmutación por Error)
+
+Lab - Writes with Failovers
+
+**Problem:**
+
+In this lab, you will attempt to write data with a `writeConcern` to a replica set where one node has failed.
+
+In order to simulate a node failure within your replica set, you will connect to the node individually and shut it down. Connecting back to the replica set and running `rs.status()` should show the failing node with a description like this:
+
+```sh
+{
+  "name" : "m103:27001",
+  "health" : 0,
+  "stateStr" : "(not reachable/healthy)",
+  "lastHeartbeatMessage" : "Connection refused",
+  "configVersion" : -1
+}
+```
+
+With one of your nodes down, attempt to insert a document in your replica set by running the following commands:
+
+```sh
+use testDatabase
+db.new_data.insert({"m103": "very fun"}, { writeConcern: { w: 3, wtimeout: 1000 }})
+```
+
+This will attempt to insert one record into a collection called `testDatabase.new_data`, while verifying that 3 nodes registered the write. It should return an error, because only 2 nodes are healthy.
+
+Given the output of the insert command, and your knowledge of `writeConcern`, check all that apply:
+
+Attempts Remaining:3 Attempts left
+
+Check all answers that apply:
+
+* When a `writeConcernError` occurs, the document is still written to the healthy nodes. :+1:
+
+* `w: "majority"` would also cause this write operation to return with an error.
+
+* The write operation will always return with an error, even if `wtimeout` is not specified.
+
+* The unhealthy node will be receiving the inserted document when it is brought back online. :+1:
+
+**See detailed answer**
+
+**Correct:**
+
+* When a `writeConcernError` occurs, the document is still written to the healthy nodes.
+
+The `WriteResult` object simply tells us whether the `writeConcern` was successful or not - it will not undo successful writes from any of the nodes.
+
+* The unhealthy node will have the inserted document when it is brought back online.
+
+When the unhealthy node comes back online, it rejoins the replica set and its oplog is compared with the other nodes' oplogs. Any missing operations will be replayed on the newly healthy node.
+
+**Incorrect:**
+
+* `w: "majority"` would also cause this write operation to return with an error.
+
+`w: "majority"` requests acknowledgement that a majority of nodes in a replica set have registered the write. In a three-node replica set, only two nodes are required for a majority, so the two healthy nodes are sufficient to satisfy this `writeConcern`.
+
+* The write operation will always return with an error, even if `wtimeout` is not specified.
+
+If `wtimeout` is not specified, the write operation will be retried for an indefinite amount of time until the `writeConcern` is successful. If the `writeConcern` is impossible, like in this example, it may never return anything to the client.
+
+
+## 26. Tema: Leer Concerns (Preocupaciones)
+
+### Notas de lectura
+
+Instrucciones de lectura
+
+Nota: A la 1:04, el instructor quería decir: "para documentos **devueltos** por una operación de lectura". A las 3:05, el instructor quiso decir: "no admite la preocupación de **lectura** de la mayoría".
 
 ### Transcripción
 
