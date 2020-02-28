@@ -5355,15 +5355,47 @@ Which of the following read concerns only return data from write operations that
 
 Check all answers that apply:
 
-* linearizable
+* linearizable :+1:
 
 * local
 
-* majority
+* majority :+1:
 
 * available
 
 **See detailed answer**
+
+None of the read concerns require you to specify a write concern. However, reads with the read concern `majority` and `linearizable` will only return data that has been replicated to a majority of nodes in the replica set.
+
+The difference between `majority` and `linearizable` lies in sense of [causal consistency](https://en.wikipedia.org/wiki/Causal_consistency) that `linearizable` enforces.
+
+Let us look into this in detail:
+
+When reading from a replica set with readConcern `majority` all documents that have been majority committed by the replica set will be returned to the application.
+
+In the following diagram we have a set of operations taking place:
+
+* W1 : first write operation
+
+* W2 : second write operation
+
+* RM : read with read concern majority.
+
+<img src="images/m103/c2/readconcern+majority.png">
+
+**RM** will return every document, matching the query selector, that has been majority committed, by the time the server receives the **RM**. In this case, **W1** would be returned.
+
+Read concern `linearizable` will wait for all prior writes to be replicated to a majority of nodes before it returns a response.
+
+In the following diagram we have:
+
+* W1 : first write operation
+* W2 : second write operation
+* RL : read with read concern linearizable
+
+<img src="images/m103/c2/readconcern+linearizable.png">
+
+The response for the read operation will wait until all writes, received by the server prior to **RL**, are majority committed before returning the document to the client. In this case, both **W1** and **W2** would be available to be returned to the client.
 
 ## 28. Tema: Leer preferencias
 
