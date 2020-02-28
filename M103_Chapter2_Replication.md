@@ -4732,17 +4732,312 @@ This is incorrect; By default, MongoDB will always redirect a Replica Set connec
 
 This is incorrect; `rs.slaveOk` only determines that the mongo shell can be set to read data if connected to a Secondary node.
 
-## 20. Tema: conmutación por error y elecciones
+## 20. Tema: Failover (Conmutación por Error) y Elecciones
+
+### Notas de lectura
+
+Instrucciones de lectura
+
+Almacenar la configuración del replica set como una variable `cfg`:
+
+```sh
+cfg = rs.conf()
+```
+
+Establecer la prioridad de un nodo a 0, por lo que no puede convertirse en primario (haciendo que el nodo sea "passive"):
+
+```sh
+cfg.members[2].priority = 0
+```
+
+Actualización de nuestro conjunto de réplicas para usar la nueva configuración `cfg`:
+
+```sh
+rs.reconfig(cfg)
+```
+
+Comprobando la nueva topología de nuestro replica set:
+
+```sh
+rs.isMaster()
+```
+
+Forzar una elección en este replica set (aunque en este caso, manipulamos la elección para que solo un nodo pueda convertirse en primario):
+
+```sh
+rs.stepDown()
+```
+
+Verificando la topología de nuestro replica set después de las elecciones:
+
+```sh
+rs.isMaster()
+```
 
 ### Transcripción
 
-## 21. Examen
+En esta lección, vamos a discutir cómo funcionan las failovers y las elecciones en MongoDB.
 
-## 22. Tema: Escribir inquietudes: Parte 1
+El nodo primario es el primer punto de contacto para cualquier cliente que se comunique con la base de datos.
+
+Incluso si los secundarios caen, el cliente continuará comunicándose con el nodo que actúa como primario hasta que el primario no esté disponible.
+
+Pero, ¿qué causaría que una primaria no esté disponible?
+
+Una razón común es el mantenimiento.
+
+Entonces, digamos que estamos haciendo una actualización continua en un replica set de tres nodos.
+
+Una actualización continua solo significa que estamos actualizando un servidor a la vez, comenzando con los secundarios.
+
+Y eventualmente, actualizaremos el primario.
+
+Las actualizaciones continuas son excelentes porque nos permiten realizar actualizaciones al tiempo que maximizamos la disponibilidad para cualquier cliente que use la base de datos.
+
+Comenzaremos deteniendo el proceso de MongoDB en un secundario y luego volviendo a ponerlo en marcha con la nueva versión de la base de datos.
+
+Y podemos hacer lo mismo para actualizar nuestra otro secundario.
+
+Cuando se hayan actualizado todos nuestros secundarios, es hora de actualizar el primario.
+
+Pero reiniciar el servidor de base de datos en el primario desencadenaría una elección de todos modos, por lo que vamos a iniciar una elección de forma segura con `rs.stepDown()`.
+
+Una vez que se complete la elección, el último servidor de base de datos que ejecuta la versión anterior de la base de datos será un nodo secundario.
+
+Entonces podemos bajarlo y luego volver a subirlo con el nuevo servidor de base de datos sin afectar la disponibilidad de todo el replica set.
+
+Hablemos un poco sobre cómo funcionan las elecciones.
+
+Las elecciones tienen lugar cada vez que hay un cambio en la topología.
+
+La reconfiguración de un replica set siempre desencadenará una elección que puede elegir o no un nuevo primario.
+
+Pero definitivamente verá un nuevo primario elegido en dos casos: cada vez que el nodo primario actual no esté disponible, o cuando el nodo primario actual deje de ser secundario.
+
+El método para determinar qué secundaria se postulará para las elecciones comienza con prioridad, que discutiremos en un minuto; y cualquier nodo que tenga la última copia de los datos.
+
+Entonces, supongamos que todos los nodos de nuestro replica set tienen la misma prioridad, que es la predeterminada, a menos que hayamos establecido prioridades para los nodos de nuestro conjunto.
+
+Y este nodo tiene la última copia de los datos.
+
+Por lo tanto, se postulará para las elecciones y luego votará automáticamente por sí mismo.
+
+Luego les pedirá a los otros dos nodos su apoyo en las elecciones.
+
+Y van a decir, está bien, tienes una copia bastante reciente de los datos, pareces un buen candidato, entonces también se comprometerán a apoyarlos.
+
+Este nodo será elegido primario.
+
+También existe la pequeña posibilidad de que dos nodos se postulen para elecciones simultáneamente.
+
+Pero en un replica set con un número impar de nodos, esto no importa.
+
+Estos dos nodos se ejecutarán, lo que significa que ambos votarán por sí mismos.
+
+Y luego este nodo esencialmente decidirá cuál de estos nodos se vuelve primario en virtud de un desempate.
+
+Esto se convierte en un problema cuando tenemos un número par de miembros con derecho a voto en un conjunto.
+
+Si dos secundarias se postulan para elecciones simultáneamente y hay un número par de nodos restantes en el conjunto, existe la posibilidad de que dividan el voto y haya un empate.
+
+Ahora un empate no es el fin del mundo, porque los nodos simplemente comenzarán de nuevo y celebrarán otras elecciones.
+
+El problema de repetir las elecciones una y otra vez es que cualquier aplicación que acceda a los datos tendrá que pausar toda la actividad y esperar hasta que se elija un primario.
+
+Un número par de nodos aumenta las posibilidades de que se repita una elección, por lo que generalmente intentamos mantener un número impar en nuestros replica set.
+
+Otro aspecto importante de las elecciones es la prioridad asignada a cada nodo en un conjunto.
+
+La prioridad es esencialmente la probabilidad de que un nodo se convierta en el principal durante una elección.
+
+El primario predeterminado para un nodo es 1, y cualquier nodo con prioridad 1 o superior puede ser elegido primario.
+
+Podemos aumentar la prioridad de un nodo si queremos que sea más probable en este nodo se convierte en primario.
+
+Pero cambiar este valor solo no garantiza eso.
+
+También podemos establecer la prioridad del nodo en 0 si nunca queremos que ese nodo se convierta en primario.
+
+**Un nodo de prioridad 0 aún puede votar en las elecciones, pero no puede postularse para las elecciones.**
+
+Echemos un vistazo a cómo cambiar la prioridad de un nodo.
+
+Así que aquí solo estoy almacenando un documento de configuración en una variable.
+
+Así que aquí solo estoy estableciendo la prioridad de uno de nuestros secundarios a 0 para que nunca pueda convertirse en el nodo primario.
+
+Y aquí, solo estoy guardando la nueva configuración en un replica set.
+
+Entonces, ahora que hemos reconfigurado nuestro replica set, voy a ejecutar `rs.isMaster()` a través de la nueva topología.
+
+Entonces, en MongoDB, los nodos que no son elegibles para convertirse en primarios se definen como nodos pasivos.
+
+Y podemos ver que el nodo que reconfiguramos para tener prioridad 0 ha aparecido en nuestra lista de pasivos.
+
+Los otros dos nodos siguen siendo elegibles para convertirse en los primarios.
+
+Algo que quiero señalar aquí.
+
+Cuando llamamos a `rs.stepDown()`, siempre trata de elegir un nuevo nodo primario.
+
+Pero en este caso, aparte del primario actual, solo hay un nodo que es elegible para convertirse en el primario.
+
+Lo que significa que si tuviéramos que convocar una elección en este momento, este nodo tendría que convertirse en el nodo primario.
+
+Por cierto, al cambiar la prioridad del nodo, hemos manipulado las elecciones a favor de este nodo.
+
+Entonces, solo para probar nuestra teoría, convocaremos una elección en este conjunto de réplicas.
+
+Solo tenemos que esperar a que se complete la elección.
+
+Muy bien, así que terminó, y solo voy a verificar cuál es el primario actual.
+
+Y podemos ver que teníamos razón.
+
+Este nodo se convirtió en el nodo primario porque era el único primario elegible en esa elección.
+
+Así que una última cosa a tener en cuenta.
+
+Si el primario actual no puede llegar a la mayoría de los otros nodos en el conjunto, entonces se reducirá automáticamente para convertirse en secundario.
+
+En un replica set de tres nodos, la mayoría son dos nodos.
+
+Entonces, si dos nodos se desactivan, incluso si el primario aún está disponible, se reducirá.
+
+En este punto, una elección no puede tener lugar hasta que se vuelvan a generar suficientes nodos para formar una mayoría, y los clientes podrán conectarse a todo el replica set porque no hay un primario.
+
+Entonces, para resumir, hemos cubierto cómo se mantiene la disponibilidad durante las elecciones, la prioridad efectiva en las elecciones y el comportamiento de un replica set cuando la mayoría de los nodos no están disponibles.
+
+## 21. Examen Failover and Elections
+
+**Problem:**
+
+Which of the following is true about elections?
+
+Check all answers that apply:
+
+* Elections can take place anytime while the primary is available.
+
+* Nodes with priority 0 cannot be elected primary. :+1:
+
+* Nodes with higher priority are more likely to be elected primary. :+1:
+
+* All nodes have an equal chance to become primary.
+
+**See detailed answer**
+
+**Correct answers:**
+
+**Nodes with priority 0 cannot be elected primary.**
+
+Setting a node's priority to 0 guarantees that node will never become primary.
+
+**Nodes with higher priority are more likely to be elected primary.**
+
+Raising a node's priority doesn't guarantee that node will be elected primary, but it does increase the likelihood.
+
+**Incorrect answers:**
+
+**Elections can take place anytime while the primary is available.**
+
+If a majority of nodes are unavailable, elections cannot take place.
+
+**All nodes have an equal chance to become primary.**
+
+Priority and recency of a node's oplog dictates which nodes are more likely to become primary.
+
+
+## 22. Tema: Escribir Concerns (Inquietudes): Parte 1
 
 ### Transcripción
 
-## 23. Tema: Escribir inquietudes: Parte 2
+La preocupación de escritura (write concern) de MongoDB es un mecanismo de reconocimiento que los desarrolladores pueden agregar a las operaciones de escritura.
+
+Los niveles más altos de reconocimiento producen una garantía de durabilidad más fuerte.
+
+La durabilidad significa que la escritura se ha propagado al número de nodos miembros del replica set especificados en la preocupación de escritura.
+
+Cuantos más miembros del replica set reconozcan el éxito de una escritura, más probable es que la escritura sea duradera en caso de falla.
+
+La mayoría aquí se define como una mayoría simple de miembros del replica set.
+
+Entonces divide por dos y redondea.
+
+La compensación con una mayor durabilidad es el tiempo.
+
+Más durabilidad requiere más tiempo para lograr la garantía de durabilidad especificada, ya que debe esperar esos reconocimientos.
+
+Repasemos los niveles de preocupación de escritura disponibles.
+
+Una preocupación de escritura de cero significa que la aplicación no espera ningún reconocimiento.
+
+La escritura puede tener éxito o fallar.
+
+La aplicación realmente no le importa.
+
+Solo comprueba que se puede conectar con éxito al nodo.
+
+Piense en esto como una estrategia de disparar y olvidar: muy rápido, pero sin controles de seguridad.
+
+La preocupación de escritura predeterminada es una.
+
+Eso significa que la aplicación espera un acuse de recibo de un solo miembro del replica set, específicamente, el primario.
+
+Esta es una garantía básica de éxito.
+
+Escribir inquietudes superiores a uno aumenta el número de reconocimientos para incluir uno o más miembros secundarios.
+
+Los niveles más altos de preocupación de escritura corresponden a una garantía más fuerte de durabilidad de escritura.
+
+Por ejemplo, puedo establecer una preocupación de escritura de tres para requerir el reconocimiento de los tres miembros del replica set.
+
+La mayoría es una palabra clave que se traduce en la mayoría de los miembros del replica set.
+
+Es una mayoría simple.
+
+Entonces divida el número de miembros entre dos y redondee.
+
+Entonces, este replica set de tres miembros tiene una mayoría de dos.
+
+Un replica set de cinco miembros tendría una mayoría de tres, y así sucesivamente.
+
+Lo bueno de la mayoría es que no tiene que actualizar su problema de escritura si aumenta el tamaño de su replica set.
+
+También hay un nivel de preocupación de escritura para las etiquetas de replica set.
+
+Eso es un pequeño avance para esta serie de cursos, pero puede consultar nuestra documentación sobre preocupación por escrito para obtener más información.
+
+Solo estamos hablando de replica set en esta lección.
+
+Pero MongoDB admite la preocupación de escritura tanto para clústeres independientes como fragmentados.
+
+Para los grupos fragmentados en particular, la preocupación de escritura se reduce al nivel de fragmento.
+
+Finalmente, quiero dejar muy claro que, sin importar la preocupación de escritura que especifique, MongoDB siempre replica los datos en todos los nodos portadores de datos del clúster.
+
+La preocupación de escritura está ahí para que tenga una forma de rastrear la durabilidad de los datos insertados.
+
+Hay dos opciones adicionales de preocupación de escritura que proporciona MongoDB.
+
+El primero es `wtimeout`.
+
+Esto le permite establecer una cantidad máxima de tiempo que la aplicación espera antes de marcar una operación como fallida.
+
+Una nota importante aquí: golpear un error de tiempo de espera no significa que la operación de escritura en sí haya fallado.
+
+Solo significa que la aplicación no obtuvo el nivel de durabilidad que solicitó.
+
+El segundo es `j`, o `journal`.
+
+Esta opción requiere que cada miembro del replica set reciba la escritura y se comprometa con el diario archivado para que la escritura se considere reconocida.
+
+Comenzando con MongoDB 3.2.6, una preocupación de escritura de mayoría implica que `j` es igual a verdadero.
+
+La ventaja de establecer `j` es igual a verdadero para cualquier preocupación de escritura dada es que tiene una garantía más sólida de que no solo se recibieron las escrituras, sino que se escribieron en un diario en el disco.
+
+Si establece `j` en falso, o si el registro en diario está deshabilitado en el mongod, el nodo solo necesita almacenar los datos en la memoria antes de informar el éxito.
+
+## 23. Tema: Escribir Concerns (Inquietudes): Parte 2
 
 ### Transcripción
 
