@@ -561,15 +561,41 @@ What is true about the primary shard in a cluster?
 
 Check all answers that apply:
 
-* The role of primary shard is subject to change.
+* The role of primary shard is subject to change. :+1:
 
-* Non-sharded collections are placed on the primary shard.
+* Non-sharded collections are placed on the primary shard. :+1:
 
 * Client applications communicate directly with the primary shard.
 
 * The primary shard always has more data than the other shards.
 
-* Shard merges are performed by the mongos.
+* Shard merges are performed by the mongos. :+1:
+
+**See detailed answer**
+
+**Correct answers:**
+
+**The role of primary shard is subject to change.**
+
+We can manually change the primary shard of a database, if we need to.
+
+**Non-sharded collections are placed on the primary shard.**
+
+Until the collection is sharded, mongos will place it on the primary shard of its database.
+
+**Shard merges are performed by the mongos.**
+
+When documents are fetched from multiple shards, mongos has to gather and organize those documents in a shard_merge.
+
+**Incorrect answers:**
+
+**The primary shard always has more data than the other shards.**
+
+The primary shard may have more data, because non-sharded collections will only exist on the primary shard. But this is not necessarily the case.
+
+**Client applications communicate directly with the primary shard.**
+
+Clients communicate with the mongos, which communicates to the shards in a cluster - this includes the primary shard.
 
 ## 6. Tema: Configuración de un grupo fragmentado
 
