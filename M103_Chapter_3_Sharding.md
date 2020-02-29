@@ -505,13 +505,25 @@ para averiguar exactamente qué fragmento contiene el documento de ese jugador y
 
 <img src="images/m103/c3/3-2-shard-8.png">
 
-También podemos tener múltiples procesos mongos desde alta disponibilidad con mongos, o para dar servicio a múltiples aplicaciones a la vez.
+También podemos tener múltiples procesos mongos desde alta disponibilidad con mongos, 
+
+<img src="images/m103/c3/3-2-shard-9.png">
+
+o para dar servicio a múltiples aplicaciones a la vez.
+
+<img src="images/m103/c3/3-2-shard-10.png">
 
 Los procesos mongos utilizarán los metadatos alrededor de las colecciones que se han fragmentado para determinar exactamente dónde enrutar las consultas.
 
+<img src="images/m103/c3/3-2-shard2-3.png">
+
 Los metadatos para esta colección se verán así.
 
+<img src="images/m103/c3/3-2-shard2-4.png">
+
 Pero los datos no se almacenan en mongos.
+
+<img src="images/m103/c3/3-2-config.png">
 
 En cambio, los metadatos de la colección se almacenan en servidores de configuración, que constantemente realizan un seguimiento de dónde reside cada pieza de datos en el clúster.
 
@@ -519,11 +531,15 @@ Esto es especialmente importante porque la información contenida en cada fragme
 
 Entonces mongos consulta los servidores de configuración a menudo, en caso de que se mueva una pieza de datos.
 
+<img src="images/m103/c3/3-2-config-2.png">
+
 Pero, ¿por qué podría tener que moverse un dato?
 
 Bueno, los servidores de configuración deben asegurarse de que haya una distribución uniforme de los datos en cada parte.
 
 Por ejemplo, si hay muchas personas en nuestra base de datos con el apellido Smith, el tercer fragmento contendrá una cantidad desproporcionadamente grande de datos.
+
+<img src="images/m103/c3/3-2-shard2-5.png">
 
 Cuando esto sucede, los servidores de configuración tienen que decidir qué datos se deben mover para que los fragmentos tengan una distribución más uniforme.
 
