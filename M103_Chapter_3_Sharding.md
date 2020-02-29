@@ -449,7 +449,7 @@ We should carefully consider if we need to have a sharding system out of the sta
 
 Maxing out the capacity of our disks is not a reason for sharding. Scaling up might make more sense than to add complexity to our system.
 
-## 4. Tema: Arquitectura de fragmentación
+## 4. Tema: Sharding Architecture (Arquitectura de Fragmentación)
 
 ### Notas de lectura
 
@@ -459,17 +459,29 @@ Alrededor de las 3:25, Matt menciona la etapa `SHARD_MERGE` que tiene lugar en m
 
 Entonces, en esta lección, vamos a caminar hacia la arquitectura de un sharded cluster.
 
+<img src="images/m103/c3/3-2-shard-1.png">
+
 El aspecto más importante de un sharded cluster es que podemos agregar cualquier cantidad de fragmentos.
+
+<img src="images/m103/c3/3-2-shard-2.png">
 
 Y debido a que podría ser una gran cantidad de fragmentos diferentes, las aplicaciones del cliente no se van a comunicar directamente con los fragmentos.
 
+<img src="images/m103/c3/3-2-shard-3.png">
+
 En cambio, configuramos un tipo de proceso de enrutador llamado mongos.
 
+<img src="images/m103/c3/3-2-shard-4.png">
+
 Luego, el cliente se conecta a mongos, y mongos dirige las consultas a los fragmentos correctos.
+
+<img src="images/m103/c3/3-2-shard-5.png">
 
 Entonces, ¿cómo descubren los mongos exactamente dónde está todo?
 
 Bueno, tiene que entender exactamente cómo se distribuyen los datos.
+
+<img src="images/m103/c3/3-2-shard2-1.png">
 
 Entonces, digamos que esta información está en jugadores de fútbol.
 
@@ -479,9 +491,19 @@ Dividimos nuestro conjunto de datos en el apellido de cada jugador.
 
 Por lo tanto, los jugadores con apellidos entre A y J se almacenan en el primer fragmento, entre K y Q en el segundo fragmento, y entre R y Z en el tercer fragmento.
 
+<img src="images/m103/c3/3-2-shard2-2.png">
+
 Mongos va a necesitar esta información para enrutar consultas al cliente.
 
-Por ejemplo, si el cliente envía una consulta a mongos sobre Luis Suárez, mongos puede usar el apellido Suárez para averiguar exactamente qué fragmento contiene el documento de ese jugador y luego enrutar esa consulta al fragmento correcto.
+<img src="images/m103/c3/3-2-shard-6.png">
+
+Por ejemplo, si el cliente envía una consulta a mongos sobre Luis Suárez, mongos puede usar el apellido Suárez 
+
+<img src="images/m103/c3/3-2-shard-7.png">
+
+para averiguar exactamente qué fragmento contiene el documento de ese jugador y luego enrutar esa consulta al fragmento correcto.
+
+<img src="images/m103/c3/3-2-shard-8.png">
 
 También podemos tener múltiples procesos mongos desde alta disponibilidad con mongos, o para dar servicio a múltiples aplicaciones a la vez.
 
