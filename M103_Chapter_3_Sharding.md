@@ -405,7 +405,49 @@ El fragmentación de zonas nos permite distribuir fácilmente los datos que debe
 
 La división de zonas está fuera del alcance de este curso, pero tenga en cuenta que esta es una manera eficiente de administrar conjuntos de datos distribuidos geográficamente.
 
-## 3. Examen
+## 3. Examen When to Shard
+
+**Problem:**
+
+Which of the following scenarios drives us to shard our cluster?
+
+Check all answers that apply:
+
+* When we reach the most powerful servers available, maximizing our vertical scale options. :+1:
+
+* When we start a new project with MongoDB.
+
+* Data sovereignty laws require data to be located in a specific geography. :+1:
+
+* When holding more than 5TB per server and operational costs increase dramatically. :+1:
+
+* When our server disks are full.
+
+See detailed answer
+
+**Correct answers:**
+
+**When we reach the most powerful servers available, maximizing our vertical scale options.**
+
+Sharding can provide an alternative to vertical scaling.
+
+**Data sovereignty laws require data to be located in a specific geography.**
+
+Sharding allows us to store different pieces of data in specific countries or regions.
+
+**When holding more than 5TB per server and operational costs increase dramatically.**
+
+Generally, when our deployment reaches 2-5TB per server, we should consider sharding.
+
+**Incorrect answers:**
+
+**When we start a new project with MongoDB.**
+
+We should carefully consider if we need to have a sharding system out of the start. This might be required for some projects, but certainly not always the ideal moment to address scalability needs.
+
+**When our server disks are full.**
+
+Maxing out the capacity of our disks is not a reason for sharding. Scaling up might make more sense than to add complexity to our system.
 
 ## 4. Tema: Arquitectura de fragmentación
 
