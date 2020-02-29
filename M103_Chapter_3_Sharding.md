@@ -35,7 +35,6 @@ Asignaciones calificadas
 27. Examen
 28. Laboratorio: detección de consultas de recopilación de dispersión
 
-
 ## 1. Tema: ¿Qué es Sharding?
 
 ### Transcripción
@@ -179,6 +178,110 @@ y los Mongos, que encamina las consultas a los fragmentos correctos.
 ## 2. Tema: Cuándo Fragmentar
 
 ### Transcripción
+
+OK, entonces MongoDB puede escalar.
+
+Increíble.
+
+Hagamoslo entonces.
+
+Avancemos y construyamos el clúster escalable desde el principio.
+
+OK.
+
+No tan rápido joven Padawan.
+
+Veamos cuándo definitivamente deberías considerar fragmentar.
+
+Primero, comprendamos qué indicadores debemos verificar para ver si realmente llegamos al momento de fragmentar.
+
+Una de las primeras cosas que debe hacer es verificar si aún es económicamente viable a escala vertical.
+
+Cuando necesitamos abordar un rendimiento de rendimiento o un cuello de botella de volumen, que generalmente son los impulsores técnicos para agregar más recursos a su sistema, el primer paso sería verificar si aún podemos agregar más recursos y escalar.
+
+Genial, pero debemos validar que agregar más de esos recursos verticales, como agregar más CPU, red, memoria o disco a sus servidores existentes, sea económicamente viable y posible.
+
+Entonces, en caso de que tengamos un pequeño conjunto de servidores, comprobar que, al aumentar los recursos de la unidad de ese servidor, en cualquiera de los cuellos de botella de recursos identificados, se obtiene un mayor rendimiento con muy poco tiempo de inactividad de una manera económica.
+
+Agregar 10 veces más RAM para resolver un cuello de botella de asignación de memoria no le costará 100 veces más, si ese es el caso, excelente.
+
+Ese debería ser su razonamiento para continuar escalando.
+
+Aún puede hacerlo de manera económica y viable, pero eventualmente llegará a un punto en el que el escalado vertical ya no es económicamente viable o es muy difícil decir que es imposible de lograr.
+
+Digamos que su arquitectura actual depende de servidores que cuestan $100 por hora.
+
+Tiene tres casetes de representantes de miembro, por lo que está sentado encima de $300 por hora.
+
+El siguiente tipo de servidor disponible cuesta $1,000 por hora, pero donde su impacto general en el rendimiento es solo de 2x, probablemente no sea una decisión muy acertada.
+
+10 veces el costo por servidor por solo dos veces el rendimiento general.
+
+Probablemente estará mucho mejor con una escala horizontal donde el aumento en el costo será, digamos, tres veces.
+
+Tres servidores más para otro casete de repetición, más tres más para sus servidores de configuración, con un aumento potencial de rendimiento de 2x.
+
+$900 por hora es más aceptable que $3,000 por la misma mejora de rendimiento.
+
+La economía aquí tendrá un peso considerable en su decisión.
+
+Otro aspecto a considerar es el impacto en sus tareas operativas.
+
+Digamos que actualmente está considerando aumentar el tamaño de sus discos para permitir pasar de un espacio en disco de terabytes a 20 discos de terabytes.
+
+El propósito de esto es escalar verticalmente sus capacidades de almacenamiento, lo cual está totalmente bien.
+
+Pero si esperamos ejecutarlos al 75% de su capacidad, esto significará cargar hasta 15 terabytes de datos.
+
+Lo que significa 15 veces más datos para respaldar.
+
+Al igual que una cantidad bastante significativa de otros aspectos, esto probablemente significará que tomará 15 veces más tiempo para hacer una copia de seguridad de esos servidores, probablemente una penalización aún mayor al restaurar servidores tan grandes, así como realizar sincronizaciones iniciales entre replica sets.
+
+Y ahora tenemos que tener en cuenta el impacto en la red al hacer una copia de seguridad de esos 15 terabytes de datos.
+
+En tal escenario, tener una escala horizontal y distribuir esa cantidad de datos a través de diferentes fragmentos, permitirá obtener ganancias de rendimiento horizontal como la paralelización de los procesos de copia de seguridad, restauración y sincronización inicial.
+
+Recuerde que aunque estas pueden ser operaciones infrecuentes, pueden convertirse en problemas serios de escalabilidad para manejar desde el lado operativo.
+
+Este mismo escenario también afectará su carga de trabajo operativa.
+
+Un conjunto de datos 15 veces mayor por MongoDB probablemente se traducirá en índices al menos 15 veces mayores.
+
+Como sabemos, los índices son esenciales para el desempeño de nuestras consultas en una base de datos.
+
+Si ocupan 15 veces más espacio por unidad de procesamiento o servidor, requerirán más RAM para que los índices puedan mantenerse en la memoria.
+
+Una parte muy importante de su conjunto de datos de trabajo.
+
+El aumento del tamaño de sus discos probablemente implicará un aumento eventual del tamaño de su RAM, lo que trae costos adicionales u otros cuellos de botella a su sistema.
+
+En este escenario de fragmentación, la paralelización de su carga de trabajo entre fragmentos podría ser mucho más beneficiosa para su aplicación y presupuesto que la cascada de posibles actualizaciones costosas.
+
+Una regla general indica que los servidores individuales deben contener de dos a 5 terabytes de datos.
+
+Más que eso se vuelve demasiado lento para operar.
+
+Finalmente, hay cargas de trabajo que intrínsecamente funcionan mejor en implementaciones distribuidas que comparten ofertas, como operaciones de un solo subproceso que pueden ser datos paralelos y distribuidos geográficamente.
+
+Los datos que deben almacenarse en ubicaciones regionales específicas o se beneficiarán de la ubicación conjunta con los clientes que consumen dichos datos.
+
+Como ejemplo de un solo hilo, las operaciones serán los comandos del marco de agregación.
+
+Si su aplicación depende en gran medida de los comandos del marco de agregación y si el tiempo de respuesta de esos comandos se vuelve más lento con el tiempo, debería considerar fragmentar su clúster.
+
+Dicho esto, no todas las etapas de la tubería de agregación son paralelizables.
+
+Por lo tanto, se requiere una comprensión más profunda de su cartera antes de tomar esa decisión.
+
+Puede aprender todo sobre esto en nuestro curso **M121 MongoDB Aggregation Course**.
+
+Así que estad atentos para eso.
+
+Finalmente, los datos geodistribuidos son significativamente simples de administrar usando el fragmentación de zona.
+
+El fragmentación de zonas nos permite distribuir fácilmente los datos que deben ubicarse conjuntamente.
+
+La división de zonas está fuera del alcance de este curso, pero tenga en cuenta que esta es una manera eficiente de administrar conjuntos de datos distribuidos geográficamente.
 
 ## 3. Examen
 
