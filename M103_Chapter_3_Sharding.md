@@ -44,7 +44,7 @@ Entonces, hasta este punto, hemos aprendido sobre las implementaciones de MongoD
 
 Por lo tanto, es factible almacenar un conjunto de datos completo en un servidor.
 
-En un conjunto de réplica, tenemos más de un servidor en nuestra base de datos.
+En un replica set, tenemos más de un servidor en nuestra base de datos.
 
 Pero cada servidor todavía tiene que contener todo el conjunto de datos.
 
@@ -52,25 +52,25 @@ A medida que nuestro conjunto de datos crece hasta el punto en que nuestras máq
 
 Podríamos aumentar la capacidad de las máquinas individuales para que tengan más RAM, o espacio en disco, o tal vez una CPU más potente.
 
-Esto se conoce como escala vertical.
+Esto se conoce como **escala vertical**.
 
 Pero esto podría llegar a ser muy costoso.
 
-Y además, los proveedores basados ​​en la nube no nos permitirán escalar verticalmente para siempre.
+Y además, los proveedores basados en la nube no nos permitirán escalar verticalmente para siempre.
 
 Eventualmente pondrán un límite a las posibles configuraciones de hardware, lo que limitaría efectivamente nuestra capa de almacenamiento.
 
-En MongoDB, el escalado se realiza horizontalmente, lo que significa que, en lugar de mejorar las máquinas individuales, simplemente agregamos más máquinas y luego distribuimos el conjunto de datos entre esas máquinas.
+**En MongoDB, el escalado se realiza horizontalmente, lo que significa que, en lugar de mejorar las máquinas individuales, simplemente agregamos más máquinas y luego distribuimos el conjunto de datos entre esas máquinas.**
 
-La forma en que distribuimos datos en MongoDB se llama Sharding.
+La forma en que distribuimos datos en MongoDB se llama **Sharding**.
 
 Y Sharding nos permite hacer crecer nuestro conjunto de datos sin preocuparnos de poder almacenarlo todo en un servidor.
 
 En su lugar, dividimos el conjunto de datos en partes y luego las distribuimos en tantos fragmentos como queramos.
 
-Juntos, los fragmentos forman un cúmulo fragmentado.
+Juntos, los fragmentos forman un Sharded Cluster (clúster fragmentado).
 
-Para garantizar una alta disponibilidad en nuestro clúster fragmentado, implementamos cada fragmento como un conjunto de réplica.
+Para garantizar una alta disponibilidad en nuestro Sharded Cluster, implementamos cada fragmento como un replica set.
 
 De esta manera, podemos garantizar un nivel de tolerancia a fallos contra cada pieza de datos, independientemente de qué fragmento contenga realmente esos datos.
 
@@ -80,15 +80,15 @@ Consultamos nuestra base de datos buscando un documento específico.
 
 Al principio no es obvio dónde buscarlo.
 
-Entonces, entre un clúster fragmentado y sus clientes, configuramos un tipo de proceso de enrutador que acepta consultas de los clientes y luego determina qué fragmento debe recibir esa consulta.
+Entonces, entre un Sharded Cluster (clúster fragmentado) y sus clientes, configuramos un tipo de proceso de enrutador que acepta consultas de los clientes y luego determina qué fragmento debe recibir esa consulta.
 
-Ese proceso de enrutador se llama mongos.
+Ese proceso de enrutador se llama **Mongos**.
 
 Y los clientes se conectan a Mongos en lugar de conectarse a cada fragmento individualmente.
 
-Y tenemos cualquier cantidad de procesos de Mongos para que podamos atender muchas solicitudes o solicitudes diferentes al mismo Clúster fragmentado.
+Y tenemos cualquier cantidad de procesos de Mongos para que podamos atender muchas solicitudes o solicitudes diferentes al mismo Sharded Cluster(Clúster fragmentado).
 
-¿Entonces Mongos debe ser bastante pequeño, correcto, para saber dónde está cada dato en un momento dado en un clúster fragmentado masivo?
+¿Entonces Mongos debe ser bastante pequeño, correcto, para saber dónde está cada dato en un momento dado en un Sharded Cluster masivo?
 
 Pero en realidad, Mongos no sabe nada.
 
@@ -106,9 +106,9 @@ Sí, usamos replicación.
 
 Replicamos los datos en los servidores de configuración.
 
-Entonces, en lugar de un único servidor de configuración, implementamos un conjunto de réplicas del servidor de configuración.
+Entonces, en lugar de un único Config Server (servidor de configuración), implementamos un Replica Set del Config Server (servidor de configuración).
 
-Así que esa es una descripción general de alto nivel de Sharding en MongoDB: el Cluster Sharded contiene los fragmentos donde residen los datos; los servidores de configuración, que contienen los metadatos de cada fragmento; y los mongos, que encamina las consultas a los fragmentos correctos.
+Así que esa es una descripción general de alto nivel de Sharding en MongoDB: el Cluster Sharded contiene los fragmentos donde residen los datos; los Config Servers (servidores de configuración), que contienen los metadatos de cada fragmento; y los Mongos, que encamina las consultas a los fragmentos correctos.
 
 ## 2. Tema: Cuándo fragmentar
 
