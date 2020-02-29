@@ -237,53 +237,107 @@ en cualquiera de los cuellos de botella de recursos identificados,
 
 <img src="images/m103/c3/3-2-cuellobotella-1.png">
 
-se obtiene un mayor rendimiento con muy poco tiempo de inactividad de una manera económica.
+se obtiene un mayor rendimiento 
 
 <img src="images/m103/c3/3-2-cuellobotella-2.png">
 
+con muy poco tiempo de inactividad de una manera económica.
+
+<img src="images/m103/c3/3-2-downtime.png">
+
 Agregar 10 veces más RAM para resolver un cuello de botella de asignación de memoria no le costará 100 veces más, si ese es el caso, excelente.
+
+<img src="images/m103/c3/3-2-10ram.png">
 
 Ese debería ser su razonamiento para continuar escalando.
 
 Aún puede hacerlo de manera económica y viable, pero eventualmente llegará a un punto en el que el escalado vertical ya no es económicamente viable o es muy difícil decir que es imposible de lograr.
 
+<img src="images/m103/c3/3-2-deadend.png">
+
 Digamos que su arquitectura actual depende de servidores que cuestan $100 por hora.
 
-Tiene tres casetes de representantes de miembro, por lo que está sentado encima de $300 por hora.
+Tiene tres miembros rep cassettes(casetes de representantes), por lo que está sentado encima de $300 por hora.
 
-El siguiente tipo de servidor disponible cuesta $1,000 por hora, pero donde su impacto general en el rendimiento es solo de 2x, probablemente no sea una decisión muy acertada.
+<img src="images/m103/c3/3-2-300.png">
+
+El siguiente tipo de servidor disponible cuesta $1,000 por hora, 
+
+<img src="images/m103/c3/3-2-3000.png">
+
+pero donde su impacto general en el rendimiento es solo de 2x, probablemente no sea una decisión muy acertada.
+
+<img src="images/m103/c3/3-2-2x.png">
 
 10 veces el costo por servidor por solo dos veces el rendimiento general.
 
+<img src="images/m103/c3/3-2-2x-2.png">
+
 Probablemente estará mucho mejor con una escala horizontal donde el aumento en el costo será, digamos, tres veces.
+
+<img src="images/m103/3-2-horizontal-scale.png">
 
 Tres servidores más para otro casete de repetición, más tres más para sus servidores de configuración, con un aumento potencial de rendimiento de 2x.
 
 $900 por hora es más aceptable que $3,000 por la misma mejora de rendimiento.
 
+<img src="images/m103/3-2-900.png">
+
 La economía aquí tendrá un peso considerable en su decisión.
 
 Otro aspecto a considerar es el impacto en sus tareas operativas.
 
-Digamos que actualmente está considerando aumentar el tamaño de sus discos para permitir pasar de un espacio en disco de terabytes a 20 discos de terabytes.
+<img src="images/m103/3-2-operational.png">
+
+Digamos que actualmente está considerando aumentar el tamaño de su discos para permitir pasar de un espacio en disco de 1 terabytes a 20 discos de terabytes.
+
+<img src="images/m103/3-2-1tb.png">
+
+<img src="images/m103/3-2-20tb.png">
 
 El propósito de esto es escalar verticalmente sus capacidades de almacenamiento, lo cual está totalmente bien.
 
+<img src="images/m103/3-2-20tb-2.png">
+
+<img src="images/m103/3-2-20tb-3.png">
+
 Pero si esperamos ejecutarlos al 75% de su capacidad, esto significará cargar hasta 15 terabytes de datos.
+
+<img src="images/m103/3-2-20tb-4.png">
 
 Lo que significa 15 veces más datos para respaldar.
 
+<img src="images/m103/3-2-20tb-5.png">
+
 Al igual que una cantidad bastante significativa de otros aspectos, esto probablemente significará que tomará 15 veces más tiempo para hacer una copia de seguridad de esos servidores, probablemente una penalización aún mayor al restaurar servidores tan grandes, así como realizar sincronizaciones iniciales entre replica sets.
+
+<img src="images/m103/3-2-20tb-6.png">
 
 Y ahora tenemos que tener en cuenta el impacto en la red al hacer una copia de seguridad de esos 15 terabytes de datos.
 
-En tal escenario, tener una escala horizontal y distribuir esa cantidad de datos a través de diferentes fragmentos, permitirá obtener ganancias de rendimiento horizontal como la paralelización de los procesos de copia de seguridad, restauración y sincronización inicial.
+<img src="images/m103/3-2-20tb-7.png">
+
+En tal escenario, tener una escala horizontal y distribuir esa cantidad de datos a través de diferentes shards(fragmentos), 
+
+<img src="images/m103/3-2-horizontal-scale-2.png">
+
+permitirá obtener ganancias de rendimiento horizontal como la paralelización de los procesos de copia de seguridad, restauración y sincronización inicial.
+
+<img src="images/m103/3-2-process.png">
 
 Recuerde que aunque estas pueden ser operaciones infrecuentes, pueden convertirse en problemas serios de escalabilidad para manejar desde el lado operativo.
 
 Este mismo escenario también afectará su carga de trabajo operativa.
 
-Un conjunto de datos 15 veces mayor por MongoDB probablemente se traducirá en índices al menos 15 veces mayores.
+<img src="images/m103/3-2-operation.png">
+
+Un conjunto de datos 15 veces mayor 
+
+<img src="images/m103/3-2-15x.png">
+
+por MongoDB probablemente se traducirá en índices al menos 15 veces mayores.
+
+<img src="images/m103/3-2-15x-2.png">
 
 Como sabemos, los índices son esenciales para el desempeño de nuestras consultas en una base de datos.
 
@@ -291,15 +345,31 @@ Si ocupan 15 veces más espacio por unidad de procesamiento o servidor, requerir
 
 Una parte muy importante de su conjunto de datos de trabajo.
 
+<img src="images/m103/3-2-ramdd.png">
+
 El aumento del tamaño de sus discos probablemente implicará un aumento eventual del tamaño de su RAM, lo que trae costos adicionales u otros cuellos de botella a su sistema.
 
-En este escenario de fragmentación, la paralelización de su carga de trabajo entre fragmentos podría ser mucho más beneficiosa para su aplicación y presupuesto que la cascada de posibles actualizaciones costosas.
+<img src="images/m103/3-2-costs.png">
+
+En este escenario de fragmentación, la paralelización de su carga de trabajo entre fragmentos podría ser mucho más 
+
+<img src="images/m103/3-2-sharding.png">
+
+beneficiosa para su aplicación y presupuesto que la cascada de posibles actualizaciones costosas.
+
+<img src="images/m103/3-2-vertical.png">
 
 Una regla general indica que los servidores individuales deben contener de dos a 5 terabytes de datos.
 
+<img src="images/m103/3-2-regla.png">
+
 Más que eso se vuelve demasiado lento para operar.
 
-Finalmente, hay cargas de trabajo que intrínsecamente funcionan mejor en implementaciones distribuidas que comparten ofertas, como operaciones de un solo subproceso que pueden ser datos paralelos y distribuidos geográficamente.
+Finalmente, hay cargas de trabajo que intrínsecamente funcionan mejor en implementaciones distribuidas que comparten ofertas, 
+
+<img src="images/m103/3-2-milk.png">
+
+como operaciones de un solo subproceso que pueden ser datos paralelos y distribuidos geográficamente.
 
 Los datos que deben almacenarse en ubicaciones regionales específicas o se beneficiarán de la ubicación conjunta con los clientes que consumen dichos datos.
 
