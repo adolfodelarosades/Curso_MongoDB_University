@@ -459,29 +459,29 @@ Alrededor de las 3:25, Matt menciona la etapa `SHARD_MERGE` que tiene lugar en m
 
 Entonces, en esta lección, vamos a caminar hacia la arquitectura de un sharded cluster.
 
-<img src="images/m103/c3/3-2-shard-1.png">
+<img src="images/m103/c3/3-4-shard-1.png">
 
 El aspecto más importante de un sharded cluster es que podemos agregar cualquier cantidad de fragmentos.
 
-<img src="images/m103/c3/3-2-shard-2.png">
+<img src="images/m103/c3/3-4-shard-2.png">
 
 Y debido a que podría ser una gran cantidad de fragmentos diferentes, las aplicaciones del cliente no se van a comunicar directamente con los fragmentos.
 
-<img src="images/m103/c3/3-2-shard-3.png">
+<img src="images/m103/c3/3-4-shard-3.png">
 
 En cambio, configuramos un tipo de proceso de enrutador llamado mongos.
 
-<img src="images/m103/c3/3-2-shard-4.png">
+<img src="images/m103/c3/3-4-shard-4.png">
 
 Luego, el cliente se conecta a mongos, y mongos dirige las consultas a los fragmentos correctos.
 
-<img src="images/m103/c3/3-2-shard-5.png">
+<img src="images/m103/c3/3-4-shard-5.png">
 
 Entonces, ¿cómo descubren los mongos exactamente dónde está todo?
 
 Bueno, tiene que entender exactamente cómo se distribuyen los datos.
 
-<img src="images/m103/c3/3-2-shard2-1.png">
+<img src="images/m103/c3/3-4-shard2-1.png">
 
 Entonces, digamos que esta información está en jugadores de fútbol.
 
@@ -491,39 +491,39 @@ Dividimos nuestro conjunto de datos en el apellido de cada jugador.
 
 Por lo tanto, los jugadores con apellidos entre A y J se almacenan en el primer fragmento, entre K y Q en el segundo fragmento, y entre R y Z en el tercer fragmento.
 
-<img src="images/m103/c3/3-2-shard2-2.png">
+<img src="images/m103/c3/3-4-shard2-2.png">
 
 Mongos va a necesitar esta información para enrutar consultas al cliente.
 
-<img src="images/m103/c3/3-2-shard-6.png">
+<img src="images/m103/c3/3-4-shard-6.png">
 
 Por ejemplo, si el cliente envía una consulta a mongos sobre Luis Suárez, mongos puede usar el apellido Suárez 
 
-<img src="images/m103/c3/3-2-shard-7.png">
+<img src="images/m103/c3/3-4-shard-7.png">
 
 para averiguar exactamente qué fragmento contiene el documento de ese jugador y luego enrutar esa consulta al fragmento correcto.
 
-<img src="images/m103/c3/3-2-shard-8.png">
+<img src="images/m103/c3/3-4-shard-8.png">
 
 También podemos tener múltiples procesos mongos desde alta disponibilidad con mongos, 
 
-<img src="images/m103/c3/3-2-shard-9.png">
+<img src="images/m103/c3/3-4-shard-9.png">
 
 o para dar servicio a múltiples aplicaciones a la vez.
 
-<img src="images/m103/c3/3-2-shard-10.png">
+<img src="images/m103/c3/3-4-shard-10.png">
 
 Los procesos mongos utilizarán los metadatos alrededor de las colecciones que se han fragmentado para determinar exactamente dónde enrutar las consultas.
 
-<img src="images/m103/c3/3-2-shard2-3.png">
+<img src="images/m103/c3/3-4-shard2-3.png">
 
 Los metadatos para esta colección se verán así.
 
-<img src="images/m103/c3/3-2-shard2-4.png">
+<img src="images/m103/c3/3-4-shard2-4.png">
 
 Pero los datos no se almacenan en mongos.
 
-<img src="images/m103/c3/3-2-config.png">
+<img src="images/m103/c3/3-4-config.png">
 
 En cambio, los metadatos de la colección se almacenan en servidores de configuración, que constantemente realizan un seguimiento de dónde reside cada pieza de datos en el clúster.
 
@@ -531,7 +531,7 @@ Esto es especialmente importante porque la información contenida en cada fragme
 
 Entonces mongos consulta los servidores de configuración a menudo, en caso de que se mueva una pieza de datos.
 
-<img src="images/m103/c3/3-2-config-2.png">
+<img src="images/m103/c3/3-4-config-2.png">
 
 Pero, ¿por qué podría tener que moverse un dato?
 
@@ -539,33 +539,41 @@ Bueno, los servidores de configuración deben asegurarse de que haya una distrib
 
 Por ejemplo, si hay muchas personas en nuestra base de datos con el apellido Smith, el tercer fragmento contendrá una cantidad desproporcionadamente grande de datos.
 
-<img src="images/m103/c3/3-2-shard2-5.png">
+<img src="images/m103/c3/3-4-shard2-5.png">
 
 Cuando esto sucede, los servidores de configuración tienen que decidir qué datos se deben mover para que los fragmentos tengan una distribución más uniforme.
 
 En este ejemplo, todos los nombres que comienzan con R no se han movido al segundo fragmento del tercer fragmento, para hacer espacio y tercer fragmento para todas aquellas personas llamadas Smith.
 
+<img src="images/m103/c3/3-4-shard2-6.png">
+
 Los servidores de configuración actualizarán los datos que contienen y luego enviarán los datos a los fragmentos correctos.
+
+<img src="images/m103/c3/3-4-config-3.png">
 
 También existe la posibilidad de que un fragmento crezca demasiado y deba dividirse.
 
+<img src="images/m103/c3/3-4-shard-11.png">
+
 En ese caso, los mongos se partirían la porción.
 
-Hablaremos más sobre esto en la lección sobre trozos.
+Hablaremos más sobre esto en la lección sobre **chunks** (trozos).
+
+<img src="images/m103/c3/3-4-chunck-1.png">
 
 En el grupo fragmentado, también tenemos esta noción de un fragmento primario.
 
-A cada base de datos se le asignará un fragmento primario, y todas las colecciones no fragmentadas en esa base de datos permanecerán en ese fragmento.
+A cada base de datos se le asignará un Shard primario, y todas las colecciones no fragmentadas en esa base de datos permanecerán en ese Shard.
 
 Recuerde, no todas las colecciones en un clúster fragmentado necesitan ser distribuidas.
 
-Los servidores de configuración asignarán un fragmento primario a cada base de datos una vez que se hayan creado.
+Los servidores de configuración asignarán un Shard primario a cada base de datos una vez que se hayan creado.
 
-Pero también podemos cambiar el fragmento primario de una base de datos.
+Pero también podemos cambiar el Shard primario de una base de datos.
 
 Simplemente no vamos a cubrir eso en este curso.
 
-El fragmento primario también tiene algunas otras responsabilidades, específicamente en torno a las operaciones de fusión para los comandos de agregación.
+El Shard primario también tiene algunas otras responsabilidades, específicamente en torno a las operaciones de fusión para los comandos de agregación.
 
 Entonces, mientras hablamos de fusionar resultados, solo quiero señalar algo aquí.
 
@@ -573,23 +581,31 @@ En nuestro ejemplo, los datos se organizan en fragmentos por el nombre de cada j
 
 Entonces, si el cliente recibe una consulta sobre la edad de un jugador, no sabe exactamente dónde buscar.
 
+<img src="images/m103/c3/3-4-shard-12.png">
+
 Así que solo va a verificar cada fragmento.
 
 Enviará esta consulta a cada fragmento del clúster.
 
-Y puede encontrar algunos documentos aquí, algunos documentos aquí.
+<img src="images/m103/c3/3-4-shard-13.png">
+
+Y puede encontrar algunos documentos en los diferentes Shards.
 
 Y cada fragmento individual enviará sus resultados a mongos.
 
 Los mongos recopilarán resultados, y luego tal vez los clasifiquen si la consulta así lo exige.
 
-Esta etapa se llama fusión de fragmentos, y tiene lugar en los mongos.
+Esta etapa se llama Shard Merge (fusión de fragmentos), y tiene lugar en los mongos.
 
-Una vez que se completa la fusión de fragmentos, los mongos devolverán los resultados al cliente, pero el cliente no se dará cuenta de nada de esto.
+<img src="images/m103/c3/3-4-shard-14.png">
+
+Una vez que se completa la Shard Merge (fusión de fragmentos), los mongos devolverán los resultados al cliente, pero el cliente no se dará cuenta de nada de esto.
 
 Consultará este proceso como un mongoD normal.
 
 En resumen, en esta lección cubrimos las responsabilidades básicas de los mongos, los metadatos contenidos en los servidores de contacto, y definimos el concepto de un fragmento primario.
+
+<img src="images/m103/c3/3-4-resumen.png">
 
 ## 5. Examen Sharding Architecture
 
