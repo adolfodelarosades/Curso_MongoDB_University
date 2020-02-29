@@ -451,9 +451,125 @@ Maxing out the capacity of our disks is not a reason for sharding. Scaling up mi
 
 ## 4. Tema: Arquitectura de fragmentación
 
+### Notas de lectura
+
+Alrededor de las 3:25, Matt menciona la etapa `SHARD_MERGE` que tiene lugar en mongos. Esto no es necesariamente cierto: esta etapa puede tener lugar en mongos **o** en un fragmento elegido al azar en el clúster.
+
 ### Transcripción
 
-## 5. Examen
+Entonces, en esta lección, vamos a caminar hacia la arquitectura de un sharded cluster.
+
+El aspecto más importante de un sharded cluster es que podemos agregar cualquier cantidad de fragmentos.
+
+Y debido a que podría ser una gran cantidad de fragmentos diferentes, las aplicaciones del cliente no se van a comunicar directamente con los fragmentos.
+
+En cambio, configuramos un tipo de proceso de enrutador llamado mongos.
+
+Luego, el cliente se conecta a mongos, y mongos dirige las consultas a los fragmentos correctos.
+
+Entonces, ¿cómo descubren los mongos exactamente dónde está todo?
+
+Bueno, tiene que entender exactamente cómo se distribuyen los datos.
+
+Entonces, digamos que esta información está en jugadores de fútbol.
+
+Algunos de ustedes pueden conocerlos como jugadores de fútbol.
+
+Dividimos nuestro conjunto de datos en el apellido de cada jugador.
+
+Por lo tanto, los jugadores con apellidos entre A y J se almacenan en el primer fragmento, entre K y Q en el segundo fragmento, y entre R y Z en el tercer fragmento.
+
+Mongos va a necesitar esta información para enrutar consultas al cliente.
+
+Por ejemplo, si el cliente envía una consulta a mongos sobre Luis Suárez, mongos puede usar el apellido Suárez para averiguar exactamente qué fragmento contiene el documento de ese jugador y luego enrutar esa consulta al fragmento correcto.
+
+También podemos tener múltiples procesos mongos desde alta disponibilidad con mongos, o para dar servicio a múltiples aplicaciones a la vez.
+
+Los procesos mongos utilizarán los metadatos alrededor de las colecciones que se han fragmentado para determinar exactamente dónde enrutar las consultas.
+
+Los metadatos para esta colección se verán así.
+
+Pero los datos no se almacenan en mongos.
+
+En cambio, los metadatos de la colección se almacenan en servidores de configuración, que constantemente realizan un seguimiento de dónde reside cada pieza de datos en el clúster.
+
+Esto es especialmente importante porque la información contenida en cada fragmento puede cambiar con el tiempo.
+
+Entonces mongos consulta los servidores de configuración a menudo, en caso de que se mueva una pieza de datos.
+
+Pero, ¿por qué podría tener que moverse un dato?
+
+Bueno, los servidores de configuración deben asegurarse de que haya una distribución uniforme de los datos en cada parte.
+
+Por ejemplo, si hay muchas personas en nuestra base de datos con el apellido Smith, el tercer fragmento contendrá una cantidad desproporcionadamente grande de datos.
+
+Cuando esto sucede, los servidores de configuración tienen que decidir qué datos se deben mover para que los fragmentos tengan una distribución más uniforme.
+
+En este ejemplo, todos los nombres que comienzan con R no se han movido al segundo fragmento del tercer fragmento, para hacer espacio y tercer fragmento para todas aquellas personas llamadas Smith.
+
+Los servidores de configuración actualizarán los datos que contienen y luego enviarán los datos a los fragmentos correctos.
+
+También existe la posibilidad de que un fragmento crezca demasiado y deba dividirse.
+
+En ese caso, los mongos se partirían la porción.
+
+Hablaremos más sobre esto en la lección sobre trozos.
+
+En el grupo fragmentado, también tenemos esta noción de un fragmento primario.
+
+A cada base de datos se le asignará un fragmento primario, y todas las colecciones no fragmentadas en esa base de datos permanecerán en ese fragmento.
+
+Recuerde, no todas las colecciones en un clúster fragmentado necesitan ser distribuidas.
+
+Los servidores de configuración asignarán un fragmento primario a cada base de datos una vez que se hayan creado.
+
+Pero también podemos cambiar el fragmento primario de una base de datos.
+
+Simplemente no vamos a cubrir eso en este curso.
+
+El fragmento primario también tiene algunas otras responsabilidades, específicamente en torno a las operaciones de fusión para los comandos de agregación.
+
+Entonces, mientras hablamos de fusionar resultados, solo quiero señalar algo aquí.
+
+En nuestro ejemplo, los datos se organizan en fragmentos por el nombre de cada jugador.
+
+Entonces, si el cliente recibe una consulta sobre la edad de un jugador, no sabe exactamente dónde buscar.
+
+Así que solo va a verificar cada fragmento.
+
+Enviará esta consulta a cada fragmento del clúster.
+
+Y puede encontrar algunos documentos aquí, algunos documentos aquí.
+
+Y cada fragmento individual enviará sus resultados a mongos.
+
+Los mongos recopilarán resultados, y luego tal vez los clasifiquen si la consulta así lo exige.
+
+Esta etapa se llama fusión de fragmentos, y tiene lugar en los mongos.
+
+Una vez que se completa la fusión de fragmentos, los mongos devolverán los resultados al cliente, pero el cliente no se dará cuenta de nada de esto.
+
+Consultará este proceso como un mongoD normal.
+
+En resumen, en esta lección cubrimos las responsabilidades básicas de los mongos, los metadatos contenidos en los servidores de contacto, y definimos el concepto de un fragmento primario.
+
+## 5. Examen Sharding Architecture
+
+**Problem:**
+
+What is true about the primary shard in a cluster?
+
+Check all answers that apply:
+
+* The role of primary shard is subject to change.
+
+* Non-sharded collections are placed on the primary shard.
+
+* Client applications communicate directly with the primary shard.
+
+* The primary shard always has more data than the other shards.
+
+* Shard merges are performed by the mongos.
 
 ## 6. Tema: Configuración de un grupo fragmentado
 
