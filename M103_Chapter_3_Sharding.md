@@ -371,11 +371,21 @@ Finalmente, hay cargas de trabajo que intrínsecamente funcionan mejor en implem
 
 como operaciones de un solo subproceso que pueden ser datos paralelos y distribuidos geográficamente.
 
+<img src="images/m103/3-2-2-opciones.png">
+
 Los datos que deben almacenarse en ubicaciones regionales específicas o se beneficiarán de la ubicación conjunta con los clientes que consumen dichos datos.
 
 Como ejemplo de un solo hilo, las operaciones serán los comandos del marco de agregación.
 
-Si su aplicación depende en gran medida de los comandos del marco de agregación y si el tiempo de respuesta de esos comandos se vuelve más lento con el tiempo, debería considerar fragmentar su clúster.
+<img src="images/m103/3-2-aggregation.png">
+
+Si su aplicación depende en gran medida de los comandos del marco de agregación 
+
+<img src="images/m103/3-2-aggregation-2.png">
+
+y si el tiempo de respuesta de esos comandos se vuelve más lento con el tiempo, debería considerar fragmentar(sharding) su clúster.
+
+<img src="images/m103/3-2-aggregation-3.png">
 
 Dicho esto, no todas las etapas de la tubería de agregación son paralelizables.
 
@@ -383,9 +393,13 @@ Por lo tanto, se requiere una comprensión más profunda de su cartera antes de 
 
 Puede aprender todo sobre esto en nuestro curso **M121 MongoDB Aggregation Course**.
 
+<img src="images/m103/3-2-m121.png">
+
 Así que estad atentos para eso.
 
-Finalmente, los datos geodistribuidos son significativamente simples de administrar usando el fragmentación de zona.
+Finalmente, los datos geodistribuidos son significativamente simples de administrar usando el Zone Sharding(fragmentación de zona).
+
+<img src="images/m103/3-2-zone.png">
 
 El fragmentación de zonas nos permite distribuir fácilmente los datos que deben ubicarse conjuntamente.
 
