@@ -275,69 +275,69 @@ pero donde su impacto general en el rendimiento es solo de 2x, probablemente no 
 
 Probablemente estará mucho mejor con una escala horizontal donde el aumento en el costo será, digamos, tres veces.
 
-<img src="images/m103/3-2-horizontal-scale.png">
+<img src="images/m103/c3/3-2-horizontal-scale.png">
 
 Tres servidores más para otro casete de repetición, más tres más para sus servidores de configuración, con un aumento potencial de rendimiento de 2x.
 
 $900 por hora es más aceptable que $3,000 por la misma mejora de rendimiento.
 
-<img src="images/m103/3-2-900.png">
+<img src="images/m103/c3/3-2-900.png">
 
 La economía aquí tendrá un peso considerable en su decisión.
 
 Otro aspecto a considerar es el impacto en sus tareas operativas.
 
-<img src="images/m103/3-2-operational.png">
+<img src="images/m103/c3/3-2-operational.png">
 
 Digamos que actualmente está considerando aumentar el tamaño de su discos para permitir pasar de un espacio en disco de 1 terabytes a 20 discos de terabytes.
 
-<img src="images/m103/3-2-1tb.png">
+<img src="images/m103/c3/3-2-1tb.png">
 
-<img src="images/m103/3-2-20tb.png">
+<img src="images/m103/c3/3-2-20tb.png">
 
 El propósito de esto es escalar verticalmente sus capacidades de almacenamiento, lo cual está totalmente bien.
 
-<img src="images/m103/3-2-20tb-2.png">
+<img src="images/m103/c3/3-2-20tb-2.png">
 
-<img src="images/m103/3-2-20tb-3.png">
+<img src="images/m103/c3/3-2-20tb-3.png">
 
 Pero si esperamos ejecutarlos al 75% de su capacidad, esto significará cargar hasta 15 terabytes de datos.
 
-<img src="images/m103/3-2-20tb-4.png">
+<img src="images/m103/c3/3-2-20tb-4.png">
 
 Lo que significa 15 veces más datos para respaldar.
 
-<img src="images/m103/3-2-20tb-5.png">
+<img src="images/m103/c3/3-2-20tb-5.png">
 
 Al igual que una cantidad bastante significativa de otros aspectos, esto probablemente significará que tomará 15 veces más tiempo para hacer una copia de seguridad de esos servidores, probablemente una penalización aún mayor al restaurar servidores tan grandes, así como realizar sincronizaciones iniciales entre replica sets.
 
-<img src="images/m103/3-2-20tb-6.png">
+<img src="images/m103/c3/3-2-20tb-6.png">
 
 Y ahora tenemos que tener en cuenta el impacto en la red al hacer una copia de seguridad de esos 15 terabytes de datos.
 
-<img src="images/m103/3-2-20tb-7.png">
+<img src="images/m103/c3/3-2-20tb-7.png">
 
 En tal escenario, tener una escala horizontal y distribuir esa cantidad de datos a través de diferentes shards(fragmentos), 
 
-<img src="images/m103/3-2-horizontal-scale-2.png">
+<img src="images/m103/c3/3-2-horizontal-scale-2.png">
 
 permitirá obtener ganancias de rendimiento horizontal como la paralelización de los procesos de copia de seguridad, restauración y sincronización inicial.
 
-<img src="images/m103/3-2-process.png">
+<img src="images/m103/c3/3-2-process.png">
 
 Recuerde que aunque estas pueden ser operaciones infrecuentes, pueden convertirse en problemas serios de escalabilidad para manejar desde el lado operativo.
 
 Este mismo escenario también afectará su carga de trabajo operativa.
 
-<img src="images/m103/3-2-operation.png">
+<img src="images/m103/c3/3-2-operation.png">
 
 Un conjunto de datos 15 veces mayor 
 
-<img src="images/m103/3-2-15x.png">
+<img src="images/m103/c3/3-2-15x.png">
 
 por MongoDB probablemente se traducirá en índices al menos 15 veces mayores.
 
-<img src="images/m103/3-2-15x-2.png">
+<img src="images/m103/c3/3-2-15x-2.png">
 
 Como sabemos, los índices son esenciales para el desempeño de nuestras consultas en una base de datos.
 
@@ -345,47 +345,47 @@ Si ocupan 15 veces más espacio por unidad de procesamiento o servidor, requerir
 
 Una parte muy importante de su conjunto de datos de trabajo.
 
-<img src="images/m103/3-2-ramdd.png">
+<img src="images/m103/c3/3-2-ramdd.png">
 
 El aumento del tamaño de sus discos probablemente implicará un aumento eventual del tamaño de su RAM, lo que trae costos adicionales u otros cuellos de botella a su sistema.
 
-<img src="images/m103/3-2-costs.png">
+<img src="images/m103/c3/3-2-costs.png">
 
 En este escenario de fragmentación, la paralelización de su carga de trabajo entre fragmentos podría ser mucho más 
 
-<img src="images/m103/3-2-sharding.png">
+<img src="images/m103/c3/3-2-sharding.png">
 
 beneficiosa para su aplicación y presupuesto que la cascada de posibles actualizaciones costosas.
 
-<img src="images/m103/3-2-vertical.png">
+<img src="images/m103/c3/3-2-vertical.png">
 
 Una regla general indica que los servidores individuales deben contener de dos a 5 terabytes de datos.
 
-<img src="images/m103/3-2-regla.png">
+<img src="images/m103/c3/3-2-regla.png">
 
 Más que eso se vuelve demasiado lento para operar.
 
 Finalmente, hay cargas de trabajo que intrínsecamente funcionan mejor en implementaciones distribuidas que comparten ofertas, 
 
-<img src="images/m103/3-2-milk.png">
+<img src="images/m103/c3/3-2-milk.png">
 
 como operaciones de un solo subproceso que pueden ser datos paralelos y distribuidos geográficamente.
 
-<img src="images/m103/3-2-2-opciones.png">
+<img src="images/m103/c3/3-2-2-opciones.png">
 
 Los datos que deben almacenarse en ubicaciones regionales específicas o se beneficiarán de la ubicación conjunta con los clientes que consumen dichos datos.
 
 Como ejemplo de un solo hilo, las operaciones serán los comandos del marco de agregación.
 
-<img src="images/m103/3-2-aggregation.png">
+<img src="images/m103/c3/3-2-aggregation.png">
 
 Si su aplicación depende en gran medida de los comandos del marco de agregación 
 
-<img src="images/m103/3-2-aggregation-2.png">
+<img src="images/m103/c3/3-2-aggregation-2.png">
 
 y si el tiempo de respuesta de esos comandos se vuelve más lento con el tiempo, debería considerar fragmentar(sharding) su clúster.
 
-<img src="images/m103/3-2-aggregation-3.png">
+<img src="images/m103/c3/3-2-aggregation-3.png">
 
 Dicho esto, no todas las etapas de la tubería de agregación son paralelizables.
 
@@ -393,13 +393,13 @@ Por lo tanto, se requiere una comprensión más profunda de su cartera antes de 
 
 Puede aprender todo sobre esto en nuestro curso **M121 MongoDB Aggregation Course**.
 
-<img src="images/m103/3-2-m121.png">
+<img src="images/m103/c3/3-2-m121.png">
 
 Así que estad atentos para eso.
 
 Finalmente, los datos geodistribuidos son significativamente simples de administrar usando el Zone Sharding(fragmentación de zona).
 
-<img src="images/m103/3-2-zone.png">
+<img src="images/m103/c3/3-2-zone.png">
 
 El fragmentación de zonas nos permite distribuir fácilmente los datos que deben ubicarse conjuntamente.
 
