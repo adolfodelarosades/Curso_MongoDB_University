@@ -181,6 +181,8 @@ y los Mongos, que encamina las consultas a los fragmentos correctos.
 
 OK, entonces MongoDB puede escalar.
 
+<img src="images/m103/c3/3-2-scalability.png">
+
 Increíble.
 
 Hagamoslo entonces.
@@ -189,19 +191,55 @@ Avancemos y construyamos el clúster escalable desde el principio.
 
 OK.
 
+<img src="images/m103/c3/3-2-bat.png">
+
 No tan rápido joven Padawan.
+
+<img src="images/m103/c3/3-2-keep-calm.png">
 
 Veamos cuándo definitivamente deberías considerar fragmentar.
 
+<img src="images/m103/c3/3-2-when.png">
+
 Primero, comprendamos qué indicadores debemos verificar para ver si realmente llegamos al momento de fragmentar.
+
+<img src="images/m103/c3/3-2-indicators.png">
 
 Una de las primeras cosas que debe hacer es verificar si aún es económicamente viable a escala vertical.
 
-Cuando necesitamos abordar un rendimiento de rendimiento o un cuello de botella de volumen, que generalmente son los impulsores técnicos para agregar más recursos a su sistema, el primer paso sería verificar si aún podemos agregar más recursos y escalar.
+<img src="images/m103/c3/3-2-economy.png">
 
-Genial, pero debemos validar que agregar más de esos recursos verticales, como agregar más CPU, red, memoria o disco a sus servidores existentes, sea económicamente viable y posible.
+Cuando necesitamos abordar un rendimiento de rendimiento o un cuello de botella de volumen, que generalmente son los impulsores técnicos para agregar más recursos a su sistema, 
 
-Entonces, en caso de que tengamos un pequeño conjunto de servidores, comprobar que, al aumentar los recursos de la unidad de ese servidor, en cualquiera de los cuellos de botella de recursos identificados, se obtiene un mayor rendimiento con muy poco tiempo de inactividad de una manera económica.
+<img src="images/m103/c3/3-2-economy-2.png">
+
+el primer paso sería verificar si aún podemos agregar más recursos y escalar.
+
+<img src="images/m103/c3/3-2-more-resources.png">
+
+Genial, pero debemos validar que agregar más de esos recursos verticales, como agregar más CPU, red, memoria o disco a sus servidores existentes
+
+<img src="images/m103/c3/3-2-more-resources-2.png">
+
+, sea económicamente viable y posible.
+
+<img src="images/m103/c3/3-2-economy-3.png">
+
+Entonces, en caso de que tengamos un pequeño conjunto de servidores, 
+
+<img src="images/m103/c3/3-2-small-servers.png">
+
+comprobar que, al aumentar los recursos de la unidad de ese servidor, 
+
+<img src="images/m103/c3/3-2-medio-servers.png">
+
+en cualquiera de los cuellos de botella de recursos identificados, 
+
+<img src="images/m103/c3/3-2-cuellobotella-1.png">
+
+se obtiene un mayor rendimiento con muy poco tiempo de inactividad de una manera económica.
+
+<img src="images/m103/c3/3-2-cuellobotella-2.png">
 
 Agregar 10 veces más RAM para resolver un cuello de botella de asignación de memoria no le costará 100 veces más, si ese es el caso, excelente.
 
