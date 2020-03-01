@@ -1123,8 +1123,47 @@ Uno significa que funcionó.
 Y ahora podemos comenzar a agregarlos al conjunto.
 
 ```sh
-rs.add("192.168.103.100:26002")
-rs.add("192.168.103.100:26003")
+MongoDB Enterprise m103-csrs:PRIMARY> rs.add("192.168.103.100:26002")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1583069850, 2),
+	"$gleStats" : {
+		"lastOpTime" : {
+			"ts" : Timestamp(1583069850, 2),
+			"t" : NumberLong(1)
+		},
+		"electionId" : ObjectId("7fffffff0000000000000001")
+	},
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1583069850, 2),
+		"signature" : {
+			"hash" : BinData(0,"4gQCAeG6ZTMTf49+vReijJJ/35c="),
+			"keyId" : NumberLong("6799227993173524506")
+		}
+	}
+}
+MongoDB Enterprise m103-csrs:PRIMARY> 
+
+MongoDB Enterprise m103-csrs:PRIMARY> rs.add("192.168.103.100:26003")
+{
+	"ok" : 1,
+	"operationTime" : Timestamp(1583069880, 1),
+	"$gleStats" : {
+		"lastOpTime" : {
+			"ts" : Timestamp(1583069880, 1),
+			"t" : NumberLong(1)
+		},
+		"electionId" : ObjectId("7fffffff0000000000000001")
+	},
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1583069880, 1),
+		"signature" : {
+			"hash" : BinData(0,"BJQuGcvFnhCPsioKuvAsaMcR/H8="),
+			"keyId" : NumberLong("6799227993173524506")
+		}
+	}
+}
+MongoDB Enterprise m103-csrs:PRIMARY> 
 ```
 
 Aquí está nuestro segundo nodo, y nuestro tercero, y ahora tenemos un conjunto completo de réplicas del servidor de configuración.
@@ -1132,7 +1171,59 @@ Aquí está nuestro segundo nodo, y nuestro tercero, y ahora tenemos un conjunto
 Solo voy a verificar eso con `rs.ismaster`.
 
 ```sh
-rs.isMaster()
+MongoDB Enterprise m103-csrs:PRIMARY> rs.isMaster()
+{
+	"hosts" : [
+		"192.168.103.100:26001",
+		"192.168.103.100:26002",
+		"192.168.103.100:26003"
+	],
+	"setName" : "m103-csrs",
+	"setVersion" : 3,
+	"ismaster" : true,
+	"secondary" : false,
+	"primary" : "192.168.103.100:26001",
+	"me" : "192.168.103.100:26001",
+	"electionId" : ObjectId("7fffffff0000000000000001"),
+	"lastWrite" : {
+		"opTime" : {
+			"ts" : Timestamp(1583069920, 1),
+			"t" : NumberLong(1)
+		},
+		"lastWriteDate" : ISODate("2020-03-01T13:38:40Z"),
+		"majorityOpTime" : {
+			"ts" : Timestamp(1583069920, 1),
+			"t" : NumberLong(1)
+		},
+		"majorityWriteDate" : ISODate("2020-03-01T13:38:40Z")
+	},
+	"configsvr" : 2,
+	"maxBsonObjectSize" : 16777216,
+	"maxMessageSizeBytes" : 48000000,
+	"maxWriteBatchSize" : 100000,
+	"localTime" : ISODate("2020-03-01T13:38:42.801Z"),
+	"logicalSessionTimeoutMinutes" : 30,
+	"minWireVersion" : 0,
+	"maxWireVersion" : 6,
+	"readOnly" : false,
+	"ok" : 1,
+	"operationTime" : Timestamp(1583069920, 1),
+	"$gleStats" : {
+		"lastOpTime" : {
+			"ts" : Timestamp(1583069880, 1),
+			"t" : NumberLong(1)
+		},
+		"electionId" : ObjectId("7fffffff0000000000000001")
+	},
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1583069920, 1),
+		"signature" : {
+			"hash" : BinData(0,"vo/KQB3r4KYXefi3c4pzBW842yw="),
+			"keyId" : NumberLong("6799227993173524506")
+		}
+	}
+}
+MongoDB Enterprise m103-csrs:PRIMARY> 
 ```
 
 Y parece que el conjunto tiene tres nodos.
@@ -1176,7 +1267,11 @@ Pero heredará los mismos usuarios que sus servidores de configuración, y lo ve
 Entonces este es el comando que usamos para iniciar mongos.
 
 ```sh
-mongos -f mongos.conf
+vagrant@m103:~$ mongos -f mongos.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 29582
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
 
 Pasamos el archivo de configuración, como lo hicimos antes.
@@ -1193,6 +1288,11 @@ Entonces, este usuario está realmente listo para comenzar.
 
 ```sh
 vagrant@m103:~$ mongo --port 26000 --username m103-admin --password m103-pass --authenticationDatabase admin
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:26000/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("fa332c4d-5748-4fe3-bcc7-43531428eb31") }
+MongoDB server version: 3.6.17
+MongoDB Enterprise mongos> 
 ```
 
 Y parece que estamos dentro.
@@ -1201,11 +1301,39 @@ Solo voy a verificar el estado aquí.
 
 ```sh
 MongoDB Enterprise mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+  	"_id" : 1,
+  	"minCompatibleVersion" : 5,
+  	"currentVersion" : 6,
+  	"clusterId" : ObjectId("5e5bb5d636841bd554585640")
+  }
+  shards:
+  active mongoses:
+        "3.6.17" : 1
+  autosplit:
+        Currently enabled: yes
+  balancer:
+        Currently enabled:  yes
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours: 
+                No recent migrations
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+
+MongoDB Enterprise mongos> 
 ```
 
 Entonces, `sh.status` es la forma más básica de obtener datos de fragmentación de mongos.
 
 Y si echamos un vistazo a la salida, podemos ver que tenemos la cantidad de mongos actualmente conectados, y también tenemos la cantidad de fragmentos.
+
+```sh
+shards:
+active mongoses:
+      "3.6.17" : 1
+```
 
 En este momento, esto está vacío porque no tenemos fragmentos.
 
@@ -1237,6 +1365,7 @@ net:
   bindIp: 192.168.103.100,localhost
   port: 27011
 security:
+  authorization: enabled (ESTA EN MI PREVIO ARCHIVO CONFIGURADO )
   keyFile: /var/mongodb/pki/m103-keyfile
 systemLog:
   destination: file
@@ -1248,13 +1377,27 @@ replication:
   replSetName: m103-repl
 ```
 
-He agregado esta restricción `cacheSizeGB: .1` en el tamaño de caché y gigabytes, porque Vagrant solo tiene permiso para usar dos gigabytes de memoria.
+He agregado esta restricción 
+
+
+```js
+wiredTiger:
+    engineConfig:
+      cacheSizeGB: .1
+```
+en el tamaño de caché y gigabytes, porque Vagrant solo tiene permiso para usar dos gigabytes de memoria.
+
 
 Así que quería reducir el estrés en el entorno general.
 
 Generalmente, esta no es una buena práctica en producción, pero será necesaria una vez que comencemos a agrupar colecciones en este clúster.
 
 Entonces, esta es la línea que tenemos que agregar si queremos habilitar el fragmentación en este nodo.
+
+```js
+sharding:
+  clusterRole: shardsvr
+```
 
 Esta línea `clusterRole: shardsvr` le dirá a los mongos, oye, sabes que puedes usarme como un nodo de fragmento en tu clúster.
 
@@ -1275,6 +1418,7 @@ net:
   bindIp: 192.168.103.100,localhost
   port: 27012
 security:
+  authorization: enabled (ESTA EN MI PREVIO ARCHIVO CONFIGURADO )
   keyFile: /var/mongodb/pki/m103-keyfile
 systemLog:
   destination: file
@@ -1300,6 +1444,7 @@ net:
   bindIp: 192.168.103.100,localhost
   port: 27013
 security:
+  authorization: enabled (ESTA EN MI PREVIO ARCHIVO CONFIGURADO )
   keyFile: /var/mongodb/pki/m103-keyfile
 systemLog:
   destination: file
@@ -1320,22 +1465,52 @@ Lo que significa que vamos a actualizar primero los secundarios, luego volver a 
 Aquí, solo me estoy conectando a uno de los nodos secundarios.
 
 ```sh
-mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+vagrant@m103:~$ mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27012/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("8e01dcb8-dc1a-42cc-b931-2dbf3346988f") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] 
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:RECOVERING> 
+
 ```
 
 Solo voy a cambiar a la base de datos admin-- y cerrar este nodo.
 
 ```sh
-use admin
-db.shutdownServer()
+MongoDB Enterprise m103-example:RECOVERING> use admin
+switched to db admin
+MongoDB Enterprise m103-example:RECOVERING> db.shutdownServer()
+server should be down...
+2020-03-01T14:11:20.576+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
+2020-03-01T14:11:20.576+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27012, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T14:11:20.576+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) failed failed 
+2020-03-01T14:11:20.579+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
+2020-03-01T14:11:20.580+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27012, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T14:11:20.581+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) failed failed 
+MongoDB Enterprise > 
 ```
 
 Y aquí, solo estoy comenzando una copia de seguridad con la nueva configuración.
 
 ```sh
-mongod -f node2.conf
+vagrant@m103:~$ mongod -f node2.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 32647
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
-
+*****************************************************************************AQUI
 Haga lo mismo para nuestro tercer nodo.
 
 ```sh
