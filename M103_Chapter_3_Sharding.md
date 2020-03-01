@@ -3172,11 +3172,176 @@ Check all answers that apply:
 
 ### Transcripción
 
+En una lección anterior, hablamos sobre cómo los Mongos enrutan las consultas a un alto nivel.
+
+Vamos a profundizar en más detalles aquí en el enrutamiento de consultas de recopilación dirigida versus dispersa.
+
+Recuerde que cada fragmento contiene fragmentos de datos fragmentados, donde cada fragmento representa un límite inferior inclusivo y un límite superior exclusivo.
+
+El contexto de un conjunto de réplicas mantiene una tabla del fragmento de fragmento. El Mongos s guarda una copia local en caché de esta tabla de metadatos.
+
+Eso significa que cada mongos tiene un mapa cuyo fragmento contiene cualquier valor de clave de fragmento dado.
+
+Brevemente, minKey representa el valor de clave de fragmento más bajo posible.
+
+Piense en esto como menos infinito, mientras que maxKey representa el valor de clave de fragmento más alto posible, el infinito máximo para sus puristas matemáticos.
+
+Estos fragmentos manejan la captura de los límites inferior y superior de los valores de clave de fragmento, de modo que no tenga que preocuparse por redefinir cuál es el valor de clave de fragmento más bajo o más alto posible para la colección.
+
+Entonces, cuando Mongos recibe una consulta cuyo predicado incluye la clave de fragmento, los Mongos pueden mirar la tabla y saber exactamente a qué fragmentos dirigir en la consulta.
+
+Mongos abre un cursor solo contra aquellos fragmentos que pueden satisfacer el predicado de la consulta.
+
+Debido a que Mongos está dirigiendo la consulta a un subconjunto de fragmentos en el clúster, estas consultas dirigidas generalmente son más rápidas que tener que registrarse con cada fragmento en el clúster.
+
+Si, por ejemplo, los mongoles pueden satisfacer la consulta completa apuntando a un solo fragmento, entonces los mongoles pueden incluso pasar por alto la etapa de fusión y simplemente devolver los resultados.
+
+Esto es particularmente rápido.
+
+Cuando el predicado de la consulta no incluye la clave de fragmento, los Mongos no pueden derivar exactamente qué fragmentos satisfacen la consulta.
+
+Estas consultas de recopilación dispersa necesariamente deben hacer ping y esperar la respuesta de cada fragmento del clúster, independientemente de si tienen algo que contribuir a la ejecución de la consulta o no.
+
+Dependiendo de la cantidad de fragmentos en su clúster, la cantidad de latencia de red entre fragmentos y Mongos y una serie de otros factores, estas consultas pueden ser lentas.
+
+Es por eso que le recomendamos en las lecciones clave de Fragmento que elija una clave de fragmento que satisfaga la mayoría de sus consultas, o al menos las más comunes e importantes.
+
+Ahora, en una nota similar, las consultas a distancia en una clave de fragmento hash casi siempre son de dispersión, porque es probable que dos valores de clave de fragmento adyacentes estén en dos fragmentos completamente diferentes.
+
+Hay una probabilidad bastante baja de que los mongoles puedan satisfacer la consulta a distancia con un subconjunto de fragmentos dentro del predicado de consulta a distancia basada en hash.
+
+Sin embargo, las consultas de documentos individuales en una clave de fragmento hash aún pueden ser dirigidas.
+
+Una cosa para enfatizar, si está utilizando un índice compuesto como su clave de fragmento, entonces puede especificar cada prefijo hasta la clave de fragmento completa y aún así obtener una consulta dirigida.
+
+Entonces, digamos que tenemos una clave de fragmento en sku, tipo y nombre.
+
+Puedo usar cualquiera de los campos de prefijo de clave de fragmento, hasta la clave de fragmento completo, para realizar una consulta dirigida.
+
+Pero no puedo usar ningún campo arbitrario en la clave de fragmento.
+
+Entonces, aunque el tipo y el nombre son parte de la clave de fragmento en sí, no he incluido el prefijo completo que conduce a ninguno de estos campos, por lo que no podemos obtener nuestra consulta dirigida.
+
 ## 26. Tema: Consultas enrutadas vs Scatter Gather: Parte 2
+
+### Notas de lectura
+
+Instrucciones de lectura
+
+Mostrar colecciones en la base de datos `m103`:
+
+```sh
+use m103
+show collections
+```
+
+Consulta enrutada con salida `explain()`:
+
+```sh
+db.products.find({"sku" : 1000000749 }).explain()
+```
+
+Consulta de recopilación de dispersión con salida de `explain()`:
+
+```sh
+db.products.find( {
+  "name" : "Gods And Heroes: Rome Rising - Windows [Digital Download]" }
+).explain()
+```
 
 ### Transcripción
 
-## 27. Examen
+Así que echemos un vistazo a cómo puede ver realmente si una consulta está dirigida o no, y cuántos fragmentos fueron dirigidos.
+
+Estoy usando la base de datos m103 aquí, y voy a mostrar que tenemos nuestra colección de productos dentro de la base de datos m103.
+
+Estoy ejecutando sh.status para mostrar que tenemos dos fragmentos.
+
+Como puede ver, m103.products está fragmentado en sku, y se distribuye en tres fragmentos en total.
+
+Tengo que en el fragmento 1 y 1 en el fragmento 2.
+
+Ahora, voy a emitir un hallazgo contra la colección de productos que especifica este documento donde sku es este valor.
+
+También voy a agregar el modificador de consulta de explicación para que podamos profundizar un poco más en cómo obtenemos nuestros resultados.
+
+Entonces, echemos un vistazo aquí.
+
+En primer lugar, tenga en cuenta que para la etapa tenemos un solo fragmento.
+
+Eso significa que para esta consulta específica, Mongos no solo pudo apuntar a un subconjunto de fragmentos, sino que también pudo recuperar todo el conjunto de resultados de un solo fragmento sin necesidad de fusionar los resultados.
+
+Esta matriz de fragmentos muestra cada fragmento consultado y proporciona el plan específico ejecutado en ese fragmento para ejecutar la consulta.
+
+Como puede ver aquí, bajo el plan ganador, en realidad hay un escaneo de índice debajo, porque el fragmento MongoD podría usar el índice sku para satisfacer la consulta.
+
+Así que intentemos hacer esto nuevamente, excepto que ahora vamos a buscar el nombre de este videojuego en particular.
+
+Entonces, algunas diferencias claras, para nuestra etapa, ahora tenemos fusión de fragmentos.
+
+Además, si observa debajo de la matriz de fragmentos, tenemos tanto el fragmento 1 como el fragmento 2.
+
+Por lo tanto, esta es una consulta de recopilación dispersa y requiere una fusión.
+
+Recuerde que el nombre no está en nuestra clave de fragmento, por lo que esta es necesariamente una consulta de recopilación dispersa.
+
+Entonces, en realidad, estas dos consultas, tanto sku en este valor como el nombre en este valor, estaban devolviendo el mismo documento.
+
+Pero al especificar sku en lugar del nombre, puedo obtener un resultado más rápidamente.
+
+Ahora, si sé que mi carga de trabajo estaría consultando contra el nombre el 90% del tiempo, entonces habría sido mejor para mí haber elegido el nombre en lugar de tan sku como la tecla de fragmento.
+
+Entonces, recapitulemos.
+
+Las consultas dirigidas requieren la clave de fragmento como parte del predicado de consulta.
+
+Para las claves de fragmentos compuestos, puede ser un prefijo de la clave de fragmentos hasta la clave de fragmentos completa.
+
+Las consultas a distancia en la clave de fragmento pueden terminar con un rendimiento similar a una consulta de recopilación dispersa, dependiendo de qué tan amplio sea su rango.
+
+Pero eso es solo si está utilizando un rango de fragmentos muy amplio, o si tiene una clave de fragmento hash.
+
+Sin la clave de fragmento, los mongoles deben realizar una consulta de recopilación de dispersión.
+
+Esto significa que Mongo debe registrarse con cada fragmento del clúster.
+
+Las consultas de recopilación de dispersión serán las más lentas, en comparación con una consulta dirigida.
+
+## 27. Examen Routed Queries vs Scatter Gather: Part 2
+
+**Problem:**
+
+Given the following shard key, which of the following queries results in a targeted query?
+
+`{ "sku" : 1, "name" : 1 }`
+
+Check all answers that apply:
+
+* `db.products.find( { "name" : "MongoHacker", "sku" : 1337 } )` :+1:
+
+* `db.products.find( { "sku" : 1337 } )` :+1:
+
+* `db.products.find( { "sku" : 1337, "name" : "MongoHacker" } )` :+1:
+
+* `db.products.find( { "name" : "MongoHacker" } )`
+
+**See detailed answer**
+
+**Correct answers:**
+
+`db.products.find( { "sku" : 1337, "name" : "MongoHacker" } ), db.products.find( { "name" : "MongoHacker", "sku" : 1337 } )`
+
+These two queries are actually identical, and can both be targeted using the shard key.
+
+`db.products.find( { "sku" : 1337 } )`
+
+This query includes the `sku` prefix and can therefore be targeted.
+
+**Incorrect answers:**
+
+`db.products.find( { "name" : "MongoHacker" } )`
+
+This query doesn't include the `sku` prefix, and cannot be targeted.
 
 ## 28. Laboratorio: detección de consultas de recopilación de dispersión
 
