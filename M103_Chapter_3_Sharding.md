@@ -1141,6 +1141,10 @@ Y parece que estamos dentro.
 
 Solo voy a verificar el estado aquí.
 
+```sh
+MongoDB Enterprise mongos> sh.status()
+```
+
 Entonces, `sh.status` es la forma más básica de obtener datos de fragmentación de mongos.
 
 Y si echamos un vistazo a la salida, podemos ver que tenemos la cantidad de mongos actualmente conectados, y también tenemos la cantidad de fragmentos.
@@ -1153,11 +1157,40 @@ En este momento, tenemos un mongos ejecutándose con los servidores de configura
 
 Y en realidad también tenemos un replica set que podemos usar.
 
+<img src="images/m103/c3/3-6-replicaset-5.png">
+
 Solo necesitamos ajustar la configuración para poder usarla como un nodo de fragmento.
 
-Este es el archivo de configuración para el primer nodo en nuestro replica set, y lo he cambiado ligeramente.
+<img src="images/m103/c3/3-6-replicaset-2.png">
 
-He agregado esta restricción en el tamaño de caché y gigabytes, porque Vagrant solo tiene permiso para usar dos gigabytes de memoria.
+Este es el archivo de configuración para el primer nodo en nuestro replica set `node1.conf`, y lo he cambiado ligeramente.
+
+`node1.conf`:
+
+```sh
+sharding:
+  clusterRole: shardsvr
+storage:
+  dbPath: /var/mongodb/db/node1
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27011
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-repl
+```
+
+He agregado esta restricción `cacheSizeGB: .1` en el tamaño de caché y gigabytes, porque Vagrant solo tiene permiso para usar dos gigabytes de memoria.
 
 Así que quería reducir el estrés en el entorno general.
 
@@ -1165,9 +1198,60 @@ Generalmente, esta no es una buena práctica en producción, pero será necesari
 
 Entonces, esta es la línea que tenemos que agregar si queremos habilitar el fragmentación en este nodo.
 
-Esta línea le dirá a los mongos, oye, sabes que puedes usarme como un nodo de fragmento en tu clúster.
+Esta línea `clusterRole: shardsvr` le dirá a los mongos, oye, sabes que puedes usarme como un nodo de fragmento en tu clúster.
 
 Tenemos que agregar esta línea a cada nodo en la réplica.
+
+
+`node2.conf`:
+
+```sh
+sharding:
+  clusterRole: shardsvr
+storage:
+  dbPath: /var/mongodb/db/node2
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27012
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node2/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-repl
+```
+
+`node3.conf`:
+
+```sh
+sharding:
+  clusterRole: shardsvr
+storage:
+  dbPath: /var/mongodb/db/node3
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27013
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/node3/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+replication:
+  replSetName: m103-repl
+```
 
 Así que acabo de cambiar los archivos de configuración para los tres nodos en nuestro conjunto, pero los nodos aún deben reiniciarse para dar cuenta de esos cambios.
 
@@ -1177,33 +1261,99 @@ Lo que significa que vamos a actualizar primero los secundarios, luego volver a 
 
 Aquí, solo me estoy conectando a uno de los nodos secundarios.
 
+```sh
+mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+```
+
 Solo voy a cambiar a la base de datos admin-- y cerrar este nodo.
+
+```sh
+use admin
+db.shutdownServer()
+```
 
 Y aquí, solo estoy comenzando una copia de seguridad con la nueva configuración.
 
+```sh
+mongod -f node2.conf
+```
+
 Haga lo mismo para nuestro tercer nodo.
+
+```sh
+mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+use admin
+db.shutdownServer()
+```
+
 
 Y aquí, estoy iniciando el tercer nodo con una nueva configuración.
 
+```sh
+mongod -f node3.conf
+
+```
+
 Entonces, ahora que ambos secundarios han sido actualizados para la nueva configuración, voy a conectarme al primario y luego lo bajaré para poder actualizar ese también.
 
-Voy a forzar una elección para que este nodo se convierta en secundario, y funcionó.
+```sh
+mongo --port 27011 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+```
+
+Voy a forzar una elección para que este nodo se convierta en secundario
+
+```sh
+rs.stepDown()
+```
+
+, y funcionó.
+
+```sh
+```
 
 Ahora voy a cerrar este nodo también.
 
-Así que ahora estoy comenzando nuestro último nodo con la nueva configuración, y funcionó.
+```sh
+use admin
+
+db.shutdownServer()
+```
+
+Así que ahora estoy comenzando nuestro último nodo con la nueva configuración, 
+
+```sh
+mongod -f node1.conf
+```
+
+y funcionó.
+
+```sh
+
+```
 
 Así que ahora hemos habilitado con éxito el fragmentación en este conjunto de réplicas.
 
 Ahora me voy a conectar de nuevo a mongos.
 
+```sh
+vagrant@m103:~$ mongo --port 26000 --username m103-admin --password m103-pass --authenticationDatabase admin
+```
+
 Entonces, una vez que me conecte de nuevo a mongos, puedo agregar el fragmento en el que solo habilitamos el fragmento.
 
-Y especificamos todo el conjunto de réplicas, por lo que solo necesitamos especificar un nodo para que los mongos descubran el primario actual de este conjunto de réplicas.
+Y especificamos todo el conjunto de réplicas, por lo que solo necesitamos especificar un nodo para que los mongos descubran el primario actual de este replica set.
+
+```sh
+sh.addShard("m103-repl/192.168.103.100:27012")
+```
 
 Y, parece que funcionó.
 
 Solo voy a verificar `sh.status`, y nuestra lista de fragmentos ahora tiene un fragmento.
+
+```sh
+sh.status()
+```
 
 Y como podemos ver, solo especificamos un nodo, pero Mongo pudo descubrir todos los nodos del conjunto.
 
@@ -1212,6 +1362,8 @@ Entonces, para recapitular aquí, cubrimos cómo iniciar mongos y un replica set
 Aprendimos cómo habilitar el fragmentación en un replica set, y lo hicimos a través de una actualización continua.
 
 Y agregamos fragmentos a nuestro grupo.
+
+<img src="images/m103/c3/3-6-resumen.png">
 
 ## 7. Examen Setting Up a Sharded Cluster
 
