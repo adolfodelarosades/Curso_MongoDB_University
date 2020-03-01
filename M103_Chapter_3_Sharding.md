@@ -2679,41 +2679,292 @@ Enter answer here:
 
 ## 18. Tema: Chunks
 
-### Lecture Notes
+### Notas de lectura
 
-Lecture Instructions
+Instrucciones de lectura
 
-Show collections in config database:
+Mostrar colecciones en la base de datos de configuración:
 
+```sh
 use config
 show collections
- COPY
-Find one document from the chunks collection:
+```
 
+Encuentre un documento de la chunks collection:
+
+
+```sh
 db.chunks.findOne()
- COPY
-Change the chunk size:
+```
 
+Cambiar el chunk size:
+
+```sh
 use config
 db.settings.save({_id: "chunksize", value: 2})
- COPY
-Check the status of the sharded cluster:
+```
 
+Verifique el estado del sharded cluster:
+
+```sh
 sh.status()
- COPY
-Import the new products.part2 dataset into MongoDB:
+```
 
+Importe el nuevo `products.part2` dataset en MongoDB:
+
+```sh
 mongoimport /dataset/products.part2.json --port 26000 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin" --db m103 --collection products
- COPY
-Proceed to next section
+```
 
 ### Transcripción
 
-## 19. Examen
+Hasta ahora, hemos estado discutiendo brevemente el término fragmentos de una manera bastante flexible.
+
+Así que tomemos unos minutos para revisar qué son los fragmentos y qué podemos hacer con ellos.
+
+En una conferencia anterior, mencionamos que los servidores de configuración contienen los metadatos del clúster.
+
+Cosas como cuántos fragmentos tenemos, qué bases de datos están fragmentadas y la configuración de nuestro clúster de fragmentos.
+
+Pero una de las piezas de información más importantes que contienen los servidores de configuración es la asignación de fragmentos a fragmentos.
+
+Bien, saltemos a nuestra terminal para ver esto en acción.
+
+Si accedo a la base de datos de configuración y muestro las colecciones, verá una larga lista de diferentes colecciones que contienen información sobre este clúster de fragmentos.
+
+Dentro de la colección de fragmentos, si encontramos un documento, veremos la definición de un fragmento.
+
+En este caso, podemos ver cuál es el espacio de nombres al que pertenece este fragmento.
+
+¿Cuándo se modificó este fragmento por última vez?
+
+¿Qué fragmento contiene este trozo?
+
+Pero lo más importante, podemos ver que el fragmento rebota en los campos Min y max que indican exactamente eso.
+
+Pero retrocedamos un poco.
+
+Una vez que agregamos documentos en nuestras colecciones, estos documentos contienen campos que podemos usar como claves de fragmentos.
+
+Por ejemplo, si decidimos usar el campo x como nuestra clave de fragmento, en el momento en que fragmentamos nuestra colección, definimos inmediatamente un fragmento inicial.
+
+Este fragmento inicial va de minKey a maxKey.
+
+Una cosa importante a tener en cuenta es que el límite inferior de los fragmentos es inclusivo, mientras que el límite superior de los fragmentos es exclusivo.
+
+Los diferentes valores que puede contener nuestra clave de fragmento definirán el espacio de claves de nuestra colección de fragmentos.
+
+A medida que pasa el tiempo, el clúster dividirá ese fragmento inicial en varios otros para permitir que los datos se distribuyan uniformemente entre fragmentos.
+
+Todos los documentos del mismo fragmento viven en el mismo fragmento.
+
+Si tuviéramos solo un fragmento magnánimo, solo podríamos tener un solo fragmento en nuestro clúster.
+
+El número de fragmentos que permite nuestra clave de fragmento puede definir el número máximo de fragmentos de nuestro sistema.
+
+Es por eso que la cardinalidad de la clave de fragmento es un aspecto importante a tener en cuenta.
+
+Hay otros aspectos que determinarán la cantidad de fragmentos dentro de su fragmento.
+
+El primero es nuestro tamaño de fragmento.
+
+Por defecto, MongoDB toma 64 megabytes como el tamaño de fragmento predeterminado.
+
+Eso significa que si un fragmento es de aproximadamente 64 megabytes, o dentro del rango de 64 megatones, se dividirá.
+
+Podemos definir un tamaño de fragmento entre los valores de un megabyte y 1024 y un gigabyte.
+
+El tamaño del fragmento es configurable durante el tiempo de ejecución.
+
+Entonces, si decidimos cambiar un tamaño de fragmento, podemos hacerlo fácilmente.
+
+Pero antes de cambiar el tamaño de nuestro fragmento, echemos un vistazo a cuántos fragmentos tenemos actualmente.
+
+Como puede ver aquí, desde nuestro estado sh., la marca de fragmentos me dice que el fragmento: m103 fragmento 1 tiene dos fragmentos.
+
+Mientras que m103 shard 2 tiene un fragmento.
+
+Pero quiero bajar el tamaño de mi trozo para ver qué pasa.
+
+Para hacer eso, lo que tengo que hacer es, básicamente, ir a mi colección de configuraciones y guardar un documento con el tamaño del fragmento de ID, con el valor determinado que pretendo que sea el tamaño del fragmento, en megabytes.
+
+Una vez que lo he hecho, si corro de nuevo, sh.status, puedo ver que nada ha cambiado.
+
+¿Bien por qué?
+
+Bueno, el componente responsable de la cosa son los mongos, y dado que no hemos dado ninguna indicación o señal a los mongos de que necesita dividir nada, porque no ingresaron datos nuevos, básicamente no hará absolutamente nada.
+
+Si algo funciona, ¿por qué Porter se molesta en tratar de arreglarlo?
+
+Entonces, para que veamos alguna acción, lo que tenemos que hacer es decirle a los mongos que realmente hagan algo.
+
+Así que voy a seguir adelante e importar este otro archivo, productos parte 2 que recientemente cambié, para que pueda ver algo de división.
+
+Una vez que importe estos datos, nos volveremos a conectar para ver si hay más fragmentos.
+
+De acuerdo, dulce.
+
+Así que hemos terminado con nuestras importaciones, así que volvamos a conectarnos.
+
+Y nuevamente, hagamos nuestro sh.status por un segundo.
+
+Dulce.
+
+Ahora tengo muchos más trozos, todavía no están muy bien equilibrados, pero está bien.
+
+Les llevará un tiempo equilibrar todo entre todos los fragmentos.
+
+Pero, lo bueno es que ya no tengo solo uno y dos trozos repartidos en dos fragmentos diferentes.
+
+Tengo alrededor de 51 trozos en este momento.
+
+Y si lo vuelvo a ejecutar, veré que, eventualmente, el sistema estará equilibrado.
+
+Otro aspecto que será importante para la cantidad de fragmentos que podemos generar será la frecuencia de valores de clave de fragmento.
+
+Ahora, consideremos que la clave de fragmento elegida no era tan buena después de todo.
+
+Aunque la cardinalidad inicialmente fue muy buena, tenemos una frecuencia anormal de algunas teclas con el tiempo.
+
+Entonces, digamos, por ejemplo, si el 90% de nuestros nuevos documentos tienen el mismo valor de clave de fragmento, esto podría generar una situación anormal.
+
+¿Qué llamamos trozos jumbo?
+
+Los fragmentos gigantes pueden ser perjudiciales porque son fragmentos que son mucho más grandes que el tamaño predeterminado o definido.
+
+En el momento en que un fragmento se hace más grande que el tamaño del fragmento definido, se marcarán como fragmentos gigantes.
+
+Los trozos gigantes no se pueden mover.
+
+Si el equilibrador ve un fragmento que está marcado como jumbo, ni siquiera intentará equilibrarlo.
+
+Simplemente lo dejará en su lugar, porque básicamente está marcado como demasiado grande para moverlo.
+
+En casos muy extremos, no habrá un punto de división en esos trozos y, por lo tanto, no podrán moverse en absoluto, o incluso dividirse, y eso puede ser una situación muy, muy perjudicial.
+
+Entonces, estén atentos a eso.
+
+Tenga en cuenta la frecuencia de nuestra clave de fragmento para evitar situaciones como trozos jumbo tanto como sea posible.
+
+Entonces, recapitulemos.
+
+Los fragmentos son grupos lógicos de documentos que se basan en el espacio clave de la clave de fragmento y tienen límites asociados.
+
+Límite mínimo, inclusive.
+
+Max encuadernado, exclusivo.
+
+Un fragmento solo puede vivir en un fragmento designado en ese momento.
+
+Y todos los documentos dentro del límite definido por el fragmento viven en el mismo fragmento.
+
+La frecuencia de cardinalidad de la clave de fragmento y el tamaño de fragmento configurado determinarán la cantidad de fragmentos en su colección fragmentada.
+
+## 19. Examen Chunks
+
+**Problem:**
+
+What is true about chunks?
+
+Check all answers that apply:
+
+* Chunk ranges can never change once they are set.
+
+* Increasing the maximum chunk size can help eliminate jumbo chunks. :+1:
+
+* Documents in the same chunk may live on different shards.
+
+* Jumbo chunks can be migrated between shards.
+
+* Chunk ranges have an inclusive minimum and an exclusive maximum. :+1:
+
+**See detailed answer**
+
+**Correct answers:**
+
+**Chunk ranges have an inclusive minimum and an exclusive maximum.**
+
+This is how chunk ranges are defined in MongoDB.
+
+**Increasing the maximum chunk size can help eliminate jumbo chunks.**
+
+By definition, jumbo chunks are larger than the maximum chunk size, so raising the max chunk size can get rid of them.
+
+**Incorrect answers:**
+
+**Chunk ranges can never change once they are set.**
+
+The cluster may split chunks once they become too big.
+
+**Documents in the same chunk may live on different shards.**
+
+Individual chunks always remain on the same shard.
+
+**Jumbo chunks can be migrated between shards.**
+
+Jumbo chunks cannot be migrated to another shard, which is part of the reason why they are so problematic.
 
 ## 20. Laboratorio - Documentos en trozos
 
-## 21. Tema: Equilibrio
+Lab - Documents in Chunks
+
+**Problem:**
+
+**Lab Prerequisites**
+
+This lab assumes that the `m103.products` collection is sharded on `sku`. If you sharded on `name` instead, you must reimport the dataset and shard it on `sku`. Here are the instructions to do this:
+
+1. Drop the collection `m103.products` and reimport the dataset:
+
+```sh
+mongoimport --drop /dataset/products.json --port 26000 -u "m103-admin" \
+-p "m103-pass" --authenticationDatabase "admin" \
+--db m103 --collection products
+```
+
+2. Create an index on `sku`:
+
+```sh
+db.products.createIndex({"sku":1})
+```
+
+3. Enable sharding on m103 if not enabled:
+
+   `sh.enableSharding("m103")`
+   
+4. Shard the collection on `sku`:
+
+```sh
+db.adminCommand({shardCollection: "m103.products", key: {sku: 1}})
+```
+
+Once you've sharded your cluster on `sku`, any queries that use `sku` will be routed by mongos to the correct shards.
+
+**Lab Description**
+
+In this lab, you are going to use the sharded cluster you created earlier in this lesson and derive which chunk a given document resides.
+
+Connect to the `mongos` and authenticate as the `m103-admin` user you created in an earlier lab.
+
+Once connected, execute the following operation:
+
+```sh
+db.getSiblingDB("m103").products.find({"sku" : 21572585 })
+```
+
+Locate the chunk that the specified document resides on and pass the full chunk ID to the validation script provided in the handout. You need to run the validation script in your vagrant and outside the mongo shell.
+
+**hint** `sh.status()` does not provide the chunk ID that you need to report for this lab. Look in the `config` database for the collection that stores all `chunk` information. Think in ranges - you want to find the chunk whose range is `min <= key < max`.
+
+```sh
+vagrant@m103:~$ validate_lab_document_chunks <chunk-id>
+```
+
+Enter the validation key you receive below. The script returns verbose errors that should provide you with guidance on what went wrong.
+
+Enter answer here:
+
+## 21. Tema: Balancing (Equilibrio)
 
 ### Transcripción
 
