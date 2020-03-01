@@ -2207,17 +2207,302 @@ Choose the best answer:
 
 * True
 
-## 13. Tema: Escoger una buena clave de fragmento
+**See detailed answer**
+
+Shard keys are immutable. Furthermore, their values are also immutable. Sharding is a permanent operation.
+
+## 13. Tema: Escoger una Buena Shard key
 
 ### Transcripción
 
-## 14. Examen
+
+En la lección anterior, hablamos sobre qué es una clave de fragmento.
+
+Ahora, vamos a hablar sobre lo que hace una buena clave de fragmento.
+
+Primero, recapitulemos.
+
+Habilita el fragmentación en el nivel de la base de datos.
+
+Fragmentos de colecciones.
+
+Habilitar el fragmentación en una base de datos no fragmenta automáticamente las colecciones en esa base de datos.
+
+Y puede tener colecciones fragmentadas y no fragmentadas en la misma base de datos.
+
+No todas las colecciones deben ser iguales.
+
+Primero, hablemos sobre el uso de una clave de fragmento que proporcione una buena distribución correcta.
+
+Estas son las tres propiedades básicas, aquí.
+
+La cardinalidad de los valores de la clave de fragmento, la frecuencia de los valores de la clave de fragmento y si la clave de fragmento aumenta o disminuye monotónicamente.
+
+Vamos a repasar cada uno de estos uno por uno.
+
+La primera es que la clave de fragmento elegida debe tener una alta cardinalidad.
+
+La cardinalidad es la medida del número de elementos dentro de un conjunto de valores.
+
+En el contexto de la clave de fragmento, es el número de valores únicos posibles de clave de fragmento.
+
+Esto es importante por dos razones.
+
+La primera es que si su clave de fragmento admite una pequeña cantidad de valores únicos posibles, entonces eso restringe el número de fragmentos que puede tener en su clúster.
+
+Recuerde, los fragmentos definen límites basados ​​en valores de clave de fragmento, y un valor único solo puede existir en un fragmento.
+
+Digamos que compartimos en un campo cuyos valores son el número de estados en los Estados Unidos de América.
+
+Son 50 estados, 50 valores posibles y un límite superior de 50 fragmentos.
+
+Y, por lo tanto, 50 fragmentos.
+
+Eso es bastante bueno, pero imagínese si nosotros, en cambio, participáramos en los días de la semana.
+
+Ahora tenemos 7 fragmentos.
+
+¿Qué sucede si elegimos una clave de fragmento que era booleana?
+
+Ahora tenemos dos fragmentos.
+
+Tener una mayor cardinalidad te da más trozos, y con más trozos también puede crecer la cantidad de fragmentos, sin restringir tu capacidad de hacer crecer el grupo.
+
+Mencioné dos razones antes.
+
+La segunda razón está relacionada con nuestra próxima propiedad.
+
+La frecuencia de una clave de fragmento representa la frecuencia con la que ocurre un valor único en los datos.
+
+Volviendo al ejemplo de nuestros estados, imagine si tenemos una carga de trabajo donde el 90% del tiempo estamos insertando documentos donde el estado es Nueva York.
+
+Eso significa que el 90% de nuestros datos va a terminar en la porción cuyo rango incluye Nueva York.
+
+Eso no es bueno.
+
+Recuerde que un trozo vive en un solo fragmento.
+
+Así que ahora el 90% de nuestros escritos van a este fragmento que tiene ese fragmento.
+
+Eso es un punto caliente bastante severo, y eso no es lo que queremos.
+
+¿Recuerdas la propiedad de cardinalidad?
+
+A pesar de que los valores para los posibles estados tenían una alta cardinalidad, nuestra carga de trabajo tiene una alta frecuencia, lo que conduce a un mal rendimiento.
+
+Si nuestra carga de trabajo tiene una baja frecuencia de los posibles valores clave de fragmento, entonces la distribución general será más uniforme.
+
+Ahora, si tengo una clave de fragmento de frecuencia muy baja combinada con una cardinalidad muy baja, como los días de la semana, todavía potencialmente tendré problemas.
+
+Entonces, estas dos propiedades trabajan muy juntas.
+
+Finalmente, tenemos que considerar si el fragmento está cambiando monotónicamente o no.
+
+Cambiar monotónicamente aquí significa que los posibles valores clave de fragmento para un nuevo documento cambian a un ritmo constante y predecible.
+
+Piense en un campo que tiene progresión numérica.
+
+Las marcas de tiempo o fechas, por ejemplo, están aumentando monotónicamente.
+
+Del mismo modo, un cronómetro es un valor monotónicamente decreciente.
+
+¿Por qué es esto un problema?
+
+Recuerde que MongoDB divide sus documentos en fragmentos de datos, cada fragmento tiene un límite inferior inclusivo y luego un límite superior exclusivo para valores clave de fragmento.
+
+Todos los documentos que caen dentro del rango de un fragmento se almacenan en ese fragmento.
+
+Si todos sus documentos nuevos tienen un valor de clave de fragmento más alto que el anterior, todos terminarán en ese fragmento que contiene el límite superior de sus posibles valores de clave de fragmento.
+
+Por lo tanto, aunque las marcas de tiempo son técnicamente una cardinalidad muy alta, muchos valores únicos y una frecuencia muy baja, casi ninguna repetición de esos valores únicos, termina siendo una clave de fragmento bastante mala.
+
+Dato curioso, el tipo de datos de ID de objeto en realidad está aumentando monotónicamente.
+
+Es por eso que fragmentar en el campo ID no es una buena idea.
+
+Hay algunos trucos para lograr una distribución uniforme de las claves de fragmentos que cambian monotónicamente, y hablaremos de eso en una lección posterior.
+
+La clave de fragmento ideal proporciona una buena distribución de sus posibles valores, tiene alta cardinalidad, baja frecuencia y cambia de forma no monotónica.
+
+Es más probable que una clave de fragmento que pueda cumplir esas propiedades resulte en una distribución uniforme de los datos escritos.
+
+Tener una clave de fragmento que no cumpla con una de estas propiedades no garantiza una mala distribución de datos, pero no va a ayudar.
+
+Hasta ahora, hemos hablado de propiedades que permiten una buena distribución correcta, pero hay otra cosa a considerar: el aislamiento de lectura.
+
+MongoDB puede enrutar consultas que incluyen la clave de fragmento a fragmentos específicos, cuyo rango contiene los valores de clave de fragmento especificados.
+
+Volviendo a la states example, si mi consulta incluye el estado de Nueva York, MongoDB puede dirigir mi lectura al fragmento que contiene mis datos.
+
+Estas consultas específicas son muy rápidas porque MongoDB solo necesita registrarse con un solo fragmento antes de devolver los resultados.
+
+Al elegir una clave de fragmento, debe considerar si su elección admite las consultas que ejecuta con más frecuencia.
+
+Ahora, es posible que los campos en los que realiza la consulta generen claves de fragmentos bastante malas.
+
+En ese caso, considere especificar un índice compuesto como el índice subyacente para la clave de fragmento, donde el campo o campos adicionales proporcionan alta cardinalidad, baja frecuencia, o no cambian monotónicamente.
+
+Entonces, sin la clave de fragmento para guiarlo, MongoDB tiene que pedirle a cada fragmento que verifique si tiene los datos que estamos buscando.
+
+Estas operaciones de difusión son operaciones de recopilación dispersa y pueden ser bastante lentas.
+
+Repasemos algunas consideraciones sobre la elección de una clave de fragmento.
+
+Ya hemos hablado sobre estos, pero quiero enfatizarlos.
+
+No se puede deshacer una colección una vez fragmentada.
+
+No puede actualizar una clave de fragmento una vez que haya fragmentado una colección.
+
+No puede actualizar los valores de esa clave de fragmento para ningún documento de la colección.
+
+Lo que básicamente significa es que su elección de clave de fragmento es final.
+
+Siempre que sea posible, primero intente probar sus claves de fragmentos en un entorno provisional, antes de fragmentar en entornos de producción.
+
+Si utiliza las utilidades de volcado y restauración de Mongo, puede volcar, descartar y restaurar la colección.
+
+Pero eso no es trivial.
+
+Por lo tanto, de nuevo, siempre que sea posible, realmente desea probar en un entorno de ensayo donde puede soltar y restaurar la colección de forma segura sin afectar las cargas de trabajo de producción.
+
+Recapitulemos.
+
+Las buenas claves de fragmentos proporcionan una distribución correcta y, cuando es posible, un aislamiento de lectura al admitir consultas específicas.
+
+Desea considerar la cardinalidad y la frecuencia de las teclas de fragmento, y evitar cambiar monotónicamente las teclas de fragmento.
+
+Finalmente, recuerde realmente que es difícil desempacar una colección.
+
+Realmente quieres evitarlo.
+
+## 14. Examen Picking a Good Shard Key
+
+**Problem:**
+
+Which of the following are indicators that a field or fields are a good shard key choice?
+
+Check all answers that apply:
+
+* Low Frequency :+1:
+
+* High Cardinality :+1:
+
+* Non-monotonic change :+1:
+
+* Monotonic change
+
+* Indexed
 
 ## 15. Tema: Hashed Shard Keys
 
 ### Transcripción
 
-## 16. Examen
+Hasta ahora, solo hemos hablado de la clave de fragmento predeterminada.
+
+Sin embargo, hay un tipo adicional de clave de fragmento que es útil para ciertos escenarios.
+
+Esa es la clave de fragmento hash.
+
+Esa es una clave de fragmento donde el índice subyacente se codifica.
+
+Anteriormente, si teníamos un documento donde, digamos que x era 3 y la clave de fragmento estaba en x, MongoDB lo colocaría en el siguiente fragmento donde el valor de 3 cae en el rango troncal.
+
+Con una clave de fragmento hash, MongoDB primero aplica el valor hash 3, luego usa ese valor hash para decidir en qué fragmento colocar el documento.
+
+La clave de fragmento de hash no significa que MongoDB almacena sus valores de clave de fragmento con hash.
+
+Los datos reales permanecen intactos.
+
+En cambio, el índice subyacente que respalda la clave de fragmento en sí es hash.
+
+Y MongoDB usa el índice hash para particionar sus datos, por lo que termina con una distribución más uniforme de sus datos en el clúster fragmentado.
+
+Entonces, ¿cuándo quieres usar una clave de fragmento hash?
+
+En la lección anterior, hablamos sobre el aumento o la disminución monotónica de campos clave de fragmentos, como fechas o marcas de tiempo.
+
+Debido a que estos valores aumentan o disminuyen constantemente en la progresión numérica, obtienes puntos calientes.
+
+Pero el resultado de la función hash puede cambiar drásticamente entre valores que son similares.
+
+Por ejemplo, si tengo dos documentos donde los valores de la clave de fragmento son dos y 3, la función de hash podría generar los valores de la clave de fragmento como 609,000.
+
+Aplique esa misma lógica a una marca de tiempo, dos marcas de tiempo numéricamente adyacentes se mezclarán con valores muy diferentes y, por lo tanto, es más probable que terminen en fragmentos diferentes y fragmentos diferentes.
+
+Ahora hay algunos inconvenientes para usar una clave de fragmento hash.
+
+Dado que ahora todo está en hash, es probable que los documentos dentro de un rango de valores clave de fragmento se distribuyan por completo en el clúster fragmentado.
+
+Por lo tanto, las consultas a distancia en el campo de clave de fragmento ahora tendrán que golpear múltiples fragmentos, en lugar de un solo fragmento.
+
+Comparativamente, es más probable que una clave de fragmento no hash produzca documentos que están en un solo fragmento en un solo fragmento, lo que significa que es más probable que las consultas a distancia se dirijan con una clave de fragmento no hash.
+
+Perderá la capacidad de usar características como el fragmentación de zonas con el propósito de lecturas y escrituras geográficamente aisladas.
+
+Nuevamente, si todo se distribuye aleatoriamente en cada fragmento del clúster, no hay una forma real de aislar los datos en agrupaciones como la geografía.
+
+No puede crear índices compuestos hash.
+
+Solo puede hash una clave de fragmento de campo único.
+
+Eso explica por qué estos se usan mejor para campos únicos que cambian monotónicamente, como las marcas de tiempo.
+
+Además, el valor en el índice hash no debe ser una matriz.
+
+Finalmente, debido a que el índice usa valores hash, perderá el rendimiento que puede proporcionar un índice para ordenar documentos en la clave de fragmento.
+
+Para crear un fragmento hash, comenzará habilitando el fragmentación en la base de datos utilizando sh.enablesharding.
+
+Recuerde, esto no fragmenta automáticamente sus colecciones.
+
+Todavía va a crear un índice, pero ahora va a especificar que es un índice hash en lugar de especificar 1 o 1 negativo como el valor del campo indexado.
+
+Finalmente, va a usar sh.shardcollection, aún especificando la base de datos y la colección, pero va a especificar hash para el valor de la clave de fragmento.
+
+En resumen, las claves de fragmentos hash proporcionan una distribución más uniforme de los datos de un campo de clave de fragmentos que cambia monotónicamente.
+
+Las claves de fragmento de hash no admiten clasificaciones rápidas, consultas específicas en rangos de valores de clave de fragmento o cargas de trabajo aisladas geográficamente.
+
+Finalmente, los índices hash son campos únicos y no admiten matrices.
+
+## 16. Examen Hashed Shard Keys
+
+**Problem:**
+
+Which of the following functions does Hashed Sharding support?
+
+Check all answers that apply:
+
+* Even distribution of a monotonically changing shard key field
+
+* Targeted queries on a range of shard key values
+
+* Even distribution of a monotonically changing shard key field in a compound index
+
+* Fast sorts on the shard key
+
+**See detailed answer**
+
+**Correct answers:**
+
+**Even distribution of a monotonically changing shard key field**
+
+The hash function will scramble shard key values, so values adjacent to each other may be very different after going through the hash function.
+
+**Incorrect answers:**
+
+**Targeted queries on a range of shard key values**
+
+We are less likely to get targeted queries on ranges of shard key values.
+
+**Even distribution of a monotonically changing shard key field in a compound index**
+
+You cannot create a hashed index on multiple fields.
+
+**Fast sorts on the shard key**
+
+Sorts are slower on a hashed index than a normal index.
 
 ## 17. Lab - Shard a Collection
 
