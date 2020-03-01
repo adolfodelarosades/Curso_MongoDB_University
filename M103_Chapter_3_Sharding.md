@@ -671,7 +671,7 @@ net:
   port: 26001
 systemLog:
   destination: file
-  path: /var/mongodb/db/csrs1.log
+  path: /var/mongodb/db/csrs1/csrs1.log
   logAppend: true
 processManagement:
   fork: true
@@ -693,7 +693,7 @@ net:
   port: 26002
 systemLog:
   destination: file
-  path: /var/mongodb/db/csrs2.log
+  path: /var/mongodb/db/csrs2/csrs2.log
   logAppend: true
 processManagement:
   fork: true
@@ -715,7 +715,7 @@ net:
   port: 26003
 systemLog:
   destination: file
-  path: /var/mongodb/db/csrs3.log
+  path: /var/mongodb/db/csrs3/csrs3.log
   logAppend: true
 processManagement:
   fork: true
@@ -723,6 +723,13 @@ storage:
   dbPath: /var/mongodb/db/csrs3
 
 ```
+
+Crear el dbpath para node1:
+
+```sh
+vagrant@m103:~$ mkdir -p /var/mongodb/db/csrs1
+```
+
 
 Inicio de los tres servidores de configurados:
 
@@ -944,7 +951,7 @@ net:
   port: 26001
 systemLog:
   destination: file
-  path: /var/mongodb/db/csrs1.log
+  path: /var/mongodb/db/csrs1/csrs1.log
   logAppend: true
 processManagement:
   fork: true
@@ -974,7 +981,7 @@ net:
   port: 26002
 systemLog:
   destination: file
-  path: /var/mongodb/db/csrs2.log
+  path: /var/mongodb/db/csrs2/csrs2.log
   logAppend: true
 processManagement:
   fork: true
@@ -996,7 +1003,7 @@ net:
   port: 26003
 systemLog:
   destination: file
-  path: /var/mongodb/db/csrs3.log
+  path: /var/mongodb/db/csrs3/csrs3.log
   logAppend: true
 processManagement:
   fork: true
@@ -1004,27 +1011,55 @@ storage:
   dbPath: /var/mongodb/db/csrs3
 ```
 
+Crear el dbpath para node1:
+
+```sh
+vagrant@m103:~$ mkdir -p /var/mongodb/db/csrs1
+vagrant@m103:~$ mkdir -p /var/mongodb/db/csrs2
+vagrant@m103:~$ mkdir -p /var/mongodb/db/csrs3
+```
+
 Entonces, aquí, solo voy a usar ese archivo para iniciar un proceso mongoD.
 
 ```sh
-mongod -f csrs_1.conf
+vagrant@m103:~$ mongod -f csrs_1.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 23820
+child process started successfully, parent exiting
 ```
 
 Y, aquí, voy a hacer lo mismo para los otros dos nodos en el CSRS.
 
 ```sh
-mongod -f csrs_2.conf
-mongod -f csrs_3.conf
+Inicio de los tres servidores de configurados:
+
+```sh
+vagrant@m103:~$ mongod -f csrs_2.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 24785
+child process started successfully, parent exiting
+vagrant@m103:~$ 
+
+vagrant@m103:~$ mongod -f csrs_3.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 25267
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
 
 Y puede encontrar esos archivos de configuración en las notas de clase.
 
-Se ven muy similares a la primera.
+Se ven muy similares al primero.
 
 Entonces, habilitamos este replica set para usar la autenticación, y la autenticación del archivo de clave está bien porque ya creamos nuestro archivo de clave.
 
 ```sh
-mongo --port 26001
+vagrant@m103:~$ mongo --port 26001
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:26001/?gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("9ba99b2a-8668-492b-ae34-fc736d5ab37e") }
+MongoDB server version: 3.6.17
+MongoDB Enterprise > 
 ```
 
 Vamos a compartir el mismo archivo de clave en esta configuración ya que todas las instancias de mongoD se ejecutan en la misma máquina virtual.
@@ -1038,26 +1073,49 @@ Así que tenlo en cuenta.
 Aquí, solo estoy iniciando el replica set del servidor de configuración.
 
 ```sh
-rs.initiate()
+MongoDB Enterprise > rs.initiate()
+{
+	"info2" : "no configuration specified. Using a default configuration for the set",
+	"me" : "192.168.103.100:26001",
+	"ok" : 1,
+	"$gleStats" : {
+		"lastOpTime" : Timestamp(1583068629, 1),
+		"electionId" : ObjectId("000000000000000000000000")
+	}
+}
+MongoDB Enterprise m103-csrs:OTHER> 
 ```
 
 Y aquí, solo uso la excepción localhost para crear nuestro súper usuario.
 
 ```sh
-use admin
-db.createUser({
-  user: "m103-admin",
-  pwd: "m103-pass",
-  roles: [
-    {role: "root", db: "admin"}
-  ]
-})
+MongoDB Enterprise m103-csrs:PRIMARY> use admin
+switched to db admin
+MongoDB Enterprise m103-csrs:PRIMARY> db.createUser({
+...   user: "m103-admin",
+...   pwd: "m103-pass",
+...   roles: [
+...     {role: "root", db: "admin"}
+...   ]
+... })
+Successfully added user: {
+	"user" : "m103-admin",
+	"roles" : [
+		{
+			"role" : "root",
+			"db" : "admin"
+		}
+	]
+}
+MongoDB Enterprise m103-csrs:PRIMARY> 
 ```
 
 Entonces, ahora me voy a autenticar como el superusuario.
 
 ```sh
-db.auth("m103-admin", "m103-pass")
+MongoDB Enterprise m103-csrs:PRIMARY> db.auth("m103-admin", "m103-pass")
+1
+MongoDB Enterprise m103-csrs:PRIMARY> 
 ```
 
 Uno significa que funcionó.
