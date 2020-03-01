@@ -908,7 +908,268 @@ sh.addShard("m103-repl/192.168.103.100:27012")
 
 ### Transcripción
 
-## 7. Examen
+Entonces, ahora que hemos revisado la arquitectura de un sharded cluster (clúster fragmentado) básico MongoDB, en realidad vamos a construir uno en nuestro entorno virtual de curso.
+
+Entonces, en este momento, todo lo que tenemos es un replica set M103 repel.
+
+<img src="images/m103/c3/3-6-replicaset.png">
+
+Este es solo un replica set normal, pero eventualmente se convertirá en el primer shard(fragmento) de nuestro clúster.
+
+Este diagrama es el mínimo requerido para iniciar un sharded cluster(clúster fragmentado), esencialmente, solo los mongos, un config server replica set y al menos un shard.
+
+<img src="images/m103/c3/3-6-replicaset-2.png">
+
+Las cosas principales que tenemos que construir son el CSRS y los mongos.
+
+El resto del trabajo solo conectará todo junto.
+
+Lo primero que vamos a construir son nuestros config servers(servidores de configuración) **CSRS**.
+
+<img src="images/m103/c3/3-6-replicaset-3.png">
+
+Entonces este es el archivo de configuración `csrs_1.conf` para uno de nuestros servidores de configuración.
+
+`csrs_1.conf`:
+
+```sh
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: m103-csrs
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26001
+systemLog:
+  destination: file
+  path: /var/mongodb/db/csrs1.log
+  logAppend: true
+processManagement:
+  fork: true
+storage:
+  dbPath: /var/mongodb/db/csrs1
+```
+
+Será uno de los nodos en los CSR's, pero es solo un MongoD normal, por lo que seguirá teniendo un puerto(port), una ruta de DB(dbPath) y una log path(ruta de registro).
+
+Ahora los config servers(servidores de configuración) tienen un papel muy importante en el shard cluster(clúster de fragmentos).
+
+Entonces tenemos que especificar, en la configuración `clusterRole: configsvr`, que este es de hecho un servidor de configuración.
+
+Hacemos lo mismo para los otros dos nodos:
+
+`csrs_2.conf`:
+
+```sh
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: m103-csrs
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26002
+systemLog:
+  destination: file
+  path: /var/mongodb/db/csrs2.log
+  logAppend: true
+processManagement:
+  fork: true
+storage:
+  dbPath: /var/mongodb/db/csrs2
+```
+
+`csrs_3.conf`:
+
+```sh
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: m103-csrs
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26003
+systemLog:
+  destination: file
+  path: /var/mongodb/db/csrs3.log
+  logAppend: true
+processManagement:
+  fork: true
+storage:
+  dbPath: /var/mongodb/db/csrs3
+```
+
+Entonces, aquí, solo voy a usar ese archivo para iniciar un proceso mongoD.
+
+```sh
+mongod -f csrs_1.conf
+```
+
+Y, aquí, voy a hacer lo mismo para los otros dos nodos en el CSRS.
+
+```sh
+mongod -f csrs_2.conf
+mongod -f csrs_3.conf
+```
+
+Y puede encontrar esos archivos de configuración en las notas de clase.
+
+Se ven muy similares a la primera.
+
+Entonces, habilitamos este replica set para usar la autenticación, y la autenticación del archivo de clave está bien porque ya creamos nuestro archivo de clave.
+
+Vamos a compartir el mismo archivo de clave en esta configuración ya que todas las instancias de mongoD se ejecutan en la misma máquina virtual.
+
+Pero en un entorno de producción real, los certificados X509 serían el camino a seguir.
+
+Tener una contraseña compartida como el archivo de clave, cuando se comparte en varias máquinas, aumenta el riesgo de que ese archivo se vea comprometido.
+
+Así que tenlo en cuenta.
+
+Aquí, solo estoy iniciando el replica set del servidor de configuración.
+
+Y aquí, solo uso la excepción localhost para crear nuestro súper usuario.
+
+Entonces, ahora me voy a autenticar como el superusuario.
+
+Uno significa que funcionó.
+
+Y ahora podemos comenzar a agregarlos al conjunto.
+
+Aquí está nuestro segundo nodo, y nuestro tercero, y ahora tenemos un conjunto completo de réplicas del servidor de configuración.
+
+Solo voy a verificar eso con `rs.ismaster`.
+
+Y parece que el conjunto tiene tres nodos.
+
+Entonces, ahora que tenemos nuestro CSRS en funcionamiento, podemos iniciar mongos y luego apuntar mongos en la dirección de nuestro replica set del servidor de configuración.
+
+Este es el archivo de configuración para mongos, y lo primero que notará es que no hay una ruta de acceso a la base de datos.
+
+Eso es porque mongos no necesita almacenar ningún dato.
+
+Todos los datos utilizados por mongos se almacenan en los servidores de configuración.
+
+Entonces, en la sección de fragmentación, los hemos especificado.
+
+Y tenga en cuenta que especificamos el conjunto completo de réplicas en lugar de los miembros individuales.
+
+También habilitamos la autenticación de archivos clave, por lo que vamos a necesitar autenticarnos en mongos.
+
+Pero heredará los mismos usuarios que sus servidores de configuración, y lo veremos en un minuto.
+
+Entonces este es el comando que usamos para iniciar mongos.
+
+Pasamos el archivo de configuración, como lo hicimos antes.
+
+Pero, tenga en cuenta que este no es un proceso mongoD.
+
+Mongos es un proceso diferente con diferentes propiedades.
+
+Así que tenlo en cuenta.
+
+Entonces, como vimos antes, mongos ha habilitado la autenticación, y también heredará los usuarios que creamos en los servidores de configuración.
+
+Entonces, este usuario está realmente listo para comenzar.
+
+Y parece que estamos dentro.
+
+Solo voy a verificar el estado aquí.
+
+Entonces, `sh.status` es la forma más básica de obtener datos de fragmentación de mongos.
+
+Y si echamos un vistazo a la salida, podemos ver que tenemos la cantidad de mongos actualmente conectados, y también tenemos la cantidad de fragmentos.
+
+En este momento, esto está vacío porque no tenemos fragmentos.
+
+Pero, probablemente puedas ver a dónde va esto.
+
+En este momento, tenemos un mongos ejecutándose con los servidores de configuración.
+
+Y en realidad también tenemos un replica set que podemos usar.
+
+Solo necesitamos ajustar la configuración para poder usarla como un nodo de fragmento.
+
+Este es el archivo de configuración para el primer nodo en nuestro replica set, y lo he cambiado ligeramente.
+
+He agregado esta restricción en el tamaño de caché y gigabytes, porque Vagrant solo tiene permiso para usar dos gigabytes de memoria.
+
+Así que quería reducir el estrés en el entorno general.
+
+Generalmente, esta no es una buena práctica en producción, pero será necesaria una vez que comencemos a agrupar colecciones en este clúster.
+
+Entonces, esta es la línea que tenemos que agregar si queremos habilitar el fragmentación en este nodo.
+
+Esta línea le dirá a los mongos, oye, sabes que puedes usarme como un nodo de fragmento en tu clúster.
+
+Tenemos que agregar esta línea a cada nodo en la réplica.
+
+Así que acabo de cambiar los archivos de configuración para los tres nodos en nuestro conjunto, pero los nodos aún deben reiniciarse para dar cuenta de esos cambios.
+
+Vamos a hacer una actualización continua para hacerlo.
+
+Lo que significa que vamos a actualizar primero los secundarios, luego volver a subirlos, bajar el primario actual y luego actualizar ese último nodo.
+
+Aquí, solo me estoy conectando a uno de los nodos secundarios.
+
+Solo voy a cambiar a la base de datos admin-- y cerrar este nodo.
+
+Y aquí, solo estoy comenzando una copia de seguridad con la nueva configuración.
+
+Haga lo mismo para nuestro tercer nodo.
+
+Y aquí, estoy iniciando el tercer nodo con una nueva configuración.
+
+Entonces, ahora que ambos secundarios han sido actualizados para la nueva configuración, voy a conectarme al primario y luego lo bajaré para poder actualizar ese también.
+
+Voy a forzar una elección para que este nodo se convierta en secundario, y funcionó.
+
+Ahora voy a cerrar este nodo también.
+
+Así que ahora estoy comenzando nuestro último nodo con la nueva configuración, y funcionó.
+
+Así que ahora hemos habilitado con éxito el fragmentación en este conjunto de réplicas.
+
+Ahora me voy a conectar de nuevo a mongos.
+
+Entonces, una vez que me conecte de nuevo a mongos, puedo agregar el fragmento en el que solo habilitamos el fragmento.
+
+Y especificamos todo el conjunto de réplicas, por lo que solo necesitamos especificar un nodo para que los mongos descubran el primario actual de este conjunto de réplicas.
+
+Y, parece que funcionó.
+
+Solo voy a verificar `sh.status`, y nuestra lista de fragmentos ahora tiene un fragmento.
+
+Y como podemos ver, solo especificamos un nodo, pero Mongo pudo descubrir todos los nodos del conjunto.
+
+Entonces, para recapitular aquí, cubrimos cómo iniciar mongos y un replica set del servidor de configuración.
+
+Aprendimos cómo habilitar el fragmentación en un replica set, y lo hicimos a través de una actualización continua.
+
+Y agregamos fragmentos a nuestro grupo.
+
+## 7. Examen Setting Up a Sharded Cluster
+
+**Problem:**
+
+What is true about the mongos?
+
+Check all answers that apply:
+
+* The mongos configuration file doesn't need to have a port.
+
+* The mongos configuration file doesn't need to have a dbpath.
+
+* Users must be created on mongos when auth is enabled.
+
+* The config server configuration files need to specify mongos.
+
+* The mongos configuration file needs to specify the config servers.
 
 ## 8. Laboratorio: configurar un clúster fragmentado
 
