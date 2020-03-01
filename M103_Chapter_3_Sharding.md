@@ -1871,15 +1871,341 @@ Enter answer here:
 
 ## 9. Tema: Config DB
 
+### Notas de lectura
+
+Instrucciones de lectura
+
+Cambie a la configuración DB:
+
+```sh
+use config
+```
+
+Query `config.databases`:
+
+```sh
+db.databases.find().pretty()
+```
+
+Query `config.collections`:
+
+```sh
+db.collections.find().pretty()
+```
+
+Query `config.shards`:
+
+```sh
+db.shards.find().pretty()
+```
+
+Query `config.chunks`:
+
+```sh
+db.chunks.find().pretty()
+```
+
+Query `config.mongos`:
+
+```sh
+db.mongos.find().pretty()
+```
+
 ### Transcripción
 
-## 10. Examen
+Muy bien, así que en esta lección, vamos a hablar sobre una base de datos muy importante en el sharded cluster, config database (la base de datos de configuración).
+
+Lo primero que debe saber sobre config database (la base de datos de configuración) es que, por lo general, nunca debe escribirle ningún dato.
+
+MongoDB lo mantiene internamente y se usa internamente.
+
+Por lo tanto, en general, nunca necesitará escribir datos en él.
+
+Sin embargo, tiene información útil, por lo que vamos a leerlo.
+
+Entonces, solo estoy conectado a mongos y estoy ejecutando un rápido `sh.status` en él solo para ver la tipología del grupo fragmentado.
+
+Así que esto nos dará mucha información sobre algunos de los fragmentos, sobre los mongos activos.
+
+Nos dará información sobre la base de datos en nuestro clúster fragmentado.
+
+Pero todos estos datos se almacenan en la base de datos de configuración.
+
+Aquí, y simplemente cambiando a la base de datos de configuración.
+
+Voy a echar un vistazo a las colecciones que tenemos allí.
+
+Estas son todas las colecciones a las que tenemos acceso en la base de datos de configuración.
+
+El primero que veremos es la colección de bases de datos.
+
+Así que aquí, solo estoy imprimiendo los resultados de nuestra consulta de bases de datos.
+
+Entonces esto devolverá cada base de datos en nuestro clúster como un documento.
+
+Nos dará el fragmento primario para cada base de datos, y la partición aquí solo nos dice si se ha habilitado o no el fragmentación en esta base de datos.
+
+En este caso, la base de datos m103 tiene habilitado el fragmentación.
+
+Ahora, eche un vistazo a las colecciones.
+
+Así que esto solo nos dará información sobre colecciones que han sido fragmentadas.
+
+Pero para esas colecciones, nos dirá la clave de fragmento que usamos.
+
+En este caso, la colección de productos m103 fue fragmentada en el precio de venta.
+
+Y también nos dice si esa clave fue única o no.
+
+Este nos va a contar sobre los fragmentos en nuestro grupo.
+
+Y aquí, puede ver que el nombre de host contiene el nombre del conjunto de réplica porque estos fragmentos se implementan como conjuntos de réplica.
+
+La colección de fragmentos es posiblemente la colección más interesante de toda esta base de datos.
+
+Por lo tanto, cada parte de cada colección en esta base de datos se nos devuelve como un documento.
+
+El mínimo inclusivo y el máximo exclusivo definen el rango de fragmentos de los valores de clave de fragmento.
+
+Eso significa que cualquier documento en la colección asociada cuyo valor de clave de fragmento caiga en este rango de fragmentos terminará en este fragmento, y solo en este fragmento.
+
+Entonces esta colección está fragmentada en el precio de venta.
+
+Y vemos que esta porción tiene documentos con valores de precio de venta para una clave minKey de aproximadamente $ 15.
+
+MinKey, aquí, significa el valor más bajo posible del precio de venta o infinito negativo, si desea pensarlo de esa manera.
+
+Esta porción tiene documentos con precios de venta de al menos $ 14.99, pero inferiores a $ 33.99.
+
+Por ejemplo, si tuviera que insertar un documento en esta colección que tuviera un precio de venta de $ 20, terminaría en esta porción.
+
+La base de datos de configuración también contiene información sobre el proceso mongos actualmente conectado a este clúster, porque podemos tener cualquier número de ellos.
+
+Como podemos ver en este momento, solo tenemos uno.
+
+Pero nos dará mucha información al respecto, incluida la versión mongos que se ejecuta en los mongos.
+
+Entonces, para resumir, en esta lección hemos cubierto las colecciones que tenemos en la base de datos de configuración, incluidos, entre otros, fragmentos, fragmentos y mongos.
+
+Pero recuerde, nunca escriba en esta base de datos a menos que se lo indique el soporte de MongoDB o nuestra documentación oficial.
+
+Tiene información útil, pero generalmente está destinada únicamente para uso interno de MongoDB.
+
+## 10. Examen Config DB
+
+**Problem:**
+
+When should you manually write data to the Config DB?
+
+Check all answers that apply:
+
+* When sharding a collection
+
+* When adding a shard
+
+* When removing a shard
+
+* When directed to by MongoDB documentation or Support Engineers :+1:
+
+* When importing a new dataset
+
+**See detailed answer**
+
+The config database is used and maintained internally by MongoDB, and you shouldn't write to it unless directed to by MongoDB Documentation or Support Engineers.
 
 ## 11. Tema: Shard Keys
 
+### Notas de lectura
+
+A las 2:35, Ravind menciona que el valor de la shard key(clave de fragmento) es inmutable.
+
+A partir de MongoDB 4.2, el *valor* de la shard key (clave de fragmento) es mutable, aunque la shard key en sí es inmutable. Si está interesado, puede leer más en el [Shard Key documentation](https://docs.mongodb.com/manual/core/sharding-shard-key/index.html).
+
+Instrucciones de lectura
+
+Mostrar colecciones en la base de datos `m103`:
+
+
+```sh
+use m103
+show collections
+```
+
+Habilite el fragmentación en la base de datos `m103`:
+
+```sh
+sh.enableSharding("m103")
+```
+
+Encuentre un documento de la colección de `products` para ayudarnos a elegir una shard key:
+
+```sh
+db.products.findOne()
+```
+
+Crear un índice en `sku`:
+
+```sh
+db.products.createIndex( { "sku" : 1 } )
+```
+
+Shard la colección de `products` en `sku`:
+
+```sh
+sh.shardCollection("m103.products", {"sku" : 1 } )
+```
+
+Comprobación del estado del clúster fragmentado:
+
+```sh
+sh.status()
+```
+
 ### Transcripción
 
-## 12. Examen
+En esta lección, vamos a hablar sobre la Shard Keys.
+
+Este es el campo o campos indexados que MongoDB usa para particionar datos en una colección fragmentada y distribuirla entre los fragmentos de su clúster.
+
+Comencemos con cómo se usa la Shard Keys para distribuir sus datos.
+
+Considere una colección con algún número de documentos en ellos.
+
+MongoDB utiliza la Shard Keys para dividir estos documentos en agrupaciones lógicas que MongoDB luego distribuye a través de nuestro clúster fragmentado.
+
+MongoDB se refiere a estas agrupaciones como trozos.
+
+El valor del campo o campos que elegimos como nuestra Shard Key ayuda a definir el límite inferior inclusivo y el límite superior exclusivo de cada fragmento.
+
+Debido a que la Shard Key se usa para definir límites de fragmentos, también define a qué fragmento pertenecerá un documento determinado.
+
+Cada vez que escribe un nuevo documento en la colección, el enrutador Mongo S comprueba qué fragmento contiene el fragmento apropiado para el valor clave de ese documento y dirige el documento solo a ese fragmento.
+
+Así es como los clústeres fragmentados manejan las operaciones de escritura distribuida.
+
+Dependiendo de qué fragmento contiene un fragmento dado, un nuevo documento se enruta al compartido y solo a ese fragmento.
+
+Esto también significa que su clave de fragmento debe estar presente en cada documento de la colección y en cada documento nuevo insertado.
+
+Entonces podría particionar como sku o tipo, pero no imdb ya que ese campo no está incluido en todos los documentos dentro de esta colección.
+
+Las teclas de fragmento también admiten operaciones de lectura distribuida.
+
+Si especifica la clave de fragmento como parte de sus consultas, MongoDB puede redirigir la consulta solo a esos fragmentos y, por lo tanto, a fragmentos que contienen los datos relacionados.
+
+Idealmente, su clave de fragmento debería admitir la mayoría de las consultas que ejecuta en la colección.
+
+De esa manera, la mayoría de sus operaciones de lectura pueden dirigirse a un solo fragmento.
+
+Sin la clave de fragmento en la consulta, el enrutador Mongo S necesitaría verificar cada fragmento en el clúster para encontrar los documentos que coinciden con la consulta.
+
+En una lección posterior abordaremos los detalles de las operaciones dirigidas frente a las de transmisión.
+
+Repasemos algunos aspectos importantes de su Shard Key.
+
+Primero, mencioné anteriormente que la clave de fragmento es un campo o campos de índice en su colección.
+
+Este es un requisito difícil.
+
+No puede seleccionar un campo o campos para su clave de fragmento si no tiene un índice existente para el campo o campos.
+
+Tendrá que crear el índice primero antes de poder particionar.
+
+Sharding es una operación permanente.
+
+Una vez que haya seleccionado su clave de fragmento, eso es todo.
+
+Además, la Shard Key es inmutable.
+
+No solo no puede cambiarlo más tarde, no puede actualizar los valores de clave de fragmento de los campos de clave de fragmento para ningún documento de la colección.
+
+Así que elige con cuidado.
+
+La siguiente lección tiene alguna orientación sobre cómo elegir una buena clave de fragmento, así que estad atentos para eso.
+
+Finalmente, no puedes deshacer una colección.
+
+Este tipo de compilación de claves de fragmentos es inmutable.
+
+Una vez que haya fragmentado una colección, no podrá deshacerla más tarde.
+
+Los pasos para fragmentar son bastante sencillos.
+
+Primero, debe usar sh.enablesharding, que especifica el nombre de la base de datos, para habilitar el fragmentación de la base de datos especificada.
+
+Esto no fragmenta automáticamente sus colecciones.
+
+Simplemente significa que las colecciones en esta base de datos en particular son elegibles para fragmentación.
+
+Esto no afectará a otras bases de datos en su clúster MongoDB.
+
+A continuación, debe crear el índice para respaldar su clave de fragmento para la colección que desea fragmentar, utilizando db.collection.createindex.
+
+Recuerde, vamos a sustituir la colección aquí con el nombre de la colección en la que queremos crear el índice.
+
+Finalmente, vamos a usar sh.shardCollection, especificando la ruta completa a la colección, y la clave de fragmento para fragmentar la Colección especificada. Realmente intentemos esto en acción muy rápido.
+
+Entonces, aquí puede ver que estoy usando el estado sh.status para mostrar que tengo un clúster de dos fragmentos fragmentados.
+
+Actualmente estoy conectado a Mongo S.
+
+Voy a cambiar a la base de datos m103, porque quiero fragmentar la colección de productos en esa base de datos.
+
+Voy a habilitar el fragmentación en la base de datos m103 primero.
+
+Ahora, antes de fragmentar una colección, necesitamos decidir qué clave usaremos.
+
+Estoy usando db.products.find0ne para mostrarle ese documento de la colección de productos.
+
+Voy a usar el campo sku para mi clave de fragmento.
+
+Antes de fragmentar, necesito asegurarme de que la clave o claves seleccionadas que componen mi clave de fragmentación sean compatibles con un índice.
+
+Así que creemos un índice en sku usando db.collection.createindex.
+
+Entonces, aquí, estoy creando el índice en sku, y he especificado ascendente aquí.
+
+No es super importante.
+
+Y puedes ver aquí que ahora tengo este índice adicional en sku.
+
+Recuerde que todas las colecciones tienen un índice de ID por defecto.
+
+Finalmente, voy a fragmentar la colección usando la siguiente que acabo de especificar.
+
+Aquí, tengo el camino completo a la colección de productos, m103.products, y luego la clave de fragmento que quiero usar para esta colección, sky.
+
+Si ejecuto sh.status, ahora puedo ver que el m103.primary Collection tiene una clave de fragmento, y en realidad ya se ha dividido en tres fragmentos separados.
+
+Entonces, si ejecuto sh.status nuevamente, podemos ver ahora que la colección está marcada como fragmentada porque tiene una clave de fragmento.
+
+Mis documentos ya se han dividido en fragmentos y se han distribuido entre los dos fragmentos de mi grupo: dos fragmentos en el fragmento 1, uno en el fragmento 2.
+
+E incluso podemos ver los rangos de valores para cada fragmento.
+
+Para recapitular, su fragmento determina la partición y distribución de datos a través de su clúster fragmentado.
+
+Las teclas de fragmento son inmutables.
+
+No puede cambiarlos después de fragmentar.
+
+Los valores clave de fragmento también son inmutables.
+
+No puede actualizar una clave de fragmento de documento.
+
+Y primero debe crear el índice subyacente antes de fragmentar en el campo o campos indexados.
+
+## 12. Examen Shard Keys
+
+**Problem:**
+
+True or False: Shard keys are mutable.
+
+Choose the best answer:
+
+* False :+1:
+
+* True
 
 ## 13. Tema: Escoger una buena clave de fragmento
 
