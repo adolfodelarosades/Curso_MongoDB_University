@@ -1023,6 +1023,10 @@ Se ven muy similares a la primera.
 
 Entonces, habilitamos este replica set para usar la autenticación, y la autenticación del archivo de clave está bien porque ya creamos nuestro archivo de clave.
 
+```sh
+mongo --port 26001
+```
+
 Vamos a compartir el mismo archivo de clave en esta configuración ya que todas las instancias de mongoD se ejecutan en la misma máquina virtual.
 
 Pero en un entorno de producción real, los certificados X509 serían el camino a seguir.
@@ -1033,23 +1037,71 @@ Así que tenlo en cuenta.
 
 Aquí, solo estoy iniciando el replica set del servidor de configuración.
 
+```sh
+rs.initiate()
+```
+
 Y aquí, solo uso la excepción localhost para crear nuestro súper usuario.
 
+```sh
+use admin
+db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+```
+
 Entonces, ahora me voy a autenticar como el superusuario.
+
+```sh
+db.auth("m103-admin", "m103-pass")
+```
 
 Uno significa que funcionó.
 
 Y ahora podemos comenzar a agregarlos al conjunto.
 
+```sh
+rs.add("192.168.103.100:26002")
+rs.add("192.168.103.100:26003")
+```
+
 Aquí está nuestro segundo nodo, y nuestro tercero, y ahora tenemos un conjunto completo de réplicas del servidor de configuración.
 
 Solo voy a verificar eso con `rs.ismaster`.
+
+```sh
+rs.isMaster()
+```
 
 Y parece que el conjunto tiene tres nodos.
 
 Entonces, ahora que tenemos nuestro CSRS en funcionamiento, podemos iniciar mongos y luego apuntar mongos en la dirección de nuestro replica set del servidor de configuración.
 
-Este es el archivo de configuración para mongos, y lo primero que notará es que no hay una ruta de acceso a la base de datos.
+<img src="images/m103/c3/3-6-replicaset-4.png">
+
+Este es el archivo de configuración para mongos `mongos.conf`, y lo primero que notará es que **no hay una ruta de acceso a la base de datos**.
+
+`mongos.conf`:
+
+```sh
+sharding:
+  configDB: m103-csrs/192.168.103.100:26001,192.168.103.100:26002,192.168.103.100:26003
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26000
+systemLog:
+  destination: file
+  path: /var/mongodb/db/mongos.log
+  logAppend: true
+processManagement:
+  fork: true
+```
 
 Eso es porque mongos no necesita almacenar ningún dato.
 
@@ -1057,13 +1109,17 @@ Todos los datos utilizados por mongos se almacenan en los servidores de configur
 
 Entonces, en la sección de fragmentación, los hemos especificado.
 
-Y tenga en cuenta que especificamos el conjunto completo de réplicas en lugar de los miembros individuales.
+Y tenga en cuenta que especificamos el conjunto completo de réplicas `configDB: m103-csrs/192.168.103.100:26001,192.168.103.100:26002,192.168.103.100:26003` en lugar de los miembros individuales.
 
-También habilitamos la autenticación de archivos clave, por lo que vamos a necesitar autenticarnos en mongos.
+También habilitamos la autenticación de archivos clave `keyFile: /var/mongodb/pki/m103-keyfile`, por lo que vamos a necesitar autenticarnos en mongos.
 
 Pero heredará los mismos usuarios que sus servidores de configuración, y lo veremos en un minuto.
 
 Entonces este es el comando que usamos para iniciar mongos.
+
+```sh
+mongos -f mongos.conf
+```
 
 Pasamos el archivo de configuración, como lo hicimos antes.
 
@@ -1076,6 +1132,10 @@ Así que tenlo en cuenta.
 Entonces, como vimos antes, mongos ha habilitado la autenticación, y también heredará los usuarios que creamos en los servidores de configuración.
 
 Entonces, este usuario está realmente listo para comenzar.
+
+```sh
+vagrant@m103:~$ mongo --port 26000 --username m103-admin --password m103-pass --authenticationDatabase admin
+```
 
 Y parece que estamos dentro.
 
