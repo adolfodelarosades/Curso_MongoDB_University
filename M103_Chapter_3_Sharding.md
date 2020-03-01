@@ -3345,4 +3345,98 @@ This query doesn't include the `sku` prefix, and cannot be targeted.
 
 ## 28. Laboratorio: detección de consultas de recopilación de dispersión
 
+Lab - Detect Scatter Gather Queries
+
+**Problem:**
+
+**Lab Prerequisites**
+
+This lab assumes that the `m103.products` collection is sharded on `sku`. If you sharded on `name` instead, you must reimport the dataset and shard it on `sku`. Here are the instructions to do this:
+
+1. Drop the collection `m103.products` and reimport the dataset:
+
+```sh
+mongoimport --drop /dataset/products.json --port 26000 -u "m103-admin" \
+-p "m103-pass" --authenticationDatabase "admin" \
+--db m103 --collection products
+```
+
+2. Create an index on sku:
+
+```sh
+db.products.createIndex({"sku":1})
+```
+
+3. Enable sharding on m103 if not enabled:
+
+```sh
+sh.enableSharding("m103")
+```
+
+4. Shard the collection on sku:
+
+```sh
+db.adminCommand({shardCollection: "m103.products", key: {sku: 1}})
+```
+
+Once you've sharded your cluster on `sku`, any queries that use `sku` will be routed by mongos to the correct shards.
+
+**Lab Description**
+
+In this lab, you will use the output of the `explain()` command to distinguish between targeted queries (sent to specific shards) and scatter gather queries (sent to all shards).
+
+Here are a few definitions regarding the output of `explain()`:
+
+* `SHARDING_FILTER`: The step performed by mongos used to make sure that documents fetched from a particular shard are supposed to be from that shard. To do this, mongos compares the shard key of the document with the metadata on the config servers.
+* `IXSCAN`: An index scan, used to scan through index keys.
+* `FETCH`: A document fetch, used to retrieve an entire document because one or more of the fields is necessary.
+
+You can find more information about `explain()` in the [official MongoDB documentation](https://docs.mongodb.com/manual/reference/explain-results/).
+
+Now, given the `explain()` output of the following two queries:
+
+**Query 1:**
+
+```sh
+db.products.explain("executionStats").find({"sku": 23153496})
+```
+
+**Query 2:**
+
+```sh
+db.products.explain("executionStats").find({"shippingWeight": 1.00})
+```
+
+Assuming the only indexes on this collection are `{ _id: 1 }` and `{ sku: 1 }`, which of the following statements are true?
+
+Check all answers that apply:
+
+* Query 2 uses the shard key.
+
+* Query 1 performs an index scan before the sharding filter. :+1:
+
+* Query 2 performs a collection scan. :+1:
+
+**See detailed answer**
+
+**Correct Answers:**
+
+**Query 1 performs an index scan before the sharding filter.**
+
+The sharding filter ensures that documents returned by each shard are not orphan documents. It does this by comparing the value of the shard key to the chunk ranges inside that particular shard.
+
+Mongos will try to minimize the number of documents checked by the shard filter. To do this, mongos will only send the documents matching the query (i.e. are returned by the index scan) to be compared against the chunk ranges.
+
+**Query 2 performs a collection scan.**
+
+Assuming there is no index on `shippingWeight`, then Query 2 would need to perform a collection scan.
+
+**Incorrect Answers:**
+
+**Query 2 uses the shard key.**
+
+We know that Query 2 doesn't use the shard key because the shard key is not in the query predicate.
+
+
+
 
