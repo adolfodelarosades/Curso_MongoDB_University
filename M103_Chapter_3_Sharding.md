@@ -2966,15 +2966,207 @@ Enter answer here:
 
 ## 21. Tema: Balancing (Equilibrio)
 
+### Notas de lectura
+
+Puede leer más sobre la programación del equilibrador en los documentos de Sharding de MongoDB.
+
+Instrucciones de lectura
+
+Inicie el equilibrador:
+
+```sh
+sh.startBalancer(timeout, interval)
+```
+
+Detener el equilibrador:
+
+```sh
+sh.stopBalancer(timeout, interval)
+```
+
+Activar/desactivar el equilibrador:
+
+```sh
+sh.setBalancerState(boolean)
+```
+
 ### Transcripción
 
-## 22. Examen
+Así que hemos estado hablando de grupos de gráficos fragmentados por un tiempo ahora.
 
-## 23. Tema: Consultas en un grupo fragmentado
+Y ha escuchado al menos algunas veces sobre este concepto de distribución uniforme de datos.
+
+Sabemos que una buena clave de fragmento debería contribuir a la forma en que MongoDB puede distribuir sus datos entre los fragmentos de su clúster.
+
+Pero, ¿cómo exactamente MongoDB realiza esa distribución de datos?
+
+Recuerde que con fragmentación, MongoDB divide sus colecciones fragmentadas en fragmentos de datos.
+
+A medida que inserte datos en la colección, aumentará la cantidad de fragmentos en cualquier fragmento dado.
+
+El equilibrador MongoDB identifica qué fragmentos tienen demasiados fragmentos y mueve automáticamente fragmentos a través de fragmentos en el clúster fragmentado en un intento de lograr una distribución uniforme de los datos.
+
+Actualmente, el proceso del equilibrador se ejecuta en el miembro principal del conjunto de réplica del servidor de configuración.
+
+En versiones anteriores, Mongo ES era responsable de ejecutar el proceso de equilibrador.
+
+El proceso equilibrador comprueba la distribución fragmentada de datos en el clúster fragmentado y busca ciertos umbrales de migración.
+
+Si detecta que hay un desequilibrio, inicia una ronda de equilibrador.
+
+El equilibrador puede migrar fragmentos en paralelo.
+
+Un fragmento dado no puede participar en más de una migración a la vez.
+
+Por lo tanto, tome el piso de n dividido por 2, donde n es el número de fragmentos y tiene el número de fragmentos que se pueden migrar en una ronda de equilibrador.
+
+Con este clúster, tengo tres fragmentos, por lo que puedo migrar, como máximo, un fragmento a la vez.
+
+Si tuviéramos cuatro fragmentos, el equilibrador podría migrar hasta dos fragmentos a la vez.
+
+Entonces vamos a necesitar una segunda ronda para equilibrar completamente este grupo.
+
+Estas rondas ocurren consecutivamente hasta que el proceso de equilibrador detecta que el clúster está distribuido de la manera más uniforme posible.
+
+Por lo general, el Mongo ES se encarga de iniciar una división de fragmentos.
+
+Pero el equilibrador es totalmente capaz de realizar divisiones.
+
+Lo hará si detecta fragmentos que deben dividirse o como parte de la definición de rangos de fragmentos para el fragmentación de zonas.
+
+Ahora, las zonas están fuera del alcance de esta lección.
+
+Así que recuerda que el equilibrador puede dividir trozos si es necesario.
+
+Ahora, hay un impacto en el rendimiento de la migración de fragmentos.
+
+El equilibrador ya tiene un comportamiento integrado para minimizar la interrupción de la carga de trabajo, como la limitación de un fragmento por fragmento.
+
+Con ese fin, MongoDB presenta una serie de métodos para controlar el comportamiento del equilibrador.
+
+Puede iniciar o detener el equilibrador en cualquier momento.
+
+Si detiene el equilibrador en el medio de una ronda, entonces el equilibrador se detiene solo después de que se completa esa ronda de equilibrio.
+
+sh.startBalancer y stopBalancer le permiten establecer un valor de tiempo límite de tiempo de espera para cuánto tiempo esperar para detener o iniciar el equilibrador.
+
+El intervalo define cuánto tiempo debe esperar el cliente antes de verificar nuevamente el estado del equilibrador.
+
+Establecer estado de equilibrador solo toma un valor booleano y está activado o desactivado.
+
+También hay un proceso para programar una ventana de tiempo para cuando se puede ejecutar este equilibrador de clúster fragmentado.
+
+Requiere modificar la base de datos de configuración, que está fuera del alcance de este curso.
+
+Pero enlazaremos al tutorial a continuación si desea leerlo usted mismo.
+
+En resumen, el equilibrador de clúster fragmentado es responsable de distribuir de manera uniforme fragmentos de datos a través de su clúster fragmentado.
+
+A partir de MongoDB 3.4, el equilibrador se ejecuta en el miembro primario del conjunto de réplica del servidor de configuración.
+
+Y el proceso equilibrador está completamente automatizado y requiere una mínima entrada u orientación del usuario.
+
+Sin embargo, hay métodos para controlarlo.
+
+## 22. Examen Balancing
+
+**Problem:**
+
+Given a sharded cluster running MongoDB 3.6, which of the shard components is responsible for running the Balancer process?
+
+Check all answers that apply:
+
+* Secondary of the Config Server Replica Set
+
+* Primary of each Shard Replica Set
+
+* Mongos
+
+* Primary node of the Config Server Replica Set :+1:
+
+**See detailed answer**
+
+Only the Primary of the CSRS is responsible for running the balancer process. Neither the secondary CSRS members nor any of the shards are responsible for the balancer process.
+
+## 23. Tema: Consultas en un Sharded Cluster
+
+### Notas de lectura
+
+Puede leer más sobre el enrutamiento de consultas de agregación en un clúster fragmentado en el [MongoDB sharding docs](https://docs.mongodb.com/manual/core/aggregation-pipeline-sharded-collections/).
+
+A las 2:17, describimos cómo se manejan limit () y skip () en un clúster fragmentado. Hay un caso específico no mencionado.
+
+Cuando se usa junto con un `limit()`, los mongos pasarán el límite más el valor de `skip()` a los fragmentos para garantizar que se devuelva un número suficiente de documentos a los mongos para aplicar el `limit()` final y `skip()` exitosamente.
 
 ### Transcripción
 
-## 24. Examen
+En esta lección, vamos a hablar sobre cómo el enrutador mongos hace el trabajo de enrutar consultas a través de su clúster fragmentado.
+
+Por lo tanto, mongos es el punto de interfaz principal para sus aplicaciones cliente.
+
+Todas las consultas deben ser redirigidas a los mongos.
+
+Así que aquí tenemos una operación de búsqueda contra la colección de productos, buscando este documento donde el nombre es cómo mongos.
+
+Lo primero que hace el mongos es determinar la lista de fragmentos que deben recibir la consulta.
+
+Según el predicado de la consulta, los mongos se dirigen a cada fragmento del clúster o a un subconjunto de fragmentos del clúster.
+
+Si el predicado de consulta incluye la clave de fragmento, entonces los mongos pueden apuntar específicamente solo a los fragmentos que contienen el valor o valores de clave de fragmento especificados en el predicado de consulta.
+
+Estas consultas específicas son muy eficientes.
+
+Si el predicado de consulta no incluye la clave de fragmento, o generalmente tiene un alcance muy amplio, como un rango de consulta que abarca múltiples o todos los fragmentos, entonces los mongos deben apuntar a cada fragmento del clúster.
+
+Estas operaciones de recopilación de dispersión pueden ser lentas, dependiendo de factores como la cantidad de fragmentos y su clúster.
+
+Vamos a entrar en más detalles sobre las consultas de recopilación selectiva versus dispersa, así como cómo los mongos saben a quién apuntar, en la próxima lección.
+
+Ya sea que estemos haciendo consultas de recopilación selectiva o dispersa, los mongos abren un cursor contra cada uno de los fragmentos objetivo.
+
+Cada cursor ejecuta el predicado de consulta y devuelve los datos devueltos por la consulta para ese fragmento.
+
+El mongos ahora tiene los resultados de cada fragmento objetivo.
+
+El mongos combina todos los resultados para formar el conjunto total de documentos que cumple con esta consulta, y luego devuelve ese conjunto de documentos a la aplicación del cliente.
+
+El mongos también tiene un comportamiento específico cuando se trata de operadores de cursor, como dolor, límite y omisión.
+
+Para las consultas en las que especifica una ordenación, el mongos empuja la ordenación hacia abajo a cada fragmento en el clúster y luego realiza una fusión de los resultados.
+
+Con límite, el mongos empuja el límite hacia abajo a cada fragmento en el clúster y luego vuelve a aplicar ese límite después de fusionar los resultados devueltos.
+
+Con el salto, el mongos realiza el salto en el conjunto combinado de resultados, y no empuja nada al nivel de fragmento.
+
+Si está utilizando la agregación, hay un comportamiento más específico según la canalización que haya creado.
+
+Ahora, eso está fuera del alcance de esta lección.
+
+Por lo tanto, eche un vistazo a la documentación vinculada a continuación para una discusión más completa de cómo mongos maneja las consultas de agregación de enrutamiento.
+
+Para recapitular, los mongos manejan todas las consultas en un clúster fragmentado.
+
+Para cualquier consulta dada, construye una lista de fragmentos para apuntar a la consulta y fusiona los resultados.
+
+También puede manejar modificadores de consulta como ordenar, limitar y omitir.
+
+## 24. Examen Queries in a Sharded Cluster
+
+**Problem:**
+
+For a `find()` operation, which cluster component is responsible for merging the query results?
+
+Check all answers that apply:
+
+* The primary member of each shard
+
+* None, the results are coming out in the right order from the shards
+
+* The primary member of the config server replica set
+
+* The mongos that issued the query :+1:
+
+* A randomly chosen shard in the cluster
 
 ## 25. Tema: Consultas enrutadas vs Scatter Gather: Parte 1
 
