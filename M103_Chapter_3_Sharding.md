@@ -1465,103 +1465,163 @@ Lo que significa que vamos a actualizar primero los secundarios, luego volver a 
 Aquí, solo me estoy conectando a uno de los nodos secundarios.
 
 ```sh
-vagrant@m103:~$ mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+vagrant@m103:~$ mongo --port 27011 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
 MongoDB shell version v3.6.17
-connecting to: mongodb://127.0.0.1:27012/?authSource=admin&gssapiServiceName=mongodb
-Implicit session: session { "id" : UUID("8e01dcb8-dc1a-42cc-b931-2dbf3346988f") }
+connecting to: mongodb://127.0.0.1:27011/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("6248f37e-22ef-46cb-b903-d0f8913ecadf") }
 MongoDB server version: 3.6.17
 Server has startup warnings: 
-2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] 
-2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
-2020-02-24T17:56:47.029+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
-2020-02-24T17:56:47.712+0000 I CONTROL  [initandlisten] 
-MongoDB Enterprise m103-example:RECOVERING> 
-
+2020-03-01T18:02:10.271+0000 I STORAGE  [initandlisten] 
+2020-03-01T18:02:10.271+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-03-01T18:02:10.271+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] 
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] 
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-03-01T18:02:11.328+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:SECONDARY> 
 ```
 
 Solo voy a cambiar a la base de datos admin-- y cerrar este nodo.
 
 ```sh
-MongoDB Enterprise m103-example:RECOVERING> use admin
+MongoDB Enterprise m103-example:SECONDARY> use admin
 switched to db admin
-MongoDB Enterprise m103-example:RECOVERING> db.shutdownServer()
+MongoDB Enterprise m103-example:SECONDARY> db.shutdownServer()
 server should be down...
-2020-03-01T14:11:20.576+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
-2020-03-01T14:11:20.576+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27012, in(checking socket for error after poll), reason: Connection refused
-2020-03-01T14:11:20.576+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) failed failed 
-2020-03-01T14:11:20.579+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
-2020-03-01T14:11:20.580+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27012, in(checking socket for error after poll), reason: Connection refused
-2020-03-01T14:11:20.581+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) failed failed 
+2020-03-01T18:15:47.661+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27011 (127.0.0.1) failed
+2020-03-01T18:15:47.662+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27011, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T18:15:47.663+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27011 (127.0.0.1) failed failed 
+2020-03-01T18:15:47.668+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27011 (127.0.0.1) failed
+2020-03-01T18:15:47.669+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27011, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T18:15:47.670+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27011 (127.0.0.1) failed failed 
 MongoDB Enterprise > 
 ```
 
 Y aquí, solo estoy comenzando una copia de seguridad con la nueva configuración.
 
 ```sh
-vagrant@m103:~$ mongod -f node2.conf
+vagrant@m103:~$ mongod -f node1.conf
 about to fork child process, waiting until server is ready for connections.
-forked process: 32647
+forked process: 4574
 child process started successfully, parent exiting
 vagrant@m103:~$ 
 ```
-*****************************************************************************AQUI
+
 Haga lo mismo para nuestro tercer nodo.
 
 ```sh
-mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
-use admin
-db.shutdownServer()
-```
+vagrant@m103:~$ mongo --port 27013 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27013/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("ee3683e8-290c-4020-9228-68994f5f6879") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-03-01T18:02:44.154+0000 I STORAGE  [initandlisten] 
+2020-03-01T18:02:44.154+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-03-01T18:02:44.154+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] 
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] 
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-03-01T18:02:45.506+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:SECONDARY> 
 
+MongoDB Enterprise m103-example:SECONDARY> use admin
+switched to db admin
+
+MongoDB Enterprise m103-example:SECONDARY> db.shutdownServer()
+server should be down...
+2020-03-01T18:18:41.632+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27013 (127.0.0.1) failed
+2020-03-01T18:18:41.632+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27013, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T18:18:41.632+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27013 (127.0.0.1) failed failed 
+2020-03-01T18:18:41.634+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27013 (127.0.0.1) failed
+2020-03-01T18:18:41.635+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27013, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T18:18:41.635+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27013 (127.0.0.1) failed failed 
+MongoDB Enterprise > 
+```
 
 Y aquí, estoy iniciando el tercer nodo con una nueva configuración.
 
 ```sh
-mongod -f node3.conf
+vagrant@m103:~$ mongod -f node3.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 4918
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 
 ```
-
 Entonces, ahora que ambos secundarios han sido actualizados para la nueva configuración, voy a conectarme al primario y luego lo bajaré para poder actualizar ese también.
 
 ```sh
-mongo --port 27011 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+vagrant@m103:~$ mongo --port 27012 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:27012/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("04a1c6cc-19ea-4ef1-ab90-86f5843b7d21") }
+MongoDB server version: 3.6.17
+Server has startup warnings: 
+2020-03-01T14:15:23.187+0000 I STORAGE  [initandlisten] 
+2020-03-01T14:15:23.187+0000 I STORAGE  [initandlisten] ** WARNING: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine
+2020-03-01T14:15:23.187+0000 I STORAGE  [initandlisten] **          See http://dochub.mongodb.org/core/prodnotes-filesystem
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] 
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] 
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2020-03-01T14:15:24.175+0000 I CONTROL  [initandlisten] 
+MongoDB Enterprise m103-example:PRIMARY> 
 ```
 
 Voy a forzar una elección para que este nodo se convierta en secundario
 
 ```sh
-rs.stepDown()
+MongoDB Enterprise m103-example:PRIMARY> rs.stepDown()
+2020-03-01T18:20:44.010+0000 E QUERY    [thread1] Error: error doing query: failed: network error while attempting to run command 'replSetStepDown' on host '127.0.0.1:27012'  :
+DB.prototype.runCommand@src/mongo/shell/db.js:168:1
+DB.prototype.adminCommand@src/mongo/shell/db.js:186:16
+rs.stepDown@src/mongo/shell/utils.js:1397:12
+@(shell):1:1
+2020-03-01T18:20:44.015+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
+2020-03-01T18:20:44.017+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) ok
+MongoDB Enterprise m103-example:SECONDARY> 
 ```
 
 , y funcionó.
 
 ```sh
+MongoDB Enterprise m103-example:SECONDARY> 
 ```
 
 Ahora voy a cerrar este nodo también.
 
 ```sh
-use admin
-
-db.shutdownServer()
+MongoDB Enterprise m103-example:SECONDARY> use admin
+switched to db admin
+MongoDB Enterprise m103-example:SECONDARY> db.shutdownServer()
+server should be down...
+2020-03-01T18:21:36.339+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
+2020-03-01T18:21:36.341+0000 I NETWORK  [thread1] Socket recv() Connection reset by peer 127.0.0.1:27012
+2020-03-01T18:21:36.341+0000 I NETWORK  [thread1] SocketException: remote: (NONE):0 error: SocketException socket exception [RECV_ERROR] server [127.0.0.1:27012] 
+2020-03-01T18:21:36.341+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) failed failed 
+2020-03-01T18:21:36.343+0000 I NETWORK  [thread1] trying reconnect to 127.0.0.1:27012 (127.0.0.1) failed
+2020-03-01T18:21:36.343+0000 W NETWORK  [thread1] Failed to connect to 127.0.0.1:27012, in(checking socket for error after poll), reason: Connection refused
+2020-03-01T18:21:36.343+0000 I NETWORK  [thread1] reconnect 127.0.0.1:27012 (127.0.0.1) failed failed 
+MongoDB Enterprise > 
 ```
 
-Así que ahora estoy comenzando nuestro último nodo con la nueva configuración, 
+Así que ahora estoy comenzando nuestro último nodo con la nueva configuración, y funcionó.
 
 ```sh
-mongod -f node1.conf
-```
-
-y funcionó.
-
-```sh
-
+vagrant@m103:~$ mongod -f node2.conf
+about to fork child process, waiting until server is ready for connections.
+forked process: 5300
+child process started successfully, parent exiting
+vagrant@m103:~$ 
 ```
 
 Así que ahora hemos habilitado con éxito el fragmentación en este conjunto de réplicas.
@@ -1570,6 +1630,11 @@ Ahora me voy a conectar de nuevo a mongos.
 
 ```sh
 vagrant@m103:~$ mongo --port 26000 --username m103-admin --password m103-pass --authenticationDatabase admin
+MongoDB shell version v3.6.17
+connecting to: mongodb://127.0.0.1:26000/?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("672e54a5-fdc1-4509-ac1c-f0457e456ce1") }
+MongoDB server version: 3.6.17
+MongoDB Enterprise mongos> 
 ```
 
 Entonces, una vez que me conecte de nuevo a mongos, puedo agregar el fragmento en el que solo habilitamos el fragmento.
@@ -1577,7 +1642,23 @@ Entonces, una vez que me conecte de nuevo a mongos, puedo agregar el fragmento e
 Y especificamos todo el conjunto de réplicas, por lo que solo necesitamos especificar un nodo para que los mongos descubran el primario actual de este replica set.
 
 ```sh
-sh.addShard("m103-repl/192.168.103.100:27012")
+MongoDB Enterprise mongos> sh.addShard("m103-repl/192.168.103.100:27012")
+{
+	"ok" : 0,
+	"errmsg" : "Could not find host matching read preference { mode: \"primary\" } for set m103-repl",
+	"code" : 133,
+	"codeName" : "FailedToSatisfyReadPreference",
+	"operationTime" : Timestamp(1583087372, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1583087372, 1),
+		"signature" : {
+			"hash" : BinData(0,"xbXWfgCMRsOcpqQjg23UAsIApYQ="),
+			"keyId" : NumberLong("6799227993173524506")
+		}
+	}
+}
+MongoDB Enterprise mongos> 
+(ME DEBERIA MARCAR "ok" : 1, ALGO ME FALLA)
 ```
 
 Y, parece que funcionó.
@@ -1585,7 +1666,30 @@ Y, parece que funcionó.
 Solo voy a verificar `sh.status`, y nuestra lista de fragmentos ahora tiene un fragmento.
 
 ```sh
-sh.status()
+MongoDB Enterprise mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+  	"_id" : 1,
+  	"minCompatibleVersion" : 5,
+  	"currentVersion" : 6,
+  	"clusterId" : ObjectId("5e5bb5d636841bd554585640")
+  }
+  shards:
+  active mongoses:
+        "3.6.17" : 1
+  autosplit:
+        Currently enabled: yes
+  balancer:
+        Currently enabled:  yes
+        Currently running:  no
+        Failed balancer rounds in last 5 attempts:  0
+        Migration Results for the last 24 hours: 
+                No recent migrations
+  databases:
+        {  "_id" : "config",  "primary" : "config",  "partitioned" : true }
+
+MongoDB Enterprise mongos> 
+(ME DEBERIA MARCAR EL shards: XXXXXXXX PERO ME LO PONE VACIO!!!!!)
 ```
 
 Y como podemos ver, solo especificamos un nodo, pero Mongo pudo descubrir todos los nodos del conjunto.
@@ -1608,13 +1712,39 @@ Check all answers that apply:
 
 * The mongos configuration file doesn't need to have a port.
 
-* The mongos configuration file doesn't need to have a dbpath.
+* The mongos configuration file doesn't need to have a dbpath. :+1:
 
 * Users must be created on mongos when auth is enabled.
 
 * The config server configuration files need to specify mongos.
 
-* The mongos configuration file needs to specify the config servers.
+* The mongos configuration file needs to specify the config servers. :+1:
+
+**See detailed answer**
+
+**Correct answers:**
+
+**The mongos configuration file needs to specify the config servers.**
+
+Mongos uses the data from the config servers, so it cannot function without communicating with the CSRS.
+
+**The mongos configuration file doesn't need to have a dbpath.**
+
+Mongos doesn't store any data itself, because all the data it uses is stored on the config servers.
+
+**Incorrect answers:**
+
+**The config server configuration files need to specify mongos.**
+
+Mongos' configuration file references the CSRS or standalone config server; not the other way around.
+
+**Users must be created on mongos when auth is enabled.**
+
+Mongos inherits its users from the config servers.
+
+**The mongos configuration file doesn't need to have a port.**
+
+Every mongos (and mongod) process needs to be assigned a port to run on.
 
 ## 8. Laboratorio: configurar un clúster fragmentado
 
