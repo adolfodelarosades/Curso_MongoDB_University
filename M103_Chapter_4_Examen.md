@@ -329,5 +329,110 @@ Replica set members can have priority greater than 1, and this will increase the
 
 Replica sets can have any number of members, although an odd number is recommended.
 
-## 
+## Final: Question 5
+
+**Problem:**
+
+Given the following replica set configuration:
+
+```sh
+conf = {
+  "_id": "replset",
+  "version": 1,
+  "protocolVersion": 1,
+  "members": [
+    {
+      "_id": 0,
+      "host": "localhost:27017",
+      "priority": 1,
+      "votes": 1
+    },
+    {
+      "_id": 1,
+      "host": "localhost:27018",
+      "priority": 1,
+      "votes": 1
+    },
+    {
+      "_id": 2,
+      "host": "localhost:27019",
+      "priority": 1,
+      "votes": 1
+    },
+    {
+      "_id": 3,
+      "host": "localhost:27020",
+      "priority": 0,
+      "votes": 0,
+      "slaveDelay": 3600
+    }
+  ]
+}
+```
+
+What is the most likely role served by the node with `"_id": 3`?
+
+Choose the best answer:
+
+* It serves to service reads and writes for people in the same geographic region as the host machine.
+
+* It serves as a "hot" backup of data in case of accidental data loss on the other members, like a DBA accidentally dropping the database. :+1:
+
+* It serves as a reference to perform analytics on how data is changing over time.
+
+* It serves as a hidden secondary available to use for non-critical analysis operations.
+
+### See detailed answer
+
+The correct answer is:
+
+It serves as a "hot" backup of data in case of accidental data loss on the other members, like a DBA accidentally dropping the database.
+
+The node with `"_id": 3` is delayed by 1 hour. So if a DBA drops a database, that database will be dropped from all secondary nodes *without* a delay, but it will still be present on the node with `"_id": 3` for 1 hour.
+
+All other answers are incorrect.
+
+## Final: Question 6
+
+Problem:
+
+Given the following shard key:
+
+```sh
+{ "country": 1, "_id": 1 }
+```
+
+Which of the following queries will be routed (targeted)? Remember that queries may be routed to more than one shard.
+
+Check all answers that apply:
+
+* `db.customers.find({"_id": 914, "country": "Sweden"})` :+1:
+
+* `db.customers.find({"country": "Norway", "_id": 54})` :+1:
+
+* `db.customers.find({"country": { $gte: "Portugal", $lte: "Spain" }})` :+1:
+
+* `db.customers.find({"_id": 455})`
+
+### See detailed answer
+
+The correct answers are:
+
+* `db.customers.find({"country": "Norway", "_id": 54})`
+
+This specifies both indexes used in the shard key.
+
+* `db.customers.find({"country": { $gte: "Portugal", $lte: "Spain" }})`
+
+This specifies a prefix of the indexes used in the shard key, **`"country"`**, and will be routed to shards containing the necessary information.
+
+* `db.customers.find({"_id": 914, "country": "Sweden"})`
+
+Although the indexes are specified in reverse order, this is a routed query. Any document matching `{"_id": 914, "country": "Sweden"}` **must** be identical to `{"country": "Sweden", "_id": 914}`. The query planner will take advantage of this and reorder the fields.
+
+The incorrect answer is:
+
+* `db.customers.find({"_id": 455})`
+
+Because the neither a prefix nor the full shard key is provided, `mongos` has no way to determine how to appropriately route this query. Instead, it will send this query to all shards in the cluster in a *scatter-gather* operation.
 
