@@ -109,3 +109,57 @@ Due Date:  03 mar. 17:00 UTC
 Final exam questions
 
 6 Items
+
+## M121: The MongoDB Aggregation Framework
+
+Learn how to use MongoDB's Aggregation Framework.
+
+Course Duration
+25 feb. 17:00 UTC - 24 mar. 17:00 UTC
+3 weeks
+
+### Chapter 0: Introduction and Aggregation Concepts
+Introduction to the Aggregation Framework
+
+6 Items
+
+### Chapter 1: Basic Aggregation - $match and $project
+Introducing the $match and $project stages and Aggregation expressions
+
+10 Items 
+
+### Chapter 2: Basic Aggregation - Utility Stages
+$addFields, $replaceRoot, $geoNear, $sample, and cursor-like stages
+
+7 Items
+
+Start Date: 10 mar. 17:00 UTC
+Due Date:  17 mar. 17:00 UTC
+
+### Chapter 3: Core Aggregation - Combining Information
+$group, $unwind, $lookup, $graphLookup, $facet
+
+19 Items
+
+### Chapter 4: Core Aggregation - Multidimensional Grouping
+$facet, $bucket, $bucketAuto, $sortByCount
+
+13 Items
+
+Start Date: 17 mar. 17:00 UTC
+Due Date:  24 mar. 17:00 UTC
+
+### Chapter 5: Miscellaneous Aggregation
+$collStats, $indexStats, $out, Views
+
+5 Items
+
+### Chapter 6: Aggregation Performance and Pipeline Optimization
+Aggregation Performance and Pipeline Optimization
+
+7 Items
+
+### Final Exam
+Final exam questions
+
+7 Items
