@@ -3773,7 +3773,7 @@ Check all answers that apply:
 
 * Query 2 performs a collection scan. :+1:
 
-**See detailed answer**
+#### See detailed answer
 
 **Correct Answers:**
 
@@ -3792,7 +3792,4 @@ Assuming there is no index on `shippingWeight`, then Query 2 would need to perfo
 **Query 2 uses the shard key.**
 
 We know that Query 2 doesn't use the shard key because the shard key is not in the query predicate.
-
-
-
 
