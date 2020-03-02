@@ -1543,7 +1543,8 @@ MIO
   278  mongo --host "m103-repl/192.168.103.100:27001" -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
  
 ```
-**See detailed answer:**
+
+#### See detailed answer:
 
 Below is an example of a valid config file for the first node in our replica set:
 
@@ -2361,6 +2362,7 @@ Nada extraordinario hasta el momento, ya que este `startup_log` solo contiene el
 Entonces, conectemos a nuestro replica set y veamos cómo funcionan estos locales una vez que estemos en la tierra del replica set.
 
 #### Conectarme al Replica Set Creado Localmente 
+
 ```sh
 vagrant@m103:~$ mongod -f ./node1.conf
 about to fork child process, waiting until server is ready for connections.
@@ -3881,7 +3883,7 @@ vagrant@m103:~$ validate_lab_remove_readd_node
 
 Enter answer here: 5a4fff19c0324e9feb9f60b9  (Fuera de Tiempo)
 
-**See detailed answer:**
+#### See detailed answer:
 
 We don't have to change the config files of our `mongod` instances, because the current `bind_ip` resolves the IP address of **m103** hostname.
 
@@ -5194,7 +5196,7 @@ Check all answers that apply:
 
 * The unhealthy node will be receiving the inserted document when it is brought back online. :+1:
 
-**See detailed answer**
+#### See detailed answer
 
 **Correct:**
 
@@ -5531,7 +5533,7 @@ Check all answers that apply:
 
 * nearest :+1:
 
-See detailed answer
+#### See detailed answer
 
 The key concept to understand here is that when two nodes go down in a three-node replica set, the third node becomes a secondary regardless of whether it started as a primary.
 
