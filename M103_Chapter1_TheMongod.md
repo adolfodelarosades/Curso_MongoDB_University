@@ -2150,7 +2150,39 @@ When you're finished, run the following validation script in your vagrant and ou
 vagrant@m103:~$ validate_lab_different_logpath
 ```
 
-Enter answer here:
+Enter answer here: 5a32e5835d7a25685155aa61
+
+#### See detailed answer
+
+There are three different sections to add in the config file in order to complete this lab. The first is the `systemLog` section:
+
+```sh
+systemLog:
+  destination: file
+  path: /var/mongodb/db/mongod.log
+  logAppend: true
+```
+
+This tells mongod to send logs to a file, and specifies that file as `/var/mongodb/mongod.log.logAppend: true` tells mongod to append new entries to the existing log file when the mongod instance restarts.
+
+
+The second section is `processManagement`:
+
+```sh
+processManagement:
+  fork: true
+```
+ 
+This enables a daemon that runs mongod in the background, or "forks" the process. This frees up the terminal window where mongod is launched from.
+
+The third section is `operationProfiling`:
+
+```sh
+operationProfiling:
+  slowOpThresholdMs: 50
+```
+
+This sets the minimum threshold for a "slow" operation. Any operation that takes 50 milliseconds or longer will be logged as a result.
 
 ## 17. Tema: Seguridad Básica: Parte 1
 
@@ -2334,7 +2366,32 @@ When you're finished, run the following validation script in your vagrant and ou
 vagrant@m103:~$ validate_lab_first_application_user
 ```
 
-Enter answer here:
+Enter answer here: 5a32fdd630bff1f2fcb87acf
+
+#### See detailed answer
+
+In order to create this new user, we have to be logged into your MongoDB server as a user with the privilege to create other users. Luckily, the `m103-admin` user from previous labs has the `root` role, and therefore has this privilege.
+
+As a reminder, authenticating to MongoDB as this user can be done with the following command:
+
+```sh
+mongo --port 27000 -u "m103-admin" -p "m103-pass" --authenticationDatabase "admin"
+```
+
+Once we are logged in, we can create our new user with the following command:
+
+```sh
+use admin
+db.createUser({
+  user: "m103-application-user",
+  pwd: "m103-application-pass",
+  roles: [
+    {role: "readWrite", db: "applicationData"}
+  ]
+})
+```
+
+Notice that we created our user on the `admin` database, but we gave that user `readWrite` access to the `applicationData` database. These are two separate actions - the user **authenticates** against `admin` and is **authorized** on `applicationData.
 
 ## 24. Tema: Descripción General de las Herramientas del Servidor
 
@@ -2434,4 +2491,15 @@ When you're finished, run the following validation script in your vagrant and ou
 vagrant@m103:~$ validate_lab_import_dataset
 ```
 
-Enter answer here:
+Enter answer here: 5a383323ba6dbcf3cbcaec97
+
+#### See detailed answer
+
+The import can be properly completed with the following command:
+
+```sh
+mongoimport --drop --port 27000 -u "m103-application-user" \
+-p "m103-application-pass" --authenticationDatabase "admin" \
+--db applicationData --collection products /dataset/products.json
+```
+We authenticate to the database the same way with `mongoimport` as we did with `mongo`. The flags `--db` and `--collection` are used to designate a target database and collection for our data. The flag `--drop` is used to drop the existing collection, so we don't create duplicates by running this command twice.
