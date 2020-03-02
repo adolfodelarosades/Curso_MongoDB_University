@@ -1867,7 +1867,181 @@ Now run the validation script in your vagrant and outside the mongo shell and en
 vagrant@m103:~$ validate_lab_first_sharded_cluster
 ```
 
-Enter answer here:
+Enter answer here: 5a57de1cb1575291ce6e560a
+
+### See detailed answer
+
+#### 1. Bring up the config server replica set (CSRS)
+
+Here are the remaining two config files for `m103-csrs`:
+
+*CSRS Node 2:*
+
+```sh
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: m103-csrs
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26002
+systemLog:
+  destination: file
+  path: /var/mongodb/db/csrs2.log
+  logAppend: true
+processManagement:
+  fork: true
+storage:
+  dbPath: /var/mongodb/db/csrs2
+```
+
+*CSRS Node 3:*
+
+```sh
+sharding:
+  clusterRole: configsvr
+replication:
+  replSetName: m103-csrs
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+net:
+  bindIp: localhost,192.168.103.100
+  port: 26003
+systemLog:
+  destination: file
+  path: /var/mongodb/db/csrs3.log
+  logAppend: true
+processManagement:
+  fork: true
+storage:
+  dbPath: /var/mongodb/db/csrs3
+```
+
+Once all three mongod processes are running, we can bring up `m103-csrs` just like any other replica set.
+
+#### 2. Bring up the mongos
+
+Once we have the config file for our mongos process (`mongos.conf`), we can navigate to the directory where it is located and bring up the mongos:
+
+```sh
+mongos -f mongos.conf
+```
+
+No further configuration of mongos is required for this lab.
+
+#### 3. Reconfigure `m103-repl`
+
+Here are the updated config files for the three nodes in `m103-repl`:
+
+*Node 1:*
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/1
+  wiredTiger:
+     engineConfig:
+        cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27001
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/mongod1/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+operationProfiling:
+  slowOpThresholdMs: 50
+replication:
+  replSetName: m103-repl
+sharding:
+  clusterRole: shardsvr
+```
+
+*Node 2:*
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/2
+  wiredTiger:
+     engineConfig:
+        cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27002
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/mongod2/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+operationProfiling:
+  slowOpThresholdMs: 50
+replication:
+  replSetName: m103-repl
+sharding:
+  clusterRole: shardsvr
+```
+
+*Node 3:*
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/3
+  wiredTiger:
+     engineConfig:
+        cacheSizeGB: .1
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27003
+security:
+  keyFile: /var/mongodb/pki/m103-keyfile
+systemLog:
+  destination: file
+  path: /var/mongodb/db/mongod3/mongod.log
+  logAppend: true
+processManagement:
+  fork: true
+operationProfiling:
+  slowOpThresholdMs: 50
+replication:
+  replSetName: m103-repl
+sharding:
+  clusterRole: shardsvr
+```
+
+Once all three mongod processes are restarted, `m103-repl` is enabled for sharding.
+
+#### 4. Add `m103-repl` as the first shard
+
+From the mongo shell of our mongos, we can run the following command to add our replica set as a shard in this cluster:
+
+```sh
+sh.addShard("m103-repl/192.168.103.100:27001")
+```
+
+Note that we only need to specify one node in the replica set of our new shard. The response of this command should contain something like this:
+
+```sh
+{
+  "shardAdded" : "m103-repl"
+}
+```
+
+Running `sh.status()` should show our new shard in the cluster:
+
+```sh
+shards:
+        {  "_id" : "m103-repl",  "host" : "m103-repl/192.168.103.100:27001,192.168.103.100:27002,192.168.103.100:27003",  "state" : 1 }
+```
+
+From this point onward, all CRUD operations will go through mongos. We need not connect to individual shards, as mongos will route our queries for us.
 
 ## 9. Tema: Config DB
 
@@ -2675,7 +2849,129 @@ vagrant@m103:~$ validate_lab_shard_collection
 
 If you chose the wrong shard key, the validation script will give you an error. However, if you already imported the dataset, you must drop the collection and reimport it in order to choose a different shard key.
 
-Enter answer here:
+Enter answer here: 5a621149d083824c6d889865
+
+### See detailed answer
+
+#### 1. Adding a Second Shard
+
+Once `m103-repl-2` is up and running, we exit the mongo shell and connect to mongos. We can add our new shard with the following command:
+
+```sh
+sh.addShard("m103-repl-2/192.168.103.100:27004")
+```
+
+The output of `sh.status()` should look something like this:
+
+```sh
+shards:
+  {  "_id" : "m103-repl",  "host" : "m103-repl/192.168.103.100:27001,192.168.103.100:27002,192.168.103.100:27003",  "state" : 1 }
+  {  "_id" : "m103-repl-2",  "host" : "m103-repl-2/192.168.103.100:27004,192.168.103.100:27005,192.168.103.100:27006",  "state" : 1 }
+```
+
+#### 2. Importing Data onto the Primary Shard
+
+Importing data into a sharded cluster is always done with the mongos. We can import our dataset into `m103.products` with the following command:
+
+```sh
+mongoimport /dataset/products.json --port 26000 -u "m103-admin" \
+-p "m103-pass" --authenticationDatabase "admin" \
+--db m103 --collection products
+```
+
+We can verify that the entire dataset was imported with `count()`:
+
+```sh
+use m103
+db.products.count()
+```
+
+This should return `516784`.
+
+#### 3. Sharding the Collection
+
+We can look at all potential shard keys with `findOne()`:
+
+```sh
+use m103
+db.products.findOne()
+```
+
+The output of this command should give us something like this:
+
+```sh
+{
+    "_id" : ObjectId("573f706ff29313caab7d7395"),
+    "sku" : 1000000749,
+    "name" : "Gods And Heroes: Rome Rising - Windows [Digital Download]",
+    "type" : "Software",
+    "regularPrice" : 39.95,
+    "salePrice" : 39.95,
+    "shippingWeight" : "0.01"
+}
+```
+
+A trick to determining the correct shard key is process of elimination. We can rule out the potential shard keys which don't follow the rules of cardinality, frequency, rate of change, and query patterns.
+
+We can rule out `_id` because it is rarely used in queries, and we would therefore be wasting an index by sharding on it. In addition, it is monotonically increasing, so it will continue to increase forever and cause hotspotting in our cluster.
+
+We can rule out `type` because this field does not have high cardinality. In fact, it only has four possible values - we can see this by running the following command on `m103.products`:
+
+```sh
+db.products.distinct("type")
+```
+
+We can rule out `regularPrice` and `salePrice` because they are both subject to change and the shard key is immutable. If we sharded on one of these fields, any future updates to that field would result in an error.
+
+We can rule out `shippingWeight` because every document in the collection must have the shard key, and not every document here has a `shippingWeight`.
+
+From this, we have only two good shard keys:
+
+* `name`
+* `sku`
+
+Both of these fields have **high cardinality, low frequency** and **non-monotonically increasing values**. They are also commonly used in queries.
+
+The validation script will accept either solution.
+
+Before we can shard, we must enable sharding on the `m103 database`:
+
+```sh
+sh.enableSharding("m103")
+```
+
+Then, we must create an index on the shard key (in this example, `name`):
+
+```sh
+db.products.createIndex({"name": 1})
+```
+
+To shard on `name`, we specify the collection:
+
+```sh
+db.adminCommand( { shardCollection: "m103.products", key: { name: 1 } } )
+```
+
+**Choosing the Correct Shard Key**
+
+To choose a different shard key, the collection must be dropped and the dataset must be reimported.
+
+From the mongos shell, we can drop the `products` collection with the following command:
+
+```sh
+use m103
+db.products.drop()
+```
+
+Now we exit the mongos shell and reimport the dataset:
+
+```sh
+mongoimport /dataset/products.json --port 26000 -u "m103-admin" \
+-p "m103-pass" --authenticationDatabase "admin" \
+--db m103 --collection products
+```
+
+Now we can shard the collection again, because the dataset gets imported onto the primary shard.
 
 ## 18. Tema: Chunks
 
