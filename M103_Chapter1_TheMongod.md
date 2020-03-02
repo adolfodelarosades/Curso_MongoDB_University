@@ -901,6 +901,44 @@ kill <pid>
 
 Enter answer here:5a21c6dd403b6546001e79c0
 
+#### See detailed answer
+
+In order to complete this lab, we first must properly configure our mongod. Here is a command that fulfills the requirements of the lab:
+
+```sh
+mongod --port 27000 --dbpath /data/db --auth --bind_ip 192.168.103.100,127.0.0.1
+```
+
+Let's go through these command line options:
+
+* `--port 27000` tells mongod to run on port 27000, which means we have to connect to mongo on that port.
+* `--dbpath /data/db` tells mongod to store data files in the `/data/db` directory. This directory must exist before we start mongod, or we will receive an error.
+* `--auth` enables access control on our deployment. This requires users to identify themselves before connecting - we will learn how to create users below.
+* `--bind_ip 192.168.103.100,127.0.0.1` tells mongod to bind to the IP addresses `192.168.103.100` and `127.0.0.1` when listening for connections. `--bind_ip 192.168.103.100,localhost` would also work, as the name `localhost` resolves to `127.0.0.1`.
+
+After configuring mongod, we can connect to mongo by simply specifying a port:
+
+```sh
+mongo --port 27000
+```
+
+We don't have to specify a `--host` here, because the default host is `127.0.0.1`, or `localhost`. We will need to connect to localhost in order to complete the next part of the lab!
+
+Once our mongod is running with the correct settings, we must create the first user on our database, as instructed. Because we don't have any users yet, but access control is enabled, we leverage the [localhost exception](https://docs.mongodb.com/manual/core/security-users/#localhost-exception) to create our first user. This user must be able to create other users because we can only use this exception once. Luckily, our user has the role `root` and can create other users:
+
+```sh
+use admin
+db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+```
+
+Notice that we can only use the localhost exception if we're connected to the `admin` database. If the user creation was successful, we should receive a message that says `Successfully added user`.
+
 ## 4. Tema: Archivo de Configuración
 
 ### Lecture Notes
