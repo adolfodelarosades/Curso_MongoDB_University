@@ -1264,6 +1264,22 @@ security:
 ```
 Enter answer here: 5a2f0e41ae3c4e2f7427ee8f
 
+#### See detailed answer
+
+The configuration for this mongod is the same as the previous lab, but the settings should be passed in a configuration file instead of the command line. Here is an example of a valid config file for this lab:
+
+```sh
+storage:
+  dbPath: /data/db
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27000
+security:
+  authorization: enabled
+```
+
+Again, `localhost` is an alias for `127.0.0.1`, so they can be used interchangeably.
+
 ## 7. Tema: Estructura de Archivo
 
 ### Lecture Notes
@@ -1472,7 +1488,6 @@ El resto es utilizado exclusivamente por el proceso del servidor MongoDB para op
 
 Consulte el soporte de MongoDB o nuestra documentación para obtener instrucciones sobre cómo interactuar con cualquiera de estos archivos.
 
-
 ## 8. Examen File Structure
 
 **Problem:**
@@ -1564,6 +1579,50 @@ vagrant@m103:~$ validate_lab_change_dbpath
 ```
 
 Enter answer here: 5a2f973bcb6b357b57e6bf43
+
+#### See detailed answer
+
+Because `/var/` is owned by `root`, we have to create the subdirectory `/var/mongodb/db/` as `root`:
+
+```sh
+sudo mkdir -p /var/mongodb/db
+```
+
+However, in order to use `/var/mongodb/db/` as the dbpath, it must allow write access by the user running mongod. We can accomplish this by changing the owner of our new directory to `vagrant`:
+
+```sh
+sudo chown vagrant:vagrant /var/mongodb/db
+```
+
+Now we can edit our configuration file to use this new directory as the DB path:
+
+```sh
+storage:
+  dbPath: /var/mongodb/db/
+net:
+  bindIp: 192.168.103.100,localhost
+  port: 27000
+security:
+  authorization: enabled
+```
+
+Start the `mongod` process with:
+
+```sh
+mongod -f mongod.conf
+```
+The process of creating this user is identical to the previous labs, but we have to repeat it for our new DB path:
+
+```sh
+use admin
+db.createUser({
+  user: "m103-admin",
+  pwd: "m103-pass",
+  roles: [
+    {role: "root", db: "admin"}
+  ]
+})
+```
 
 ## 10. Tema: Comandos Básicos
 
