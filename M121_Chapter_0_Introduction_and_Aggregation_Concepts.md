@@ -262,6 +262,64 @@ Y eso es todo con respecto a los requisitos previos del curso para conectarse a 
 
 ### Transcripción
 
+Pipelines.
+
+Nos escuchará mencionar los pipelines(tuberías) bastante a lo largo del curso, así que tomemos unos minutos para analizar que son.
+
+Los pipelines pueden considerarse como una cinta transportadora en una fábrica.
+
+A lo largo de la línea, hay diferentes estaciones de montaje.
+
+Estas estaciones de montaje son etapas.
+
+Dependiendo de lo que queramos lograr, podemos tener solo una etapa, o podemos tener muchas etapas.
+
+Los pipelines funcionan así.
+
+Los documentos, representados por estos cuadrados, ingresan a nuestro pipelines y comienzan a fluir hacia nuestra primera etapa.
+
+Esta etapa se llama `$match`, que se presentará muy pronto.
+
+Configuramos esta etapa para que solo pasen los cuadrados rojo y azul.
+
+Luego, fluyen a través de nuestra tubería y entran en la segunda etapa.
+
+En este ejemplo, llamaremos a esta etapa `$project`.
+
+Preparamos esta etapa para transformar nuestros cuadrados en círculos.
+
+Esta es una pequeña representación del poder que ofrece el aggregation framework.
+
+Podemos transformar nuestros datos en casi cualquier forma que deseemos.
+
+Cubriremos la etapa del `$project` con gran detalle en lecciones posteriores.
+
+Esta etapa representa una de las muchas etapas de análisis potentes disponibles, y se llama `$group`.
+
+Aquí, hemos configurado el escenario para reunir todos los documentos que fluyen hacia él y producir un solo documento que nos da la proporción de círculos rojos a azules.
+
+Cubriremos `$group` y muchas otras poderosas etapas de análisis de datos, más adelante en el curso.
+
+Ahí tienes.
+
+Una descripción general de alto nivel de lo que son los pipelines.
+
+En el nivel más básico, son una composición de etapas, de una a muchas, que podemos organizar y configurar de la forma que más nos guste.
+
+El aggregation framework proporciona muchas etapas que nos permiten filtrar y transformar nuestros datos.
+
+Todo lo que tenemos que hacer es componer el pipeline.
+
+Algunos puntos clave para recordar.
+
+Los pipelines son una composición de etapas.
+
+Las etapas son configurables para producir las transformaciones deseadas.
+
+Los documentos fluyen a través de las etapas como piezas en una línea de ensamblaje o agua a través de una tubería.
+
+Finalmente, con solo unas pocas excepciones, que cubriremos más adelante, las etapas se pueden organizar de la forma que queramos y todas las que necesitemos.
+
 ## 4. Examen
 
 ## 5. Tema: Estructura de Aggregation y Sintaxis
