@@ -1,0 +1,14 @@
+# Capítulo 1: Aggregation básica: `$match` y `$project`
+
+### Lecciones
+
+1. Tema: `$match`: Filtrado de documentos
+2. Examen
+3. Tema: Laboratorio - `$match`
+4. Tareas
+5. Tema: Dar forma a documentos con `$project`
+6. Examen
+7. Laboratorio: Cambio de la forma del documento con `$project`
+8. Laboratorio - Campos Computados
+9. Tema: Laboratorio opcional: Expresiones con `$project`
+10. Examen
