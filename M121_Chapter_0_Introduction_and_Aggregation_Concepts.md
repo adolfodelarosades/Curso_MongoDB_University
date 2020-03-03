@@ -145,11 +145,13 @@ Una nota: también deberá poder hacer una conexión TCP en el puerto 27017.
 
 Esto es fácil de probar.
 
-Visita portquiz.net:27017.
+Visita [portquiz.net:27017](http://portquiz.net:27017/).
 
 Debería ver una página que se parece mucho a esto.
 
-Y asegúrese de ver algo como esto aquí que dice que ha llegado a esta página en el puerto 27017.
+<img src="images/m121/c0/0-2-portquiz.png">
+
+Y asegúrese de ver algo como esto `You have reached this page on port 27017.` que dice que ha llegado a esta página en el puerto 27017.
 
 Si no ve esta página, comuníquese con su administrador de red para abrir este puerto.
 
@@ -157,7 +159,7 @@ Además, asegúrese de publicar en los foros para que podamos ayudarlo hasta que
 
 Como ha visto a mí y a otros instructores usar nuevos operadores de agregación a lo largo del curso, le recomendamos que pause el video y lo siga.
 
-Todas las colecciones que realizarán operaciones estarán disponibles para usted en el grupo Class Atlas.
+Todas las colecciones que realizarán operaciones estarán disponibles para usted en el Class Atlas Cluster.
 
 Entonces, ¿qué es Atlas?
 
@@ -177,27 +179,84 @@ Volveremos a visitar Atlas más adelante en el curso.
 
 A continuación, asegurémonos de tener MongoDB instalado.
 
-Visite mongodb.com y haga clic en el botón Descargar.
+Visite [mongodb.com](https://www.mongodb.com/) y haga clic en el botón Descargar.
 
 Vaya a Enterprise y seleccione la descarga que sea adecuada para su sistema operativo.
 
 Enterprise es gratis para probar y evaluar, por lo que lo usaremos durante todo el curso.
 
-Mientras se está descargando, hagamos clic en Recursos y documentación.
+Mientras se está descargando, hagamos clic en Recursos y [documentación](https://docs.mongodb.com/manual/).
 
 Haga clic en Tutoriales y haga clic en MongoDB Enterprise.
 
-Desplácese hacia abajo y encuentre el tutorial para instalar MongoDB Enterprise en su sistema operativo específico.
+Desplácese hacia abajo y encuentre el [tutorial para instalar MongoDB Enterprise](https://docs.mongodb.com/guides/server/install/) en su sistema operativo específico.
 
-Por último, necesitamos probar nuestra conexión con el clúster de clase Atlas.
+Por último, necesitamos probar nuestra conexión con el class Atlas cluster.
 
 Abra una terminal y pegue la información que encuentre debajo de este video.
 
-Continúe y escriba show dbs para ver todas las bases de datos disponibles en el clúster.
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxemini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.nemini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.momini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/aggregations?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl -u m121 -p aggregations --norc
+2020-03-03T18:20:22.606+0100 W  CONTROL  [main] Option: ssl is deprecated. Please use tls instead.
+MongoDB shell version v4.2.2
+connecting to: mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/aggregations?authSource=admin&compressors=disabled&gssapiServiceName=mongodb&replicaSet=Cluster0-shard-0
+2020-03-03T18:20:23.067+0100 I  NETWORK  [js] Starting new replica set monitor for Cluster0-shard-0/cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017
+2020-03-03T18:20:23.068+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-01-jxeqq.mongodb.net:27017
+2020-03-03T18:20:23.068+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-00-jxeqq.mongodb.net:27017
+2020-03-03T18:20:23.068+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-02-jxeqq.mongodb.net:27017
+2020-03-03T18:20:24.340+0100 I  NETWORK  [ReplicaSetMonitor-TaskExecutor] Confirmed replica set for Cluster0-shard-0 is Cluster0-shard-0/cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017
+Implicit session: session { "id" : UUID("1a69fa70-7b1a-4b7c-a269-6c49349ce894") }
+MongoDB server version: 3.6.17
+WARNING: shell and server versions do not match
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Escribir colecciones de espectáculos mostrará colecciones dentro de la base de datos de agregaciones.
+Continúe y escriba `show dbs` para ver todas las bases de datos disponibles en el clúster.
 
-Y eso es todo por los requisitos previos del curso para conectarse a Atlas.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show dbs
+100YWeatherSmall  0.117GB
+admin             0.000GB
+aggregations      0.067GB
+citibike          0.361GB
+city              0.002GB
+config            0.018GB
+coursera-agg      0.083GB
+local             0.881GB
+mflix             0.458GB
+results           0.000GB
+ships             0.001GB
+video             0.448GB
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Escribir `show collections` mostrará las colecciones dentro de la base de datos de `aggregations`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db
+aggregations
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+air_airlines
+air_alliances
+air_routes
+bronze_banking
+child_reference
+customers
+employees
+exoplanets
+gold_banking
+icecream_data
+movies
+nycFacilities
+parent_reference
+silver_banking
+solarSystem
+stocks
+system.views
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y eso es todo con respecto a los requisitos previos del curso para conectarse a Atlas.
 
 ## 3. Tema: El Concepto de Pipelines
 
