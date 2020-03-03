@@ -135,6 +135,70 @@ system.views
 
 ### Transcripción
 
+Antes de sumergirnos en el curso, analicemos algunos requisitos previos y analicemos la conexión a la infraestructura que respaldará la clase.
+
+Los requisitos previos del curso son mínimos.
+
+Todo lo que se requiere es un sistema operativo moderno de 64 bits y una conexión a Internet y su participación.
+
+Una nota: también deberá poder hacer una conexión TCP en el puerto 27017.
+
+Esto es fácil de probar.
+
+Visita portquiz.net:27017.
+
+Debería ver una página que se parece mucho a esto.
+
+Y asegúrese de ver algo como esto aquí que dice que ha llegado a esta página en el puerto 27017.
+
+Si no ve esta página, comuníquese con su administrador de red para abrir este puerto.
+
+Además, asegúrese de publicar en los foros para que podamos ayudarlo hasta que se resuelva este problema.
+
+Como ha visto a mí y a otros instructores usar nuevos operadores de agregación a lo largo del curso, le recomendamos que pause el video y lo siga.
+
+Todas las colecciones que realizarán operaciones estarán disponibles para usted en el grupo Class Atlas.
+
+Entonces, ¿qué es Atlas?
+
+Atlas es el servicio de alojamiento en la nube de MongoDB.
+
+Dejaremos que MongoDB se preocupe por optimizar el almacenamiento, la seguridad y respaldar nuestros datos para este curso.
+
+Registrarse en Atlas es fácil y gratuito.
+
+Visite mongodb.com/cloud/atlas y haga clic en el botón Comenzar gratis.
+
+Después de hacer clic en el botón, complete su información y haga clic en Comenzar gratis nuevamente.
+
+Y por ahora, eso es todo.
+
+Volveremos a visitar Atlas más adelante en el curso.
+
+A continuación, asegurémonos de tener MongoDB instalado.
+
+Visite mongodb.com y haga clic en el botón Descargar.
+
+Vaya a Enterprise y seleccione la descarga que sea adecuada para su sistema operativo.
+
+Enterprise es gratis para probar y evaluar, por lo que lo usaremos durante todo el curso.
+
+Mientras se está descargando, hagamos clic en Recursos y documentación.
+
+Haga clic en Tutoriales y haga clic en MongoDB Enterprise.
+
+Desplácese hacia abajo y encuentre el tutorial para instalar MongoDB Enterprise en su sistema operativo específico.
+
+Por último, necesitamos probar nuestra conexión con el clúster de clase Atlas.
+
+Abra una terminal y pegue la información que encuentre debajo de este video.
+
+Continúe y escriba show dbs para ver todas las bases de datos disponibles en el clúster.
+
+Escribir colecciones de espectáculos mostrará colecciones dentro de la base de datos de agregaciones.
+
+Y eso es todo por los requisitos previos del curso para conectarse a Atlas.
+
 ## 3. Tema: El Concepto de Pipelines
 
 ### Transcripción
