@@ -268,9 +268,15 @@ Nos escuchará mencionar los pipelines(tuberías) bastante a lo largo del curso,
 
 Los pipelines pueden considerarse como una cinta transportadora en una fábrica.
 
+<img src="images/m121/c0/0-3-assembly.png">
+
 A lo largo de la línea, hay diferentes estaciones de montaje.
 
+<img src="images/m121/c0/0-3-assembly-2.png">
+
 Estas estaciones de montaje son etapas.
+
+<img src="images/m121/c0/0-3-assembly-3.png">
 
 Dependiendo de lo que queramos lograr, podemos tener solo una etapa, o podemos tener muchas etapas.
 
@@ -278,25 +284,43 @@ Los pipelines funcionan así.
 
 Los documentos, representados por estos cuadrados, ingresan a nuestro pipelines y comienzan a fluir hacia nuestra primera etapa.
 
+<img src="images/m121/c0/0-3-assembly-4.png">
+
 Esta etapa se llama `$match`, que se presentará muy pronto.
+
+<img src="images/m121/c0/0-3-assembly-5.png">
 
 Configuramos esta etapa para que solo pasen los cuadrados rojo y azul.
 
+<img src="images/m121/c0/0-3-assembly-6.png">
+
 Luego, fluyen a través de nuestra tubería y entran en la segunda etapa.
+
+<img src="images/m121/c0/0-3-assembly-7.png">
 
 En este ejemplo, llamaremos a esta etapa `$project`.
 
+<img src="images/m121/c0/0-3-assembly-8.png">
+
 Preparamos esta etapa para transformar nuestros cuadrados en círculos.
 
+<img src="images/m121/c0/0-3-assembly-9.png">
+
 Esta es una pequeña representación del poder que ofrece el aggregation framework.
+
+<img src="images/m121/c0/0-3-assembly-10.png">
 
 Podemos transformar nuestros datos en casi cualquier forma que deseemos.
 
 Cubriremos la etapa del `$project` con gran detalle en lecciones posteriores.
 
-Esta etapa representa una de las muchas etapas de análisis potentes disponibles, y se llama `$group`.
+La etapa 3 representa una de las muchas etapas de análisis potentes disponibles, y se llama `$group`.
+
+<img src="images/m121/c0/0-3-assembly-11.png">
 
 Aquí, hemos configurado el escenario para reunir todos los documentos que fluyen hacia él y producir un solo documento que nos da la proporción de círculos rojos a azules.
+
+<img src="images/m121/c0/0-3-assembly-12.png">
 
 Cubriremos `$group` y muchas otras poderosas etapas de análisis de datos, más adelante en el curso.
 
@@ -314,13 +338,35 @@ Algunos puntos clave para recordar.
 
 Los pipelines son una composición de etapas.
 
+<img src="images/m121/c0/0-3-composition.png">
+
 Las etapas son configurables para producir las transformaciones deseadas.
+
+<img src="images/m121/c0/0-3-configurable.png">
 
 Los documentos fluyen a través de las etapas como piezas en una línea de ensamblaje o agua a través de una tubería.
 
+<img src="images/m121/c0/0-3-flow.png">
+
 Finalmente, con solo unas pocas excepciones, que cubriremos más adelante, las etapas se pueden organizar de la forma que queramos y todas las que necesitemos.
 
-## 4. Examen
+<img src="images/m121/c0/0-3-arranged.png">
+
+## 4. Examen The Concept of Pipelines
+
+**Problem:**
+
+Which of the following is true about pipelines and the Aggregation Framework?
+
+Check all answers that apply:
+
+* Documents flow through the pipeline, passing from one stage to the next :+1:
+
+* Pipelines must consist of at least two stages.
+
+* Stages cannot be configured to produce our desired output.
+
+* The Aggregation Framework provides us many stages to filter and transform our data :+1:
 
 ## 5. Tema: Estructura de Aggregation y Sintaxis
 
