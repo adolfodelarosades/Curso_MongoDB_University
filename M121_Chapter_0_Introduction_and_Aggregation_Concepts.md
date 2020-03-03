@@ -368,6 +368,26 @@ Check all answers that apply:
 
 * The Aggregation Framework provides us many stages to filter and transform our data :+1:
 
+### See detailed answer
+
+Let's review this quiz options:
+
+* Stages cannot be configured to produce our desired output.
+
+This is definitely **not** correct. Stages can be configured in almost any way we desire.
+
+* Pipelines must consist of at least two stages.
+
+This is **not** correct. Pipelines must consist of at least one stage, and can have many stages.
+
+* Documents flow through the pipeline, passing one stage to the next
+
+This is correct.
+
+* The Aggregation Framework provides us many stages to filter and transform our data.
+
+* This is also correct.
+
 ## 5. Tema: Estructura de Aggregation y Sintaxis
 
 ### Notas de lectura
@@ -376,4 +396,136 @@ Check all answers that apply:
 
 ### Transcripción
 
-## 6. Examen
+Dediquemos unos minutos a hablar sobre la estructura y la sintaxis del aggregation framework.
+
+El aggregation framework tiene una estructura simple y confiable y una sintaxis repetible.
+
+Los pipelines pueden contener una o más etapas.
+
+Cada etapa es un objeto JSON de pares de key/value (clave/valor).
+
+Con solo unas pocas excepciones, podemos tener tantas etapas como queramos.
+
+Además, se pueden pasar opciones.
+
+Por ejemplo, especificando si se permite el uso del disco para grandes aggregations, o para ver el plan explain de la aggregation para ver si está utilizando índices o si el servidor optimizó la pipeline.
+
+Echemos un vistazo a un pipeline muy simple pero muy real y analicemos la sintaxis.
+
+Aquí, tenemos una etapa de coincidencia que verifica si la composición atmosférica contiene oxígeno o no.
+
+Y si la temperatura media cae dentro de este rango.
+
+Luego, tenemos una etapa de proyecto que cambia la forma del documento y calcula el nuevo valor.
+
+Más sobre esto en un momento.
+
+Por último, este es nuestro objeto de opciones.
+
+Cada etapa se compone de operadores o expresiones.
+
+A medida que continuamos a través del curso, se le presentarán muchos de estos.
+
+Asegúrese de consultar la página de referencia rápida [Aggregation Pipeline Quick Reference](https://docs.mongodb.com/manual/meta/aggregation-quick-reference/index.html) para resolver dudas.
+
+A lo largo del curso, utilizaremos los términos operador y expresión, y es vital que pueda acceder rápidamente a la documentación para estos.
+
+Entonces, ¿qué es un operador?
+
+Para este curso, cuando decimos operadores, nos referimos a operadores de consulta o etapas de agregación.
+
+En este ejemplo, `$match` y `$project` son operadores de agregación, y `$in`, `$gte` y `$lte` son operadores de consulta.
+
+Como regla general, los operadores siempre aparecen en la posición key(clave) de un documento.
+
+`$match` es un poco especial y lo aprenderemos más adelante.
+
+¿Qué es una expresión?
+
+Las expresiones actúan mucho como funciones.
+
+Proporcionamos argumentos y ellos proporcionan una salida calculada.
+
+Y al igual que las funciones, las expresiones se pueden componer para formar nuevas y potentes transformaciones de datos.
+
+MongoDB proporciona expresiones para trabajar y producir valores para muchos tipos de valores.
+
+En la etapa del project, `$gt` es una expresión.
+
+Y sus argumentos se suministran en este array.
+
+Este `$number` de lunas, rodeado de comillas, también es una expresión que aprenderá en un momento.
+
+Una manera fácil de recordar cómo usar expresiones es que siempre aparecerá en la posición del value(valor).
+
+Ejecutemos esto ahora para ver el resultado.
+
+Aquí, vemos el resultado del campo calculado.
+
+Parece que la Tierra no es el único planeta que tiene oxígeno.
+
+Es una temperatura relativamente cómoda y de hecho tiene lunas.
+
+Una cosa más importante para cubrir.
+
+Podemos encontrar una sintaxis como esta.
+
+La primera es una expresión de field path y se usa para acceder al valor de un campo en el documento, como el número de movimientos en el primer ejemplo.
+
+El segundo, con dos signos de dólar seguidos de una palabra en mayúscula, es una variable de nivel del sistema.
+
+`$current` se refiere al documento actual.
+
+Y puede encontrar el significado de los demás en la página de referencia rápida.
+
+La última con dos signos de dólar seguidos de una palabra en minúscula es una variable de usuario.
+
+Las expresiones nos permiten vincular temporalmente un valor a un nombre, o proporcionarnos un nombre especial, para acceder a algunos datos.
+
+Y ahi vamos.
+
+La estructura del aggregation framework y la sintaxis.
+
+Recomendamos encarecidamente que use un complemento que tenga una coincidencia de paréntesis mientras construye sus pipelines para facilitar la detección de errores.
+
+Solo hay algunas cosas para recordar.
+
+Los pipelines son siempre un array de una o más etapas.
+
+Las etapas se componen de uno o más operadores de aggregation o expresiones.
+
+Las expresiones pueden tomar un solo argumento o un array de argumentos.
+
+Nos vemos en la próxima lección.
+
+## 6. Examen Aggregation Structure and Syntax
+
+**Problem:**
+
+Which of the following statements is true?
+
+Check all answers that apply:
+
+* Only one expression per stage can be used.
+
+* Some expressions can only be used in certain stages.
+
+* An aggregation pipeline is an array of stages.
+
+### See detailed answer
+
+In this quiz, we have the following correct answers:
+
+* An aggregation pipeline is an array of stages.
+
+This is correct.
+
+* Some expressions can only be used in certian stages.
+
+This is correct. For example, accumulator expressions can only be used within the `$group` stage, with select accumulator expressions available in the `$project` stage. You'll learn about these stages in depth in the course!
+
+The other option is incorrect:
+
+* Only one expression per stage can be used.
+
+This is not correct. Multiple expressions can be used.
