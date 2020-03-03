@@ -402,25 +402,44 @@ El aggregation framework tiene una estructura simple y confiable y una sintaxis 
 
 Los pipelines pueden contener una o más etapas.
 
+```sh
+db.userColl.aggregate( [{ stage1 }, { stage2 }, ..., { stageN }], {options} ) 
+```
+
 Cada etapa es un objeto JSON de pares de key/value (clave/valor).
 
 Con solo unas pocas excepciones, podemos tener tantas etapas como queramos.
 
-Además, se pueden pasar opciones.
+Adicionalmente, se pueden pasar **options**.
 
-Por ejemplo, especificando si se permite el uso del disco para grandes aggregations, o para ver el plan explain de la aggregation para ver si está utilizando índices o si el servidor optimizó la pipeline.
+Por ejemplo, especificando si se permite el uso del disco para grandes aggregations, o para ver el explain plan de la aggregation, para ver si está utilizando índices o si el servidor optimizó la pipeline.
 
 Echemos un vistazo a un pipeline muy simple pero muy real y analicemos la sintaxis.
 
-Aquí, tenemos una etapa de coincidencia que verifica si la composición atmosférica contiene oxígeno o no.
+```sh
+db.solarSystem.aggregate([{
+  "$match": {
+    "atmosphericComposition": { "$in": [/O2/] },
+    "meanTemperature": { $gte: -40, "$lte": 40 }
+  }
+}, {
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "hasMoons": { "$gt": ["$numberOfMoons", 0] }
+  }
+}], { "allowDiskUse": true});
+```
 
-Y si la temperatura media cae dentro de este rango.
+Aquí, tenemos una etapa **`match`** que verifica si la composición atmosférica(`atmosphericComposition`) contiene oxígeno o no.
 
-Luego, tenemos una etapa de proyecto que cambia la forma del documento y calcula el nuevo valor.
+Y si la temperatura media (`meanTemperature`) cae dentro de este rango.
+
+Luego, tenemos una etapa **`project`** que cambia la forma del documento y calcula el nuevo valor.
 
 Más sobre esto en un momento.
 
-Por último, este es nuestro objeto de opciones.
+Por último, este es nuestro objeto de options `{ "allowDiskUse": true}`.
 
 Cada etapa se compone de operadores o expresiones.
 
@@ -430,9 +449,9 @@ Asegúrese de consultar la página de referencia rápida [Aggregation Pipeline Q
 
 A lo largo del curso, utilizaremos los términos operador y expresión, y es vital que pueda acceder rápidamente a la documentación para estos.
 
-Entonces, ¿qué es un operador?
+Entonces, ¿qué es un [Operador](https://docs.mongodb.com/manual/meta/aggregation-quick-reference/index.html#operator-expressions)?
 
-Para este curso, cuando decimos operadores, nos referimos a operadores de consulta o etapas de agregación.
+Para este curso, cuando decimos operadores, nos referimos a [query operators](https://docs.mongodb.com/manual/reference/operator/aggregation/) o [aggregation stages](https://docs.mongodb.com/manual/meta/aggregation-quick-reference/index.html#stages).
 
 En este ejemplo, `$match` y `$project` son operadores de agregación, y `$in`, `$gte` y `$lte` son operadores de consulta.
 
@@ -440,7 +459,7 @@ Como regla general, los operadores siempre aparecen en la posición key(clave) d
 
 `$match` es un poco especial y lo aprenderemos más adelante.
 
-¿Qué es una expresión?
+¿Qué es una [Expresión](https://docs.mongodb.com/manual/meta/aggregation-quick-reference/index.html#expressions)?
 
 Las expresiones actúan mucho como funciones.
 
@@ -450,17 +469,34 @@ Y al igual que las funciones, las expresiones se pueden componer para formar nue
 
 MongoDB proporciona expresiones para trabajar y producir valores para muchos tipos de valores.
 
-En la etapa del project, `$gt` es una expresión.
+En la etapa del **`project`**  `$gt` es una expresión.
 
-Y sus argumentos se suministran en este array.
+Y sus argumentos se suministran en este array `["$numberOfMoons", 0]`.
 
-Este `$number` de lunas, rodeado de comillas, también es una expresión que aprenderá en un momento.
+Este `"$numberOfMoons"`, rodeado de comillas, también es una expresión que aprenderá en un momento.
 
 Una manera fácil de recordar cómo usar expresiones es que siempre aparecerá en la posición del value(valor).
 
 Ejecutemos esto ahora para ver el resultado.
 
-Aquí, vemos el resultado del campo calculado.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$match": {
+...     "atmosphericComposition": { "$in": [/O2/] },
+...     "meanTemperature": { $gte: -40, "$lte": 40 }
+...   }
+... }, {
+...   "$project": {
+...     "_id": 0,
+...     "name": 1,
+...     "hasMoons": { "$gt": ["$numberOfMoons", 0] }
+...   }
+... }], { "allowDiskUse": true});
+{ "name" : "Earth", "hasMoons" : true }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Aquí `{ "name" : "Earth", "hasMoons" : true }`, vemos el resultado del campo calculado.
 
 Parece que la Tierra no es el único planeta que tiene oxígeno.
 
@@ -470,15 +506,23 @@ Una cosa más importante para cubrir.
 
 Podemos encontrar una sintaxis como esta.
 
-La primera es una expresión de field path y se usa para acceder al valor de un campo en el documento, como el número de movimientos en el primer ejemplo.
+```sh
+Field Path: "$fieldName"   ("$numberOfMoons")
 
-El segundo, con dos signos de dólar seguidos de una palabra en mayúscula, es una variable de nivel del sistema.
+System Variable: "$$UPPERCASE"  ("$$CURRENT")
 
-`$current` se refiere al documento actual.
+User Variable: "$$foo"
+```
+
+La primera es una expresión de `Field Path` y se usa para acceder al valor de un campo en el documento, como el `$numberOfMoons` en el primer ejemplo.
+
+El segundo `$$UPPERCASE`, es una variable de nivel del sistema.
+
+`$$CURRENT` se refiere al documento actual.
 
 Y puede encontrar el significado de los demás en la página de referencia rápida.
 
-La última con dos signos de dólar seguidos de una palabra en minúscula es una variable de usuario.
+La última `$$foo` es una variable de usuario.
 
 Las expresiones nos permiten vincular temporalmente un valor a un nombre, o proporcionarnos un nombre especial, para acceder a algunos datos.
 
@@ -486,17 +530,17 @@ Y ahi vamos.
 
 La estructura del aggregation framework y la sintaxis.
 
-Recomendamos encarecidamente que use un complemento que tenga una coincidencia de paréntesis mientras construye sus pipelines para facilitar la detección de errores.
+Recomendamos encarecidamente que use un complemento que tenga una coincidencia(match) de paréntesis mientras construye sus pipelines para facilitar la detección de errores.
 
 Solo hay algunas cosas para recordar.
 
-Los pipelines son siempre un array de una o más etapas.
+<img src="images/m121/c0/0-5-resumen.png">
 
-Las etapas se componen de uno o más operadores de aggregation o expresiones.
+* Los pipelines son siempre un array de una o más etapas.
 
-Las expresiones pueden tomar un solo argumento o un array de argumentos.
+* Las etapas se componen de uno o más operadores de aggregation o expresiones.
 
-Nos vemos en la próxima lección.
+   * Las expresiones pueden tomar un solo argumento o un array de argumentos.
 
 ## 6. Examen Aggregation Structure and Syntax
 
