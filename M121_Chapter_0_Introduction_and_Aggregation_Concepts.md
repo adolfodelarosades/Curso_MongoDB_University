@@ -18,7 +18,7 @@ Hola soy Nathan.
 
 Bienvenido a M121, the MongoDB Aggregation Framework.
 
-<img src="images/m121/c0/0-1-m121.png">
+<img src="images/m121/c0/0-1-M121.png">
 
 Seré uno de tus instructores para este curso.
 
