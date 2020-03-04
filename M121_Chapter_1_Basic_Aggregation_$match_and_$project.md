@@ -15,9 +15,28 @@
 
 ## 1. Tema: `$match`: Filtrado de documentos
 
+### Notas de lectura
+
+[Página de documentación de `$match`](https://docs.mongodb.com/manual/reference/operator/aggregation/match/).
+
 ### Transcripción
 
-## 2. Examen
+## 2. Examen `$match`: Filtering documents
+
+**Problem:**
+
+Which of the following is/are true of the $match stage?
+
+Check all answers that apply:
+
+* It should come very early in an aggregation pipeline.
+
+* It uses the familiar MongoDB query language.
+
+* `$match` can use both query operators and aggregation expressions.
+
+* `$match` can only filter documents on one field.
+
 
 ## 3. Tema: Laboratorio - `$match`
 
