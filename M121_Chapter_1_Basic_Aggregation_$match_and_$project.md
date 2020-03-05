@@ -1395,18 +1395,97 @@ Which of the following statements are true of the $project stage?
 Check all answers that apply:
 
 
-* Once we specify a field to retain or perform some computation in a `$project` stage, we must specify all fields we wish to retain. The only exception to this is the `_id` field.
+* Once we specify a field to retain or perform some computation in a `$project` stage, we must specify all fields we wish to retain. The only exception to this is the `_id` field. :+1:
 
-* Beyond simply removing and retaining fields, `$project` lets us add new fields.
+* Beyond simply removing and retaining fields, `$project` lets us add new fields. :+1:
 
 * `$project` can only be used once within an Aggregation pipeline.
 
 * `$project` cannot be used to assign new values to existing fields.
 
+### See detailed answer
+
+The correct answers are the following:
+
+* Once we specify a field to retain or perform some computation in a `$project` stage, we must specify all fields we wish to retain. The only exception to this is the `_id` field.
+
+`$project` implicitly removes all other fields once we have retained, reshaped, or computed a new field. The exception to this is the `_id` field, which we must explicitly remove.
+
+* Beyond simply removing and retaining fields, `$project` lets us add new fields.
+
+We can add new fields and reassign the values of existing ones, shaping the documents into different datastructures and computing values using expressions.
+
+The remaining options are incorrect.
+
 
 ## 7. Laboratorio: Cambio de la forma del documento con `$project`
 
+Lab - Changing Document Shape with `$project`
+
+**Problem:**
+
+Our first movie night was a success. Unfortunately, our ISP called to let us know we're close to our bandwidth quota, but we need another movie recommendation!
+
+Using the same `$match` stage from the previous lab, add a `$project` stage to only display the the title and film rating (`title` and `rated` fields).
+
+* Assign the results to a variable called `pipeline`.
+
+```sh
+var pipeline = [{ $match: {. . .} }, { $project: { . . . } }]
+```
+
+* Load `validateLab2.js` which was included in the same handout as `validateLab1.js` and execute `validateLab2(pipeline)`?
+
+```sh
+load('./validateLab2.js')
+```
+
+* And run the `validateLab2` validation method
+
+```sh
+validateLab2(pipeline)
+```
+
+What is the answer?
+
+Choose the best answer:
+
+* 4
+
+* 30
+
+* 7
+
+* 15
+
+
 ## 8. Laboratorio - Campos Computados
+
+Lab - Computing Fields
+
+**Problem:**
+
+Our movies dataset has a lot of different documents, some with more convoluted titles than others. If we'd like to analyze our collection to find movie titles that are composed of only one word, we **could** fetch all the movies in the dataset and do some processing in a client application, but the Aggregation Framework allows us to do this on the server!
+
+Using the Aggregation Framework, find a count of the number of movies that have a title composed of one word. To clarify, "Cinderella" and "3-25" should count, where as "Cast Away" would not.
+
+Make sure you look into the [$split String expression](https://docs.mongodb.com/manual/meta/aggregation-quick-reference/#string-expressions) and the [$size Array expression](https://docs.mongodb.com/manual/meta/aggregation-quick-reference/#array-expressions)
+
+To get the count, you can append `itcount()` to the end of your pipeline
+
+```sh
+db.movies.aggregate([...]).itcount()
+```
+
+Choose the best answer:
+
+* 144
+
+* 8068
+
+* 9447
+
+* 12373
 
 ## 9. Tema: Laboratorio opcional: Expresiones con `$project`
 
