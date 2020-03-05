@@ -1167,15 +1167,79 @@ Choose the best answer:
 #### Mis comandos
 
 ```sh
-db.movies.find({ 
-                 "imdb.rating": {$gte: 7}, 
-                 $or: [ {genres: {$ne: "Crime" }}, 
-		        {genres:{$ne: "Horror"}}
-		      ], 
-		 $and: [ {languages: "English"}, {languages: "Japanese"}]     
-		},
-		{id:0}
-	       ).pretty()
+db.movies.find({    
+  $and:[     {"imdb.rating": {$gte: 7}},     
+  {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+  {$or: [ {rated: "PG"}, {rated: "G"}]},     
+  {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+},  
+{_id:1, genres: 1, rated: 1, languages: 1, imdb: 1}  ).count()
+23
+```
+
+```sh
+db.movies.aggregate([{
+  "$match": {    
+    $and:[     {"imdb.rating": {$gte: 7}},     
+    {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+    {$or: [ {rated: "PG"}, {rated: "G"}]},     
+    {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+  }
+}])
+```
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var pipeline = [{  
+  "$match": {    
+    $and:[     {"imdb.rating": {$gte: 7}},     
+    {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+    {$or: [ {rated: "PG"}, {rated: "G"}]},     
+    {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+ } }]
+```
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.find({   $and:[     {"imdb.rating": {$gte: 7}},        {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},        {$or: [ {rated: "PG"}, {rated: "G"}]},        {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]   },   {_id:1, genres: 1, rated: 1, languages: 1, imdb: 1}  ).count()
+23
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([{   "$match": {       $and:[     {"imdb.rating": {$gte: 7}},        {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},        {$or: [ {rated: "PG"}, {rated: "G"}]},        {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]   } }])
+....
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var pipeline = [{  
+...   "$match": {    
+...     $and:[     {"imdb.rating": {$gte: 7}},     
+...     {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+...     {$or: [ {rated: "PG"}, {rated: "G"}]},     
+...     {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+...  } }]
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate(pipeline).itcount()
+23
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> load('validateLab1.js')
+true
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> validateLab1(pipeline)
+Answer is 15
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+### See detailed answer
+
+You can use nearly all of the familiar query operators in `$match`. We filter documents, retaining only those where the `imdb.rating` is 7 or more, `genres` does not include "Crime" or "Horror", the value for `rated` was "PG" or "G", and `languages` includes both "English" and "Japanese". .. code-block:
+
+```sh
+var pipeline = [
+  {
+    $match: {
+      "imdb.rating": { $gte: 7 },
+      genres: { $nin: [ "Crime", "Horror" ] } ,
+      rated: { $in: ["PG", "G" ] },
+      languages: { $all: [ "English", "Japanese" ] }
+    }
+  }
+]
 ```
 
 ## 5. Tema: Dar forma a documentos con `$project`
