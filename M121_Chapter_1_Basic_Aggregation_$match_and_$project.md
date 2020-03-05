@@ -1164,6 +1164,20 @@ Choose the best answer:
 * 30
 
 
+#### Mis comandos
+
+```sh
+db.movies.find({ 
+                 "imdb.rating": {$gte: 7}, 
+                 $or: [ {genres: {$ne: "Crime" }}, 
+		        {genres:{$ne: "Horror"}}
+		      ], 
+		 $and: [ {languages: "English"}, {languages: "Japanese"}]     
+		},
+		{id:0}
+	       ).pretty()
+```
+
 ## 5. Tema: Dar forma a documentos con `$project`
 
 ### Transcripción
