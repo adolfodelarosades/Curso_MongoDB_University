@@ -1242,11 +1242,167 @@ var pipeline = [
 ]
 ```
 
-## 5. Tema: Dar forma a documentos con `$project`
+## 5. Tema: Dar Forma a Documentos con `$project`
+
+### Notas de lectura
+
+[$project](https://docs.mongodb.com/manual/reference/operator/aggregation/project/) página de documentación.
 
 ### Transcripción
 
-## 6. Examen
+La siguiente etapa que aprenderemos es `$project`.
+
+`$project`, como `$match`, es una etapa vital para comprender a fondo y tener éxito con el aggregation framework.
+
+No piense en `$project` como la funcionalidad de proyección disponible con el find query operator.
+
+Si bien es cierto, `$project` es mucho, mucho más.
+
+No solo podemos eliminar y retener selectivamente campos, sino que podemos reasignar valores de campo existentes y derivar campos completamente nuevos.
+
+Un método o función común disponible en muchos lenguajes de programación es `$map`.
+
+Es una función de orden superior que aplica alguna transformación entre una colección.
+
+Si `$match` es como un método de filtro, `$project` es como `$map`.
+
+Aquí está la sintaxis básica para `$project`.
+
+Hemos agregado un signo de dólar para indicar que se trata de un operador de agregación, luego se abre con una llave y se cierra con una llave.
+
+Entre estas dos llaves es donde usamos expresiones de agregación y realizamos la lógica de campo.
+
+Más sobre eso pronto.
+
+Aquí es cómo especificaríamos valores para eliminar y retener, al igual que la funcionalidad de proyección disponible con el find query operator.
+
+Esto especifica que deseamos eliminar el `_id` y retener el campo `name`.
+
+Tenga en cuenta que, dado que hemos especificado un valor para retener, debemos especificar cada valor que deseamos retener.
+
+Mantengamos también el campo `gravity` para que podamos ver alguna diferencia en los datos reales.
+
+Y por supuesto, una excepción.
+
+Aquí podemos decir que estamos obteniendo el `name` y el campo `gravity`, pero también estamos obteniendo el campo `_id`.
+
+El campo `_id` es el único campo que debemos eliminar explícitamente.
+
+Todos los demás se eliminarán cuando especifiquemos al menos un campo para retener.
+
+Además, parece que quien reunió estos datos utilizó el sistema internacional de unidades, así que también obtengamos el valor.
+
+Un error.
+
+Una cosa a tener en cuenta, una vez que comencemos a sumergirnos en la selección de documentos en subcampos, debemos rodear nuestros argumentos con comillas.
+
+Allí, los datos que queríamos.
+
+`$project` ya está demostrando ser bastante útil, pero hasta ahora, parece ser idéntico a la proyección disponible con el find query operator.
+
+Comencemos a explorar qué hace que `$project` sea tan poderoso.
+
+En lugar de devolver un subdocumento con solo el campo de valor, asignemos directamente el valor al campo `gravity`.
+
+Aquí podemos ver que de hecho estamos reasignando el campo `gravity` para que ahora contenga la información que estaba disponible en `gravity.value`.
+
+Estamos anteponiendo  `gravity.value` con un signo de dólar.
+
+Esta es una de las muchas expresiones de agregación, y estamos dirigiendo el aggregation framework para look for and fetch (buscar y buscar) la información en el documento en `gravity.value`, o una expresión de ruta de campo.
+
+Como se discutió en la estructura de agregación y la lección de sintaxis, esta es una de las formas en que hacemos referencia a los documentos para obtener información.
+
+También podemos crear un nuevo campo llamado `surfaceGravity`.
+
+Esto no es solo renombrar el campo de `gravity`.
+
+Está creando un campo completamente nuevo.
+
+Muy poderoso.
+
+Y utilizaremos esta funcionalidad mucho durante el curso.
+
+Divirtámonos un poco y usemos el aggregation framework para calcular un valor.
+
+Me gustaría ver cuál sería mi peso en cada cuerpo principal del sistema solar.
+
+Voy a tener que usar una expresión para lograr esto.
+
+Cubriremos las expresiones con mucho mayor detalle en breve, pero voy a desglosar esto ya que es la primera vez que lo vemos, y la sintaxis puede sorprender a la gente con la guardia baja.
+
+Yo peso unos 86 kilogramos.
+
+Al observar nuestros resultados anteriores, parece que si divido la gravedad de un cuerpo por la gravedad de la Tierra y luego multiplico ese valor por mi peso, puedo averiguar cuánto pesaría en cada cuerpo principal.
+
+Voy a tener que usar una expresión para lograr esto.
+
+La primera expresión que voy a usar es la expresión aritmética `$multiply`.
+
+`$multiply` toma un array de valores y los multiplica.
+
+Entonces sé que necesito multiplicar mi peso por la proporción de la gravedad de un planeta específico dividida por la gravedad de la Tierra.
+
+Eso se verá más o menos así.
+
+Sé que mi peso es de aproximadamente 86 kilogramos, por lo que puedo codificar eso por ahora.
+
+Para calcular la relación de gravedad, necesitaré usar la expresión aritmética `$divide`.
+
+`$divide` toma un array de dos valores y divide el primero por el segundo.
+
+Dentro de `$divide`, necesitaré hacer referencia a la información en el subcampo de valor dentro de la gravedad.
+
+Veamos cómo se verá esto.
+
+Aquí estamos usando una expresión de ruta de campo para referirnos a la información dentro del documento, específicamente la información encontrada en el campo de valor dentro del campo de gravedad.
+
+Sé que la gravedad de la Tierra es de alrededor de 9.8 metros por segundo por segundo, así que lo codificaré.
+
+Poniendo todo junto, tenemos lo siguiente.
+
+Todo esto se asigna a un nuevo campo que creamos llamado `myWeight`.
+
+Increíble.
+
+Podemos ver que pesaría unos 32.5 kilogramos en Marte y 2.404 kilogramos en el Sol.
+
+Estamos comenzando a ver el poder del proyecto $.
+
+`$project` es una etapa poderosa del aggregation framework.
+
+No solo podemos eliminar y retener campos, también podemos derivar nuevos campos y reasignar campos existentes.
+
+`$project` se puede usar tantas veces como se desee dentro de una aggregation pipeline, y se debe usar agresivamente para recortar datos de documentos que no son necesarios para mantener el rendimiento de nuestras pipelines.
+
+Algunas cosas clave para recordar.
+
+Una vez que especificamos un campo para retener, debemos especificar todos los campos que queremos retener.
+
+El campo `_id` es la única excepción a esto.
+
+Más allá de simplemente eliminar y retener campos, `$project` agreguemos nuevos campos.
+
+`$project` se puede usar tantas veces como sea necesario con una aggregation pipeline.
+
+Y finalmente, `$project` se puede usar para reasignar valores a nombres de campo existentes y derivar campos completamente nuevos.
+
+## 6. Examen Shaping documents with $project
+
+**Problem:**
+
+Which of the following statements are true of the $project stage?
+
+Check all answers that apply:
+
+
+* Once we specify a field to retain or perform some computation in a `$project` stage, we must specify all fields we wish to retain. The only exception to this is the `_id` field.
+
+* Beyond simply removing and retaining fields, `$project` lets us add new fields.
+
+* `$project` can only be used once within an Aggregation pipeline.
+
+* `$project` cannot be used to assign new values to existing fields.
+
 
 ## 7. Laboratorio: Cambio de la forma del documento con `$project`
 
