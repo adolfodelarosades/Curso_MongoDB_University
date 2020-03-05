@@ -1121,39 +1121,47 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY>
 ## 4. Tareas
 
 Lab - $match
-Problem:
+
+**Problem:**
 
 Help MongoDB pick a movie our next movie night! Based on employee polling, we've decided that potential movies must meet the following criteria.
 
-imdb.rating is at least 7
-genres does not contain "Crime" or "Horror"
-rated is either "PG" or "G"
-languages contains "English" and "Japanese"
-Assign the aggregation to a variable named pipeline, like:
+* **`imdb.rating`** is at least 7
+* **`genres`** does not contain "Crime" or "Horror"
+* **`rated`** is either `"PG"` or `"G"`
+* **`languages`** contains `"English"` and `"Japanese"`
 
+Assign the aggregation to a variable named `pipeline`, like:
+
+```sh
 var pipeline = [ { $match: { ... } } ]
- COPY
-As a hint, your aggregation should return 23 documents. You can verify this by typing db.movies.aggregate(pipeline).itcount()
-Load validateLab1.js into mongo shell
-load('validateLab1.js')
- COPY
-And run the validateLab1 validation method
-validateLab1(pipeline)
- COPY
-What is the answer?
+```
 
-Attempts Remaining:3 Attempts left
+* As a hint, your aggregation should return 23 documents. You can verify this by typing 
+   `db.movies.aggregate(pipeline).itcount()`   
+* Load `validateLab1.js` into `mongo` shell
+
+```sh
+load('validateLab1.js')
+```
+
+* And run the `validateLab1` validation method
+
+```sh
+validateLab1(pipeline)
+```
+
+What is the answer?
 
 Choose the best answer:
 
+* 15
 
-15
+* 7
 
-7
+* 12
 
-12
-
-30
+* 30
 
 
 ## 5. Tema: Dar forma a documentos con `$project`
