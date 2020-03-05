@@ -1029,9 +1029,132 @@ The remaining options are not correct.
 
 ## 3. Tema: Laboratorio - `$match`
 
-### Transcripción
+Lab - $match
+
+#### Download Course Materials
+
+`m121/chapter1.zip`
+
+Please connect to the class Atlas cluster through the mongo shell. The full command is:
+
+```sh
+mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/aggregations?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl -u m121 -p aggregations --norc
+```
+
+After connecting to the cluster, ensure you can see the movies collection by typing `show collections` and then run the command `db.movies.findOne()`. Take a moment to familiarize yourself with the schema.
+
+Once you have familiarized yourself with the schema, continue to the next tab.
+
+#### Ejecución de Comandos.
+
+```sh
+mini-de-adolfo:~ adolfodelarosa$ mongo "mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/aggregations?replicaSet=Cluster0-shard-0" --authenticationDatabase admin --ssl -u m121 -p aggregations --norc
+2020-03-05T12:52:26.604+0100 W  CONTROL  [main] Option: ssl is deprecated. Please use tls instead.
+MongoDB shell version v4.2.2
+connecting to: mongodb://cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017/aggregations?authSource=admin&compressors=disabled&gssapiServiceName=mongodb&replicaSet=Cluster0-shard-0
+2020-03-05T12:52:26.822+0100 I  NETWORK  [js] Starting new replica set monitor for Cluster0-shard-0/cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017
+2020-03-05T12:52:26.822+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-01-jxeqq.mongodb.net:27017
+2020-03-05T12:52:26.822+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-02-jxeqq.mongodb.net:27017
+2020-03-05T12:52:26.822+0100 I  CONNPOOL [ReplicaSetMonitor-TaskExecutor] Connecting to cluster0-shard-00-00-jxeqq.mongodb.net:27017
+2020-03-05T12:52:27.409+0100 I  NETWORK  [ReplicaSetMonitor-TaskExecutor] Confirmed replica set for Cluster0-shard-0 is Cluster0-shard-0/cluster0-shard-00-00-jxeqq.mongodb.net:27017,cluster0-shard-00-01-jxeqq.mongodb.net:27017,cluster0-shard-00-02-jxeqq.mongodb.net:27017
+Implicit session: session { "id" : UUID("14051e4b-0ece-4584-9eb6-1b05c5ae0b56") }
+MongoDB server version: 3.6.17
+WARNING: shell and server versions do not match
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> show collections
+air_airlines
+air_alliances
+air_routes
+bronze_banking
+child_reference
+customers
+employees
+exoplanets
+gold_banking
+icecream_data
+movies
+nycFacilities
+parent_reference
+silver_banking
+solarSystem
+stocks
+system.views
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.findOne()
+{
+	"_id" : ObjectId("573a1390f29313caabcd421c"),
+	"title" : "A Turn of the Century Illusionist",
+	"year" : 1899,
+	"runtime" : 1,
+	"cast" : [
+		"Georges M�li�s"
+	],
+	"lastupdated" : "2015-08-29 00:21:21.547000000",
+	"type" : "movie",
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"imdb" : {
+		"rating" : 6.6,
+		"votes" : 580,
+		"id" : 246
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.8,
+			"numReviews" : 32
+		},
+		"lastUpdated" : ISODate("2015-08-20T18:46:44Z")
+	}
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 ## 4. Tareas
+
+Lab - $match
+Problem:
+
+Help MongoDB pick a movie our next movie night! Based on employee polling, we've decided that potential movies must meet the following criteria.
+
+imdb.rating is at least 7
+genres does not contain "Crime" or "Horror"
+rated is either "PG" or "G"
+languages contains "English" and "Japanese"
+Assign the aggregation to a variable named pipeline, like:
+
+var pipeline = [ { $match: { ... } } ]
+ COPY
+As a hint, your aggregation should return 23 documents. You can verify this by typing db.movies.aggregate(pipeline).itcount()
+Load validateLab1.js into mongo shell
+load('validateLab1.js')
+ COPY
+And run the validateLab1 validation method
+validateLab1(pipeline)
+ COPY
+What is the answer?
+
+Attempts Remaining:3 Attempts left
+
+Choose the best answer:
+
+
+15
+
+7
+
+12
+
+30
+
 
 ## 5. Tema: Dar forma a documentos con `$project`
 
