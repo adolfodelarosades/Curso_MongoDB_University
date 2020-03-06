@@ -1250,6 +1250,8 @@ var pipeline = [
 
 ### Transcripción
 
+<img src="images/m121/c1/5-titulo.png">
+
 La siguiente etapa que aprenderemos es `$project`.
 
 `$project`, como `$match`, es una etapa vital para comprender a fondo y tener éxito con el aggregation framework.
@@ -1262,11 +1264,15 @@ No solo podemos eliminar y retener selectivamente campos, sino que podemos reasi
 
 Un método o función común disponible en muchos lenguajes de programación es `$map`.
 
-Es una función de orden superior que aplica alguna transformación entre una colección.
+Es una función de orden superior que aplica alguna transformación a una colección.
 
 Si `$match` es como un método de filtro, `$project` es como `$map`.
 
 Aquí está la sintaxis básica para `$project`.
+
+```sh
+db.solarSystem.aggregate([{ $project: {...} }])
+```
 
 Hemos agregado un signo de dólar para indicar que se trata de un operador de agregación, luego se abre con una llave y se cierra con una llave.
 
@@ -1274,27 +1280,76 @@ Entre estas dos llaves es donde usamos expresiones de agregación y realizamos l
 
 Más sobre eso pronto.
 
-Aquí es cómo especificaríamos valores para eliminar y retener, al igual que la funcionalidad de proyección disponible con el find query operator.
+Aquí especificaríamos valores para eliminar y presentar, al igual que la funcionalidad de proyección disponible con el find query operator.
 
-Esto especifica que deseamos eliminar el `_id` y retener el campo `name`.
+Esto especifica que deseamos eliminar el `_id` y presentar el campo `name`.
 
-Tenga en cuenta que, dado que hemos especificado un valor para retener, debemos especificar cada valor que deseamos retener.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{ "$project": { "_id": 0, "name": 1 } }]);
+{ "name" : "Earth" }
+{ "name" : "Neptune" }
+{ "name" : "Uranus" }
+{ "name" : "Saturn" }
+{ "name" : "Jupiter" }
+{ "name" : "Venus" }
+{ "name" : "Mercury" }
+{ "name" : "Sun" }
+{ "name" : "Mars" }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Tenga en cuenta que, dado que hemos especificado un valor para presentar, debemos especificar cada valor que deseamos presentar.
 
 Mantengamos también el campo `gravity` para que podamos ver alguna diferencia en los datos reales.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{ "$project": { "name": 1, "gravity": 1 } }]);
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d54"), "name" : "Earth", "gravity" : { "value" : 9.8, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d59"), "name" : "Neptune", "gravity" : { "value" : 11.15, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d58"), "name" : "Uranus", "gravity" : { "value" : 8.87, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d57"), "name" : "Saturn", "gravity" : { "value" : 10.44, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d56"), "name" : "Jupiter", "gravity" : { "value" : 24.79, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d53"), "name" : "Venus", "gravity" : { "value" : 8.87, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d52"), "name" : "Mercury", "gravity" : { "value" : 3.24, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d51"), "name" : "Sun", "gravity" : { "value" : 274, "units" : "m/s^2" } }
+{ "_id" : ObjectId("59a06674c8df9f3cd2ee7d55"), "name" : "Mars", "gravity" : { "value" : 3.71, "units" : "m/s^2" } }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Y por supuesto, una excepción.
 
-Aquí podemos decir que estamos obteniendo el `name` y el campo `gravity`, pero también estamos obteniendo el campo `_id`.
+Aquí podemos decir que estamos obteniendo los campos `name` y `gravity`, pero también estamos obteniendo el campo `_id`.
 
 El campo `_id` es el único campo que debemos eliminar explícitamente.
 
-Todos los demás se eliminarán cuando especifiquemos al menos un campo para retener.
+Todos los demás se eliminarán cuando especifiquemos al menos un campo para presentar.
 
-Además, parece que quien reunió estos datos utilizó el sistema internacional de unidades, así que también obtengamos el valor.
+Además, parece que quien reunió estos datos utilizó el sistema internacional de unidades `units`, así que también obtengamos su valor.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{ "$project": { "_id": 0, "name": 1, gravity.value: 1 } }]);
+2020-03-06T12:34:09.679+0100 E  QUERY    [js] uncaught exception: SyntaxError: missing : after property id :
+@(shell):1:70
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Un error.
 
 Una cosa a tener en cuenta, una vez que comencemos a sumergirnos en la selección de documentos en subcampos, debemos rodear nuestros argumentos con comillas.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{ "$project": { "_id": 0, "name": 1, "gravity.value": 1 } }]);
+{ "name" : "Earth", "gravity" : { "value" : 9.8 } }
+{ "name" : "Neptune", "gravity" : { "value" : 11.15 } }
+{ "name" : "Uranus", "gravity" : { "value" : 8.87 } }
+{ "name" : "Saturn", "gravity" : { "value" : 10.44 } }
+{ "name" : "Jupiter", "gravity" : { "value" : 24.79 } }
+{ "name" : "Venus", "gravity" : { "value" : 8.87 } }
+{ "name" : "Mercury", "gravity" : { "value" : 3.24 } }
+{ "name" : "Sun", "gravity" : { "value" : 274 } }
+{ "name" : "Mars", "gravity" : { "value" : 3.71 } }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Allí, los datos que queríamos.
 
@@ -1304,15 +1359,43 @@ Comencemos a explorar qué hace que `$project` sea tan poderoso.
 
 En lugar de devolver un subdocumento con solo el campo de valor, asignemos directamente el valor al campo `gravity`.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{"$project": { "_id": 0, "name": 1, "gravity": "$gravity.value" }}]);
+{ "name" : "Earth", "gravity" : 9.8 }
+{ "name" : "Neptune", "gravity" : 11.15 }
+{ "name" : "Uranus", "gravity" : 8.87 }
+{ "name" : "Saturn", "gravity" : 10.44 }
+{ "name" : "Jupiter", "gravity" : 24.79 }
+{ "name" : "Venus", "gravity" : 8.87 }
+{ "name" : "Mercury", "gravity" : 3.24 }
+{ "name" : "Sun", "gravity" : 274 }
+{ "name" : "Mars", "gravity" : 3.71 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Aquí podemos ver que de hecho estamos reasignando el campo `gravity` para que ahora contenga la información que estaba disponible en `gravity.value`.
 
-Estamos anteponiendo  `gravity.value` con un signo de dólar.
+**Estamos anteponiendo  `gravity.value` con un signo de dólar**.
 
-Esta es una de las muchas expresiones de agregación, y estamos dirigiendo el aggregation framework para look for and fetch (buscar y buscar) la información en el documento en `gravity.value`, o una expresión de ruta de campo.
+Esta es una de las muchas expresiones de agregación, estamos dirigiendo el aggregation framework para visualizar y recuperar la información en el documento en `gravity.value`, o un field path expression.
 
 Como se discutió en la estructura de agregación y la lección de sintaxis, esta es una de las formas en que hacemos referencia a los documentos para obtener información.
 
 También podemos crear un nuevo campo llamado `surfaceGravity`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{"$project": { "_id": 0, "name": 1, "surfaceGravity": "$gravity.value" }}]);
+{ "name" : "Earth", "surfaceGravity" : 9.8 }
+{ "name" : "Neptune", "surfaceGravity" : 11.15 }
+{ "name" : "Uranus", "surfaceGravity" : 8.87 }
+{ "name" : "Saturn", "surfaceGravity" : 10.44 }
+{ "name" : "Jupiter", "surfaceGravity" : 24.79 }
+{ "name" : "Venus", "surfaceGravity" : 8.87 }
+{ "name" : "Mercury", "surfaceGravity" : 3.24 }
+{ "name" : "Sun", "surfaceGravity" : 274 }
+{ "name" : "Mars", "surfaceGravity" : 3.71 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Esto no es solo renombrar el campo de `gravity`.
 
@@ -1324,19 +1407,43 @@ Y utilizaremos esta funcionalidad mucho durante el curso.
 
 Divirtámonos un poco y usemos el aggregation framework para calcular un valor.
 
-Me gustaría ver cuál sería mi peso en cada cuerpo principal del sistema solar.
+Me gustaría ver cuál sería mi peso en cada planeta del sistema solar.
 
 Voy a tener que usar una expresión para lograr esto.
+
+```sh
+{ $multiply: [ gravityRatio, weightOneEarth ] }
+```
 
 Cubriremos las expresiones con mucho mayor detalle en breve, pero voy a desglosar esto ya que es la primera vez que lo vemos, y la sintaxis puede sorprender a la gente con la guardia baja.
 
 Yo peso unos 86 kilogramos.
 
-Al observar nuestros resultados anteriores, parece que si divido la gravedad de un cuerpo por la gravedad de la Tierra y luego multiplico ese valor por mi peso, puedo averiguar cuánto pesaría en cada cuerpo principal.
+Al observar nuestros resultados anteriores, 
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{"$project": { "_id": 0, "name": 1, "gravity": "$gravity.value" }}]);
+{ "name" : "Earth", "gravity" : 9.8 }
+{ "name" : "Neptune", "gravity" : 11.15 }
+{ "name" : "Uranus", "gravity" : 8.87 }
+{ "name" : "Saturn", "gravity" : 10.44 }
+{ "name" : "Jupiter", "gravity" : 24.79 }
+{ "name" : "Venus", "gravity" : 8.87 }
+{ "name" : "Mercury", "gravity" : 3.24 }
+{ "name" : "Sun", "gravity" : 274 }
+{ "name" : "Mars", "gravity" : 3.71 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+parece que si divido la gravedad de un cuerpo por la gravedad de la Tierra y luego multiplico ese valor por mi peso, puedo averiguar cuánto pesaría en cada cuerpo principal.
 
 Voy a tener que usar una expresión para lograr esto.
 
 La primera expresión que voy a usar es la expresión aritmética `$multiply`.
+
+```sh
+{ $multiply: [ gravityRatio, weightOneEarth ] }
+```
 
 `$multiply` toma un array de valores y los multiplica.
 
@@ -1344,9 +1451,17 @@ Entonces sé que necesito multiplicar mi peso por la proporción de la gravedad 
 
 Eso se verá más o menos así.
 
+```sh
+{ $multiply: [ gravityRatio, 86 ] }
+```
+
 Sé que mi peso es de aproximadamente 86 kilogramos, por lo que puedo codificar eso por ahora.
 
 Para calcular la relación de gravedad, necesitaré usar la expresión aritmética `$divide`.
+
+```sh
+{ $divide: [ "$gravity.value", gravityOfEarth ] }
+```
 
 `$divide` toma un array de dos valores y divide el primero por el segundo.
 
@@ -1354,11 +1469,29 @@ Dentro de `$divide`, necesitaré hacer referencia a la información en el subcam
 
 Veamos cómo se verá esto.
 
-Aquí estamos usando una expresión de ruta de campo para referirnos a la información dentro del documento, específicamente la información encontrada en el campo de valor dentro del campo de gravedad.
+```sh
+{ $divide: [ "$gravity.value", 9.8 ] }
+```
+
+Aquí `"$gravity.value"` estamos usando un field path expression para referirnos a la información dentro del documento, específicamente la información encontrada en el campo `value` dentro del campo `gravity`.
 
 Sé que la gravedad de la Tierra es de alrededor de 9.8 metros por segundo por segundo, así que lo codificaré.
 
 Poniendo todo junto, tenemos lo siguiente.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{"$project": { "_id": 0, "name": 1, "myWeight": { "$multiply": [ { "$divide": [ "$gravity.value", 9.8 ] }, 86 ] } }}]);
+{ "name" : "Earth", "myWeight" : 86 }
+{ "name" : "Neptune", "myWeight" : 97.8469387755102 }
+{ "name" : "Uranus", "myWeight" : 77.83877551020407 }
+{ "name" : "Saturn", "myWeight" : 91.61632653061224 }
+{ "name" : "Jupiter", "myWeight" : 217.54489795918363 }
+{ "name" : "Venus", "myWeight" : 77.83877551020407 }
+{ "name" : "Mercury", "myWeight" : 28.432653061224492 }
+{ "name" : "Sun", "myWeight" : 2404.4897959183672 }
+{ "name" : "Mars", "myWeight" : 32.55714285714286 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Todo esto se asigna a un nuevo campo que creamos llamado `myWeight`.
 
