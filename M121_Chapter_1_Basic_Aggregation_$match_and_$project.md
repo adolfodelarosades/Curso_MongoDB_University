@@ -1499,7 +1499,7 @@ Increíble.
 
 Podemos ver que pesaría unos 32.5 kilogramos en Marte y 2.404 kilogramos en el Sol.
 
-Estamos comenzando a ver el poder del proyecto $.
+Estamos comenzando a ver el poder del `$project`.
 
 `$project` es una etapa poderosa del aggregation framework.
 
@@ -1509,15 +1509,17 @@ No solo podemos eliminar y retener campos, también podemos derivar nuevos campo
 
 Algunas cosas clave para recordar.
 
-Una vez que especificamos un campo para retener, debemos especificar todos los campos que queremos retener.
+<img src="images/m121/c1/5-resumen.png">
 
-El campo `_id` es la única excepción a esto.
+* Una vez que especificamos un campo a presentar, debemos especificar todos los campos que queremos presentar.
 
-Más allá de simplemente eliminar y retener campos, `$project` agreguemos nuevos campos.
+* El campo `_id` es la única excepción a esto.
 
-`$project` se puede usar tantas veces como sea necesario con una aggregation pipeline.
+* Más allá de simplemente eliminar y presentar campos, `$project` agreguemos nuevos campos.
 
-Y finalmente, `$project` se puede usar para reasignar valores a nombres de campo existentes y derivar campos completamente nuevos.
+* `$project` se puede usar tantas veces como sea necesario con una aggregation pipeline.
+
+* Y finalmente, `$project` se puede usar para reasignar valores a nombres de campo existentes y derivar campos completamente nuevos.
 
 ## 6. Examen Shaping documents with $project
 
@@ -1526,7 +1528,6 @@ Y finalmente, `$project` se puede usar para reasignar valores a nombres de campo
 Which of the following statements are true of the $project stage?
 
 Check all answers that apply:
-
 
 * Once we specify a field to retain or perform some computation in a `$project` stage, we must specify all fields we wish to retain. The only exception to this is the `_id` field. :+1:
 
@@ -1549,7 +1550,6 @@ The correct answers are the following:
 We can add new fields and reassign the values of existing ones, shaping the documents into different datastructures and computing values using expressions.
 
 The remaining options are incorrect.
-
 
 ## 7. Laboratorio: Cambio de la forma del documento con `$project`
 
