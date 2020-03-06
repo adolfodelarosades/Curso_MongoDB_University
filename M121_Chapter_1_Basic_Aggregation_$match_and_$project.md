@@ -1155,7 +1155,7 @@ What is the answer?
 
 Choose the best answer:
 
-* 15
+* 15 :+1:
 
 * 7
 
@@ -1589,8 +1589,98 @@ Choose the best answer:
 
 * 7
 
-* 15
+* 15 :+1:
 
+#### Mis comandos
+
+```sh
+db.movies.aggregate([{
+  "$match": {    
+    $and:[     {"imdb.rating": {$gte: 7}},     
+    {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+    {$or: [ {rated: "PG"}, {rated: "G"}]},     
+    {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+  }
+},
+{ 
+  "$project": { _id: 0, title: 1, rated: 1 }
+}
+])
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([{
+...   "$match": {    
+...     $and:[     {"imdb.rating": {$gte: 7}},     
+...     {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+...     {$or: [ {rated: "PG"}, {rated: "G"}]},     
+...     {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+...   }
+... },
+... { 
+...   "$project": { _id: 0, title: 1, rated: 1 }
+... }
+... ])
+{ "title" : "Those Magnificent Men in Their Flying Machines or How I Flew from London to Paris in 25 hours 11 minutes", "rated" : "G" }
+{ "title" : "Red Sun", "rated" : "PG" }
+{ "title" : "Babies", "rated" : "PG" }
+{ "title" : "The Karate Kid", "rated" : "PG" }
+{ "title" : "Dragon Ball Z: Tree of Might", "rated" : "PG" }
+{ "title" : "Cars", "rated" : "G" }
+{ "title" : "Jack and the Beanstalk", "rated" : "G" }
+{ "title" : "The Transformers: The Movie", "rated" : "PG" }
+{ "title" : "Defending Your Life", "rated" : "PG" }
+{ "title" : "The Cat Returns", "rated" : "G" }
+{ "title" : "Hell in the Pacific", "rated" : "G" }
+{ "title" : "The Goodbye Girl", "rated" : "PG" }
+{ "title" : "Tora! Tora! Tora!", "rated" : "G" }
+{ "title" : "Local Hero", "rated" : "PG" }
+{ "title" : "Summer Wars", "rated" : "PG" }
+{ "title" : "The Secret World of Arrietty", "rated" : "G" }
+{ "title" : "Empire of the Sun", "rated" : "PG" }
+{ "title" : "Dreams", "rated" : "PG" }
+{ "title" : "Millennium Actress", "rated" : "PG" }
+{ "title" : "Whisper of the Heart", "rated" : "G" }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var pipeline = [{
+...   "$match": {    
+...     $and:[     {"imdb.rating": {$gte: 7}},     
+...     {$and: [ {genres: {$ne: "Crime" }},   {genres:{$ne: "Horror"}}]},     
+...     {$or: [ {rated: "PG"}, {rated: "G"}]},     
+...     {$and: [ {languages: "English"}, {languages: "Japanese"}]}         ]  
+...   }
+... },
+... { 
+...   "$project": { _id: 0, title: 1, rated: 1 }
+... }]
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> load('./validateLab2.js')
+true
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> validateLab2(pipeline)
+Answer is 15
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+### See detailed answer
+
+Remember that when using `$project` to be selective on which fields you pass further, the only field you must specify to remove is `_id`. When you specify a field to retain `(title: 1)`, `$project` assumes that all other fields you haven't specified to retain should be removed.
+
+```sh
+var pipeline = [
+  {
+    $match: {
+      "imdb.rating": { $gte: 7 },
+      genres: { $nin: [ "Crime", "Horror" ] } ,
+      rated: { $in: ["PG", "G" ] },
+      languages: { $all: [ "English", "Japanese" ] }
+    }
+  },
+  {
+    $project: { _id: 0, title: 1, "rated": 1 }
+  }
+]
+```
 
 ## 8. Laboratorio - Campos Computados
 
