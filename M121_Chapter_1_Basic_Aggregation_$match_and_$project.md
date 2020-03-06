@@ -1704,11 +1704,86 @@ Choose the best answer:
 
 * 144
 
-* 8068
+* 8068 :+1:
 
 * 9447
 
 * 12373
+
+### Código Ejecutado
+
+```sh
+db.movies.aggregate([ 
+	   { "$project": {"_id": 0, "title": 1, "words": { $size: { $split: [ "$title", " " ] } }     } },   
+	   {  "$match": { "words": {$lt : 2 } } }   
+	]).itcount()
+	
+	
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([ { "$project": {"_id": 0, "title": 1, "words": { $size: { $split: [ "$title", " " ] }  }        } },   {  "$match": { "words": {$lt : 2 } } }   ]).itcount()
+8068
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+### See detailed answer
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      title: {
+        $type: "string"
+      }
+    }
+  },
+  {
+    $project: {
+      title: { $split: ["$title", " "] },
+      _id: 0
+    }
+  },
+  {
+    $match: {
+      title: { $size: 1 }
+    }
+  }
+]).itcount()
+```
+
+We begin with a `$match` stage, ensuring that we only allow movies where the `title` is a string
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      title: {
+        $type: "string"
+      }
+    }
+  },
+```
+
+Next is our `$project` stage, splitting the title on spaces. This creates an array of strings
+
+```sh
+{
+  $project: {
+    title: { $split: ["$title", " "] },
+    _id: 0
+  }
+},
+```
+
+We use another `$match` stage to filter down to documents that only have one element in the newly computed `title` field, and use `itcount()` to get a count
+
+```sh
+  {
+    $match: {
+      title: { $size: 1 }
+    }
+  }
+]).itcount()
+```
 
 ## 9. Tema: Laboratorio opcional: Expresiones con `$project`
 
