@@ -1848,6 +1848,1129 @@ writers: {
 }
 ```
 
+### Ejecutando los Comandos
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([ 
+... { $match: { writers: { $elemMatch: { $exists: true } } } }
+...  ]).pretty()
+{
+	"_id" : ObjectId("573a1390f29313caabcd4cf1"),
+	"title" : "Ingeborg Holm",
+	"year" : 1913,
+	"runtime" : 96,
+	"released" : ISODate("1913-10-27T00:00:00Z"),
+	"cast" : [
+		"Hilda Borgstr�m",
+		"Aron Lindgren",
+		"Erik Lindholm",
+		"Georg Gr�nroos"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTI5MjYzMTY3Ml5BMl5BanBnXkFtZTcwMzY1NDE2Mw@@._V1_SX300.jpg",
+	"plot" : "Ingeborg Holm's husband opens up a grocery store and life is on the sunny side for them and their three children. But her husband becomes sick and dies. Ingeborg tries to keep the store, ...",
+	"fullplot" : "Ingeborg Holm's husband opens up a grocery store and life is on the sunny side for them and their three children. But her husband becomes sick and dies. Ingeborg tries to keep the store, but because of the lazy, wasteful staff she eventually has to close it. With no money left, she has to move to the poor-house and she is separated from her children. Her children are taken care of by foster-parents, but Ingeborg simply has to get out of the poor-house to see them again...",
+	"lastupdated" : "2015-08-25 00:11:47.743000000",
+	"type" : "movie",
+	"directors" : [
+		"Victor Sj�str�m"
+	],
+	"writers" : [
+		"Nils Krok (play)",
+		"Victor Sj�str�m"
+	],
+	"imdb" : {
+		"rating" : 7,
+		"votes" : 493,
+		"id" : 3014
+	},
+	"countries" : [
+		"Sweden"
+	],
+	"genres" : [
+		"Drama"
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4386"),
+	"title" : "The Story of the Kelly Gang",
+	"year" : 1906,
+	"runtime" : 70,
+	"released" : ISODate("1906-12-26T00:00:00Z"),
+	"cast" : [
+		"Elizabeth Tait",
+		"John Tait",
+		"Norman Campbell",
+		"Bella Cola"
+	],
+	"plot" : "True story of notorious Australian outlaw Ned Kelly (1855-80).",
+	"fullplot" : "True story of notorious Australian outlaw Ned Kelly (1855-80).",
+	"lastupdated" : "2015-08-29 00:29:52.170000000",
+	"type" : "movie",
+	"directors" : [
+		"Charles Tait"
+	],
+	"writers" : [
+		"Charles Tait"
+	],
+	"imdb" : {
+		"rating" : 6.3,
+		"votes" : 285,
+		"id" : 574
+	},
+	"countries" : [
+		"Australia"
+	],
+	"genres" : [
+		"Biography",
+		"Crime",
+		"Drama"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.5,
+			"numReviews" : 2
+		},
+		"lastUpdated" : ISODate("2015-08-14T18:51:10Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Pypar",
+			"email" : "josef_altin@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd4386"),
+			"text" : "Cumque ut officiis commodi odio veritatis expedita. Assumenda magni sequi quo occaecati minima.\nTemporibus vero quia ipsam molestias illum. Non nobis deserunt atque voluptatem ex consectetur.",
+			"date" : ISODate("2015-08-16T14:53:56Z")
+		},
+		{
+			"name" : "Cheryl Smith",
+			"email" : "cheryl_smith@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4386"),
+			"text" : "Sequi non corrupti quam. Incidunt similique nesciunt nihil impedit dolore nobis totam numquam. Quasi quisquam non laboriosam dolorem. Asperiores ipsum id nobis enim consectetur.",
+			"date" : ISODate("2015-07-30T23:27:29Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd45ec"),
+	"title" : "Frankenstein",
+	"year" : 1910,
+	"runtime" : 16,
+	"released" : ISODate("1910-03-18T00:00:00Z"),
+	"cast" : [
+		"Mary Fuller",
+		"Charles Ogle",
+		"Augustus Phillips"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTg2NjMyMjgxOF5BMl5BanBnXkFtZTgwOTMyNzM2MzE@._V1_SX300.jpg",
+	"plot" : "Frankenstein, a young medical student, trying to create the perfect human being, instead creates a misshapen monster. Made ill by what he has done, Frankenstein is comforted by his fianc�e ...",
+	"fullplot" : "Frankenstein, a young medical student, trying to create the perfect human being, instead creates a misshapen monster. Made ill by what he has done, Frankenstein is comforted by his fianc�e but on his wedding night he is visited by the monster. A fight ensues but the monster, seeing himself in a mirror, is horrified and runs away. He later returns, entering the new bride's room, and finds her alone.",
+	"lastupdated" : "2015-08-28 00:56:44.097000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"J. Searle Dawley"
+	],
+	"writers" : [
+		"Mary Shelley (novel)",
+		"J. Searle Dawley"
+	],
+	"imdb" : {
+		"rating" : 6.5,
+		"votes" : 2149,
+		"id" : 1223
+	},
+	"countries" : [
+		"USA"
+	],
+	"rated" : "UNRATED",
+	"genres" : [
+		"Short",
+		"Fantasy",
+		"Horror"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.4,
+			"numReviews" : 541,
+			"meter" : 57
+		},
+		"lastUpdated" : ISODate("2015-08-26T18:01:25Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Eddie Hunter",
+			"email" : "eddie_hunter@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd45ec"),
+			"text" : "Et quo alias repudiandae quis expedita placeat est aut. Facere molestias a quis sed consequuntur omnis. Unde dignissimos quod hic ex ipsa voluptatem qui.",
+			"date" : ISODate("2010-01-19T00:42:34Z")
+		},
+		{
+			"name" : "Bowen Marsh",
+			"email" : "michael_condron@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd45ec"),
+			"text" : "Delectus ut accusantium nihil facilis. Consequatur possimus incidunt aut blanditiis distinctio blanditiis est. Ratione dicta laboriosam animi magni adipisci a pariatur.",
+			"date" : ISODate("1986-01-16T13:13:52Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd458c"),
+	"title" : "The Woman Always Pays",
+	"year" : 1910,
+	"runtime" : 38,
+	"released" : ISODate("1912-04-18T00:00:00Z"),
+	"cast" : [
+		"Asta Nielsen",
+		"Robert Dinesen",
+		"Poul Reumert",
+		"Hans Neergaard"
+	],
+	"plot" : "At a tramcar in Copenhagen the piano teacher Magda Vang meets the young man Knud Svane, who falls in love with her. She is invited to spend the summer with him and his parents at the ...",
+	"fullplot" : "At a tramcar in Copenhagen the piano teacher Magda Vang meets the young man Knud Svane, who falls in love with her. She is invited to spend the summer with him and his parents at the vicarage in Gjerslev. Outside the vicarage a circus troupe passes by, and Magda is saluted by the performer Rudolph Stern. In the night Rudolph climbs a ladder to Magda's bedroom. She tries to flee his advances, but after a hot kiss she surrenders, and runs away with him. Magda is hired as a dancer with Rudolph at the Empire Variet�. When Rudolph fondles a ballet dancer Magda gets furious, and starts a fight in front of the audience. Magda and Rudolph are fired. To earn some money Rudolph forces Magda to play the piano in a band at a garden restaurant. Knud turns up and recognizes her. Incognito he asks her for a private meeting. Magda thinks she is asked to sell her body and refuses, but Rudolph forces her to go. When Rudloph after a while interrupts and finds Magda with Knud, he gets furious and starts to beat her. During the turmoil she grabs a knife and stabs Rudolph in his chest. In her despair she clings to his dead body, and has to be taken away by force.",
+	"lastupdated" : "2015-08-29 00:44:49.343000000",
+	"type" : "movie",
+	"languages" : [
+		"Danish"
+	],
+	"directors" : [
+		"Urban Gad"
+	],
+	"writers" : [
+		"Urban Gad"
+	],
+	"imdb" : {
+		"rating" : 6.6,
+		"votes" : 429,
+		"id" : 1105
+	},
+	"countries" : [
+		"Denmark"
+	],
+	"genres" : [
+		"Short",
+		"Drama"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.3,
+			"numReviews" : 55,
+			"meter" : 50
+		},
+		"lastUpdated" : ISODate("2015-07-14T18:49:06Z")
+	},
+	"num_mflix_comments" : 3,
+	"comments" : [
+		{
+			"name" : "Shae",
+			"email" : "sibel_kekilli@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd458c"),
+			"text" : "Voluptatibus in voluptatem itaque consequuntur explicabo. Maxime deserunt similique totam ab. Corporis nostrum et voluptate. Aliquam enim distinctio excepturi accusantium.",
+			"date" : ISODate("2000-10-19T00:54:54Z")
+		},
+		{
+			"name" : "Kyle Cooper",
+			"email" : "kyle_cooper@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd458c"),
+			"text" : "Ea dicta laboriosam sit alias. Quos molestiae explicabo minus quibusdam officiis.",
+			"date" : ISODate("1991-04-25T14:57:24Z")
+		},
+		{
+			"name" : "Petyr Baelish",
+			"email" : "aidan_gillen@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd458c"),
+			"text" : "Eveniet rem eligendi eos minima. Aliquam eos laboriosam laudantium ipsum minus consequatur iusto.",
+			"date" : ISODate("1974-11-20T06:29:01Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4961"),
+	"title" : "Cleopatra",
+	"year" : 1912,
+	"runtime" : 88,
+	"released" : ISODate("1912-11-13T00:00:00Z"),
+	"cast" : [
+		"Helen Gardner",
+		"Pearl Sindelar",
+		"Miss Fielding",
+		"Miss Robson"
+	],
+	"plot" : "The fabled queen of Egypt's affair with Roman general Marc Antony is ulimately disastrous for both of them.",
+	"fullplot" : "When she discovers that a slave named Pharon professes his love for her, Cleopatra makes a bargain with him: she will give him ten days of \"love,\" at the end of which he is to commit suicide. He agrees, although the queen's handmaiden Iras, in love with the slave, isn't happy with the arrangement. Later when Cleopatra is seducing Marc Antony, her relationship with Pharon is used against her, but with little effect. She allies herself with Antony against Octavius, participates in a brief war, then meets her end rather than be subjected to Roman rule.",
+	"lastupdated" : "2015-08-26 00:15:57.057000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"Charles L. Gaskill"
+	],
+	"writers" : [
+		"Victorien Sardou (adapted from the play by)"
+	],
+	"imdb" : {
+		"rating" : 5.1,
+		"votes" : 291,
+		"id" : 2101
+	},
+	"countries" : [
+		"USA"
+	],
+	"rated" : "UNRATED",
+	"genres" : [
+		"Drama",
+		"History"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.7,
+			"numReviews" : 13
+		},
+		"lastUpdated" : ISODate("2015-08-23T18:50:13Z")
+	}
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd418c"),
+	"title" : "The House of the Devil",
+	"year" : 1896,
+	"runtime" : 3,
+	"cast" : [
+		"Jeanne d'Alcy",
+		"Georges M�li�s"
+	],
+	"plot" : "A bat flies into an ancient castle and transforms itself into Mephistopheles himself. Producing a cauldron, Mephistopheles conjures up a young girl and various supernatural creatures, one ...",
+	"fullplot" : "A bat flies into an ancient castle and transforms itself into Mephistopheles himself. Producing a cauldron, Mephistopheles conjures up a young girl and various supernatural creatures, one of which brandishes a crucifix in an effort to force the devil-vampire to vanish.",
+	"lastupdated" : "2015-08-26 00:06:16.697000000",
+	"type" : "movie",
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Georges M�li�s"
+	],
+	"imdb" : {
+		"rating" : 6.8,
+		"votes" : 1135,
+		"id" : 91
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short",
+		"Horror"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 5,
+			"numReviews" : 23
+		},
+		"lastUpdated" : ISODate("2015-06-02T19:48:08Z")
+	},
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Oscar Sanchez",
+			"email" : "oscar_sanchez@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd418c"),
+			"text" : "Non repellat atque in ipsa accusantium. Assumenda modi magni quis.\nRecusandae recusandae dicta repellat ad reprehenderit mollitia quam. Itaque voluptate asperiores quia alias.",
+			"date" : ISODate("2017-02-11T07:00:52Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd41b1"),
+	"title" : "The Bewitched Inn",
+	"year" : 1897,
+	"runtime" : 2,
+	"cast" : [
+		"Georges M�li�s"
+	],
+	"plot" : "A weary traveler stops at an inn along the way to get a good night's sleep, but his rest is interrupted by odd happenings when he gets to his room--beds vanishing and re-appearing, candles ...",
+	"fullplot" : "A weary traveler stops at an inn along the way to get a good night's sleep, but his rest is interrupted by odd happenings when he gets to his room--beds vanishing and re-appearing, candles exploding, pants flying through the air and his shoes walking away by themselves.",
+	"lastupdated" : "2015-08-29 00:17:59.703000000",
+	"type" : "movie",
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Georges M�li�s"
+	],
+	"imdb" : {
+		"rating" : 6.5,
+		"votes" : 329,
+		"id" : 138
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short",
+		"Comedy"
+	],
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Steven Mcdonald",
+			"email" : "steven_mcdonald@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd41b1"),
+			"text" : "Corrupti perspiciatis aspernatur unde assumenda. Repellat velit animi at. Distinctio amet enim voluptas.",
+			"date" : ISODate("1994-09-20T01:47:13Z")
+		},
+		{
+			"name" : "Meera Reed",
+			"email" : "ellie_kendrick@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd41b1"),
+			"text" : "Ratione deleniti delectus quae deleniti adipisci. Sit nam error temporibus velit. Eum aperiam ratione consectetur illum rem eveniet illo.",
+			"date" : ISODate("1981-06-24T07:48:10Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4318"),
+	"title" : "Rescued by Rover",
+	"year" : 1905,
+	"runtime" : 7,
+	"released" : ISODate("1905-08-19T00:00:00Z"),
+	"cast" : [
+		"Blair",
+		"May Clark",
+		"Barbara Hepworth",
+		"Cecil M. Hepworth"
+	],
+	"plot" : "A dog leads its master to his kidnapped baby.",
+	"fullplot" : "Rescued by Rover is a film about a dog. Not only is it a film about a dog it is also a film about the kidnaping of a young baby by an old woman. With these two classical Hollywood ingredients and some stunning dialogue, (It's silent!), Rescued by Rover really hits a nerve. The repeated shots provide some interest in what, surprisingly, is an entertaining example of early cinema, canine heroics and a man wearing mascara.",
+	"lastupdated" : "2015-08-29 00:28:01.313000000",
+	"type" : "movie",
+	"directors" : [
+		"Lewin Fitzhamon",
+		"Cecil M. Hepworth"
+	],
+	"writers" : [
+		"Mrs. Hepworth (story)"
+	],
+	"imdb" : {
+		"rating" : 6.7,
+		"votes" : 666,
+		"id" : 498
+	},
+	"countries" : [
+		"UK"
+	],
+	"genres" : [
+		"Short",
+		"Drama",
+		"Family"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.9,
+			"numReviews" : 74,
+			"meter" : 94
+		},
+		"lastUpdated" : ISODate("2015-07-03T19:29:07Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Douglas Williams",
+			"email" : "douglas_williams@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4318"),
+			"text" : "Veritatis dolorum debitis tempore eos possimus animi. Repellat accusantium molestias quibusdam nemo ipsam. Nemo quo consequuntur reiciendis nam perspiciatis. Laborum eveniet harum ex debitis rem.",
+			"date" : ISODate("2010-01-05T11:19:01Z")
+		},
+		{
+			"name" : "Tonya Johnson",
+			"email" : "tonya_johnson@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4318"),
+			"text" : "Eveniet labore velit praesentium nemo doloribus tempore sint explicabo. Molestiae dicta fuga aperiam. Eligendi magni id modi veniam molestiae. Pariatur sit doloremque pariatur id dolorem odit.",
+			"date" : ISODate("1984-05-18T16:01:44Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4217"),
+	"title" : "Cinderella",
+	"year" : 1899,
+	"runtime" : 6,
+	"released" : ISODate("1899-12-25T00:00:00Z"),
+	"cast" : [
+		"Barral",
+		"Bleuette Bernon",
+		"Carmely",
+		"Jeanne d'Alcy"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTgwMDY1MzM1NV5BMl5BanBnXkFtZTgwMjM1MzUwMzE@._V1_SX300.jpg",
+	"plot" : "A fairy godmother magically turns Cinderella's rags to a beautiful dress, and a pumpkin into a coach. Cinderella goes to the ball, where she meets the Prince - but will she remember to leave before the magic runs out?",
+	"fullplot" : "A fairy godmother magically turns Cinderella's rags to a beautiful dress, and a pumpkin into a coach. Cinderella goes to the ball, where she meets the Prince - but will she remember to leave before the magic runs out?",
+	"lastupdated" : "2015-08-29 00:20:56.217000000",
+	"type" : "movie",
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Charles Perrault (story)"
+	],
+	"imdb" : {
+		"rating" : 6.6,
+		"votes" : 586,
+		"id" : 230
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Drama",
+		"Short"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.7,
+			"numReviews" : 79
+		},
+		"lastUpdated" : ISODate("2015-09-14T18:42:47Z")
+	},
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Osha",
+			"email" : "natalia_tena@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd4217"),
+			"text" : "Odit fugit ipsa repellat laudantium labore quae sunt. Asperiores quasi sint animi cum illum. Pariatur eum cupiditate tempora voluptate magnam velit.",
+			"date" : ISODate("1999-09-26T14:56:12Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4218"),
+	"title" : "The Sign of the Cross",
+	"year" : 1899,
+	"runtime" : 3,
+	"released" : ISODate("1900-06-30T00:00:00Z"),
+	"cast" : [
+		"Georges M�li�s"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMjM1NTQyNDQxOV5BMl5BanBnXkFtZTgwMTQ1MzUwMzE@._V1_SX300.jpg",
+	"lastupdated" : "2015-08-29 00:21:15.827000000",
+	"type" : "movie",
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Georges M�li�s"
+	],
+	"imdb" : {
+		"rating" : 6.3,
+		"votes" : 388,
+		"id" : 242
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short",
+		"Fantasy"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.4,
+			"numReviews" : 33
+		},
+		"lastUpdated" : ISODate("2015-08-15T18:50:24Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Amy Wolfe",
+			"email" : "amy_wolfe@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4218"),
+			"text" : "Commodi vitae dolorum quaerat provident explicabo. Tempora dolor blanditiis dolorum. Dignissimos in in quasi voluptatibus ex nisi quos ipsam. Facere facilis eos doloribus debitis beatae cumque.",
+			"date" : ISODate("2007-04-21T23:04:03Z")
+		},
+		{
+			"name" : "Daario Naharis",
+			"email" : "michiel_huisman@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd4218"),
+			"text" : "Quasi voluptatem ea qui ipsam repellendus qui numquam nesciunt. Neque molestiae tempore temporibus distinctio ipsam natus ipsum. Qui corrupti unde at.",
+			"date" : ISODate("1994-10-22T12:11:01Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd46e7"),
+	"title" : "The Wonderful Wizard of Oz",
+	"year" : 1910,
+	"runtime" : 13,
+	"released" : ISODate("1910-03-24T00:00:00Z"),
+	"cast" : [
+		"Bebe Daniels",
+		"Hobart Bosworth",
+		"Eugenie Besserer",
+		"Robert Z. Leonard"
+	],
+	"plot" : "An early version of the classic, based more on the 1902 stage musical than on the original novel.",
+	"fullplot" : "Chased off by the antics of Hank the Mule, Dorothy ends up in her cornfield, where she realizes her family's Scarecrow is alive. She helps him down and he takes a tumble on the turnstyle. A cyclone soon arrives and leaves Dorothy, Scarecrow, Toto and Hank spinning around on a haystack, with Imogene the Cow flying soon after. Soon after their arrival, the Wizard of Oz issues a public decree that he is a humbug, to make sure no one ever finds out. Glinda pops up out of the background and transforms Toto into a man in a bulldog suit to serve as a better protector for Dorothy. Then they encounter the Tin Woodman, the Cowardly Lion, and Eureka. Nevertheless, she is captured by Momba, the Wicked Witch of the West (suggesting Baum thought the other witches were Mombe, Mombo, and Mombu, in keeping with the council in _Queen Zixi of Ix_) and her flying lizards and soldiers. Dorothy defeats Momba, and they arrive at the Emerald City just in time for the Wizard's going away party.",
+	"lastupdated" : "2015-08-29 00:54:49.313000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"Otis Turner"
+	],
+	"writers" : [
+		"L. Frank Baum (novel)",
+		"Otis Turner (scenario)"
+	],
+	"imdb" : {
+		"rating" : 5.7,
+		"votes" : 1030,
+		"id" : 1463
+	},
+	"countries" : [
+		"USA"
+	],
+	"rated" : "NOT RATED",
+	"genres" : [
+		"Adventure",
+		"Fantasy",
+		"Short"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 2.9,
+			"numReviews" : 124,
+			"meter" : 24
+		},
+		"lastUpdated" : ISODate("2015-03-30T19:17:26Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Angela Smith",
+			"email" : "angela_smith@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd46e7"),
+			"text" : "Nihil quasi nostrum sapiente sit corrupti alias adipisci maiores. Quos libero quaerat temporibus tempora minus quaerat vitae aut. Earum animi aliquid eos dolor.",
+			"date" : ISODate("2014-12-20T05:49:56Z")
+		},
+		{
+			"name" : "Amy Wolfe",
+			"email" : "amy_wolfe@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd46e7"),
+			"text" : "Rem ex est ad sunt veniam blanditiis. Ad asperiores numquam nihil dicta necessitatibus. Vitae minus beatae magnam impedit voluptatibus quam molestiae.",
+			"date" : ISODate("1985-07-02T03:36:20Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4962"),
+	"title" : "The Conquest of the Pole",
+	"year" : 1912,
+	"runtime" : 33,
+	"cast" : [
+		"Georges M�li�s",
+		"Fernande Albany"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMjE1MDI5MTMxMF5BMl5BanBnXkFtZTgwOTg4NzYwMjE@._V1_SX300.jpg",
+	"plot" : "Scientists from all over the world are meeting to discuss the best way to reach the North Pole. Professor Maboul demonstrates for them the innovative equipment that he has designed for the ...",
+	"fullplot" : "Scientists from all over the world are meeting to discuss the best way to reach the North Pole. Professor Maboul demonstrates for them the innovative equipment that he has designed for the purpose. When everything is ready, Maboul and several other scientists depart for the pole. Their trip will prove to be even more eventful than expected.",
+	"lastupdated" : "2015-08-26 00:16:14.773000000",
+	"type" : "movie",
+	"languages" : [
+		"French"
+	],
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Georges M�li�s (screenplay)",
+		"Georges M�li�s (story)",
+		"Jules Verne (novel)"
+	],
+	"imdb" : {
+		"rating" : 6.9,
+		"votes" : 458,
+		"id" : 2113
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short",
+		"Adventure",
+		"Sci-Fi"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.7,
+			"numReviews" : 13
+		},
+		"lastUpdated" : ISODate("2015-08-23T18:50:13Z")
+	},
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Dana Cross",
+			"email" : "dana_cross@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4962"),
+			"text" : "Nemo tempore quod facilis nulla numquam ullam. Eligendi fuga perferendis ratione. Labore consectetur magnam alias.",
+			"date" : ISODate("1978-01-27T12:24:04Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd41aa"),
+	"title" : "Une partie de cartes",
+	"year" : 1896,
+	"runtime" : 1,
+	"cast" : [
+		"Gaston M�li�s",
+		"Georges M�li�s",
+		"Georgette M�li�s"
+	],
+	"plot" : "Three friends are playing cards in a beer garden. One of them orders drinks. The waitress comes back with a bottle of wine and three glasses on a tray. The man serves his friends. They ...",
+	"fullplot" : "Three friends are playing cards in a beer garden. One of them orders drinks. The waitress comes back with a bottle of wine and three glasses on a tray. The man serves his friends. They clink glasses and drink. Then the man asks for a newspaper. He reads a funny story in it and the three friends burst out laughing while the waitress merely smiles.",
+	"lastupdated" : "2015-07-27 00:27:37.370000000",
+	"type" : "movie",
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Georges M�li�s"
+	],
+	"imdb" : {
+		"rating" : 5.1,
+		"votes" : 462,
+		"id" : 132
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short",
+		"Biography"
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd41f0"),
+	"title" : "Ella Lola, a la Trilby",
+	"year" : 1898,
+	"cast" : [
+		"Ella Lola"
+	],
+	"plot" : "Dancer Ella Lola dances a routine based on the famous character of \"Trilby\".",
+	"fullplot" : "Dancer Ella Lola dances a routine based on the famous character of \"Trilby\".",
+	"lastupdated" : "2015-08-29 00:19:44.140000000",
+	"type" : "movie",
+	"directors" : [
+		"James H. White"
+	],
+	"writers" : [
+		"George L. Du Maurier (novel)"
+	],
+	"imdb" : {
+		"rating" : 4.7,
+		"votes" : 83,
+		"id" : 192
+	},
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Short"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 4.1,
+			"numReviews" : 46
+		},
+		"lastUpdated" : ISODate("2015-09-14T17:32:55Z")
+	},
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Tyrion Lannister",
+			"email" : "peter_dinklage@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd41f0"),
+			"text" : "Ipsa dignissimos quibusdam id doloremque quis corrupti placeat. Fugit velit natus nesciunt iure impedit at aut. Doloribus unde dolores deleniti aspernatur eos.",
+			"date" : ISODate("1996-06-11T07:01:30Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd434b"),
+	"title" : "Dream of a Rarebit Fiend",
+	"year" : 1906,
+	"runtime" : 7,
+	"released" : ISODate("1906-02-01T00:00:00Z"),
+	"cast" : [
+		"Jack Brawn"
+	],
+	"plot" : "The fiend faces the spectacular mind-bending consequences of his free-wheeling rarebit binge.",
+	"fullplot" : "Adapted from Winsor McCay's films and comics of the period, this film follows the established theme: the \"Rarebit Fiend\" gorges himself on rarebit and thus suffers spectacular hallucinatory dreams.",
+	"lastupdated" : "2015-08-29 00:29:11.733000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"Wallace McCutcheon",
+		"Edwin S. Porter"
+	],
+	"writers" : [
+		"Winsor McCay (comic strip)"
+	],
+	"imdb" : {
+		"rating" : 6.7,
+		"votes" : 1082,
+		"id" : 546
+	},
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Short",
+		"Fantasy"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.6,
+			"numReviews" : 62,
+			"meter" : 65
+		},
+		"lastUpdated" : ISODate("2015-07-02T18:49:19Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Joffrey Baratheon",
+			"email" : "jack_gleeson@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd434b"),
+			"text" : "Ab possimus exercitationem alias et accusantium impedit facere. Ipsa assumenda quaerat quisquam exercitationem excepturi non dignissimos. Recusandae accusamus veritatis fugiat quos reiciendis.",
+			"date" : ISODate("2014-08-22T00:48:51Z")
+		},
+		{
+			"name" : "Robert Baratheon",
+			"email" : "mark_addy@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd434b"),
+			"text" : "Sit nostrum quasi tempora totam magni placeat. Deserunt accusamus vel veritatis quisquam quam. Repellendus eveniet porro nihil mollitia porro error. A delectus nisi qui perferendis suscipit nobis.",
+			"date" : ISODate("1984-02-29T10:51:31Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd42ca"),
+	"title" : "Alice in Wonderland",
+	"year" : 1903,
+	"runtime" : 8,
+	"released" : ISODate("1903-10-17T00:00:00Z"),
+	"cast" : [
+		"May Clark",
+		"Cecil M. Hepworth",
+		"Blair",
+		"Geoffrey Faithfull"
+	],
+	"plot" : "Alice dozes in a garden, awakened by a dithering white rabbit in waistcoat with pocket watch. She follows him down a hole and finds herself in a hall of many doors. A key opens a small door...",
+	"fullplot" : "Alice dozes in a garden, awakened by a dithering white rabbit in waistcoat with pocket watch. She follows him down a hole and finds herself in a hall of many doors. A key opens a small door: eventually, she's through into a garden where a dog awaits. Later, in the rabbit's home, her size is again a problem. She tries to help a nanny with a howling baby, then a Cheshire cat directs her to a tea party where the Mad Hatter and March Hare dunk a dormouse. Expelled from the party, Alice happens on a royal processional: all the cards in the deck precede the Queen of Hearts, who welcomes then turns on Alice and calls on the royal executioner. Alice must run for her life.",
+	"lastupdated" : "2015-08-22 00:28:40.907000000",
+	"type" : "movie",
+	"directors" : [
+		"Cecil M. Hepworth",
+		"Percy Stow"
+	],
+	"writers" : [
+		"Lewis Carroll (novel)",
+		"Cecil M. Hepworth"
+	],
+	"imdb" : {
+		"rating" : 6.3,
+		"votes" : 1572,
+		"id" : 420
+	},
+	"countries" : [
+		"UK"
+	],
+	"genres" : [
+		"Fantasy",
+		"Short"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.2,
+			"numReviews" : 373,
+			"meter" : 48
+		},
+		"lastUpdated" : ISODate("2015-07-01T18:48:05Z")
+	},
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Barristan Selmy",
+			"email" : "ian_mcelhinney@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd42ca"),
+			"text" : "Natus illum vel aspernatur est minima voluptates modi perferendis. Minima eum vitae magni maiores animi distinctio. Odio eaque atque minus ut quod ad itaque.",
+			"date" : ISODate("2003-12-06T13:06:50Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4c3c"),
+	"title" : "Fantomas",
+	"year" : 1913,
+	"runtime" : 54,
+	"cast" : [
+		"Ren� Navarre",
+		"Edmund Breon",
+		"Georges Melchior",
+		"Ren�e Carl"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTA3MTk5MjI1ODBeQTJeQWpwZ15BbWU3MDc1MzAzMzQ@._V1_SX300.jpg",
+	"plot" : "Fant�mas makes it as the emperor of Crime. First is the robbery at the Royal Palace Hotel. Then he abducts Lord Beltham. As Fant�mas' fame increases actor Valgrand creates the r�le of ...",
+	"fullplot" : "Fant�mas makes it as the emperor of Crime. First is the robbery at the Royal Palace Hotel. Then he abducts Lord Beltham. As Fant�mas' fame increases actor Valgrand creates the r�le of public enemy No.1 on stage. Eventually Inspector Juve, with a little help from Fandor, arrests Fant�mas and he is soon sentenced to die on the guillotine. But...",
+	"lastupdated" : "2015-08-21 00:57:27.687000000",
+	"type" : "movie",
+	"languages" : [
+		"French"
+	],
+	"directors" : [
+		"Louis Feuillade"
+	],
+	"writers" : [
+		"Marcel Allain (novel)",
+		"Louis Feuillade",
+		"Pierre Souvestre (novel)"
+	],
+	"imdb" : {
+		"rating" : 6.8,
+		"votes" : 1337,
+		"id" : 2844
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Crime",
+		"Drama"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.8,
+			"numReviews" : 336,
+			"meter" : 90
+		},
+		"lastUpdated" : ISODate("2015-09-01T19:12:25Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Stannis Baratheon",
+			"email" : "stephen_dillane@gameofthron.es",
+			"movie_id" : ObjectId("573a1390f29313caabcd4c3c"),
+			"text" : "Enim eum eum cum dolorum asperiores. Ea totam ducimus eaque laboriosam. Doloremque illo exercitationem reprehenderit provident quidem.",
+			"date" : ISODate("2014-10-08T14:33:47Z")
+		},
+		{
+			"name" : "Alexander Robinson",
+			"email" : "alexander_robinson@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4c3c"),
+			"text" : "Est nostrum debitis veniam. Ad odio magni odit iure. Eligendi harum reprehenderit sunt voluptas.",
+			"date" : ISODate("1976-12-17T22:38:42Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4319"),
+	"title" : "The Voyage Across the Impossible",
+	"year" : 1904,
+	"runtime" : 24,
+	"released" : ISODate("1904-10-01T00:00:00Z"),
+	"cast" : [
+		"Georges M�li�s"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTYxNjExMzk5Nl5BMl5BanBnXkFtZTgwMzE5MjAwMzE@._V1_SX300.jpg",
+	"plot" : "Using every known means of transportation, several savants from the Geographic Society undertake a journey through the Alps to the Sun which finishes under the sea.",
+	"fullplot" : "Using every known means of transportation, several savants from the Geographic Society undertake a journey through the Alps to the Sun which finishes under the sea.",
+	"lastupdated" : "2015-08-26 00:06:49.650000000",
+	"type" : "movie",
+	"languages" : [
+		"French"
+	],
+	"directors" : [
+		"Georges M�li�s"
+	],
+	"writers" : [
+		"Georges M�li�s",
+		"Jules Verne (play)",
+		"Adolphe d'Ennery (play)"
+	],
+	"imdb" : {
+		"rating" : 7.7,
+		"votes" : 2022,
+		"id" : 499
+	},
+	"countries" : [
+		"France"
+	],
+	"genres" : [
+		"Short",
+		"Adventure",
+		"Fantasy"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 4.1,
+			"numReviews" : 311,
+			"meter" : 93
+		},
+		"lastUpdated" : ISODate("2015-08-20T18:41:25Z")
+	}
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4964"),
+	"title" : "The Burglar's Dilemma",
+	"year" : 1912,
+	"runtime" : 15,
+	"released" : ISODate("1912-12-16T00:00:00Z"),
+	"cast" : [
+		"Lionel Barrymore",
+		"Henry B. Walthall",
+		"Robert Harron",
+		"Harry Carey"
+	],
+	"plot" : "In this latter day Cain and Abel story, a jealous brother strikes down his sibling just as a young burglar is about to enter the house. The jealous brother summons police, who then charge ...",
+	"fullplot" : "In this latter day Cain and Abel story, a jealous brother strikes down his sibling just as a young burglar is about to enter the house. The jealous brother summons police, who then charge the young intruder with murder. How can the burglar prove his innocence?",
+	"lastupdated" : "2015-08-26 00:15:24.197000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"D.W. Griffith"
+	],
+	"writers" : [
+		"Lionel Barrymore"
+	],
+	"imdb" : {
+		"rating" : 6.1,
+		"votes" : 210,
+		"id" : 2082
+	},
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Short",
+		"Drama"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 0,
+			"numReviews" : 0
+		},
+		"lastUpdated" : ISODate("2015-01-05T16:39:41Z")
+	},
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Mark Brown",
+			"email" : "mark_brown@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4964"),
+			"text" : "Animi amet molestiae recusandae rerum voluptatum quibusdam cumque quidem. Ducimus omnis reiciendis doloribus asperiores quis. Asperiores dicta iusto tempore nihil.",
+			"date" : ISODate("1983-03-15T10:26:48Z")
+		}
+	]
+}
+{
+	"_id" : ObjectId("573a1390f29313caabcd4ad2"),
+	"title" : "The Life and Death of King Richard III",
+	"year" : 1912,
+	"runtime" : 55,
+	"released" : ISODate("1912-10-15T00:00:00Z"),
+	"cast" : [
+		"Robert Gemp",
+		"Frederick Warde",
+		"Albert Gardner",
+		"James Keane"
+	],
+	"poster" : "http://ia.media-imdb.com/images/M/MV5BMTQ1ODY2NTU4OF5BMl5BanBnXkFtZTgwNTc3NjU4MDE@._V1_SX300.jpg",
+	"plot" : "Richard of Gloucester uses manipulation and murder to gain the English throne.",
+	"fullplot" : "Shakespeare's tragedy of the hump-backed Duke of Gloucester, who rises to the throne of England by chicanery, treachery, and brilliance, only to find that his own methods have prepared the groundwork for his downfall.",
+	"lastupdated" : "2015-08-05 00:52:19.570000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"Andr� Calmettes",
+		"James Keane"
+	],
+	"writers" : [
+		"James Keane",
+		"William Shakespeare (play)"
+	],
+	"imdb" : {
+		"rating" : 5.6,
+		"votes" : 173,
+		"id" : 2461
+	},
+	"countries" : [
+		"France",
+		"USA"
+	],
+	"genres" : [
+		"Drama"
+	],
+	"tomatoes" : {
+		"viewer" : {
+			"rating" : 3.5,
+			"numReviews" : 130,
+			"meter" : 67
+		},
+		"dvd" : ISODate("2001-06-26T00:00:00Z"),
+		"lastUpdated" : ISODate("2015-05-15T18:04:47Z")
+	},
+	"num_mflix_comments" : 2,
+	"comments" : [
+		{
+			"name" : "Renee Yu",
+			"email" : "renee_yu@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4ad2"),
+			"text" : "Quo fuga aperiam eaque fugit facere. Molestias unde qui dolor sunt vitae consectetur nisi. Expedita molestiae repellendus doloribus magni.",
+			"date" : ISODate("2016-10-16T01:35:17Z")
+		},
+		{
+			"name" : "Melissa Baxter",
+			"email" : "melissa_baxter@fakegmail.com",
+			"movie_id" : ObjectId("573a1390f29313caabcd4ad2"),
+			"text" : "Tempora labore unde vel repellat. Esse repellendus atque quis fugiat inventore. Qui tempora animi impedit hic nam quos natus. Sed fuga mollitia maiores ab iste ab atque.",
+			"date" : ISODate("1997-12-01T17:17:31Z")
+		}
+	]
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.findOne({title: "Life Is Beautiful"}, { _id: 0, cast: 1, writers: 1})
+{
+	"cast" : [
+		"Roberto Benigni",
+		"Nicoletta Braschi",
+		"Giustino Durano",
+		"Giorgio Cantarini"
+	],
+	"writers" : [
+		"Vincenzo Cerami (story)",
+		"Roberto Benigni (story)"
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 ## 10. Examen
 
 Optional Lab - Expressions with $project
@@ -1882,10 +3005,139 @@ How many movies are "labors of love"?
 
 Choose the best answer:
 
-* 1597
+* 1597 :+1:
 
 * 1263
 
 * 1259
 
 * 1595
+
+
+### See detailed answer
+
+One solution is below.
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      cast: { $elemMatch: { $exists: true } },
+      directors: { $elemMatch: { $exists: true } },
+      writers: { $elemMatch: { $exists: true } }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      cast: 1,
+      directors: 1,
+      writers: {
+        $map: {
+          input: "$writers",
+          as: "writer",
+          in: {
+            $arrayElemAt: [
+              {
+                $split: ["$$writer", " ("]
+              },
+              0
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      labor_of_love: {
+        $gt: [
+          { $size: { $setIntersection: ["$cast", "$directors", "$writers"] } },
+          0
+        ]
+      }
+    }
+  },
+  {
+    $match: { labor_of_love: true }
+  },
+  {
+    $count: "labors of love"
+  }
+])
+```
+
+With our first `$match` stage, we filter out documents that are not an array or have an empty array for the fields we are interested in.
+
+```sh
+{
+  $match: {
+    cast: { $elemMatch: { $exists: true } },
+    directors: { $elemMatch: { $exists: true } },
+    writers: { $elemMatch: { $exists: true } }
+  }
+},
+```
+
+Next is a `$project` stage, removing the `_id` field and retaining both the `directors` and `cast` fields. We replace the existing `writers` field with a new computed value, cleaning up the strings within `writers`
+
+```sh
+  {
+    $project: {
+      _id: 0,
+      cast: 1,
+      directors: 1,
+      writers: {
+          $map: {
+            input: "$writers",
+            as: "writer",
+            in: {
+              $arrayElemAt: [
+                {
+                  $split: ["$$writer", " ("]
+                },
+                0
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+},
+```
+
+We use another `$project` stage to computer a new field called `labor_of_love` that ensures the intersection of `cast, writers`, and our newly cleaned `directors` is greater than 0. This definitely means that at least one element in each array is identical! `$gt` will return true or false.
+
+```sh
+{
+  $project: {
+    labor_of_love: {
+      $gt: [
+        { $size: { $setIntersection: ["$cast", "$directors", "$writers"] } },
+        0
+      ]
+    }
+  }
+},
+```
+
+Lastly, we follow with a `$match` stage, only allowing documents through where `labor_of_love` is `true`. In our example we use a `$match` stage, but `itcount()` works too.
+
+```sh
+{
+  $match: { labor_of_love: true }
+},
+{
+  $count: "labors of love"
+}
+
+// or
+
+  {
+    $match: { labor_of_love: true }
+  }
+]).itcount()
+```
+
+This produces 1597, as expected.
