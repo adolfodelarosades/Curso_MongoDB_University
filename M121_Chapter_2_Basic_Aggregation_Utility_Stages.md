@@ -523,17 +523,119 @@ Como podemos ver, conservaremos los campos especificados y realizaremos la trans
 
 ## 2. Tema: `geoNear`Stage
 
+### Notas de lectura
+
+Página de documentación de [`$geoNear`](https://docs.mongodb.com/manual/reference/operator/aggregation/geoNear/).
+
 ### Transcripción
 
+Tomemos un descanso de la transformación por un momento y analicemos algo útil de utility stage si trabajamos con datos GeoJSON-- `$geoNear`.
+
+`$geoNear` es la solución aggregation framework para realizar geoqueries dentro de la aggregation pipeline.
+
+Dentro de un pipeline, `$geoNear` debe ser la primera etapa de un pipeline.
+
+También es de notar que no podemos usar el predicado `$near` en el campo query, aunque realmente no tendría mucho sentido hacerlo.
+
+Entonces, si ya tenemos disponible el operador `$near` para operaciones de búsqueda, ¿por qué necesitamos una etapa de agregación como `$geoNear`?
+
+`$geoNear` se puede usar en colecciones trazadas, mientras que `$near` no.
+
+Además, cualquier consulta que use `$near` no puede usar otros índices especiales, como `$text`, por ejemplo.
+
+Una última cosa, `$geoNear` requiere que la colección en la que estamos realizando nuestras agregaciones tenga un único geoindex.
+
+Aquí están los argumentos de estructuración de `$geoNear`.
+
+Como podemos ver, puede requerir muchos argumentos, aunque solo si es necesario.
+
+Los argumentos requeridos son `near`, `distanceField` y `spherical`.
+
+`Near` es el punto que nos gustaría buscar cerca.
+
+Los resultados se ordenarán del más cercano al más alejado de esta ubicación.
+
+`distanceField` es el argumento que suministramos que se insertará en los documentos devueltos, dándonos la distancia desde la ubicación hasta la ubicación que especificamos en `near`.
+
+`Spherical` es el último argumento requerido.
+
+Especifique `true` si el índice es una `2dsphere`, de lo contrario `false`.
+
+Durante esta lección, usaremos un índice `2dsphere`.
+
+Sigamos adelante y ejecutemos una agregación `$geoNear`.
+
+Voy a buscar ubicaciones cerca de la sede de MongoDB en la ciudad de Nueva York.
+
+Aquí he especificado mis tres argumentos obligatorios: `near`, `distanceField` y `spherical`.
+
+Bueno, obtuvimos muchos resultados, por lo que podemos ver que funciona.
+
+Sin embargo, no es muy útil en su estado actual.
+
+Miremos esos argumentos opcionales en mayor detalle para aprender cómo hacer que esta agregación sea mucho más específica.
+
+`minDistance` y `maxDistance` especifican los resultados más cercanos y más lejanos que queremos.
+
+La consulta nos permite especificar las condiciones que cada documento debe cumplir, y utiliza la misma sintaxis del operador de consulta que la coincidencia.
+************************
+`includeLocs` nos permitiría mostrar qué ubicación se utilizó en el documento si tiene más de una ubicación.
+
+Para nuestro conjunto de datos, esto no es necesario, ya que cada documento solo tiene una ubicación.
+
+Y recuerde, $ geoNear requiere que tengamos exactamente un índice 2dsphere en la colección.
+
+Limit y num son funcionalmente idénticos y se usan para limitar el número de documentos devueltos.
+
+Por último, distanceMultiplier se utiliza para convertir los resultados de distancia de radianes a cualquier unidad que necesitemos, en caso de que utilicemos datos geoespaciales heredados.
+
+Así que limpiemos nuestra agregación y busquemos resultados útiles.
+
+Me gustaría encontrar los cinco hospitales más cercanos a la sede de MongoDB.
+
+Aquí agregué el campo de consulta opcional y especifiqué que debería ser tipo "Hospital". Y aquí agregué el campo de límite opcional y lo especifiqué como 5.
+
+Mucho mejor.
+
+Tenemos los cinco lugares más cercanos que coinciden con el hospital.
+
+Y pudimos ver que nuestra distancia es en metros.
+
+Y eso es todo por $ geoNear.
+
+Solo hay algunas cosas para recordar.
+
+La colección puede tener uno y solo un índice 2dsphere.
+
+Si usa 2dsphere, la distancia se devuelve en metros.
+
+Si usa coordenadas heredadas, la distancia se devuelve en radianes.
+
+Y $ geoNear debe ser la primera etapa en una tubería de agregación.
+
 ## 3. Tema: Cursor-like stages: Parte 1
+
+### Notas de lectura
+
+Página de documentación de [``]().
+
 
 ### Transcripción
 
 ## 4. Tema: Cursor-like stages: Parte 2
 
+### Notas de lectura
+
+Página de documentación de [``]().
+
+
 ### Transcripción
 
 ## 5. Tema: `$sample` Stage
+
+### Notas de lectura
+
+Página de documentación de [``]().
 
 ### Transcripción
 
