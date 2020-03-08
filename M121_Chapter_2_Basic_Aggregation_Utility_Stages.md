@@ -1,4 +1,4 @@
- # Capítulo 2: Aggregation Básica: Utility Stages
+# Capítulo 2: Aggregation Básica: Utility Stages
  
 Lecciones
 
