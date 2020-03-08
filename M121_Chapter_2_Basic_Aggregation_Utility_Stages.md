@@ -2,37 +2,37 @@
  
 Lecciones
 
-* Tema: `$addFields` y cómo este es similar a `$project`
-* Tema: `geoNear`Stage
-* Tema: Cursor-like stages: Parte 1
-* Tema: Cursor-like stages: Parte 2
-* Tema: `$sample` Stage
-* Laboratorio: Uso de Cursor-like Stages
-* Laboratorio: Uniendo todo junto
+1. Tema: `$addFields` y cómo este es similar a `$project`
+2. Tema: `geoNear`Stage
+3. Tema: Cursor-like stages: Parte 1
+4. Tema: Cursor-like stages: Parte 2
+5. Tema: `$sample` Stage
+6. Laboratorio: Uso de Cursor-like Stages
+7. Laboratorio: Uniendo todo junto
 
 
-## Tema: `$addFields` y cómo este es similar a `$project`
-
-### Transcripción
-
-## Tema: `geoNear`Stage
+## 1. Tema: `$addFields` y cómo este es similar a `$project`
 
 ### Transcripción
 
-## Tema: Cursor-like stages: Parte 1
+## 2. Tema: `geoNear`Stage
 
 ### Transcripción
 
-## Tema: Cursor-like stages: Parte 2
+## 3. Tema: Cursor-like stages: Parte 1
 
 ### Transcripción
 
-## Tema: `$sample` Stage
+## 4. Tema: Cursor-like stages: Parte 2
 
 ### Transcripción
 
-## Laboratorio: Uso de Cursor-like Stages
+## 5. Tema: `$sample` Stage
 
-## Laboratorio: Uniendo todo junto
+### Transcripción
+
+## 6. Laboratorio: Uso de Cursor-like Stages
+
+## 7. Laboratorio: Uniendo todo junto
 
 
