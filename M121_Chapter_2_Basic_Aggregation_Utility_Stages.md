@@ -615,12 +615,89 @@ Y `$geoNear` debe ser la primera etapa en una aggregation pipeline.
 
 ## 3. Tema: Cursor-like stages: Parte 1
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
-
 ### Transcripción
+*****************
+Es hora de que discutamos algo  útil de utility stages, lo que llamamos cursor-like stages.
+
+Estas etapas son sort, skip, limit y counts.
+
+Y tienen un equivalente en nuestro query language como método de cursor.
+
+Echemos un vistazo.
+
+Después de conectarme a mi base de datos de agregaciones, puedo expresar esta simple consulta en el sistema solar donde voy a encontrar todos mis documentos.
+
+Esta es una exploración de colección completa.
+
+y solo proyectando el nombre, el número de lunas, y evitando el _id.
+
+Si hago esto, puedo ver todos los resultados de mi colección, solo exponiendo el nombre, el número de lunas por cada uno de los documentos.
+
+Dulce, esto funciona bien.
+
+La otra cosa que puedo hacer es básicamente contar llamadas.
+
+Ahora esto contará la cantidad total de documentos devueltos por la consulta.
+
+Aquí, puedo ver que tengo en mi sistema solar nueve documentos.
+
+Otra cosa que puedo hacer es básicamente omitir cinco documentos.
+
+Y si ejecuto esta consulta, puedo ver que se omitieron algunos primeros documentos.
+
+Ahora, si se pregunta por qué obtuve este pedido, por qué omití esos cinco documentos anteriores y no otros, si no especifico una operación de clasificación o una clasificación de mi cursor, obtendré de MongoDB el orden por el cual los documentos se insertan en la colección, lo que llamamos el orden natural de la colección.
+
+Entonces, en este caso, voy a omitir los cinco primeros elementos que se han insertado en esta colección.
+
+El siguiente método será limit, donde puedo especificar la cantidad de documentos que voy a devolver.
+
+Y de nuevo, siguiendo exactamente el mismo orden de clasificación, que en este caso será mi orden de clasificación de inserción natural en nuestra colección del sistema solar, obtendré el Sol, Mercurio, Venus, la Tierra y Marte, que son los cinco primeros documentos de mi colección.
+
+Y, por último, también puedo especificar un tipo para el conjunto de resultados de mi colección.
+
+Aquí, voy a encontrar todo.
+
+Pero en lugar de devolver el orden por el cual se insertan los documentos en la colección, ordenaré el conjunto de resultados en función del número de lunas que contiene cada uno de estos documentos.
+
+Menos 1 especifica el orden.
+
+Y en este caso, será descendente.
+
+Entonces, como podemos ver, vamos a obtener, primero, los que tienen más lunas a los que tienen menos lunas.
+
+Ahora hemos visto los métodos del cursor, pero también tenemos etapas que ejecutan exactamente el mismo tipo de funcionalidad.
+
+Tenemos $ limit, $ skip, $ count y $ sort.
+
+Variarán un poco en la sintaxis, donde limit tomará un número entero, skip también tomará un número entero, especificando el número de documentos límite y el número de documentos skip.
+
+Recuento, por otro lado, tendremos que especificar un campo donde queremos recopilar el valor de recuento.
+
+Y ordenar, necesitamos especificar las claves y el orden por el cual queremos que se ordenen nuestros conjuntos de resultados de la tubería.
+
+Veamos algo de esto en acción.
+
+Ahora, para imitar exactamente la misma operación que antes en nuestro comando find, voy a ejecutar el proyecto de nombre y número de Lunas, excluyendo _id, exactamente la misma operación que antes.
+
+Y en este caso, dada la cartera que estoy ejecutando y los documentos que proporcionará esta tubería de agregación, agregaré una etapa límite a mi tubería, diciendo, solo quiero que los primeros cinco documentos provengan de esta etapa del proyecto.
+
+Y como se esperaba, obtengo los mismos resultados que si limitara una operación de búsqueda.
+
+Se saltará la siguiente etapa.
+
+Y nuevamente, dados los resultados entrantes de la etapa del proyecto, omitiré solo uno.
+
+En este caso, me voy a saltar el sol.
+
+Entonces, ¿cómo sé que voy a saltarme el sol?
+
+Básicamente, el orden por el cual voy a obtener los resultados en el proyecto es el orden natural, exactamente de la misma manera que hemos visto antes.
+
+El proyecto filtrará solo los campos que me interesan y los pasará a la etapa de omisión.
+
+Omitir, al omitir uno, voy a omitir el sol.
+
+Como puede ver aquí, todos los diferentes cuerpos celestes serán informados en mis resultados, excepto el Sol, que es el primer elemento, el que estoy omitiendo en la tubería.
 
 ## 4. Tema: Cursor-like stages: Parte 2
 
