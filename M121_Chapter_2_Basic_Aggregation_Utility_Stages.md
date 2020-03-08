@@ -577,17 +577,17 @@ Miremos esos argumentos opcionales en mayor detalle para aprender cómo hacer qu
 
 `minDistance` y `maxDistance` especifican los resultados más cercanos y más lejanos que queremos.
 
-La consulta nos permite especificar las condiciones que cada documento debe cumplir, y utiliza la misma sintaxis del operador de consulta que la coincidencia.
-************************
+Query permite especificar las condiciones que cada documento debe cumplir, y utiliza la misma sintaxis del query operator como match.
+
 `includeLocs` nos permitiría mostrar qué ubicación se utilizó en el documento si tiene más de una ubicación.
 
-Para nuestro conjunto de datos, esto no es necesario, ya que cada documento solo tiene una ubicación.
+Para nuestro dataset, esto no es necesario, ya que cada documento solo tiene una ubicación.
 
-Y recuerde, $ geoNear requiere que tengamos exactamente un índice 2dsphere en la colección.
+Y recuerde, `$geoNear` requiere que tengamos exactamente un índice `2dsphere` en la colección.
 
 Limit y num son funcionalmente idénticos y se usan para limitar el número de documentos devueltos.
 
-Por último, distanceMultiplier se utiliza para convertir los resultados de distancia de radianes a cualquier unidad que necesitemos, en caso de que utilicemos datos geoespaciales heredados.
+Por último, `distanceMultiplier` se utiliza para convertir los resultados de distancia de radianes a cualquier unidad que necesitemos, en caso de que utilicemos datos geoespaciales heredados.
 
 Así que limpiemos nuestra agregación y busquemos resultados útiles.
 
@@ -601,17 +601,17 @@ Tenemos los cinco lugares más cercanos que coinciden con el hospital.
 
 Y pudimos ver que nuestra distancia es en metros.
 
-Y eso es todo por $ geoNear.
+Y eso es todo con `$geoNear`.
 
 Solo hay algunas cosas para recordar.
 
-La colección puede tener uno y solo un índice 2dsphere.
+La colección puede tener uno y solo un índice `2dsphere`.
 
-Si usa 2dsphere, la distancia se devuelve en metros.
+Si usa `2dsphere`, la distancia se devuelve en metros.
 
 Si usa coordenadas heredadas, la distancia se devuelve en radianes.
 
-Y $ geoNear debe ser la primera etapa en una tubería de agregación.
+Y `$geoNear` debe ser la primera etapa en una aggregation pipeline.
 
 ## 3. Tema: Cursor-like stages: Parte 1
 
