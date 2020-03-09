@@ -10,7 +10,6 @@ Lecciones
 6. Laboratorio: Uso de Cursor-like Stages
 7. Laboratorio: Uniendo todo junto
 
-
 ## 1. Tema: `$addFields` y cómo este es similar a `$project`
 
 ### Notas de lectura
@@ -1534,55 +1533,140 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
 ```
 
-Por último, veamos el tipo.
+Por último, veamos `$sort`.
 
-La clasificación debe proporcionarse con el campo en el que queremos clasificar.
+`$sort` debe indicar el campo con el que queremos ordenar.
 
-En este caso, si voy a un proyecto, nombre y número de lunas, puedo ordenar los campos que estoy recolectando de la tubería entrante.
+En este caso, la proyección `$project`, con lo campos `name` y `numberOfMoons`, puedo ordenar los campos que estoy recuperando del pipeline entrante.
 
-Entonces, en este caso, si quiero ordenar el número de lunas descendentes, obtendré los resultados como se esperaba, donde obtengo el planeta que tiene más lunas primero, y en ese orden para cultivar las que no tienen lunas. - Como el sol, Mercurio y Venus-- pobres tipos.
+```sh
+db.solarSystem.aggregate([{
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "numberOfMoons": 1
+  }
+}, {
+  "$sort": { "numberOfMoons": -1 }
+}]).pretty();
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$project": {
+...     "_id": 0,
+...     "name": 1,
+...     "numberOfMoons": 1
+...   }
+... }, {
+...   "$sort": { "numberOfMoons": -1 }
+... }]).pretty();
+{ "name" : "Jupiter", "numberOfMoons" : 67 }
+{ "name" : "Saturn", "numberOfMoons" : 62 }
+{ "name" : "Uranus", "numberOfMoons" : 27 }
+{ "name" : "Neptune", "numberOfMoons" : 14 }
+{ "name" : "Mars", "numberOfMoons" : 2 }
+{ "name" : "Earth", "numberOfMoons" : 1 }
+{ "name" : "Venus", "numberOfMoons" : 0 }
+{ "name" : "Mercury", "numberOfMoons" : 0 }
+{ "name" : "Sun", "numberOfMoons" : 0 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+
+```
+
+En este caso, quiero ordenar por `numberOfMoons` descendente (-1), obtendré los resultados como se esperaba, donde obtengo el planeta que tiene más lunas primero, y en ese orden hasta las que no tienen lunas. - Como sun, Mercury y Venus-- pobres tipos.
 
 Un aspecto importante al que se debe hacer referencia aquí es que la etapa de clasificación no se limita a un solo campo.
 
-Operará en múltiples campos diferentes en combinación, como lo haríamos en consultas normales y operaciones de búsqueda, si desea ordenar primero en un campo y luego en otro, eso también es totalmente posible en la etapa de canalización de agregación.
+Operará en múltiples campos diferentes en combinación, como lo haríamos en consultas normales y operaciones de búsqueda, si desea ordenar primero en un campo y luego en otro, eso también es totalmente posible en  aggregation pipeline stage.
 
-Entonces, digamos aquí, por ejemplo, que tengo este proyecto diferente donde también voy a proyectar, aparte del nombre y la cantidad de lunas, el campo tiene un campo magnético, que es un campo de atracción.
+Entonces, digamos aquí, por ejemplo, que tengo este `project` diferente donde también voy a proyectar, aparte del `name` y `numberOfMoons`, el campo `hasMagneticField`, que es un campo de tracción.
 
-En la tercera etapa, puedo especificar que quiero clasificar como campo magnético, descendente y número de lunas descendentes.
+```sh
+db.solarSystem.aggregate([{
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "hasMagneticField": 1,
+    "numberOfMoons": 1
+  }
+}, {
+  "$sort": { "hasMagneticField": -1, "numberOfMoons": -1 }
+}]).pretty();
+```
+
+En la tercera etapa, puedo especificar que quiero ordenar con `hasMagneticField` descendente y `numberOfMoons` descendentes.
 
 Al ejecutar esta consulta específica, obtenemos un resultado muy similar al anterior, dónde vamos a tener a Júpiter, Saturno, Urano, etc.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$project": {
+...     "_id": 0,
+...     "name": 1,
+...     "hasMagneticField": 1,
+...     "numberOfMoons": 1
+...   }
+... }, {
+...   "$sort": { "hasMagneticField": -1, "numberOfMoons": -1 }
+... }]).pretty();
+{ "name" : "Jupiter", "numberOfMoons" : 67, "hasMagneticField" : true }
+{ "name" : "Saturn", "numberOfMoons" : 62, "hasMagneticField" : true }
+{ "name" : "Uranus", "numberOfMoons" : 27, "hasMagneticField" : true }
+{ "name" : "Neptune", "numberOfMoons" : 14, "hasMagneticField" : true }
+{ "name" : "Earth", "numberOfMoons" : 1, "hasMagneticField" : true }
+{ "name" : "Mercury", "numberOfMoons" : 0, "hasMagneticField" : true }
+{ "name" : "Sun", "numberOfMoons" : 0, "hasMagneticField" : true }
+{ "name" : "Mars", "numberOfMoons" : 2, "hasMagneticField" : false }
+{ "name" : "Venus", "numberOfMoons" : 0, "hasMagneticField" : false }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 La única diferencia es que, por ejemplo, el sol y Mercurio vendrán antes que Marte.
 
 Entonces, ¿cómo es eso posible?
 
-Bueno, el resultado se ordena primero en el campo ya que el campo magnético es igual a verdadero, y luego en el número de lunas.
+Bueno, el resultado se ordena primero en el campo `hasMagneticField` igual a true, y luego en `numberOfMoons`.
 
-Así que primero voy a tener todos los que tienen campo magnético igual a verdadero.
+Así que primero voy a tener todos los que tienen `hasMagneticField` igual a true.
 
-Y luego, después de eso, voy a buscar el número de lunas para los resultados.
+Y luego, después de eso, voy a buscar el `numberOfMoons` para los resultados.
 
-Ahora, si la ordenación está cerca del comienzo de nuestra cartera, en el lugar antes de un proyecto, y se desenrolla en la etapa de grupo, puede aprovechar los índices.
+Ahora, si la ordenación está cerca del comienzo de nuestro pipeline, en el lugar antes de un `project`, y se desenrolla en la etapa de `group`, puede aprovechar los índices.
 
-De lo contrario, esta etapa de clasificación realizará una clasificación en memoria, lo que aumentará en gran medida el consumo de memoria de nuestro servidor.
+De lo contrario, esta etapa `$sort` realizará una ordenación en memoria, lo que aumentará en gran medida el consumo de memoria de nuestro servidor.
 
-Las operaciones de clasificación dentro de esa línea de visión están limitadas a 100 megabytes de RAM por defecto.
+Las operaciones de ordenacion dentro de esa línea de visión están limitadas a 100 megabytes de RAM por defecto.
 
-Para permitir el manejo de conjuntos de datos más grandes, debemos permitir DiskUse, que es una opción de canalización de agregación que podemos proporcionar a la función de agregado.
+Para permitir el manejo de conjuntos de datos más grandes, debemos permitir el uso del disco, que es una opción del   aggregation pipeline que podemos proporcionar a la función de agregación.
 
-Al hacerlo, realizaremos el exceso de 100 megabytes de memoria necesarios para hacer una clasificación usando el disco para ayudarnos a clasificar los resultados.
+```sh
+db.solarSystem.aggregate([{
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "hasMagneticField": 1,
+    "numberOfMoons": 1
+  }
+}, {
+  "$sort": { "hasMagneticField": -1, "numberOfMoons": -1 }
+}], { "allowDiskUse": true }).pretty();
+```
 
-En resumen, $ sort, $ skip, $ limit y $ count son funcionalmente equivalentes a los métodos de cursor con nombre similares.
+Al hacerlo, realizaremos el exceso de 100 megabytes de memoria necesarios para hacer una clasificación usando el disco para ayudarnos a ordenar los resultados.
 
-Por lo tanto, podemos aprovechar los índices si está cerca del comienzo de nuestra cartera y antes de un grupo de proyectos o etapas de desconexión.
+En resumen, 
 
-Por defecto, $ source solo tomará hasta 100 megabytes de RAM.
+<img src="images/m121/c2/2-4-resumen.png">
 
-Para más que eso, tendremos que proporcionar la opción allowDiskUse como igual a nuestra tubería.
+* `$sort`, `$skip`, `$limit` y `$count` son funcionalmente equivalentes a los métodos de cursor con nombre similares.
+
+* Por lo tanto, podemos aprovechar los índices si está cerca del comienzo del pipeline y antes del project group o etapas de desconexión.
+
+* Por defecto, `$sort` solo tomará hasta 100 megabytes de RAM. Para más que eso, tendremos que proporcionar la opción `allowDiskUse: true` para nuetro pipeline.
 
 Si no lo hacemos, la operación finalizará en el servidor.
 
-Y eso es todo lo que tenemos para usted en las etapas de cursor de la tubería de agregación de horas.
+Y eso es todo lo que tenemos para usted en las etapas de cursor-like stages de aggregation pipeline.
 
 ## 5. Tema: `$sample` Stage
 
