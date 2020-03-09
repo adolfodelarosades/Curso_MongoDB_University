@@ -2300,6 +2300,54 @@ After that, we call the `$sort` stage and `$skip + $limit` in the result to the 
 ])
 ```
 
+Ejecutando los comandos:
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var favorites = [
+...   "Sandra Bullock",
+...   "Tom Hanks",
+...   "Julia Roberts",
+...   "Kevin Spacey",
+...   "George Clooney"]
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     $match: {
+...       "tomatoes.viewer.rating": { $gte: 3 },
+...       countries: "USA",
+...       cast: {
+...         $in: favorites
+...       }
+...     }
+...   },
+...   {
+...     $project: {
+...       _id: 0,
+...       title: 1,
+...       "tomatoes.viewer.rating": 1,
+...       num_favs: {
+...         $size: {
+...           $setIntersection: [
+...             "$cast",
+...             favorites
+...           ]
+...         }
+...       }
+...     }
+...   },
+...   {
+...     $sort: { num_favs: -1, "tomatoes.viewer.rating": -1, title: -1 }
+...   },
+...   {
+...     $skip: 24
+...   },
+...   {
+...     $limit: 1
+...   }
+... ])
+{ "title" : "The Heat", "tomatoes" : { "viewer" : { "rating" : 3.8 } }, "num_favs" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 ## 7. Laboratorio: Uniendo todo junto
 
 Lab - Bringing it all together
@@ -2316,7 +2364,153 @@ Choose the best answer:
 
 * DMZ
 
-* The Christmas Tree
+* The Christmas Tree :+1:
 
 * Twilight
 
+### See detailed answer
+
+One possible solution is below.
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      year: { $gte: 1990 },
+      languages: { $in: ["English"] },
+      "imdb.votes": { $gte: 1 },
+      "imdb.rating": { $gte: 1 }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      title: 1,
+      "imdb.rating": 1,
+      "imdb.votes": 1,
+      normalized_rating: {
+        $avg: [
+          "$imdb.rating",
+          {
+            $add: [
+              1,
+              {
+                $multiply: [
+                  9,
+                  {
+                    $divide: [
+                      { $subtract: ["$imdb.votes", 5] },
+                      { $subtract: [1521105, 5] }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  { $sort: { normalized_rating: 1 } },
+  { $limit: 1 }
+])
+```
+
+We start by applying the `$match` filtering:
+
+```sh
+{
+  $match: {
+    year: { $gte: 1990 },
+    languages: { $in: ["English"] },
+    "imdb.votes": { $gte: 1 },
+    "imdb.rating": { $gte: 1 }
+  }
+}
+```
+
+And within the `$project` stage we apply the scaling and normalizating calculations:
+
+```sh
+{
+  $project: {
+    _id: 0,
+    title: 1,
+    "imdb.rating": 1,
+    "imdb.votes": 1,
+    normalized_rating: {
+      $avg: [
+        "$imdb.rating",
+        {
+          $add: [
+            1,
+            {
+              $multiply: [
+                9,
+                {
+                  $divide: [
+                    { $subtract: ["$imdb.votes", 5] },
+                    { $subtract: [1521105, 5] }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+},
+```
+
+in a new computed field `normalized_rating`.
+
+The first element of the result, after sorting by `normalized_rating` is **The Christmas Tree**, the expected correct answer.
+
+Ejecutando la solución:
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     $match: {
+...       year: { $gte: 1990 },
+...       languages: { $in: ["English"] },
+...       "imdb.votes": { $gte: 1 },
+...       "imdb.rating": { $gte: 1 }
+...     }
+...   },
+...   {
+...     $project: {
+...       _id: 0,
+...       title: 1,
+...       "imdb.rating": 1,
+...       "imdb.votes": 1,
+...       normalized_rating: {
+...         $avg: [
+...           "$imdb.rating",
+...           {
+...             $add: [
+...               1,
+...               {
+...                 $multiply: [
+...                   9,
+...                   {
+...                     $divide: [
+...                       { $subtract: ["$imdb.votes", 5] },
+...                       { $subtract: [1521105, 5] }
+...                     ]
+...                   }
+...                 ]
+...               }
+...             ]
+...           }
+...         ]
+...       }
+...     }
+...   },
+...   { $sort: { normalized_rating: 1 } },
+...   { $limit: 1 }
+... ])
+{ "title" : "The Christmas Tree", "imdb" : { "rating" : 1.1, "votes" : 264 }, "normalized_rating" : 1.0507662218131615 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
