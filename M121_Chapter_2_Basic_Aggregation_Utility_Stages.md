@@ -547,17 +547,25 @@ Una última cosa, `$geoNear` requiere que la colección en la que estamos realiz
 
 Aquí están los argumentos de estructuración de `$geoNear`.
 
+<img src="images/m121/c2/2-2-geoNear.png">
+
 Como podemos ver, puede requerir muchos argumentos, aunque solo si es necesario.
 
 Los argumentos requeridos son `near`, `distanceField` y `spherical`.
 
-`Near` es el punto que nos gustaría buscar cerca.
+`near` es el punto que nos gustaría buscar cerca.
+
+<img src="images/m121/c2/2-2-geoNear-2.png">
 
 Los resultados se ordenarán del más cercano al más alejado de esta ubicación.
 
 `distanceField` es el argumento que suministramos que se insertará en los documentos devueltos, dándonos la distancia desde la ubicación hasta la ubicación que especificamos en `near`.
 
+<img src="images/m121/c2/2-2-geoNear-3.png">
+
 `Spherical` es el último argumento requerido.
+
+<img src="images/m121/c2/2-2-geoNear-4.png">
 
 Especifique `true` si el índice es una `2dsphere`, de lo contrario `false`.
 
@@ -566,6 +574,497 @@ Durante esta lección, usaremos un índice `2dsphere`.
 Sigamos adelante y ejecutemos una agregación `$geoNear`.
 
 Voy a buscar ubicaciones cerca de la sede de MongoDB en la ciudad de Nueva York.
+
+```sh
+db.nycFacilities.aggregate([
+  {
+    "$geoNear": {
+      "near": {
+        "type": "Point",
+        "coordinates": [-73.98769766092299, 40.757345233626594]
+      },
+      "distanceField": "distanceFromMongoDB",
+      "spherical": true
+    }
+  }
+]).pretty();
+
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.nycFacilities.aggregate([
+...   {
+...     "$geoNear": {
+...       "near": {
+...         "type": "Point",
+...         "coordinates": [-73.98769766092299, 40.757345233626594]
+...       },
+...       "distanceField": "distanceFromMongoDB",
+...       "spherical": true
+...     }
+...   }
+... ]).pretty();
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef39f9a"),
+	"name" : "Advance Parking LLC",
+	"address" : {
+		"number" : "249",
+		"street" : "West   43 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988248,
+			40.757715
+		]
+	},
+	"domain" : "Core Infrastructure and Transportation",
+	"group" : "Transportation",
+	"specialty" : "Parking Lots and Garages",
+	"type" : "Commercial Garage",
+	"distanceFromMongoDB" : 62.03048232300762
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef38b72"),
+	"name" : "Lubovitch Dance Foundation, Inc.",
+	"address" : {
+		"number" : "229",
+		"street" : "West   42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988077,
+			40.756827
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Dance",
+	"distanceFromMongoDB" : 65.96356009175788
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3a32b"),
+	"name" : "Threshold Dance Projects, Inc.",
+	"address" : {
+		"number" : "229",
+		"street" : "West   42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988077,
+			40.756827
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Dance",
+	"distanceFromMongoDB" : 65.96356009175788
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3c3da"),
+	"name" : "Parsons Dance Foundation",
+	"address" : {
+		"number" : "229",
+		"street" : "West   42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988077,
+			40.756827
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Dance",
+	"distanceFromMongoDB" : 65.96356009175788
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3e222"),
+	"name" : "New 42nd Street, Inc.",
+	"address" : {
+		"number" : "229",
+		"street" : "West   42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988077,
+			40.756827
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Theater",
+	"distanceFromMongoDB" : 65.96356009175788
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3864f"),
+	"name" : "New Professional Theatre, Inc.",
+	"address" : {
+		"number" : "229",
+		"street" : "West   42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988077,
+			40.756827
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Theater",
+	"distanceFromMongoDB" : 65.96356009175788
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef39072"),
+	"name" : "Spanish-American Inst",
+	"address" : {
+		"number" : "215",
+		"street" : "West   43 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.986702,
+			40.757222
+		]
+	},
+	"domain" : "Education, Child Welfare, and Youth",
+	"group" : "Vocational and Proprietary Schools",
+	"specialty" : "Proprietary Schools",
+	"type" : "Registered Business Schools",
+	"distanceFromMongoDB" : 85.06952077294312
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3671d"),
+	"name" : "Fedcap",
+	"address" : {
+		"number" : "210",
+		"street" : "West   43 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.987069,
+			40.756587
+		]
+	},
+	"domain" : "Education, Child Welfare, and Youth",
+	"group" : "Youth Services",
+	"specialty" : "Youth Centers, Literacy Programs, Job Training, and Immigrant Services",
+	"type" : "Youth Program",
+	"distanceFromMongoDB" : 99.67147750159312
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef374f6"),
+	"name" : "Times Square Hotel",
+	"address" : {
+		"number" : "680",
+		"street" : "8 Avenue",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988675,
+			40.757874
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Historical Sites",
+	"specialty" : "Historical Sites",
+	"type" : "State Historic Place",
+	"distanceFromMongoDB" : 101.2730741875645
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3d77f"),
+	"name" : "Times Square Hotel",
+	"address" : {
+		"number" : "255",
+		"street" : "West   43 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988675,
+			40.757874
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Human Services",
+	"specialty" : "Permanent Supportive SRO Housing",
+	"type" : "Supportive Housing",
+	"distanceFromMongoDB" : 101.2730741875645
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3cc71"),
+	"name" : "One Astor Place",
+	"address" : {
+		"number" : "1515",
+		"street" : "Broadway",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.986384,
+			40.757903
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Privately Owned Public Space",
+	"type" : "Privately Owned Public Space",
+	"distanceFromMongoDB" : 126.9848198234587
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3cdfa"),
+	"name" : "Astor Parking LLC",
+	"address" : {
+		"number" : "1511",
+		"street" : "Broadway",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.986384,
+			40.757903
+		]
+	},
+	"domain" : "Core Infrastructure and Transportation",
+	"group" : "Transportation",
+	"specialty" : "Parking Lots and Garages",
+	"type" : "Commercial Garage",
+	"distanceFromMongoDB" : 126.9848198234587
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef36ebe"),
+	"name" : "Candler Building",
+	"address" : {
+		"number" : "221",
+		"street" : "West 41 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988161,
+			40.756168
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Historical Sites",
+	"specialty" : "Historical Sites",
+	"type" : "State Historic Place",
+	"distanceFromMongoDB" : 136.74837610606284
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef384e3"),
+	"name" : "42nd St Dev/Times Square",
+	"address" : {
+		"number" : "234",
+		"street" : "West 42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988731,
+			40.756332
+		]
+	},
+	"domain" : "Administration of Government",
+	"group" : "Other Property",
+	"specialty" : "Properties Leased or Licensed to Non-public Entities",
+	"type" : "Long-Term Agreement",
+	"distanceFromMongoDB" : 142.52837491183874
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef37eef"),
+	"name" : "New Amsterdam Theater",
+	"address" : {
+		"number" : "214",
+		"street" : "West 42 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988044,
+			40.755917
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Historical Sites",
+	"specialty" : "Historical Sites",
+	"type" : "State Historic Place",
+	"distanceFromMongoDB" : 161.64929369205123
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef385f2"),
+	"name" : "Times Square Plaza",
+	"address" : {
+		"number" : "",
+		"street" : "",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.985786,
+			40.757572
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Streetscapes, Plazas, and Malls",
+	"type" : "Pedestrian Plaza",
+	"distanceFromMongoDB" : 163.1592942615766
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef38576"),
+	"name" : "42nd St Dev/Timessquare",
+	"address" : {
+		"number" : "582",
+		"street" : "7 Avenue",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.987592,
+			40.755844
+		]
+	},
+	"domain" : "Administration of Government",
+	"group" : "Other Property",
+	"specialty" : "Properties Leased or Licensed to Non-public Entities",
+	"type" : "Long-Term Agreement",
+	"distanceFromMongoDB" : 167.35292993567325
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3c50d"),
+	"name" : "Second Stage Theatre",
+	"address" : {
+		"number" : "305",
+		"street" : "West   43 Street",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.989509,
+			40.758182
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Theater",
+	"distanceFromMongoDB" : 178.89774760698953
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef399f1"),
+	"name" : "Kree Inst Of Electrolysis Inc",
+	"address" : {
+		"number" : "1500",
+		"street" : "Broadway",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.985635,
+			40.756776
+		]
+	},
+	"domain" : "Education, Child Welfare, and Youth",
+	"group" : "Vocational and Proprietary Schools",
+	"specialty" : "Proprietary Schools",
+	"type" : "Licensed Private Schools",
+	"distanceFromMongoDB" : 185.1117645324543
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3942c"),
+	"name" : "1500 Broadway",
+	"address" : {
+		"number" : "1500",
+		"street" : "Broadway",
+		"city" : "New York",
+		"zipcode" : "10036"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.985635,
+			40.756776
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Privately Owned Public Space",
+	"type" : "Privately Owned Public Space",
+	"distanceFromMongoDB" : 185.1117645324543
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Aquí he especificado mis tres argumentos obligatorios: `near`, `distanceField` y `spherical`.
 
@@ -577,7 +1076,9 @@ Miremos esos argumentos opcionales en mayor detalle para aprender cómo hacer qu
 
 `minDistance` y `maxDistance` especifican los resultados más cercanos y más lejanos que queremos.
 
-Query permite especificar las condiciones que cada documento debe cumplir, y utiliza la misma sintaxis del query operator como match.
+<img src="images/m121/c2/2-2-geoNear-5.png">
+
+`query` permite especificar las condiciones que cada documento debe cumplir, y utiliza la misma sintaxis del query operator como match.
 
 `includeLocs` nos permitiría mostrar qué ubicación se utilizó en el documento si tiene más de una ubicación.
 
@@ -585,7 +1086,7 @@ Para nuestro dataset, esto no es necesario, ya que cada documento solo tiene una
 
 Y recuerde, `$geoNear` requiere que tengamos exactamente un índice `2dsphere` en la colección.
 
-Limit y num son funcionalmente idénticos y se usan para limitar el número de documentos devueltos.
+`limit` y `num` son funcionalmente idénticos y se usan para limitar el número de documentos devueltos.
 
 Por último, `distanceMultiplier` se utiliza para convertir los resultados de distancia de radianes a cualquier unidad que necesitemos, en caso de que utilicemos datos geoespaciales heredados.
 
@@ -593,7 +1094,157 @@ Así que limpiemos nuestra agregación y busquemos resultados útiles.
 
 Me gustaría encontrar los cinco hospitales más cercanos a la sede de MongoDB.
 
-Aquí agregué el campo de consulta opcional y especifiqué que debería ser tipo "Hospital". Y aquí agregué el campo de límite opcional y lo especifiqué como 5.
+```sh
+// include ``limit`` to results
+db.nycFacilities.aggregate([
+  {
+    $geoNear: {
+      near: {
+        type: "Point",
+        coordinates: [-73.98769766092299, 40.757345233626594]
+      },
+      distanceField: "distanceFromMongoDB",
+      spherical: true,
+      query: { type: "Hospital" },
+      limit: 5
+    }
+  }
+]).pretty()
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> // include ``limit`` to results
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.nycFacilities.aggregate([
+...   {
+...     $geoNear: {
+...       near: {
+...         type: "Point",
+...         coordinates: [-73.98769766092299, 40.757345233626594]
+...       },
+...       distanceField: "distanceFromMongoDB",
+...       spherical: true,
+...       query: { type: "Hospital" },
+...       limit: 5
+...     }
+...   }
+... ]).pretty()
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef39c74"),
+	"name" : "Mount Sinai West",
+	"address" : {
+		"number" : "1000",
+		"street" : "10 Avenue",
+		"city" : "New York",
+		"zipcode" : "10019"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.986799,
+			40.769664
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Hospitals and Clinics",
+	"type" : "Hospital",
+	"distanceFromMongoDB" : 1373.402525696724
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef37254"),
+	"name" : "NYU Hospitals Center",
+	"address" : {
+		"number" : "550",
+		"street" : "1 Avenue",
+		"city" : "New York",
+		"zipcode" : "10016"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.973621,
+			40.741474
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Hospitals and Clinics",
+	"type" : "Hospital",
+	"distanceFromMongoDB" : 2128.5451518719083
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3cbd8"),
+	"name" : "Bellevue Hospital Center",
+	"address" : {
+		"number" : "462",
+		"street" : "1 Avenue",
+		"city" : "New York",
+		"zipcode" : "10016"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.975119,
+			40.739106
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Hospitals and Clinics",
+	"type" : "Hospital",
+	"distanceFromMongoDB" : 2290.787247189754
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef362b6"),
+	"name" : "Belvue Hosp Ctr/CUNY/Ocme/Ems",
+	"address" : {
+		"number" : "430",
+		"street" : "1 Avenue",
+		"city" : "New York",
+		"zipcode" : "10016"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.975927,
+			40.737953
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Hospitals and Clinics",
+	"type" : "Hospital",
+	"distanceFromMongoDB" : 2376.0197324860424
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3ca8d"),
+	"name" : "Belvue Hosp Ctr/CUNY/Ocme/Ems",
+	"address" : {
+		"number" : "430",
+		"street" : "1 Avenue",
+		"city" : "New York",
+		"zipcode" : "10016"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.975927,
+			40.737953
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Hospitals and Clinics",
+	"type" : "Hospital",
+	"distanceFromMongoDB" : 2376.0197324860424
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Aquí `query: { type: "Hospital" },` agregué el campo de consulta opcional y especifiqué que debería ser tipo "Hospital". Y aquí `limit: 5` agregué el campo de límite opcional y lo especifiqué como 5.
 
 Mucho mejor.
 
@@ -605,21 +1256,21 @@ Y eso es todo con `$geoNear`.
 
 Solo hay algunas cosas para recordar.
 
-La colección puede tener uno y solo un índice `2dsphere`.
+<img src="images/m121/c2/2-2-resumen.png">
 
-Si usa `2dsphere`, la distancia se devuelve en metros.
+* La colección puede tener uno y solo un índice `2dsphere`.
 
-Si usa coordenadas heredadas, la distancia se devuelve en radianes.
+* Si usa `2dsphere`, la distancia se devuelve en metros. Si usa coordenadas heredadas, la distancia se devuelve en radianes.
 
-Y `$geoNear` debe ser la primera etapa en una aggregation pipeline.
+* Y `$geoNear` debe ser la primera etapa en una aggregation pipeline.
 
 ## 3. Tema: Cursor-like stages: Parte 1
 
 ### Transcripción
-*****************
+
 Es hora de que discutamos algo  útil de utility stages, lo que llamamos cursor-like stages.
 
-Estas etapas son sort, skip, limit y counts.
+Estas etapas son `sort`, `skip`, `limit` y `counts`.
 
 Y tienen un equivalente en nuestro query language como método de cursor.
 
