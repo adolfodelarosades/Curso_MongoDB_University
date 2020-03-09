@@ -1276,13 +1276,27 @@ Y tienen un equivalente en nuestro query language como método de cursor.
 
 Echemos un vistazo.
 
-Después de conectarme a mi base de datos de agregaciones, puedo expresar esta simple consulta en el sistema solar donde voy a encontrar todos mis documentos.
+Después de conectarme a mi base de datos de aggregations, puedo expresar esta simple consulta en el sistema solar donde voy a encontrar todos mis documentos.
 
-Esta es una exploración de colección completa.
+Esta es una exploración de colección completa y solo proyectando el `name`, el `numberOfMoons` y evitando el `_id`.
 
-y solo proyectando el nombre, el número de lunas, y evitando el _id.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> use aggregations
+switched to db aggregations
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.find({}, {"_id": 0, "name": 1, "numberOfMoons": 1}).pretty();
+{ "name" : "Earth", "numberOfMoons" : 1 }
+{ "name" : "Neptune", "numberOfMoons" : 14 }
+{ "name" : "Uranus", "numberOfMoons" : 27 }
+{ "name" : "Saturn", "numberOfMoons" : 62 }
+{ "name" : "Jupiter", "numberOfMoons" : 67 }
+{ "name" : "Venus", "numberOfMoons" : 0 }
+{ "name" : "Mercury", "numberOfMoons" : 0 }
+{ "name" : "Sun", "numberOfMoons" : 0 }
+{ "name" : "Mars", "numberOfMoons" : 2 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Si hago esto, puedo ver todos los resultados de mi colección, solo exponiendo el nombre, el número de lunas por cada uno de los documentos.
+Si hago esto, puedo ver todos los resultados de mi colección, solo exponiendo el `name`, el `numberOfMoons` por cada uno de los documentos.
 
 Dulce, esto funciona bien.
 
@@ -1290,31 +1304,68 @@ La otra cosa que puedo hacer es básicamente contar llamadas.
 
 Ahora esto contará la cantidad total de documentos devueltos por la consulta.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.find({}, {"_id": 0, "name": 1, "numberOfMoons": 1}).count();
+9
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Aquí, puedo ver que tengo en mi sistema solar nueve documentos.
 
-Otra cosa que puedo hacer es básicamente omitir cinco documentos.
+Otra cosa que puedo hacer es básicamente saltarme cinco documentos.
 
-Y si ejecuto esta consulta, puedo ver que se omitieron algunos primeros documentos.
+Y si ejecuto esta consulta, puedo ver que se omitieron los primeros cinco documentos.
 
-Ahora, si se pregunta por qué obtuve este pedido, por qué omití esos cinco documentos anteriores y no otros, si no especifico una operación de clasificación o una clasificación de mi cursor, obtendré de MongoDB el orden por el cual los documentos se insertan en la colección, lo que llamamos el orden natural de la colección.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.find({}, {"_id": 0, "name": 1, "numberOfMoons": 1}).skip(5).pretty();
+{ "name" : "Venus", "numberOfMoons" : 0 }
+{ "name" : "Mercury", "numberOfMoons" : 0 }
+{ "name" : "Sun", "numberOfMoons" : 0 }
+{ "name" : "Mars", "numberOfMoons" : 2 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+Ahora, si se pregunta por qué obtuve esto, por qué omití esos cinco documentos anteriores y no otros, si no especifico una operación de clasificación o una clasificación de mi cursor, obtendré de MongoDB el orden por el cual los documentos se insertan en la colección, lo que llamamos el orden natural de la colección.
 
 Entonces, en este caso, voy a omitir los cinco primeros elementos que se han insertado en esta colección.
 
 El siguiente método será limit, donde puedo especificar la cantidad de documentos que voy a devolver.
 
-Y de nuevo, siguiendo exactamente el mismo orden de clasificación, que en este caso será mi orden de clasificación de inserción natural en nuestra colección del sistema solar, obtendré el Sol, Mercurio, Venus, la Tierra y Marte, que son los cinco primeros documentos de mi colección.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.find({}, {"_id": 0, "name": 1, "numberOfMoons": 1}).limit(5).pretty();
+{ "name" : "Earth", "numberOfMoons" : 1 }
+{ "name" : "Neptune", "numberOfMoons" : 14 }
+{ "name" : "Uranus", "numberOfMoons" : 27 }
+{ "name" : "Saturn", "numberOfMoons" : 62 }
+{ "name" : "Jupiter", "numberOfMoons" : 67 }
+```
 
-Y, por último, también puedo especificar un tipo para el conjunto de resultados de mi colección.
+Y de nuevo, siguiendo exactamente el mismo orden de clasificación, que en este caso será mi orden de clasificación de inserción natural en nuestra colección del sistema solar, obtendré el `Earth`, `Neptune`, `Uranus`, `Saturn` y `Jupiter`, que son los cinco primeros documentos de mi colección.
+
+Y, por último, también puedo especificar un orden para el conjunto de resultados de mi colección.
 
 Aquí, voy a encontrar todo.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.find({}, { "_id": 0, "name": 1, "numberOfMoons": 1 }).sort( {"numberOfMoons": -1 } ).pretty();
+{ "name" : "Jupiter", "numberOfMoons" : 67 }
+{ "name" : "Saturn", "numberOfMoons" : 62 }
+{ "name" : "Uranus", "numberOfMoons" : 27 }
+{ "name" : "Neptune", "numberOfMoons" : 14 }
+{ "name" : "Mars", "numberOfMoons" : 2 }
+{ "name" : "Earth", "numberOfMoons" : 1 }
+{ "name" : "Venus", "numberOfMoons" : 0 }
+{ "name" : "Mercury", "numberOfMoons" : 0 }
+{ "name" : "Sun", "numberOfMoons" : 0 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Pero en lugar de devolver el orden por el cual se insertan los documentos en la colección, ordenaré el conjunto de resultados en función del número de lunas que contiene cada uno de estos documentos.
 
-Menos 1 especifica el orden.
+`-1` especifica el orden. Y en este caso, será descendente.
 
-Y en este caso, será descendente.
-
-Entonces, como podemos ver, vamos a obtener, primero, los que tienen más lunas a los que tienen menos lunas.
+Entonces, como podemos ver, vamos a obtener primero, los que tienen más lunas y luego los que tienen menos lunas.
 
 Ahora hemos visto los métodos del cursor, pero también tenemos etapas que ejecutan exactamente el mismo tipo de funcionalidad.
 
