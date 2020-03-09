@@ -1369,37 +1369,96 @@ Entonces, como podemos ver, vamos a obtener primero, los que tienen más lunas y
 
 Ahora hemos visto los métodos del cursor, pero también tenemos etapas que ejecutan exactamente el mismo tipo de funcionalidad.
 
-Tenemos $ limit, $ skip, $ count y $ sort.
+Tenemos `$limit`, `$skip`, `$count` y `$sort`.
 
-Variarán un poco en la sintaxis, donde limit tomará un número entero, skip también tomará un número entero, especificando el número de documentos límite y el número de documentos skip.
+<img src="images/m121/c2/2-3-metodos-etapas.png">
 
-Recuento, por otro lado, tendremos que especificar un campo donde queremos recopilar el valor de recuento.
+Variarán un poco en la sintaxis, donde `$limit` tomará un número entero, `$skip` también tomará un número entero, especificando el número de documentos límite y el número de documentos a saltar.
 
-Y ordenar, necesitamos especificar las claves y el orden por el cual queremos que se ordenen nuestros conjuntos de resultados de la tubería.
+`$count`, por otro lado, tendremos que especificar un campo donde queremos recopilar el valor calculado.
+
+Y `$sort`, necesitamos especificar las claves y el orden por el cual queremos que se ordenen nuestros conjuntos de resultados del pipeline.
 
 Veamos algo de esto en acción.
 
-Ahora, para imitar exactamente la misma operación que antes en nuestro comando find, voy a ejecutar el proyecto de nombre y número de Lunas, excluyendo _id, exactamente la misma operación que antes.
+Ahora, para imitar exactamente la misma operación que antes teniamos con el comando `find`, voy a ejecutar el `project` de `name` y `numberOfMoons`, excluyendo `_id`, exactamente la misma operación que antes.
 
-Y en este caso, dada la cartera que estoy ejecutando y los documentos que proporcionará esta tubería de agregación, agregaré una etapa límite a mi tubería, diciendo, solo quiero que los primeros cinco documentos provengan de esta etapa del proyecto.
+Y en este caso, dado el pipeline que estoy ejecutando y los documentos que proporcionará este pipeline de agregación, agregaré una etapa `$limit` a mi pipeline, diciendo, solo quiero que los primeros cinco documentos provengan de esta etapa del proyecto.
+
+```sh
+db.solarSystem.aggregate([{
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "numberOfMoons": 1
+  }
+},
+{ "$limit": 5  }]).pretty();
+
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$project": {
+...     "_id": 0,
+...     "name": 1,
+...     "numberOfMoons": 1
+...   }
+... },
+... { "$limit": 5  }]).pretty();
+{ "name" : "Earth", "numberOfMoons" : 1 }
+{ "name" : "Neptune", "numberOfMoons" : 14 }
+{ "name" : "Uranus", "numberOfMoons" : 27 }
+{ "name" : "Saturn", "numberOfMoons" : 62 }
+{ "name" : "Jupiter", "numberOfMoons" : 67 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y como se esperaba, obtengo los mismos resultados que si limitara una operación de búsqueda.
 
-Se saltará la siguiente etapa.
+La siguiente etapa a probar es `$skip`. 
 
 Y nuevamente, dados los resultados entrantes de la etapa del proyecto, omitiré solo uno.
 
-En este caso, me voy a saltar el sol.
+```sh
+db.solarSystem.aggregate([{
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "numberOfMoons": 1
+  }
+}, {
+  "$skip": 1
+}]).pretty()
 
-Entonces, ¿cómo sé que voy a saltarme el sol?
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$project": {
+...     "_id": 0,
+...     "name": 1,
+...     "numberOfMoons": 1
+...   }
+... }, {
+...   "$skip": 1
+... }]).pretty()
+{ "name" : "Neptune", "numberOfMoons" : 14 }
+{ "name" : "Uranus", "numberOfMoons" : 27 }
+{ "name" : "Saturn", "numberOfMoons" : 62 }
+{ "name" : "Jupiter", "numberOfMoons" : 67 }
+{ "name" : "Venus", "numberOfMoons" : 0 }
+{ "name" : "Mercury", "numberOfMoons" : 0 }
+{ "name" : "Sun", "numberOfMoons" : 0 }
+{ "name" : "Mars", "numberOfMoons" : 2 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Básicamente, el orden por el cual voy a obtener los resultados en el proyecto es el orden natural, exactamente de la misma manera que hemos visto antes.
+En este caso, me voy a saltar `Earth`.
 
-El proyecto filtrará solo los campos que me interesan y los pasará a la etapa de omisión.
+Entonces, ¿cómo sé que voy a saltarme `Earth`?
 
-Omitir, al omitir uno, voy a omitir el sol.
+Básicamente, el orden por el cual voy a obtener los resultados en el project es el orden natural, exactamente de la misma manera que hemos visto antes.
 
-Como puede ver aquí, todos los diferentes cuerpos celestes serán informados en mis resultados, excepto el Sol, que es el primer elemento, el que estoy omitiendo en la tubería.
+El project filtrará solo los campos que me interesan y los pasará a la etapa `$skip`.
+
+`$skip`, salta uno, voy a omitir `Earth`.
+
+Como puede ver aquí, todos los diferentes cuerpos celestes serán presentados en mis resultados, excepto `Earth`, que es el primer elemento, el que estoy omitiendo en el pipeline.
 
 ## 4. Tema: Cursor-like stages: Parte 2
 
