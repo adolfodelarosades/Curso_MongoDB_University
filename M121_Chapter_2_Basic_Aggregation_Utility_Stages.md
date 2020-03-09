@@ -1462,12 +1462,127 @@ Como puede ver aquí, todos los diferentes cuerpos celestes serán presentados e
 
 ## 4. Tema: Cursor-like stages: Parte 2
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
-
 ### Transcripción
+
+También tenemos nuestra etapa `$count`.
+
+La etapa `$count` cuenta todos los documentos entrantes.
+
+El argumento para contar es el nombre del campo en el que vamos a recopilar ese valor de conteo.
+
+En un documento de los resultados.
+
+En este caso, voy a filtrar nuestra colección para que solo veamos documentos que están en planetas terrestres.
+
+```sh
+db.solarSystem.aggregate([{
+  "$match": {
+    "type": "Terrestrial planet"
+  }
+}, {
+  "$project": {
+    "_id": 0,
+    "name": 1,
+    "numberOfMoons": 1
+  }
+}, {
+  "$count": "terrestrial planets"
+}]).pretty();
+```
+
+Aquí estamos especificando esa coincidencia donde el tipo de documento tendrá el valor `"Terrestrial planet"`.
+
+Luego, a partir de los resultados del `$match` que luego se envían a la etapa `$project`, voy a filtrar solo el `name` y el `numberOfMoons`, eliminando el `_id`, como lo hemos hecho antes.
+
+Y de todos los documentos que vienen del pipeline, los voy a contar.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$match": {
+...     "type": "Terrestrial planet"
+...   }
+... }, {
+...   "$project": {
+...     "_id": 0,
+...     "name": 1,
+...     "numberOfMoons": 1
+...   }
+... }, {
+...   "$count": "terrestrial planets"
+... }]).pretty();
+{ "terrestrial planets" : 4 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+El `$count` me devolverá un resultados de documento, que tiene un campo que especifiqué aquí `"$count": "terrestrial planets"`, que contiene el valor de la cantidad de documentos que son de tipo `"terrestrial planets"`.
+
+Ahora, para este pipeline en particular aquí, donde el resultado final será el recuento de la cantidad de documentos, que tienen un "type": "Terrestrial planet", la etapa `"$project"` aquí es un poco molesta.
+
+Realmente no interfiere con el resultado final del pipeline.
+
+Entonces, si simplemente lo eliminamos, y solo tenemos el `$match` y luego el `$count`, podemos ver que obtengo exactamente la misma ejecución, exactamente los mismos resultados, teniendo o no `"$project"` entre `$match` y `$count`.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
+...   "$match": {
+...     "type": "Terrestrial planet"
+...   }
+... }, {
+...   "$count": "terrestrial planets"
+... }]).pretty();
+{ "terrestrial planets" : 4 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Por último, veamos el tipo.
+
+La clasificación debe proporcionarse con el campo en el que queremos clasificar.
+
+En este caso, si voy a un proyecto, nombre y número de lunas, puedo ordenar los campos que estoy recolectando de la tubería entrante.
+
+Entonces, en este caso, si quiero ordenar el número de lunas descendentes, obtendré los resultados como se esperaba, donde obtengo el planeta que tiene más lunas primero, y en ese orden para cultivar las que no tienen lunas. - Como el sol, Mercurio y Venus-- pobres tipos.
+
+Un aspecto importante al que se debe hacer referencia aquí es que la etapa de clasificación no se limita a un solo campo.
+
+Operará en múltiples campos diferentes en combinación, como lo haríamos en consultas normales y operaciones de búsqueda, si desea ordenar primero en un campo y luego en otro, eso también es totalmente posible en la etapa de canalización de agregación.
+
+Entonces, digamos aquí, por ejemplo, que tengo este proyecto diferente donde también voy a proyectar, aparte del nombre y la cantidad de lunas, el campo tiene un campo magnético, que es un campo de atracción.
+
+En la tercera etapa, puedo especificar que quiero clasificar como campo magnético, descendente y número de lunas descendentes.
+
+Al ejecutar esta consulta específica, obtenemos un resultado muy similar al anterior, dónde vamos a tener a Júpiter, Saturno, Urano, etc.
+
+La única diferencia es que, por ejemplo, el sol y Mercurio vendrán antes que Marte.
+
+Entonces, ¿cómo es eso posible?
+
+Bueno, el resultado se ordena primero en el campo ya que el campo magnético es igual a verdadero, y luego en el número de lunas.
+
+Así que primero voy a tener todos los que tienen campo magnético igual a verdadero.
+
+Y luego, después de eso, voy a buscar el número de lunas para los resultados.
+
+Ahora, si la ordenación está cerca del comienzo de nuestra cartera, en el lugar antes de un proyecto, y se desenrolla en la etapa de grupo, puede aprovechar los índices.
+
+De lo contrario, esta etapa de clasificación realizará una clasificación en memoria, lo que aumentará en gran medida el consumo de memoria de nuestro servidor.
+
+Las operaciones de clasificación dentro de esa línea de visión están limitadas a 100 megabytes de RAM por defecto.
+
+Para permitir el manejo de conjuntos de datos más grandes, debemos permitir DiskUse, que es una opción de canalización de agregación que podemos proporcionar a la función de agregado.
+
+Al hacerlo, realizaremos el exceso de 100 megabytes de memoria necesarios para hacer una clasificación usando el disco para ayudarnos a clasificar los resultados.
+
+En resumen, $ sort, $ skip, $ limit y $ count son funcionalmente equivalentes a los métodos de cursor con nombre similares.
+
+Por lo tanto, podemos aprovechar los índices si está cerca del comienzo de nuestra cartera y antes de un grupo de proyectos o etapas de desconexión.
+
+Por defecto, $ source solo tomará hasta 100 megabytes de RAM.
+
+Para más que eso, tendremos que proporcionar la opción allowDiskUse como igual a nuestra tubería.
+
+Si no lo hacemos, la operación finalizará en el servidor.
+
+Y eso es todo lo que tenemos para usted en las etapas de cursor de la tubería de agregación de horas.
 
 ## 5. Tema: `$sample` Stage
 
