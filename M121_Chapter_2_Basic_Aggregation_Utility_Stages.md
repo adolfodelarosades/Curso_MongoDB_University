@@ -1569,8 +1569,6 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.solarSystem.aggregate([{
 { "name" : "Mercury", "numberOfMoons" : 0 }
 { "name" : "Sun", "numberOfMoons" : 0 }
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
-
-
 ```
 
 En este caso, quiero ordenar por `numberOfMoons` descendente (-1), obtendré los resultados como se esperaba, donde obtengo el planeta que tiene más lunas primero, y en ese orden hasta las que no tienen lunas. - Como sun, Mercury y Venus-- pobres tipos.
@@ -1672,9 +1670,498 @@ Y eso es todo lo que tenemos para usted en las etapas de cursor-like stages de a
 
 ### Notas de lectura
 
-Página de documentación de [``]().
+Página de documentación de [`$sample`](https://docs.mongodb.com/manual/reference/operator/aggregation/sample/).
 
 ### Transcripción
+
+Otra etapa de utilidad muy útil es `$sample`.
+
+`$sample` seleccionará un conjunto de documentos aleatorios de una colección de una de dos maneras.
+
+<img src="images/m121/c2/2-5-first.png">
+
+El primer método es si el tamaño(size) que estamos especificando, el número N de documentos a los que queremos que se vea nuestra muestra, si es menos del 5% del número de documentos en nuestra colección de origen, y la colección de origen tiene más de 100 documentos, y `$sample` es la primera etapa, luego un cursor pseudoaleatorio seleccionará el número específico de documentos a transmitir.
+
+<img src="images/m121/c2/2-5-second.png">
+
+Si todas las demás condiciones, y recapitulamos muy rápidamente, si N es más del 5% o la colección de origen tiene menos de 100 documentos, o si `$sample` es la primera etapa, si alguna de estas condiciones no se aplica, entonces, ¿cuál es hecho es una ordenación aleatoria en memoria y selecciona el número específico de documentos que especificamos como el tamaño(size).
+
+Ahora este sort estará sujeto a las mismas restricciones de memoria que la etapa sort de nuestra aggregation pipeline.
+
+Entonces, veamos algo de esto en acción.
+
+```sh
+db.nycFacilities.aggregate([{"$sample": { "size": 200 }}]).pretty();
+```
+
+En mi base de datos, tendré una colección `nycFacilities`.
+
+Esta colección contiene más de 100 documentos.
+
+El tamaño de sample es superior al 5% de la cantidad total de documentos.
+
+Y la etapa `$sample` es la primera de mi pipeline.
+
+Por lo tanto, se aplicará la operación pseudoaleatoria.
+
+Cuando ejecuto este pipeline, podemos ver que obtuvimos documentos seleccionados al azar de nuestra colección.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.nycFacilities.aggregate([{"$sample": { "size": 200 }}]).pretty();
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3d56c"),
+	"name" : "Program Development Services",
+	"address" : {
+		"number" : "6916",
+		"street" : "New Utrecht Avenue",
+		"city" : "Brooklyn",
+		"zipcode" : "11228"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.998986,
+			40.620176
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Human Services",
+	"specialty" : "Programs for People with Disabilities",
+	"type" : "Programs for People with Disabilities"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3c17d"),
+	"name" : "New Federal Theatre, Inc.",
+	"address" : {
+		"number" : "292",
+		"street" : "Henry Street",
+		"city" : "New York",
+		"zipcode" : "10002"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.983003,
+			40.713668
+		]
+	},
+	"domain" : "Libraries and Cultural Programs",
+	"group" : "Cultural Institutions",
+	"specialty" : "Other Cultural Institutions",
+	"type" : "Theater"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3c7be"),
+	"name" : "Give Them To Eat",
+	"address" : {
+		"number" : "800",
+		"street" : "East  156 Street",
+		"city" : "Bronx",
+		"zipcode" : "10455"
+	},
+	"borough" : "Bronx",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.904431,
+			40.817439
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Human Services",
+	"specialty" : "Soup Kitchens and Food Pantries",
+	"type" : "Soup Kitchen"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef35fdc"),
+	"name" : "I S 90",
+	"address" : {
+		"number" : "21",
+		"street" : "Jumel Place",
+		"city" : "New York",
+		"zipcode" : "10032"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.935707,
+			40.839358
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Hospitals and Clinics",
+	"type" : "School Based Diagnostic and Treatment Center Extension Clinic"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef36176"),
+	"name" : "Lmc Trucking Corp.",
+	"address" : {
+		"number" : "125",
+		"street" : "Townsend Avenue",
+		"city" : "Staten Island",
+		"zipcode" : "10304"
+	},
+	"borough" : "Staten Island",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-74.07516,
+			40.619099
+		]
+	},
+	"domain" : "Core Infrastructure and Transportation",
+	"group" : "Solid Waste",
+	"specialty" : "Solid Waste Transfer and Carting",
+	"type" : "Trade Waste Carter Site"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef37f98"),
+	"name" : "City Owned Property",
+	"address" : {
+		"number" : "1372",
+		"street" : "Forest Hill Road",
+		"city" : "Staten Island",
+		"zipcode" : "10314"
+	},
+	"borough" : "Staten Island",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-74.14695,
+			40.585903
+		]
+	},
+	"domain" : "Administration of Government",
+	"group" : "Other Property",
+	"specialty" : "Miscellaneous Use",
+	"type" : "No Use-Vacant Land"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3b38b"),
+	"name" : "Lott Community Home Health Care, Inc.",
+	"address" : {
+		"number" : "1261",
+		"street" : "5 Avenue",
+		"city" : "New York",
+		"zipcode" : "10029"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.949988,
+			40.795292
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Health Care",
+	"specialty" : "Other Health Care",
+	"type" : "Certified Home Health Agency"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef370dd"),
+	"name" : "Bklyn Civic Center Parking",
+	"address" : {
+		"number" : "350",
+		"street" : "Jay Street",
+		"city" : "Brooklyn",
+		"zipcode" : "11201"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.988042,
+			40.693856
+		]
+	},
+	"domain" : "Administration of Government",
+	"group" : "Offices, Training, and Testing",
+	"specialty" : "Offices",
+	"type" : "Office"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3cb6e"),
+	"name" : "Jessie&Charles Dome Playground",
+	"address" : {
+		"number" : "384",
+		"street" : "Dahill Road",
+		"city" : "Brooklyn",
+		"zipcode" : "11218"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.980197,
+			40.638204
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Recreation and Waterfront Sites",
+	"type" : "Playground/Sports Area"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3b6e2"),
+	"name" : "Heart Share Human Services Of New York Preschool 1",
+	"address" : {
+		"number" : "115-15",
+		"street" : "101 Avenue",
+		"city" : "South Richmond Hill",
+		"zipcode" : "11419"
+	},
+	"borough" : "Queens",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.828901,
+			40.689364
+		]
+	},
+	"domain" : "Education, Child Welfare, and Youth",
+	"group" : "Child Care and Pre-Kindergarten",
+	"specialty" : "Child Care",
+	"type" : "Group Day Care - Preschool"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef378d0"),
+	"name" : "Prospect Hall",
+	"address" : {
+		"number" : "263",
+		"street" : "Prospect Avenue",
+		"city" : "Brooklyn",
+		"zipcode" : "11215"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.989344,
+			40.663925
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Historical Sites",
+	"specialty" : "Historical Sites",
+	"type" : "State Historic Place"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef391cb"),
+	"name" : "Immaculate Conception Church",
+	"address" : {
+		"number" : "754",
+		"street" : "East Gun Hill Road",
+		"city" : "Bronx",
+		"zipcode" : "10467"
+	},
+	"borough" : "Bronx",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.864434,
+			40.876323
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Human Services",
+	"specialty" : "Soup Kitchens and Food Pantries",
+	"type" : "Food Pantry"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3980b"),
+	"name" : "Mission Assembly Pentecostal",
+	"address" : {
+		"number" : "118",
+		"street" : "Bushwick Avenue",
+		"city" : "Brooklyn",
+		"zipcode" : "11206"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.940719,
+			40.711307
+		]
+	},
+	"domain" : "Health and Human Services",
+	"group" : "Human Services",
+	"specialty" : "Soup Kitchens and Food Pantries",
+	"type" : "Food Pantry"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef38b8d"),
+	"name" : "Eng 44",
+	"address" : {
+		"number" : "221",
+		"street" : "East   75 Street",
+		"city" : "New York",
+		"zipcode" : "10021"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.958116,
+			40.771503
+		]
+	},
+	"domain" : "Public Safety, Emergency Services, and Administration of Justice",
+	"group" : "Emergency Services",
+	"specialty" : "Fire Services",
+	"type" : "Firehouse"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef38e4e"),
+	"name" : "Thomas Jefferson Park",
+	"address" : {
+		"number" : "2158",
+		"street" : "1 Avenue",
+		"city" : "New York",
+		"zipcode" : "10029"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.936579,
+			40.793562
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Parks",
+	"type" : "Community Park"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3c24e"),
+	"name" : "Land Under Queensboro Br/Park",
+	"address" : {
+		"number" : "405",
+		"street" : "East   59 Street",
+		"city" : "New York",
+		"zipcode" : "10022"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.961323,
+			40.759525
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Parks",
+	"type" : "Park"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef395b1"),
+	"name" : "Castleton Depot",
+	"address" : {
+		"number" : "1",
+		"street" : "Rector Street",
+		"city" : "Staten Island",
+		"zipcode" : "10310"
+	},
+	"borough" : "Staten Island",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-74.12766,
+			40.63326
+		]
+	},
+	"domain" : "Core Infrastructure and Transportation",
+	"group" : "Transportation",
+	"specialty" : "Other Transportation",
+	"type" : "Transportation Facility"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef399ee"),
+	"name" : "Playground",
+	"address" : {
+		"number" : "297",
+		"street" : "Delancey Street",
+		"city" : "New York",
+		"zipcode" : "10002"
+	},
+	"borough" : "Manhattan",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.979619,
+			40.715231
+		]
+	},
+	"domain" : "Parks, Gardens, and Historical Sites",
+	"group" : "Parks and Plazas",
+	"specialty" : "Recreation and Waterfront Sites",
+	"type" : "Playground/Sports Area"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef3e664"),
+	"name" : "Shirley Chisholm 5 - Advent",
+	"address" : {
+		"number" : "265",
+		"street" : "Sumpter Street",
+		"city" : "Brooklyn",
+		"zipcode" : "11233"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-73.914714,
+			40.680908
+		]
+	},
+	"domain" : "Education, Child Welfare, and Youth",
+	"group" : "Child Care and Pre-Kindergarten",
+	"specialty" : "Child Care",
+	"type" : "Child Care"
+}
+{
+	"_id" : ObjectId("59a57f72ea2da4c51ef38498"),
+	"name" : "Police Service Area #1 Satellite",
+	"address" : {
+		"number" : "80",
+		"street" : "Dwight Street",
+		"city" : "Brooklyn",
+		"zipcode" : "11231"
+	},
+	"borough" : "Brooklyn",
+	"location" : {
+		"type" : "Point",
+		"coordinates" : [
+			-74.009694,
+			40.67661
+		]
+	},
+	"domain" : "Public Safety, Emergency Services, and Administration of Justice",
+	"group" : "Public Safety",
+	"specialty" : "Police Services",
+	"type" : "NYCHA Police Service"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+Ahora `$sample` es muy útil cuando se trabaja con grandes colecciones.
+
+Y solo queremos una cantidad limitada de documentos para operar.
+
+Pueden ser útiles para hacer un análisis inicial o para hacer un muestreo del conjunto de resultados con el que podríamos estar interesados en trabajar.
+
+Se puede usar para obtener documentos de manera aleatoria para características como la búsqueda aleatoria de usuarios en una colección, o cuando deseamos sembrar algún objeto aleatorio para algún cálculo, o cuando queremos datos aleatorios para nuestro conjunto de datos.
+
+Y esto es todo lo que tenemos para usted en `$sample`.
 
 ## 6. Laboratorio: Uso de Cursor-like Stages
 
