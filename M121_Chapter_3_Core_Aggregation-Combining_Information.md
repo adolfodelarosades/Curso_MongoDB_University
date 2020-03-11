@@ -124,60 +124,326 @@ Check all answers that apply:
 
 ## 8. Laboratorio: Uso de `$lookup`
 
+Lab - Using $lookup
+
+**Problem:**
+
+Which alliance from `air_alliances` flies the most **routes** with either a `Boeing 747 or an Airbus A380` (abbreviated 747 and 380 in `air_routes`)?
+
+Choose the best answer:
+
+* "OneWorld"
+
+* "Star Alliance"
+
+* "SkyTeam"
+
 ## 9. Tema: `$graphLookup` Introducción
-
-### Notas de lectura
-
-Página de documentación de [``]().
 
 ### Transcripción
 
-## 10. Examen
+## 10. Examen $graphLookup Introduction
+
+**Problem:**
+
+Which of the following statements apply to `$graphLookup` operator? *check all that apply*
+
+Check all answers that apply:
+
+* `$graphLookup` is a new stage of the aggregation pipeline introduced in MongoDB 3.2
+
+* `$lookup` and `$graphLookup` stages require the exact same fields in their specification.
+
+* Provides MongoDB with graph or graph-like capabilities
+
+* `$graphLookup` provides MongoDB a transitive closure implementation
+
+* `$graphLookup` depends on `$lookup` operator. Cannot be used without `$lookup`
 
 ## 11. Tema: `$graphLookup`: Búsqueda Simple 
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
 ### Transcripción
 
-## 12. Examen
+## 12. Examen `$graphLookup`: Simple Lookup
+
+**Problem:**
+
+Which of the following statements is/are correct? *Check all that apply*.
+
+Check all answers that apply:
+
+* `connectToField` will be used on recursive find operations
+
+* `as` determines a collection where `$graphLookup` will store the stage results
+
+* `connectFromField` value will be use to match `connectToField` in a recursive match
+
+* `startWith` indicates the index that should be use to execute the recursive match
 
 ## 13. Tema: `$graphLookup`: Esquema inverso de búsqueda simple
-
-### Notas de lectura
-
-Página de documentación de [``]().
 
 ### Transcripción
 
 ## 14. Tema: `$graphLookup`: `maxDepth` y `depthField`
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
 ### Transcripción
 
-## 15. Examen
+## 15. Examen `$graphLookup`: `maxDepth` and `depthField``
+
+**Problem:**
+
+Which of the following statements are incorrect? *Check all that apply*
+
+Check all answers that apply:
+
+* `maxDepth` allows to specify the number of recursive lookups
+
+* `depthField` determines a field, in the result document, which specifies the number of recursive lookup needed to reach that document
+
+* `maxDepth` only takes `$long` values
+
+* `depthField` determines a field, which contains the value number of documents matched by the recursive lookup
 
 ## 16. Tema: `$graphLookup`: Cross Collection Lookup
-
-### Notas de lectura
-
-Página de documentación de [``]().
 
 ### Transcripción
 
 ## 17. Tema: `$graphLookup`: Consideraciones Generales
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
 ### Transcripción
 
-## 18. Examen
+## 18. Examen `$graphLookup`: General Considerations
+
+**Problem:**
+
+Consider the following statement:
+
+```sh
+``$graphLookup`` is required to be the last element on the pipeline.
+```
+
+Which of the following is true about the statement?
+
+Choose the best answer:
+
+* This is incorrect. `graphLookup` needs to be the first element of the pipeline, regardless of other stages needed to perform the desired query.
+
+* This is incorrect. `$graphLookup` can be used in any position of the pipeline and acts in the same way as a regular `$lookup`.
+
+* This is correct because `$graphLookup` pipes out the results of recursive search into a collection, similar to `$out` stage.
+
+* This is correct because of the recursive nature of `$graphLookup` we want to save resources for last.
 
 ## 19. Laboratorio: `$graphLookup`
+
+Lab: $graphLookup
+
+**Problem:**
+
+Now that you have been introduced to `$graphLookup`, let's use it to solve an interesting need. You are working for a travel agency and would like to find routes for a client! For this exercise, we'll be using the **air_airlines**, **air_alliances**, and **air_routes** collections in the **aggregations** database.
+
+* The **air_airlines** collection will use the following schema:
+
+```sh
+{
+    "_id" : ObjectId("56e9b497732b6122f8790280"),
+    "airline" : 4,
+    "name" : "2 Sqn No 1 Elementary Flying Training School",
+    "alias" : "",
+    "iata" : "WYT",
+    "icao" : "",
+    "active" : "N",
+    "country" : "United Kingdom",
+    "base" : "HGH"
+}
+```
+
+* The **air_routes** collection will use this schema:
+
+```sh
+{
+    "_id" : ObjectId("56e9b39b732b6122f877fa31"),
+    "airline" : {
+            "id" : 410,
+            "name" : "Aerocondor",
+            "alias" : "2B",
+            "iata" : "ARD"
+    },
+    "src_airport" : "CEK",
+    "dst_airport" : "KZN",
+    "codeshare" : "",
+    "stops" : 0,
+    "airplane" : "CR2"
+}
+```
+
+* Finally, the **air_alliances** collection will show the airlines that are in each alliance, with this schema:
+
+```sh
+{
+    "_id" : ObjectId("581288b9f374076da2e36fe5"),
+    "name" : "Star Alliance",
+    "airlines" : [
+            "Air Canada",
+            "Adria Airways",
+            "Avianca",
+            "Scandinavian Airlines",
+            "All Nippon Airways",
+            "Brussels Airlines",
+            "Shenzhen Airlines",
+            "Air China",
+            "Air New Zealand",
+            "Asiana Airlines",
+            "Brussels Airlines",
+            "Copa Airlines",
+            "Croatia Airlines",
+            "EgyptAir",
+            "TAP Portugal",
+            "United Airlines",
+            "Turkish Airlines",
+            "Swiss International Air Lines",
+            "Lufthansa",
+            "EVA Air",
+            "South African Airways",
+            "Singapore Airlines"
+    ]
+}
+```
+
+Determine the approach that satisfies the following question in the most efficient manner:
+
+Find the list of all possible distinct destinations, with at most one layover, departing from the base airports of airlines that make part of the "OneWorld" alliance. The airlines should be national carriers from Germany, Spain or Canada only. Include both the destination and which airline services that location. As a small hint, you should find **158** destinations.
+
+Select the correct pipeline from the following set of options:
+
+Choose the best answer:
+
+* 1)
+
+```sh
+var airlines = [];
+db.air_alliances.find({"name": "OneWorld"}).forEach(function(doc){
+  airlines = doc.airlines
+})
+var oneWorldAirlines = db.air_airlines.find({"name": {"$in": airlines}})
+
+oneWorldAirlines.forEach(function(airline){
+  db.air_alliances.aggregate([
+  {"$graphLookup": {
+    "startWith": airline.base,
+    "from": "air_routes",
+    "connectFromField": "dst_airport",
+    "connectToField": "src_airport",
+    "as": "connections",
+    "maxDepth": 1
+  }}])
+})
+```
+
+* 2)
+
+```sh
+db.air_airlines.aggregate(
+  [
+    {"$match": {"country": {"$in": ["Spain", "Germany", "Canada"]}}},
+    {"$lookup": {
+      "from": "air_alliances",
+      "foreignField": "airlines",
+      "localField": "name",
+      "as": "alliance"
+    }},
+    {"$match": {"alliance.name": "OneWorld"}},
+    {"$graphLookup": {
+      "startWith": "$base",
+      "from": "air_routes",
+      "connectFromField": "dst_airport",
+      "connectToField": "src_airport",
+      "as": "connections",
+      "maxDepth": 1
+    }},
+    {"$project":{ "connections.dst_airport": 1 }},
+    {"$unwind": "$connections"},
+    {"$group": { "_id": "$connections.dst_airport" }}
+  ]
+)
+```
+
+* 3)
+
+```sh
+db.air_alliances.aggregate([{
+  $match: { name: "OneWorld" }
+}, {
+  $graphLookup: {
+    startWith: "$airlines",
+    from: "air_airlines",
+    connectFromField: "name",
+    connectToField: "name",
+    as: "airlines",
+    maxDepth: 0,
+    restrictSearchWithMatch: {
+      country: { $in: ["Germany", "Spain", "Canada"] }
+    }
+  }
+}, {
+  $graphLookup: {
+    startWith: "$airlines.base",
+    from: "air_routes",
+    connectFromField: "dst_airport",
+    connectToField: "src_airport",
+    as: "connections",
+    maxDepth: 1
+  }
+}, {
+  $project: {
+    validAirlines: "$airlines.name",
+    "connections.dst_airport": 1,
+    "connections.airline.name": 1
+  }
+},
+{ $unwind: "$connections" },
+{
+  $project: {
+    isValid: { $in: ["$connections.airline.name", "$validAirlines"] },
+    "connections.dst_airport": 1
+  }
+},
+{ $match: { isValid: true } },
+{ $group: { _id: "$connections.dst_airport" } }
+])
+```
+
+* 4)
+
+```sh
+db.air_routes.aggregate(
+  [
+    {"$lookup": {
+      "from": "air_alliances",
+      "foreignField": "airlines",
+      "localField": "airline.name",
+      "as": "alliance"
+    }},
+    {"$match": {"alliance.name": "OneWorld"}},
+    {"$lookup": {
+      "from": "air_airlines",
+      "foreignField": "name",
+      "localField": "airline.name",
+      "as": "airline"
+    }},
+    {"$graphLookup": {
+      "startWith": "$airline.base",
+      "from": "air_routes",
+      "connectFromField": "dst_airport",
+      "connectToField": "src_airport",
+      "as": "connections",
+      "maxDepth": 1
+    }},
+    {"$project":{ "connections.dst_airport": 1 }},
+    {"$unwind": "$connections"},
+    {"$group": { "_id": "$connections.dst_airport" }}
+  ]
+)
+```
+
+
