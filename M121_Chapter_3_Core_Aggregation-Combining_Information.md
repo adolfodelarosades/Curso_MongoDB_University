@@ -4,8 +4,8 @@
 ### Lecciones
 
 * Tema: La etapa `$group`
-* Tema: Etapas del acumulador con `$project`
-* Laboratorio - `$group` y acumuladores
+* Tema: Etapas del Acumulador con `$project`
+* Laboratorio - `$group` y Acumuladores
 * Tema: La etapa `$unwind`
 * Laboratorio - `$unwind`
 * Tema: La etapa $lookup
@@ -13,7 +13,7 @@
 * Laboratorio: Uso de `$lookup`
 * Tema: `$graphLookup` Introducción
 * Examen
-* Tema: `$graphLookup`: Búsqueda simple: 
+* Tema: `$graphLookup`: Búsqueda simple
 * Examen
 * Tema: `$graphLookup`: Esquema inverso de búsqueda simple
 * Tema: `$graphLookup`: `maxDepth` y `depthField`
@@ -28,11 +28,11 @@
 
 ### Transcripción
 
-## 2. Tema: Etapas del acumulador con `$project`
+## 2. Tema: Etapas del Acumulador con `$project`
 
 ### Transcripción
 
-## 3. Laboratorio - `$group` y acumuladores
+## 3. Laboratorio - `$group` y Acumuladores
 
 ## 4. Tema: La etapa `$unwind`
 
@@ -54,8 +54,7 @@
 
 ## 10. Examen
 
-
-## 11. Tema: `$graphLookup`: Búsqueda simple: 
+## 11. Tema: `$graphLookup`: Búsqueda Simple 
 
 ### Transcripción
 
@@ -75,7 +74,7 @@
 
 ### Transcripción
 
-## 17. Tema: `$graphLookup`: Consideraciones generales
+## 17. Tema: `$graphLookup`: Consideraciones Generales
 
 ### Transcripción
 
