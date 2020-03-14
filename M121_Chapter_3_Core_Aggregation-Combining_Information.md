@@ -703,41 +703,86 @@ Por último, especificaremos la lógica del campo final aquí.
 }
 ```
 
-Esto está usando el operador condicional $ cond y dice si $$ this.avg_high_tmp es mayor que el valor que se encuentra en nuestro acumulador, luego devuelve this.avg_high_tmp.
+Esto está usando el operador condicional `$cond` y dice si `$$this.avg_high_tmp` es mayor que `value` que se encuentra en nuestro acumulador, luego devuelve `$$this.avg_high_tmp`.
 
-De lo contrario, simplemente devuelva el valor.
+De lo contrario, simplemente devuelve `$$value`.
 
 Entonces, compare el valor actual con el valor del acumulador, y si es mayor, lo reemplazaremos con el valor que acabamos de encontrar.
 
 De lo contrario, seguiremos usando nuestro valor máximo actual.
 
-Observe los signos dobles de dólar.
+Observe los signos dobles de dólar `$$`.
 
-Estas son variables temporales definidas para usar solo dentro de la expresión $ reduce, como mencionamos en la estructura de agregación y la lección de sintaxis.
+Estas son variables temporales definidas para usar solo dentro de la expresión `$reduce`, como mencionamos en la estructura de agregación y la lección de sintaxis.
 
-$ esto se refiere al elemento actual en la matriz.
+`$this` se refiere al elemento actual en el array.
 
-$ value se refiere al valor del acumulador.
+`$value` se refiere al valor del acumulador.
 
-Hará esto para cada elemento de la matriz.
+Hará esto para cada elemento del array.
 
 OK, ejecutemos esto.
 
-Y vemos que el máximo máximo fue 87.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.icecream_data.aggregate([
+...   {
+...     "$project": {
+...       "_id": 0,
+...       "max_high": {
+...         "$reduce": {
+...           "input": "$trends",
+...           "initialValue": -Infinity,
+...           "in": {
+...             "$cond": [
+...               { "$gt": ["$$this.avg_high_tmp", "$$value"] },
+...               "$$this.avg_high_tmp",
+...               "$$value"
+...             ]
+...           }
+...         }
+...       }
+...     }
+...   }
+... ])
+{ "max_high" : 87 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Y vemos que `max_high` fue 87.
 
 Wow, eso fue bastante complicado.
 
 Veamos una forma más fácil de lograr esto.
 
+```sh
+db.icecream_data.aggregate([
+  { "$project": { "_id": 0, "max_high": { "$max": "$trends.avg_high_tmp" } } }
+])
+```
+
 Creo que todos podemos estar de acuerdo en que esto es mucho más simple.
 
-Usamos la expresión del acumulador de grupo $ max para obtener la información que queremos.
+Usamos la expresión del acumulador de grupo `$max` para obtener la información que queremos.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.icecream_data.aggregate([
+...   { "$project": { "_id": 0, "max_high": { "$max": "$trends.avg_high_tmp" } } }
+... ])
+{ "max_high" : 87 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y de nuevo, tenemos un máximo de 87.
 
 OK, obtengamos la temperatura promedio mínima.
 
-Aquí, usamos la expresión acumuladora $ min y podemos ver que nuestro mínimo máximo fue 27.
+```sh
+db.icecream_data.aggregate([
+  { "$project": { "_id": 0, "min_low": { "$min": "$trends.avg_low_tmp" } } }
+])
+```
+
+Aquí, usamos la expresión acumuladora `$min` y podemos ver que nuestro mínimo máximo fue 27.
 
 Todo bien.
 
