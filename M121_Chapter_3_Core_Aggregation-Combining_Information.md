@@ -993,47 +993,131 @@ Página de documentación de [`$unwind`](https://docs.mongodb.com/manual/referen
 
 ### Transcripción
 
-Aprendamos sobre otra etapa útil de agregación, la etapa $ desenrollar.
+<img src="images/m121/c3/4-1-titulo.png">
 
-$ desenrollar listas desenrolla en un campo RA, creando un nuevo documento para cada entrada donde el valor del campo es ahora cada entrada.
+Aprendamos sobre otra etapa útil de agregación, la etapa `$unwind`.
+
+`$unwind` listas desenrolla(unwind)  en un campo RA, creando un nuevo documento para cada entrada donde el valor del campo es ahora cada entrada.
 
 Visualicemos esto con un ejemplo.
 
-Si tuviera el siguiente esquema a la izquierda, título y géneros, y $ se desenrolle en el campo de géneros, recuperaré los documentos a la derecha.
+<img src="images/m121/c3/4-1-ejemplo.png">
+
+Si tuviera el siguiente esquema a la izquierda, `title` y `genres`, y `$unwind` en el campo `genres`, recuperaré los documentos a la derecha.
 
 ¿Qué?
 
-¿Estoy diciendo que estoy generando un documento para cada entrada de matriz, cuando todo estaba ajustado y bien incrustado?
+¿Estoy diciendo que estoy generando un documento para cada entrada de array, cuando todo estaba ajustado y bien incrustado?
 
 ¿Por qué podría ser útil?
 
 Un ejemplo es cuando nos gustaría agrupar entradas individuales.
 
-En la clase grupal, agrupamos las películas según su año.
+<img src="images/m121/c3/4-1-ejemplo-2.png">
 
-Y tratamos de agrupar por año y géneros, habríamos obtenido muchas entradas distintas porque, dentro del grupo, las matrices se mezclan en igualdad pura, no en equivalentes.
+En la lección group, agrupamos las movies basados en su `year`.
 
-Por lo tanto, esta matriz de Adventure Action no coincidiría con esta matriz de Action Adventure.
+Y tratamos de agrupar por `year` y `genres`, habríamos obtenido muchas entradas distintas porque, dentro de `group`, los `arrays` se mezclan en igualdad pura, no en equivalentes.
 
-Usemos $ unwind para algo real.
+Por lo tanto, este array de `Adventure Action` no coincidiría con este array de `Action Adventure`.
 
-Busquemos los géneros más populares por año desde 2010 hasta 2015 dentro de la colección de la película.
+Usemos `$unwind` para algo real.
+
+Busquemos los más populares `genres` por `year` desde 2010 hasta 2015 dentro de la colección `movies`.
 
 Voy a seguir adelante y limitar esto, y decir que solo estoy considerando entradas con un tiempo de ejecución de 90 minutos o más.
 
-Y para popularidad, usaré un valor en imdb.rating.
+Y para `populary`, usaré un valor en el `imdb.rating`.
 
 Analicemos esto.
 
-Aquí, comenzamos con la etapa $ match, asegurándonos de que tenemos un valor imdb.rating especificando que debe ser mayor que 0 y filtrando documentos según el año y el tiempo de ejecución.
+```sh
+db.movies.aggregate([
+  {
+    "$match": {
+      "imdb.rating": { "$gt": 0 },
+      "year": { "$gte": 2010, "$lte": 2015 },
+      "runtime": { "$gte": 90 }
+    }
+  },
+  {
+    "$unwind": "$genres"
+  },
+  {
+    "$group": {
+      "_id": {
+        "year": "$year",
+        "genre": "$genres"
+      },
+      "average_rating": { "$avg": "$imdb.rating" }
+    }
+  },
+  {
+    "$sort": { "_id.year": -1, "average_rating": -1 }
+  }
+])
+```
 
-Luego, desenrollamos la matriz de géneros, creando un nuevo documento para cada entrada en la matriz original.
+Aquí, comenzamos con la etapa `$match`, asegurándonos de que tenemos un valor `imdb.rating` especificando que debe ser mayor que 0 y filtrando documentos según el año (`year`) y el tiempo de ejecución (`runtime`).
 
-Luego agruparemos en el año, y el campo de valores de género ahora único, y usaremos la expresión promedio para calcular el valor promedio de imdb.rating.
+Luego `"$unwind": "$genres"`, creando un nuevo documento para cada entrada en el array original.
 
-Finalmente, clasificamos, primero en el año descendente, y luego el promedio de la tasa descendente.
+Luego agruparemos por `year`, y el valor unico del campo `genre` y usaremos la expresión promedio para calcular `average_rating` de `imdb.rating`.
+
+Finalmente, ordenaremos, primero por `year` descendente, y luego `average_rating` descendente.
 
 Probémoslo.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$match": {
+...       "imdb.rating": { "$gt": 0 },
+...       "year": { "$gte": 2010, "$lte": 2015 },
+...       "runtime": { "$gte": 90 }
+...     }
+...   },
+...   {
+...     "$unwind": "$genres"
+...   },
+...   {
+...     "$group": {
+...       "_id": {
+...         "year": "$year",
+...         "genre": "$genres"
+...       },
+...       "average_rating": { "$avg": "$imdb.rating" }
+...     }
+...   },
+...   {
+...     "$sort": { "_id.year": -1, "average_rating": -1 }
+...   }
+... ])
+{ "_id" : { "year" : 2015, "genre" : "Biography" }, "average_rating" : 7.423404255319149 }
+{ "_id" : { "year" : 2015, "genre" : "News" }, "average_rating" : 7.4 }
+{ "_id" : { "year" : 2015, "genre" : "Documentary" }, "average_rating" : 7.387012987012986 }
+{ "_id" : { "year" : 2015, "genre" : "Animation" }, "average_rating" : 7.107692307692308 }
+{ "_id" : { "year" : 2015, "genre" : "Music" }, "average_rating" : 7.015000000000001 }
+{ "_id" : { "year" : 2015, "genre" : "Sport" }, "average_rating" : 6.94 }
+{ "_id" : { "year" : 2015, "genre" : "History" }, "average_rating" : 6.903571428571429 }
+{ "_id" : { "year" : 2015, "genre" : "Family" }, "average_rating" : 6.864285714285714 }
+{ "_id" : { "year" : 2015, "genre" : "Western" }, "average_rating" : 6.85 }
+{ "_id" : { "year" : 2015, "genre" : "Drama" }, "average_rating" : 6.747838616714698 }
+{ "_id" : { "year" : 2015, "genre" : "Adventure" }, "average_rating" : 6.718 }
+{ "_id" : { "year" : 2015, "genre" : "Crime" }, "average_rating" : 6.591803278688525 }
+{ "_id" : { "year" : 2015, "genre" : "Mystery" }, "average_rating" : 6.579411764705882 }
+{ "_id" : { "year" : 2015, "genre" : "Musical" }, "average_rating" : 6.566666666666666 }
+{ "_id" : { "year" : 2015, "genre" : "Comedy" }, "average_rating" : 6.508152173913044 }
+{ "_id" : { "year" : 2015, "genre" : "Romance" }, "average_rating" : 6.472463768115943 }
+{ "_id" : { "year" : 2015, "genre" : "War" }, "average_rating" : 6.45 }
+{ "_id" : { "year" : 2015, "genre" : "Sci-Fi" }, "average_rating" : 6.3175 }
+{ "_id" : { "year" : 2015, "genre" : "Thriller" }, "average_rating" : 6.279166666666667 }
+{ "_id" : { "year" : 2015, "genre" : "Action" }, "average_rating" : 6.253465346534654 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+
 
 Está cerca, pero aún no está allí.
 
