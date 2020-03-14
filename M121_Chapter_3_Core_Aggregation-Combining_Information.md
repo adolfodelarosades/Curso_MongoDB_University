@@ -913,10 +913,77 @@ Choose the best answer:
 
 * `{ "highest_rating" : 9.2, "lowest_rating" : 4.5, "average_rating" : 7.5270, "deviation" : 0.5984 }`
 
-* `{ "highest_rating" : 9.2, "lowest_rating" : 4.5, "average_rating" : 7.5270, "deviation" : 0.5988 }`
+* `{ "highest_rating" : 9.2, "lowest_rating" : 4.5, "average_rating" : 7.5270, "deviation" : 0.5988 }` :+1:
 
 * `{ "highest_rating" : 9.5, "lowest_rating" : 5.9, "average_rating" : 7.5290, "deviation" : 0.5988 }`
 
+### See detailed answer
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      awards: /Won \d{1,2} Oscars?/
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      highest_rating: { $max: "$imdb.rating" },
+      lowest_rating: { $min: "$imdb.rating" },
+      average_rating: { $avg: "$imdb.rating" },
+      deviation: { $stdDevSamp: "$imdb.rating" }
+    }
+  }
+])
+```
+
+We start by applying the now familiar $match filtering, searching documents for the appropriate text stating they won an Oscar
+
+```sh
+{
+  $match: {
+    awards: /Won \d{1,2} Oscars?/
+  }
+},
+```
+
+Next, we have our $group stage. By convention, we group all documents together by specifying null` to ``_id. We use the group accumulators $min, $max, $avg, and $stdDevSamp to get our results
+
+```sh
+{
+  $group: {
+    _id: null,
+    highest_rating: { $max: "$imdb.rating" },
+    lowest_rating: { $min: "$imdb.rating" },
+    average_rating: { $avg: "$imdb.rating" },
+    deviation: { $stdDevSamp: "$imdb.rating" }
+  }
+}
+```
+
+Ejecución
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     $match: {
+...       awards: /Won \d{1,2} Oscars?/
+...     }
+...   },
+...   {
+...     $group: {
+...       _id: null,
+...       highest_rating: { $max: "$imdb.rating" },
+...       lowest_rating: { $min: "$imdb.rating" },
+...       average_rating: { $avg: "$imdb.rating" },
+...       deviation: { $stdDevSamp: "$imdb.rating" }
+...     }
+...   }
+... ])
+{ "_id" : null, "highest_rating" : 9.2, "lowest_rating" : 4.5, "average_rating" : 7.527024070021882, "deviation" : 0.5988145513344498 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 ## 4. Tema: La etapa `$unwind`
 
