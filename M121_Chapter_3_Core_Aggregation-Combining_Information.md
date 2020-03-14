@@ -32,87 +32,381 @@ Página de documentación de [`$group`](https://docs.mongodb.com/manual/referenc
 
 ### Transcripción
 
-La siguiente etapa que aprenderemos es la etapa $ group.
+La siguiente etapa que aprenderemos es la etapa `$group`.
 
-La clave para nuestra comprensión del grupo es comprender el argumento requerido: el campo _id de esta etapa.
+<img src="images/m121/c3/3-1-group-1.png">
 
-La expresión o expresiones que especificamos a _id se convierten en los criterios que utiliza la etapa de grupo para clasificar y agrupar documentos.
+La clave para la comprensión del group es comprender el argumento requerido: el campo `_id` de esta etapa.
 
-En esta imagen, estamos agrupando monedas según su denominación, por lo que la expresión especificada para _id sería la ruta del campo de denominación.
+La expresión o expresiones que especificamos a `_id` se convierten en los criterios que utiliza la etapa de grupo para clasificar y agrupar documentos.
+
+En esta imagen, estamos agrupando monedas según su denominación, por lo que la expresión especificada para `_id` sería la denomination field path (`$denomination`).
+
+<img src="images/m121/c3/3-1-group-2.png">
 
 Veamos esto en acción usando datos reales.
 
-Muy bien, agrupemos documentos en nuestra colección de películas según el valor que tengan en su campo anual.
+```sh
+db.movies.aggregate([
+  {
+    "$group": { "_id": "$year" }
+  }])
+```
+
+Muy bien, agrupamos documentos en nuestra colección `movies` según el valor que tengan en su campo `year`.
 
 Al agrupar, podemos ver que hemos cambiado fundamentalmente la estructura de los documentos resultantes.
 
-El grupo los comparó en función del valor del campo del año.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$group": { "_id": "$year" }
+...   }])
+{ "_id" : 2019 }
+{ "_id" : 2018 }
+{ "_id" : 1874 }
+{ "_id" : 1880 }
+{ "_id" : 1887 }
+{ "_id" : "2010�" }
+{ "_id" : "2016�" }
+{ "_id" : "2007�" }
+{ "_id" : 2017 }
+{ "_id" : "2003�" }
+{ "_id" : 2016 }
+{ "_id" : 2014 }
+{ "_id" : 2013 }
+{ "_id" : 1890 }
+{ "_id" : 1888 }
+{ "_id" : "2002�" }
+{ "_id" : 2011 }
+{ "_id" : 2009 }
+{ "_id" : "2001�" }
+{ "_id" : 2012 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Group los comparó en función del valor del campo `year`.
 
 Los documentos con valores idénticos se agruparon, y cada valor único produjo un documento de salida que nos muestra los valores o valores agrupados.
 
-Por sí solo, esto puede o no ser útil dependiendo del caso de uso, y solo agrupar en una expresión es funcionalmente equivalente a usar el comando distinto.
+Por sí solo, esto puede o no ser útil dependiendo del caso de uso, y solo agrupar en una expresión es funcionalmente equivalente a usar el comando `distinct`.
 
-Exploremos la otra característica poderosa de la etapa grupal: la capacidad de usar expresiones de acumulación de agregación.
+Exploremos la otra característica poderosa de la etapa `group`: la capacidad de usar expresiones de acumulación de agregación.
 
-Podemos especificar campos adicionales que queremos calcular en la etapa de grupo, y tantos como sea necesario para lograr nuestro objetivo.
+<img src="images/m121/c3/3-1-group-3.png">
 
-Aquí vamos a agrupar el valor del año, como antes.
+Podemos especificar campos adicionales que queremos calcular en la etapa `group`, tantos como sea necesario para lograr nuestro objetivo.
 
-También calculamos un nuevo campo llamado num_films_in_year usando la expresión del acumulador de $ sum.
+Aquí vamos a agrupar el valor de `year`, como antes.
 
-Cada vez que el grupo categoriza un documento para nosotros, se llama a la expresión de suma.
+```sh
+db.movies.aggregate([
+  {
+    "$group": {
+      "_id": "$year",
+      "numFilmsThisYear": { "$sum": 1 }
+    }
+  }
+])
+```
 
-Como especificamos un valor de 1, cada documento coincidente sumará 1 al valor de num_films_in_year.
+También calculamos un nuevo campo llamado `numFilmsThisYear` usando la expresión de acumulador `$sum`.
+
+Cada vez que `group` categoriza un documento por nosotros, se llama a la expresión `sum`.
+
+Como especificamos un valor de 1, cada documento coincidente sumará 1 al valor de `num_films_in_year`.
 
 Vamos a verlo en acción.
 
-Los mismos resultados que antes, con la adición del campo num_films_in_year.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$group": {
+...       "_id": "$year",
+...       "numFilmsThisYear": { "$sum": 1 }
+...     }
+...   }
+... ])
+{ "_id" : 2019, "numFilmsThisYear" : 1 }
+{ "_id" : 2018, "numFilmsThisYear" : 1 }
+{ "_id" : 1874, "numFilmsThisYear" : 1 }
+{ "_id" : 1880, "numFilmsThisYear" : 1 }
+{ "_id" : 1887, "numFilmsThisYear" : 1 }
+{ "_id" : "2010�", "numFilmsThisYear" : 4 }
+{ "_id" : "2016�", "numFilmsThisYear" : 4 }
+{ "_id" : "2007�", "numFilmsThisYear" : 3 }
+{ "_id" : 2017, "numFilmsThisYear" : 42 }
+{ "_id" : "2003�", "numFilmsThisYear" : 1 }
+{ "_id" : 2016, "numFilmsThisYear" : 516 }
+{ "_id" : 2014, "numFilmsThisYear" : 2058 }
+{ "_id" : 2013, "numFilmsThisYear" : 1898 }
+{ "_id" : 1890, "numFilmsThisYear" : 4 }
+{ "_id" : 1888, "numFilmsThisYear" : 2 }
+{ "_id" : "2002�", "numFilmsThisYear" : 2 }
+{ "_id" : 2011, "numFilmsThisYear" : 1665 }
+{ "_id" : 2009, "numFilmsThisYear" : 1606 }
+{ "_id" : "2001�", "numFilmsThisYear" : 1 }
+{ "_id" : 2012, "numFilmsThisYear" : 1769 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Los mismos resultados que antes, con la adición del campo `numFilmsThisYear`.
 
 Podemos ver que solo había un documento con un valor de 1874 en el campo anual, mientras que había 2,058 documentos con el valor de 2014.
 
-Todo un año ocupado.
+Un año muy ocupado.
 
-Realicemos la misma agregación con la etapa fuente agregada al final para ordenar nuestros resultados.
+Realicemos la misma agregación con la etapa `sort` agregada al final para ordenar nuestros resultados.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$group": {
+...       "_id": "$year",
+...       "numFilmsThisYear": { "$sum": 1 }
+...     }
+...   }, {
+...       $sort: { numFilmsThisYear: -1 }
+...   }
+... ])
+{ "_id" : 2015, "numFilmsThisYear" : 2079 }
+{ "_id" : 2014, "numFilmsThisYear" : 2058 }
+{ "_id" : 2013, "numFilmsThisYear" : 1898 }
+{ "_id" : 2012, "numFilmsThisYear" : 1769 }
+{ "_id" : 2011, "numFilmsThisYear" : 1665 }
+{ "_id" : 2009, "numFilmsThisYear" : 1606 }
+{ "_id" : 2010, "numFilmsThisYear" : 1538 }
+{ "_id" : 2008, "numFilmsThisYear" : 1493 }
+{ "_id" : 2007, "numFilmsThisYear" : 1328 }
+{ "_id" : 2006, "numFilmsThisYear" : 1292 }
+{ "_id" : 2005, "numFilmsThisYear" : 1135 }
+{ "_id" : 2004, "numFilmsThisYear" : 1007 }
+{ "_id" : 2002, "numFilmsThisYear" : 909 }
+{ "_id" : 2003, "numFilmsThisYear" : 898 }
+{ "_id" : 2001, "numFilmsThisYear" : 862 }
+{ "_id" : 2000, "numFilmsThisYear" : 806 }
+{ "_id" : 1999, "numFilmsThisYear" : 730 }
+{ "_id" : 1998, "numFilmsThisYear" : 722 }
+{ "_id" : 1997, "numFilmsThisYear" : 676 }
+{ "_id" : 1996, "numFilmsThisYear" : 644 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Excelente.
 
-Podemos comenzar a obtener una indicación de que a medida que aumenta el valor del año, tenemos más documentos en nuestra colección.
+Vemos que a medida que aumenta el valor del año, tenemos más documentos en nuestra colección.
 
-Esto trae un punto importante sobre la expresión que especificamos _id.
+Esto realza la importancia sobre la expresión que especificamos en `_id`.
 
-Los valores de documento utilizados en la expresión deben resolverse al mismo valor o combinación de valores para que los documentos coincidan.
+Los valores de documento utilizados en la expresión deben resolver al mismo valor o combinación de valores para que los documentos coincidan.
 
 Veamos un ejemplo.
 
-Aquí estamos usando la expresión de tamaño para obtener el valor de la matriz de directores.
+```sh
+db.movies.aggregate([
+  {
+    "$group": {
+      "_id": {
+        "numDirectors": {
+          "$cond": [{ "$isArray": "$directors" }, { "$size": "$directors" }, 0]
+        }
+      },
+      "numFilms": { "$sum": 1 },
+      "averageMetacritic": { "$avg": "$metacritic" }
+    }
+  },
+  {
+    "$sort": { "_id.numDirectors": -1 }
+  }
+])
+```
 
-Lo estoy envolviendo en esta expresión condicional $ cond porque si el valor que especificamos como tamaño no se evalúa en una matriz o falta, el tamaño fallará.
+Aquí estamos usando la expresión `size` para obtener el valor del array `directors`.
 
-Entonces, si los directores son una matriz, devuelva el tamaño de los directores.
+Lo estoy envolviendo en la expresión condicional `$cond` porque si el valor que especificamos como tamaño no se evalúa en un array o falta el tamaño fallará.
+
+`"$cond": [{ "$isArray": "$directors" }, { "$size": "$directors" }, 0]`
+
+Entonces, si `directors` es un array (`isArray`), devuelva el tamaño de los directores.
 
 De lo contrario, 0.
 
-A medida que fluyan los documentos, esto se evaluará y los documentos con el mismo número de directores se agruparán.
+A medida que fluyan los documentos, se evaluará y los documentos con el mismo número de directores se agruparán.
 
-Todos los documentos sin información del director o con una matriz vacía para directores también se agruparán.
+Todos los documentos sin información del director o con un array vacío para directores también se agruparán.
 
-Llamamos al campo numDirectors, pero podríamos haberle dado el nombre que quisiéramos.
+Llamamos al campo `numDirectors`, pero podríamos haberle dado el nombre que quisiéramos.
 
-Cuando los documentos se agrupan, calcularemos un campo llamado numFilms y solo contaremos cuántos documentos coinciden.
+Cuando los documentos se agrupan, calcularemos un campo llamado `numFilms` y solo contaremos cuántos documentos coinciden.
 
-También promediaremos la información metacrítica y la asignaremos a un campo llamado averageMetacritic para todos los documentos coincidentes en un grupo.
+También promediaremos la información metacrítica (`metacritic`) y la asignaremos a un campo llamado `averageMetacritic` para todos los documentos coincidentes en un grupo.
 
-Nuevamente, podríamos haber especificado cualquier nombre para numFilms o averageMetacritic.
+Nuevamente, podríamos haber especificado cualquier nombre para `numFilms` o `averageMetacritic`.
 
 Por último, clasificaremos los documentos en orden descendente.
 
 Vamos a verlo en acción.
 
-Wow, una película con 44 directores, pero el metacrítico promedio es nulo.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$group": {
+...       "_id": {
+...         "numDirectors": {
+...           "$cond": [{ "$isArray": "$directors" }, { "$size": "$directors" }, 0]
+...         }
+...       },
+...       "numFilms": { "$sum": 1 },
+...       "averageMetacritic": { "$avg": "$metacritic" }
+...     }
+...   },
+...   {
+...     "$sort": { "_id.numDirectors": -1 }
+...   }
+... ])
+{ "_id" : { "numDirectors" : 44 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 42 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 41 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 36 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 30 }, "numFilms" : 1, "averageMetacritic" : 53 }
+{ "_id" : { "numDirectors" : 29 }, "numFilms" : 1, "averageMetacritic" : 58 }
+{ "_id" : { "numDirectors" : 27 }, "numFilms" : 1, "averageMetacritic" : 43 }
+{ "_id" : { "numDirectors" : 26 }, "numFilms" : 2, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 22 }, "numFilms" : 1, "averageMetacritic" : 66 }
+{ "_id" : { "numDirectors" : 21 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 20 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 15 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 14 }, "numFilms" : 3, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 13 }, "numFilms" : 3, "averageMetacritic" : 18 }
+{ "_id" : { "numDirectors" : 12 }, "numFilms" : 1, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 11 }, "numFilms" : 9, "averageMetacritic" : 48 }
+{ "_id" : { "numDirectors" : 10 }, "numFilms" : 9, "averageMetacritic" : 58 }
+{ "_id" : { "numDirectors" : 9 }, "numFilms" : 5, "averageMetacritic" : null }
+{ "_id" : { "numDirectors" : 8 }, "numFilms" : 13, "averageMetacritic" : 51 }
+{ "_id" : { "numDirectors" : 7 }, "numFilms" : 26, "averageMetacritic" : 49 }
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Wow, una película con 44 directores, pero el promedio metacrítico es nulo.
 
 Exploremos esto mirando el documento.
 
-Muy bien, escaneando el documento, podemos ver que falta completamente el campo metacrítico.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.findOne({ directors: { $size: 44 } })
+{
+	"_id" : ObjectId("573a13edf29313caabdd41f4"),
+	"title" : "Our RoboCop Remake",
+	"year" : 2014,
+	"runtime" : 108,
+	"released" : ISODate("2014-02-06T00:00:00Z"),
+	"cast" : [
+		"Chase Fein",
+		"Nichole Bagby",
+		"Willy Roberts",
+		"Hank Friedmann"
+	],
+	"lastupdated" : "2015-09-11 00:13:14.227000000",
+	"type" : "movie",
+	"languages" : [
+		"English"
+	],
+	"directors" : [
+		"Kelsy Abbott",
+		"Eric Appel",
+		"James Atkinson",
+		"Paul Bartunek",
+		"Todd Bishop",
+		"Stephen Cedars",
+		"David Codeglia",
+		"Casey Donahue",
+		"Fatal Farm",
+		"Kate Freund",
+		"Matthew Freund",
+		"Hank Friedmann",
+		"Clint Gage",
+		"Ariel Gardner",
+		"Paul Isakson",
+		"Tom Kauffman",
+		"Alex Kavutskiy",
+		"Benji Kleiman",
+		"Jim Klimek",
+		"Jason Makiaris",
+		"Timothy Marklevitz",
+		"Michael McCafferty",
+		"Wendy McColm",
+		"Aaron Moles",
+		"Nick Mundy",
+		"Dan Murrell",
+		"John Olsen",
+		"Ben Pluimer",
+		"Wade Randolph",
+		"Kyle Reiter",
+		"Ryan Ridley",
+		"Dan Riesser",
+		"J.D. Ryznar",
+		"Joshua Sasson",
+		"David Seger",
+		"Duncan Skiles",
+		"Tyler Spiers",
+		"Spencer Strauss",
+		"Erni Walker",
+		"Jon Watts",
+		"Brian Wysol",
+		"Scott Yacyshyn",
+		"Zach Zdziebko",
+		"Mike Manasewitsch"
+	],
+	"writers" : [
+		"Eric Appel",
+		"James Atkinson (creator)",
+		"Todd Bishop (scene)",
+		"Stephen Cedars",
+		"David Codeglia",
+		"Paul Isakson",
+		"Tom Kauffman",
+		"Benji Kleiman",
+		"Michael McCafferty",
+		"John Olsen (creator)",
+		"Ryan Ridley",
+		"David Seger",
+		"Tyler Spiers",
+		"Spencer Strauss",
+		"Michael Ryan Truly",
+		"Scott Yacyshyn"
+	],
+	"imdb" : {
+		"rating" : 6.5,
+		"votes" : 156,
+		"id" : 3528906
+	},
+	"countries" : [
+		"USA"
+	],
+	"genres" : [
+		"Animation",
+		"Action",
+		"Comedy"
+	],
+	"num_mflix_comments" : 1,
+	"comments" : [
+		{
+			"name" : "Mackenzie Bell",
+			"email" : "mackenzie_bell@fakegmail.com",
+			"movie_id" : ObjectId("573a13edf29313caabdd41f4"),
+			"text" : "Alias veritatis quasi a et magni. Tempore ullam omnis temporibus. Eaque officia assumenda quasi vero corrupti laborum recusandae. Blanditiis sequi iusto ducimus officia nam ad.",
+			"date" : ISODate("1975-04-10T19:33:13Z")
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
+Muy bien, escaneando el documento, podemos ver que falta el campo `metacritic`.
 
 Esto ilustra un concepto importante.
 
@@ -120,23 +414,53 @@ Es crucial comprender el tipo de datos que ingresan para interpretar adecuadamen
 
 Las expresiones de acumulador ignorarán los documentos con un valor en el campo especificado que no sea del tipo que la expresión espera, o si falta el valor.
 
-Si todos los documentos encontrados tienen un tipo de datos incorrecto o un valor perdido para el campo deseado, la expresión dará como resultado nulo.
+Si todos los documentos encontrados tienen un tipo de datos incorrecto o un valor perdido para el campo deseado, la expresión dará como resultado `null`.
 
-Bien, estamos adquiriendo una buena comprensión de cómo se aplican las expresiones a los documentos de los grupos _id y cómo funcionan las expresiones especificadas en nuestros acumuladores.
+Bien, estamos adquiriendo una buena comprensión de cómo se aplican las expresiones a los documentos de los grupos `_id` y cómo funcionan las expresiones especificadas en nuestros acumuladores.
 
 Pero, ¿qué pasaría si quisiéramos agrupar todos los documentos, en lugar de solo un subconjunto?
 
-Por convención, especificamos nulo, o una cadena vacía, como argumento para _id.
+Por convención, especificamos `null`, o una cadena vacía, como argumento para `_id`.
 
-Antes de ejecutar esta tubería, establezcamos una expectativa.
+```sh
+db.movies.aggregate([
+  {
+    "$group": {
+      "_id": null,
+      "count": { "$sum": 1 }
+    }
+  }
+])
+```
 
-Espero que el valor del recuento sea igual al número de documentos en la colección de películas.
+Antes de ejecutar este pipeline, establezcamos una expectativa.
+
+Espero que el valor del recuento sea igual al número de documentos en la colección `movies`.
 
 Probemos
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$group": {
+...       "_id": null,
+...       "count": { "$sum": 1 }
+...     }
+...   }
+... ])
+{ "_id" : null, "count" : 44497 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Muy bien, 44,497.
 
 ¿Y el número total de documentos?
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.count()
+44497
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 De nuevo 44.497.
 
@@ -146,21 +470,55 @@ En lugar de duplicar la funcionalidad de una manera muy poco optimizada, hagamos
 
 Calculemos la calificación metacrítica promedio.
 
-Aquí, usamos una etapa de coincidencia para filtrar documentos con un metacrítico que no es mayor o igual a 0.
+Aquí, usamos una etapa `match` para filtrar documentos con un `metacritic` que no sea mayor o igual a 0.
 
-Documentos faltantes cumplidos*********la información acrítica o con un valor no numérico en ese campo no se logrará.
+```sh
+db.movies.aggregate([
+  {
+    "$match": { "metacritic": { "$gte": 0 } }
+  },
+  {
+    "$group": {
+      "_id": null,
+      "averageMetacritic": { "$avg": "$metacritic" }
+    }
+  }
+])
+```
+
+Documentos que les falte información metacrítica, o con un valor no numérico en ese campo no se logrará.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     "$match": { "metacritic": { "$gte": 0 } }
+...   },
+...   {
+...     "$group": {
+...       "_id": null,
+...       "averageMetacritic": { "$avg": "$metacritic" }
+...     }
+...   }
+... ])
+{ "_id" : null, "averageMetacritic" : 56.93454223794781 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Y podemos suponer que la calificación metacrítica promedio entre todos los documentos que tenían información metacrítica es de alrededor de 56.93.
 
-Y eso cubre la etapa grupal.
+Y eso cubre la etapa `group`.
 
 Resumamos
 
-_id es donde especificamos en qué documentos entrantes se deben agrupar.
+<img src="images/m121/c3/3-1-resumen.png">
 
-Podemos usar todas las expresiones de acumulador dentro del grupo.
+* `_id` es donde especificamos en qué documentos entrantes se deben agrupar.
 
-El grupo se puede usar varias veces dentro de una tubería y puede ser necesario desinfectar los datos entrantes.
+* Podemos usar todas las expresiones de acumulador dentro de `$grupo`.
+
+* `$grupo` se puede usar varias veces dentro de una pipeline 
+
+* Puede ser necesario desinfectar los datos entrantes.
 
 ## 2. Tema: Etapas del Acumulador con `$project`
 
