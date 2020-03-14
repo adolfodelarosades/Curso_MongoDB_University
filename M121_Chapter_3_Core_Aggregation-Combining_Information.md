@@ -528,25 +528,125 @@ Página de documentación de [`accumulator expressions`](https://docs.mongodb.co
 
 ### Transcripción
 
-Tomemos un momento para aprender sobre el uso de expresiones de acumulador con la etapa $ project.
+<img src="images/m121/c3/3-2-titulo.png">
+
+Tomemos un momento para aprender sobre el uso de expresiones de acumulador con la etapa `$project`.
 
 El conocimiento de cómo usar estas expresiones puede simplificar enormemente nuestro trabajo.
 
-Una cosa importante a tener en cuenta es que las expresiones de acumulador dentro de $ project funcionan sobre una matriz dentro del documento dado.
+Una cosa importante a tener en cuenta es que las expresiones de acumulador dentro de `$project` funcionan sobre un array dentro del documento dado.
+
+<img src="images/m121/c3/3-2-array.png">
 
 No llevan valores a cada documento encontrado.
 
-Supongamos que tenemos una colección llamada ejemplo con este esquema.
+Supongamos que tenemos una colección llamada `example` con el esquema que se muestra en la imagen.
 
-Si realizamos esta agregación, este será el resultado.
+Si realizamos la agregación, se ve el resultado.
 
 Un documento de salida para cada documento de entrada, con el promedio del campo de datos de ese documento.
 
 Para esta lección, vamos a explorar este conjunto de datos.
 
+<img src="images/m121/c3/3-2-datos.png">
+
 Es la temperatura baja y alta mensual promedio para los Estados Unidos, así como el índice mensual de precios al consumidor de helado y la información de ventas.
 
 Y así es como se ven los datos en nuestra colección.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.icecream_data.findOne()
+{
+	"_id" : ObjectId("59bff494f70ff89cacc36f90"),
+	"trends" : [
+		{
+			"month" : "January",
+			"avg_high_tmp" : 42,
+			"avg_low_tmp" : 27,
+			"icecream_cpi" : 238.8,
+			"icecream_sales_in_millions" : 115
+		},
+		{
+			"month" : "February",
+			"avg_high_tmp" : 44,
+			"avg_low_tmp" : 28,
+			"icecream_cpi" : 225.5,
+			"icecream_sales_in_millions" : 118
+		},
+		{
+			"month" : "March",
+			"avg_high_tmp" : 53,
+			"avg_low_tmp" : 35,
+			"icecream_cpi" : 221.9,
+			"icecream_sales_in_millions" : 121
+		},
+		{
+			"month" : "April",
+			"avg_high_tmp" : 64,
+			"avg_low_tmp" : 44,
+			"icecream_cpi" : 222.6,
+			"icecream_sales_in_millions" : 125
+		},
+		{
+			"month" : "May",
+			"avg_high_tmp" : 75,
+			"avg_low_tmp" : 54,
+			"icecream_cpi" : 216.7,
+			"icecream_sales_in_millions" : 140
+		},
+		{
+			"month" : "June",
+			"avg_high_tmp" : 83,
+			"avg_low_tmp" : 63,
+			"icecream_cpi" : 216.6,
+			"icecream_sales_in_millions" : 155
+		},
+		{
+			"month" : "July",
+			"avg_high_tmp" : 87,
+			"avg_low_tmp" : 68,
+			"icecream_cpi" : 213.2,
+			"icecream_sales_in_millions" : 163
+		},
+		{
+			"month" : "August",
+			"avg_high_tmp" : 84,
+			"avg_low_tmp" : 66,
+			"icecream_cpi" : 215.9,
+			"icecream_sales_in_millions" : 157
+		},
+		{
+			"month" : "September",
+			"avg_high_tmp" : 78,
+			"avg_low_tmp" : 59,
+			"icecream_cpi" : 217.4,
+			"icecream_sales_in_millions" : 140
+		},
+		{
+			"month" : "October",
+			"avg_high_tmp" : 67,
+			"avg_low_tmp" : 48,
+			"icecream_cpi" : 218.7,
+			"icecream_sales_in_millions" : 128
+		},
+		{
+			"month" : "November",
+			"avg_high_tmp" : 55,
+			"avg_low_tmp" : 38,
+			"icecream_cpi" : 220.3,
+			"icecream_sales_in_millions" : 122
+		},
+		{
+			"month" : "December",
+			"avg_high_tmp" : 45,
+			"avg_low_tmp" : 29,
+			"icecream_cpi" : 227.7,
+			"icecream_sales_in_millions" : 117
+		}
+	]
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Podemos ver que tenemos una serie de tendencias con documentos que contienen toda la información que necesitaremos.
 
@@ -556,19 +656,52 @@ Avancemos y encontremos los valores máximos y mínimos para la temperatura alta
 
 Exploraremos dos métodos diferentes para encontrar el máximo.
 
-Primero, usaremos la expresión $ reduce para encontrar manualmente el máximo.
+Primero, usaremos la expresión `$reduce` para encontrar manualmente el máximo.
 
 Antes de ejecutar esto, analicemoslo.
 
-Aquí, estoy especificando la expresión $ reduce.
+```sh
+db.icecream_data.aggregate([
+  {
+    "$project": {
+      "_id": 0,
+      "max_high": {
+        "$reduce": {
+          "input": "$trends",
+          "initialValue": -Infinity,
+          "in": {
+            "$cond": [
+              { "$gt": ["$$this.avg_high_tmp", "$$value"] },
+              "$$this.avg_high_tmp",
+              "$$value"
+            ]
+          }
+        }
+      }
+    }
+  }
+])
+```
 
-$ reduce toma una matriz como argumento de entrada aquí.
+Aquí, estoy especificando la expresión `$reduce`.
 
-Para el argumento del valor inicial, el valor o acumulador con el que comenzaremos, estamos especificando infinito negativo.
+`$reduce` toma un array como argumento de entrada aquí `"input": "$trends",`.
 
-Espero que nunca tengamos una temperatura media mensual alta de infinito negativo, pero con toda seriedad, estamos usando infinito negativo porque cualquier valor razonable que encontremos debería ser mayor.
+Para el argumento `initialValue`, el valor o acumulador con el que comenzaremos, especificamos `-Infinity`.
+
+Espero que nunca tengamos una temperatura media mensual alta de `-Infinity`, pero con toda seriedad, estamos usando `-Infinity` porque cualquier valor razonable que encontremos debería ser mayor.
 
 Por último, especificaremos la lógica del campo final aquí.
+
+```sh
+"in": {
+   "$cond": [
+      { "$gt": ["$$this.avg_high_tmp", "$$value"] },
+      "$$this.avg_high_tmp",
+      "$$value"
+   ]
+}
+```
 
 Esto está usando el operador condicional $ cond y dice si $$ this.avg_high_tmp es mayor que el valor que se encuentra en nuestro acumulador, luego devuelve this.avg_high_tmp.
 
