@@ -784,6 +784,14 @@ db.icecream_data.aggregate([
 
 Aquí, usamos la expresión acumuladora `$min` y podemos ver que nuestro mínimo máximo fue 27.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.icecream_data.aggregate([
+...   { "$project": { "_id": 0, "min_low": { "$min": "$trends.avg_low_tmp" } } }
+... ])
+{ "min_low" : 27 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Todo bien.
 
 Ahora sabemos cómo usar max y min.
@@ -794,37 +802,90 @@ Calculemos el índice de precios al consumidor promedio para el helado, así com
 
 Aquí, estamos calculando ambos en una sola pasada.
 
-Para el campo average_cpi, especificamos la expresión promedio $ avg, diciéndole que promedie los valores en el campo icecream_cpi en la matriz de tendencias.
+```sh
+db.icecream_data.aggregate([
+  {
+    "$project": {
+      "_id": 0,
+      "average_cpi": { "$avg": "$trends.icecream_cpi" },
+      "cpi_deviation": { "$stdDevPop": "$trends.icecream_cpi" }
+    }
+  }
+])
+```
 
-Y aquí, la cpi_deviation se calcula de forma casi idéntica, excepto que estamos usando la desviación estándar de la población.
+Para el campo `average_cpi`, especificamos la expresión promedio `$avg`, diciéndole que promedie los valores en el campo `icecream_cpi` en en el array `trends`.
 
-Estamos utilizando pop de desviación estándar porque estamos viendo todo el conjunto de datos.
+Y aquí, `cpi_deviation` se calcula de forma casi idéntica, excepto que estamos usando la desviación estándar de la población `$stdDevPop`.
 
-Sin embargo, si esto fuera solo una muestra de nuestros datos, usaríamos la expresión de desviación estándar de la muestra.
+Estamos utilizando `$stdDevPop` porque estamos viendo todo el conjunto de datos.
+
+Sin embargo, si esto fuera solo una muestra de nuestros datos, usaríamos la expresión de desviación estándar de la muestra `$stdDevSamp`.
 
 Excelente.
 
-Podemos ver que el índice de precios al consumidor promedio fue de 221.275 y la desviación estándar fue de alrededor de 6.63.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.icecream_data.aggregate([
+...   {
+...     "$project": {
+...       "_id": 0,
+...       "average_cpi": { "$avg": "$trends.icecream_cpi" },
+...       "cpi_deviation": { "$stdDevPop": "$trends.icecream_cpi" }
+...     }
+...   }
+... ])
+{ "average_cpi" : 221.275, "cpi_deviation" : 6.632511464998266 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Podemos ver que el índice de precios al consumidor promedio `average_cpi` fue de 221.275 y la desviación estándar `cpi_deviation` fue de alrededor de 6.63.
 
 Podríamos usar esta información para encontrar datos que están fuera de las normas para apuntar a áreas que podrían necesitar un análisis especial.
 
-La última expresión de acumulador que me gustaría mostrar es $ sum.
+La última expresión de acumulador que me gustaría mostrar es `$sum`.
 
-Como su nombre lo indica, $ sum resume los valores de una matriz.
+```sh
+db.icecream_data.aggregate([
+  {
+    "$project": {
+      "_id": 0,
+      "yearly_sales (millions)": { "$sum": "$trends.icecream_sales_in_millions" }
+    }
+  }
+])
+```
 
-Podemos ver que las ventas anuales fueron de 1.601 millones.
+Como su nombre lo indica, `$sum` resume los valores de un array.
 
-Y eso cubre las expresiones de acumulador disponibles dentro de $ project.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.icecream_data.aggregate([
+...   {
+...     "$project": {
+...       "_id": 0,
+...       "yearly_sales (millions)": { "$sum": "$trends.icecream_sales_in_millions" }
+...     }
+...   }
+... ])
+{ "yearly_sales (millions)" : 1601 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
+Podemos ver que las ventas anuales `yearly_sales` fueron de 1.601 millones.
+
+Y eso cubre las expresiones de acumulador disponibles dentro de `$project`.
 
 Aquí hay algunas cosas a tener en cuenta.
 
-Las expresiones de acumulador disponibles en $ project son suma, promedio, máximo, mínimo, población de desviación estándar y muestra de desviación estándar.
+<img src="images/m121/c3/3-2-resumen.png">
 
-Dentro de $ project, estas expresiones no llevarán su valor adelante y operarán en múltiples documentos.
+* Las **Accumulator Expressions** (expresiones de acumulador) disponibles en `$project` son:
+   * `$sum`, `$avg`, `$max`, `$min`, `$stdDevPop` población de desviación estándar y `$stdDevSam` muestra de desviación estándar.
 
-Para esto, necesitaríamos usar la etapa de desenrollar y las expresiones de acumulador de grupo.
+* Dentro de `$project`, estas expresiones no llevarán su valor adelante y operarán en múltiples documentos.
 
-Para cálculos más complejos, es útil saber cómo usar $ reduce y $ map.
+* Para esto, necesitaríamos usar la etapa de desenrollar y las expresiones de acumulador de grupo.
+
+* Para cálculos más complejos, es útil saber cómo usar `$reduce` y `$map`.
 
 ## 3. Laboratorio - `$group` y Acumuladores
 
