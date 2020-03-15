@@ -993,7 +993,7 @@ Página de documentación de [`$unwind`](https://docs.mongodb.com/manual/referen
 
 ### Transcripción
 
-<img src="images/m121/c3/4-1-titulo.png">
+<img src="images/m121/c3/3-1-titulo.png">
 
 Aprendamos sobre otra etapa útil de agregación, la etapa `$unwind`.
 
@@ -1001,7 +1001,7 @@ Aprendamos sobre otra etapa útil de agregación, la etapa `$unwind`.
 
 Visualicemos esto con un ejemplo.
 
-<img src="images/m121/c3/4-1-ejemplo.png">
+<img src="images/m121/c3/3-1-ejemplo.png">
 
 Si tuviera el siguiente esquema a la izquierda, `title` y `genres`, y `$unwind` en el campo `genres`, recuperaré los documentos a la derecha.
 
@@ -1013,7 +1013,7 @@ Si tuviera el siguiente esquema a la izquierda, `title` y `genres`, y `$unwind` 
 
 Un ejemplo es cuando nos gustaría agrupar entradas individuales.
 
-<img src="images/m121/c3/4-1-ejemplo-2.png">
+<img src="images/m121/c3/3-1-ejemplo-2.png">
 
 En la lección group, agrupamos las movies basados en su `year`.
 
@@ -1232,7 +1232,7 @@ Hemos visto cómo funciona `$unwind`.
 
 Ahora hay algunas cosas mas que cubrir.
 
-<img src="images/m121/c3/4-4-short.png">
+<img src="images/m121/c3/3-4-short.png">
 
 Hemos estado usando la forma corto para `$unwind`.
 
@@ -1258,7 +1258,7 @@ Y eso cubre `$unwind` Hemos aprendido mucho.
 
 Recapitulemos algunas cosas.
 
-<img src="images/m121/c3/4-4-resumen.png">
+<img src="images/m121/c3/3-4-resumen.png">
 
 * `$unwind` solo funciona en un array de valores.
 
