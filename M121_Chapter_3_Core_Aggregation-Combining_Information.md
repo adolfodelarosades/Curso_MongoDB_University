@@ -2676,32 +2676,125 @@ MongoDB Enterprise > db.child_reference.aggregate(
 ...   }
 ... ]).pretty()
 ```
-*********
+
 En este escenario, cambiamos el esquema del documento con las referencias secundarias inmediatas, nuevamente, en direct_reports.
 
 Y por lo tanto, si queremos obtener la lista completa de descendientes, tendremos que hacer lo siguiente.
 
-Volveremos a la misma coincidencia, encontraremos el nodo donde queremos comenzar y expresaremos de dónde vamos a buscar la información.
+Repetimos el mismo `match`, buscando el nodo donde queremos comenzar y expresaremos dónde vamos a buscar la información.
 
-En este caso, una vez más, un self graphLookup, self lookup.
+En este caso, una vez más, el mismo `graphLookup`, el mismo lookup.
 
-Vamos a comenzar con los informes directos, por lo que este es el primer conjunto de valores que vamos a utilizar para iterar.
+Vamos a comenzar con los informes directos `startWith:'$direct_reports',`, por lo que este es el primer conjunto de valores que vamos a utilizar para iterar.
 
-Vamos a conectar directFromField direct_reports, vamos a usar eso para las consultas gráficas posteriores, pero vamos a conectar el nombre de ConnectToField.
+Vamos a usar `connectFromField: 'direct_reports',`, vamos a usar eso para las subsecuentes consultas gráficas, pero vamos a conectar el `connectToField: 'name',`.
 
-Entonces, cada vez que combinemos un elemento de informes directos con un nombre, haremos esto de forma recursiva.
+Entonces, cada vez que matchemos un elemento de '$direct_reports' con un `name`, haremos esto de forma recursiva.
 
-Y comenzaremos esto en all_reports.
+Y comenzaremos esto en `all_reports`.
 
 Una vez que ejecutamos esto, tendremos la siguiente estructura.
 
-Descubriremos que Dave tiene un conjunto de informes directos, pero todos los informes se encontrarán en este campo.
+```sh
+MongoDB Enterprise > db.child_reference.aggregate(
+... [ {$match:{ name: 'Dev'}},
+...   { $graphLookup: {
+...     from: 'child_reference',
+...     startWith:'$direct_reports',
+...     connectFromField: 'direct_reports',
+...     connectToField: 'name',
+...     as: 'all_reports'}
+...   }
+... ]).pretty()
+{
+	"_id" : 1,
+	"name" : "Dev",
+	"title" : "CEO",
+	"direct_reports" : [
+		"Eliot",
+		"Meagen",
+		"Carlos",
+		"Richard",
+		"Kristen"
+	],
+	"all_reports" : [
+		{
+			"_id" : 10,
+			"name" : "Dan",
+			"title" : "VP Core Engineering"
+		},
+		{
+			"_id" : 9,
+			"name" : "Shannon",
+			"title" : "VP Education"
+		},
+		{
+			"_id" : 5,
+			"name" : "Andrew",
+			"title" : "VP Eng",
+			"direct_reports" : [
+				"Cailin",
+				"Dan",
+				"Shannon"
+			]
+		},
+		{
+			"_id" : 6,
+			"name" : "Ron",
+			"title" : "VP PM"
+		},
+		{
+			"_id" : 7,
+			"name" : "Elyse",
+			"title" : "COO"
+		},
+		{
+			"_id" : 2,
+			"name" : "Eliot",
+			"title" : "CTO",
+			"direct_reports" : [
+				"Andrew",
+				"Elyse",
+				"Ron"
+			]
+		},
+		{
+			"_id" : 8,
+			"name" : "Richard",
+			"title" : "VP PS"
+		},
+		{
+			"_id" : 3,
+			"name" : "Meagen",
+			"title" : "CMO"
+		},
+		{
+			"_id" : 11,
+			"name" : "Cailin",
+			"title" : "VP Cloud Engineering"
+		},
+		{
+			"_id" : 4,
+			"name" : "Carlos",
+			"title" : "CRO"
+		}
+	]
+}
+MongoDB Enterprise > 
+
+```
+
+Descubriremos que Dev tiene un conjunto `direct_reports`, pero todos los informes se encontrarán en el campo `all_reports`.
 
 Vamos a tener a Dan, Shannon, Elyse, Ron, Andrew, etc.
 
-Entonces, al final, lo que tenemos es básicamente, para todos los informes directos diferentes, hacemos coincidir, o estamos tratando de encontrar, un documento en el campo de nombre.
+Entonces, al final, lo que tenemos es básicamente, 
 
-Y para sus informes directos, hacemos esto de forma recursiva,
+`direct_reports -> name, direct_reports -> name ...`
+
+para todos los diferentes direct reports, matcheamos, o estamos tratando de encontrar, un documento en el campo `name`.
+
+Y para esos direct reports, hacemos esto de forma recursiva,
 
 ## 14. Tema: `$graphLookup`: `maxDepth` y `depthField`
 
