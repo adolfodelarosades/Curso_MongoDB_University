@@ -3275,7 +3275,7 @@ Choose the best answer:
 
 * This is incorrect. `graphLookup` needs to be the first element of the pipeline, regardless of other stages needed to perform the desired query.
 
-* This is incorrect. `$graphLookup` can be used in any position of the pipeline and acts in the same way as a regular `$lookup`.
+* This is incorrect. `$graphLookup` can be used in any position of the pipeline and acts in the same way as a regular `$lookup`. :+1:
 
 * This is correct because `$graphLookup` pipes out the results of recursive search into a collection, similar to `$out` stage.
 
@@ -3415,7 +3415,7 @@ db.air_airlines.aggregate(
 )
 ```
 
-* 3)
+* 3) :+1:
 
 ```sh
 db.air_alliances.aggregate([{
@@ -3492,5 +3492,3 @@ db.air_routes.aggregate(
   ]
 )
 ```
-
-
