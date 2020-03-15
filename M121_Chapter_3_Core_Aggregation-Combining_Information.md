@@ -2048,7 +2048,6 @@ MongoDB Enterprise > db.air_alliances.aggregate([
 	]
 }
 MongoDB Enterprise > 
-
 ```
 
 Muy genial.
@@ -2083,13 +2082,23 @@ Which of the following statements is true about the `$lookup` stage?
 
 Check all answers that apply:
 
-* Specifying an existing field name to **as** will overwrite the the existing field
+* Specifying an existing field name to **as** will overwrite the the existing field :+1:
 
-* The collection specified in **from** cannot be sharded
-
-* `$lookup` matches between **localField** and **foreignField** with an equality match
+* The collection specified in **from** cannot be sharded :+1:
+ 
+* `$lookup` matches between **localField** and **foreignField** with an equality match :+1:
 
 * You can specify a collection in another database to **from**
+
+### See detailed answer
+
+The only false statement is:
+
+* You can specify a collection in another database to **from**
+
+This is not true, you can only specify another collection to **from** within the same database.
+
+All other statements are true.
 
 ## 8. Laboratorio: Uso de `$lookup`
 
@@ -2105,7 +2114,92 @@ Choose the best answer:
 
 * "Star Alliance"
 
-* "SkyTeam"
+* "SkyTeam" :+1:
+
+### See detailed answer
+
+```sh
+db.air_routes.aggregate([
+  {
+    $match: {
+      airplane: /747|380/
+    }
+  },
+  {
+    $lookup: {
+      from: "air_alliances",
+      foreignField: "airlines",
+      localField: "airline.name",
+      as: "alliance"
+    }
+  },
+  {
+    $unwind: "$alliance"
+  },
+  {
+    $group: {
+      _id: "$alliance.name",
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { count: -1 }
+  }
+])
+```
+
+We begin by aggregating over our `air_routes` collection to allow for filtering of documents containing the string "747" or "380". If we started from `air_alliances` we would have to do this **after** the lookup!
+
+```sh
+{
+  $match: {
+    airplane: /747|380/
+  }
+},
+```
+
+Next, we use the `$lookup` stage to match documents from `air_alliances` on the value of their `airlines` field against the current document's `airline.name` field
+
+```sh
+{
+  $lookup: {
+    from: "air_alliances",
+    foreignField: "airlines",
+    localField: "airline.name",
+    as: "alliance"
+  }
+},
+```
+
+We then use `$unwind` on the alliance field we created in `$lookup`, creating a document with each entry in `alliance`
+
+```sh
+{
+  $unwind: "$alliance"
+},
+```
+
+We end with a `$group` and `$sort` stage, grouping on the name of the alliance and counting how many times it appeared
+
+```sh
+{
+  $group: {
+    _id: "$alliance.name",
+    count: { $sum: 1 }
+  }
+},
+{
+  $sort: { count: -1 }
+}
+```
+
+This produces the following output
+
+```sh
+{ "_id" : "SkyTeam", "count" : 16 }
+{ "_id" : "Star Alliance", "count" : 11 }
+{ "_id" : "OneWorld", "count" : 11 }
+```
 
 ## 9. Tema: `$graphLookup` Introducción
 
