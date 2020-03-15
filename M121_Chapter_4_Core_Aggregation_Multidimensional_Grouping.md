@@ -1,5 +1,5 @@
 
-# 04 Capítulo 4 Core Aggregation Multidimensional Grouping
+# Capítulo 4 Core Aggregation Multidimensional Grouping
 
 Lecciones
 
