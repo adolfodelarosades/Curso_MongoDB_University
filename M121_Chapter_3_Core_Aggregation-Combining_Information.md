@@ -2527,25 +2527,75 @@ Ahora esto solo me dice a todos los descendientes debajo de Eliot.
 
 <img src="images/m121/c3/3-11-5.png">
 
-Entonces, en este caso, graphLookup me permitirá encontrar todos los nodos diferentes que están debajo de un nodo particular que estoy encontrando.
+Entonces, en este caso, `graphLookup` me permitirá encontrar todos los nodos diferentes que están debajo de un nodo particular que estoy encontrando.
 
 También podemos hacer la pregunta inversa, que es, dado un elemento en el organigrama, ¿cuál es la jerarquía de los niveles superiores de informes?
 
 Entonces, por ejemplo, si le doy al vicepresidente de educación, quiero conocer la estructura completa hasta llegar al padre principal de nuestro árbol, el nivel raíz.
 
-Para hacer eso, lo que tenemos que hacer es, nuevamente, hacer coincidir el elemento que nos interesa, en este caso Shannon, y luego invertir los campos connectFrom y connectTo, pero también comenzando con el valor startWith diferente.
+Para hacer eso, lo que tenemos que hacer es, nuevamente, hacer coincidir el elemento que nos interesa, en este caso `Shannon`, y luego invertir los campos` connectFrom` y `connectTo`, pero también comenzando con el valor diferente `startWith` .
 
-En este caso, comenzaremos con reports_to.
+```sh
+MongoDB Enterprise > db.parent_reference.aggregate(
+... [ {$match:{ name: 'Shannon'}},
+...   { $graphLookup: {
+...     from: 'parent_reference',
+...     startWith:'$reports_to',
+...     connectFromField: 'reports_to',
+...     connectToField: '_id',
+...     as: 'bosses'}
+...   }
+... ])
+```
 
-connectFrom también será informes_a pero el campo de conexión, el valor que vamos a elegir para que coincida con informes_a será _id.
+En este caso, comenzaremos con `reports_to`.
 
-Y vamos a almacenar eso*********información, esa cadena, en un campo llamado jefes.
+`connectFrom` también será `reports_to` pero `connectToField`, el valor que vamos a elegir para que coincida con `reports_to` será `_id`.
 
-Una vez que ejecuto esto, puedo ver que Shannon tiene el conjunto de jefes.
+Y vamos a almacenar esa información, esa cadena, en un campo llamado `bosses`.
 
-El tiene a Dave.
+Una vez que ejecuto esto, puedo ver que Shannon tiene el conjunto de `bosses`.
 
-Eliot y, obviamente, su jefe directo, Andrew.
+```sh
+MongoDB Enterprise > db.parent_reference.aggregate(
+... [ {$match:{ name: 'Shannon'}},
+...   { $graphLookup: {
+...     from: 'parent_reference',
+...     startWith:'$reports_to',
+...     connectFromField: 'reports_to',
+...     connectToField: '_id',
+...     as: 'bosses'}
+...   }
+... ]).pretty()
+{
+	"_id" : 9,
+	"name" : "Shannon",
+	"title" : "VP Education",
+	"reports_to" : 5,
+	"bosses" : [
+		{
+			"_id" : 1,
+			"name" : "Dev",
+			"title" : "CEO"
+		},
+		{
+			"_id" : 2,
+			"name" : "Eliot",
+			"title" : "CTO",
+			"reports_to" : 1
+		},
+		{
+			"_id" : 5,
+			"name" : "Andrew",
+			"title" : "VP Eng",
+			"reports_to" : 2
+		}
+	]
+}
+MongoDB Enterprise > 
+```
+
+El tiene a Dev, Eliot y, obviamente, su jefe directo, Andrew.
 
 ## 12. Examen `$graphLookup`: Simple Lookup
 
