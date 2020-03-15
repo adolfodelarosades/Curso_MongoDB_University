@@ -3048,9 +3048,9 @@ Check all answers that apply:
 
 * `depthField` determines a field, in the result document, which specifies the number of recursive lookup needed to reach that document
 
-* `maxDepth` only takes `$long` values
+* `maxDepth` only takes `$long` values :+1:
 
-* `depthField` determines a field, which contains the value number of documents matched by the recursive lookup
+* `depthField` determines a field, which contains the value number of documents matched by the recursive lookup :+1:
 
 ## 16. Tema: `$graphLookup`: Cross Collection Lookup
 
