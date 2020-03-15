@@ -2802,47 +2802,239 @@ Y para esos direct reports, hacemos esto de forma recursiva,
 
 En algunas situaciones, es posible que no nos interese la lista completa.
 
-Digamos, por ejemplo, que solo queremos los informes directos de Dave y sus informes directos.
+Digamos, por ejemplo, que solo queremos los direct reports de Dev y sus direct reports.
 
 Entonces, digamos dos niveles más abajo.
 
-Ahora, una sola búsqueda es de profundidad cero, lo que significa que si coincidimos con Dave y solo estamos interesados ​​en conocer los documentos de sus informes directos, solo necesitamos establecer la profundidad de nuestra búsqueda en cero.
+<img src="images/m121/c3/3-14-1.png">
+
+Ahora, una sola búsqueda es de profundidad cero, lo que significa que si coincide(match) con Dev y solo estamos interesados en conocer los documentos de sus informes directos, solo necesitamos establecer la profundidad de nuestra búsqueda en cero.
+
+<img src="images/m121/c3/3-14-2.png">
 
 Pero si queremos bajar dos niveles, necesitaríamos tener una profundidad de uno.
 
+<img src="images/m121/c3/3-14-3.png">
+
 Y por lo tanto, encontraremos una estructura de datos completa de Andrew, Elyse y Ron.
 
-La búsqueda de gráficos nos permite hacer eso.
+Graph lookup nos permite hacer eso.
 
-Usando el conjunto de datos anterior, referencia secundaria, donde tenemos una referencia de informes directos dentro de cada documento.
+Usando el conjunto de datos anterior, referencia hija(child), donde tenemos una referencia de direct reports dentro de cada documento.
 
-Si desea bajar dos niveles, hasta informes de nivel descendente_2, simplemente especifique un campo maxDepth, el valor es igual a 1, en nuestro GraphLookup.
+```sh
+MongoDB Enterprise > db.child_reference.aggregate(
+... [ {$match:{ name: 'Dev'}},
+...   { $graphLookup: {
+...     from: 'child_reference',
+...     startWith: '$direct_reports',
+...     connectFromField: 'direct_reports',
+...     connectToField: 'name',
+...     as: 'till_2_level_reports',
+...     maxDepth: 1}
+...   }
+... ]).pretty()
+```
 
-Después de ejecutar esto, tenemos nuestros documentos coincidentes.
+Si desea bajar dos niveles, hasta `till_2_level_reports`, simplemente especifique un campo `maxDepth`, el valor es igual a 1, en nuestro `graphLookup`.
 
-Y luego la lista de resultados de informes directos a Dave hasta dos niveles inferiores.
+Después de ejecutar esto, tenemos nuestros matching documents.
 
-Entonces podemos ver aquí que, por ejemplo, Andrew aparecerá en la lista, así como Ron y Elyse, y obviamente, todos los informes directos de Dave.
+```sh
+MongoDB Enterprise > db.child_reference.aggregate(
+... [ {$match:{ name: 'Dev'}},
+...   { $graphLookup: {
+...     from: 'child_reference',
+...     startWith: '$direct_reports',
+...     connectFromField: 'direct_reports',
+...     connectToField: 'name',
+...     as: 'till_2_level_reports',
+...     maxDepth: 1}
+...   }
+... ]).pretty()
+{
+	"_id" : 1,
+	"name" : "Dev",
+	"title" : "CEO",
+	"direct_reports" : [
+		"Eliot",
+		"Meagen",
+		"Carlos",
+		"Richard",
+		"Kristen"
+	],
+	"till_2_level_reports" : [
+		{
+			"_id" : 5,
+			"name" : "Andrew",
+			"title" : "VP Eng",
+			"direct_reports" : [
+				"Cailin",
+				"Dan",
+				"Shannon"
+			]
+		},
+		{
+			"_id" : 6,
+			"name" : "Ron",
+			"title" : "VP PM"
+		},
+		{
+			"_id" : 7,
+			"name" : "Elyse",
+			"title" : "COO"
+		},
+		{
+			"_id" : 2,
+			"name" : "Eliot",
+			"title" : "CTO",
+			"direct_reports" : [
+				"Andrew",
+				"Elyse",
+				"Ron"
+			]
+		},
+		{
+			"_id" : 8,
+			"name" : "Richard",
+			"title" : "VP PS"
+		},
+		{
+			"_id" : 3,
+			"name" : "Meagen",
+			"title" : "CMO"
+		},
+		{
+			"_id" : 4,
+			"name" : "Carlos",
+			"title" : "CRO"
+		}
+	]
+}
+MongoDB Enterprise > 
+```
 
-Básicamente, maxDepth restringirá cuántas veces queremos buscar documentos que coincidan recursivamente o que estén conectados usando FromField y connecToField.
+Y luego la lista de resultados de directs reports a Dev hasta dos niveles inferiores.
 
-Pero digamos que, además de definir un campo maxDepth de solo quiero bajar dos niveles, también quiero saber qué tan lejos están esos elementos del primer elemento que encuentro en mi búsqueda.
+Entonces podemos ver aquí que, por ejemplo, Andrew aparecerá en la lista, así como Ron y Elyse, y obviamente, todos los informes directos de Dev.
+
+Básicamente, `maxDepth` restringirá cuántas veces queremos buscar documentos que coincidan recursivamente o que estén conectados usando `fromField` y `connecToField`.
+
+Pero digamos que, además de definir un campo `maxDepth` solo quiero bajar dos niveles, también quiero saber qué tan lejos están esos elementos del primer elemento que encuentro en mi búsqueda.
+
+```sh
+db.child_reference.aggregate(
+    [ {$match:{ name: 'Dev'}},
+      { $graphLookup: {
+        from: 'child_reference',
+        startWith: '$direct_reports',
+        connectFromField: 'direct_reports',
+        connectToField: 'name',
+        as: 'descendants',
+        maxDepth: 1,
+        depthField: 'level'}
+      }
+    ]).pretty()
+
+```
 
 Básicamente, quiero saber cuántas búsquedas recursivas necesité hacer para encontrar los documentos en particular.
 
-Para eso, tengo depthField, que puedo especificar un nombre de campo que me dirá exactamente eso, cuántas búsquedas recursivas fueron necesarias para obtener este punto en particular.
+Para eso, tengo `depthField`, que puedo especificar un nombre de campo (`level`) que me dirá exactamente eso, cuántas búsquedas recursivas fueron necesarias para obtener este punto en particular.
 
 Cuando ejecuto esto, puedo ver que Eliot está en el número cero, lo que significa que solo necesitaba una sola búsqueda para encontrarlo.
 
-Por otra parte, es la búsqueda de primera base.
+```sh
+MongoDB Enterprise > db.child_reference.aggregate(
+...     [ {$match:{ name: 'Dev'}},
+...       { $graphLookup: {
+...         from: 'child_reference',
+...         startWith: '$direct_reports',
+...         connectFromField: 'direct_reports',
+...         connectToField: 'name',
+...         as: 'descendants',
+...         maxDepth: 1,
+...         depthField: 'level'}
+...       }
+...     ]).pretty()
+{
+	"_id" : 1,
+	"name" : "Dev",
+	"title" : "CEO",
+	"direct_reports" : [
+		"Eliot",
+		"Meagen",
+		"Carlos",
+		"Richard",
+		"Kristen"
+	],
+	"descendants" : [
+		{
+			"_id" : 5,
+			"name" : "Andrew",
+			"title" : "VP Eng",
+			"direct_reports" : [
+				"Cailin",
+				"Dan",
+				"Shannon"
+			],
+			"level" : NumberLong(1)
+		},
+		{
+			"_id" : 6,
+			"name" : "Ron",
+			"title" : "VP PM",
+			"level" : NumberLong(1)
+		},
+		{
+			"_id" : 7,
+			"name" : "Elyse",
+			"title" : "COO",
+			"level" : NumberLong(1)
+		},
+		{
+			"_id" : 2,
+			"name" : "Eliot",
+			"title" : "CTO",
+			"direct_reports" : [
+				"Andrew",
+				"Elyse",
+				"Ron"
+			],
+			"level" : NumberLong(0)
+		},
+		{
+			"_id" : 8,
+			"name" : "Richard",
+			"title" : "VP PS",
+			"level" : NumberLong(0)
+		},
+		{
+			"_id" : 3,
+			"name" : "Meagen",
+			"title" : "CMO",
+			"level" : NumberLong(0)
+		},
+		{
+			"_id" : 4,
+			"name" : "Carlos",
+			"title" : "CRO",
+			"level" : NumberLong(0)
+		}
+	]
+}
+MongoDB Enterprise > 
+```
+
+Por otra parte, es first base lookup (la búsqueda de primera base).
 
 Lo mismo para Meagan, lo mismo para Richard, lo mismo para Carlos.
 
-Pero para Andrew, necesito hacer una búsqueda recursiva o, en este caso, dos búsquedas recursivas hacia abajo.
+Pero para Andrew, necesito hacer una búsqueda recursiva, en este caso, dos búsquedas recursivas hacia abajo.
 
 Lo mismo para Ron y lo mismo para Elyse.
 
-Al especificar el nivel de campo de profundidad, puedo obtener la información de cuántas búsquedas recursivas fueron necesarias para encontrar ese elemento en particular en el campo de descendientes aquí.
+Al especificar `depthField: 'level'`, puedo obtener la información de cuántas búsquedas recursivas fueron necesarias para encontrar ese elemento en particular en el campo `descendants`.
 
 ## 15. Examen `$graphLookup`: `maxDepth` and `depthField``
 
