@@ -1117,8 +1117,6 @@ Type "it" for more
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
 ```
 
-
-
 Está cerca, pero aún no está allí.
 
 Podemos ver que estamos obteniendo el género más popular por año, pero estamos recuperando todos los resultados.
@@ -1129,59 +1127,144 @@ Hay muchas formas de lograr esto.
 
 Solo veremos uno de los más simples.
 
-Examinemos esta nueva tubería.
+Examinemos este nuevo pipeline.
 
-Es idéntico al anterior, con la adición de estas dos etapas.
+```sh
+db.movies.aggregate([
+  {
+    "$match": {
+      "imdb.rating": { "$gt": 0 },
+      "year": { "$gte": 2010, "$lte": 2015 },
+      "runtime": { "$gte": 90 }
+    }
+  },
+  {
+    "$unwind": "$genres"
+  },
+  {
+    "$group": {
+      "_id": {
+        "year": "$year",
+        "genre": "$genres"
+      },
+      "average_rating": { "$avg": "$imdb.rating" }
+    }
+  },
+  {
+    "$sort": { "_id.year": -1, "average_rating": -1 }
+  },
+  {
+    "$group": {
+      "_id": "$_id.year",
+      "genre": { "$first": "$_id.genre" },
+      "average_rating": { "$first": "$average_rating" }
+    }
+  },
+  {
+    "$sort": { "_id": -1 }
+  }
+])
+```
 
-La canalización anterior regresaba en el formato que queríamos.
+Es idéntico al anterior, con la adición de las dos ultimas etapas.
+
+el pipeline anterior regresaba en el formato que queríamos.
 
 Se devolvieron demasiados documentos.
 
-Aquí, en esta etapa de grupo adicional, agrupamos los documentos en función de su año.
+Aquí, en esta etapa adicional de grupo, agrupamos los documentos en función de su año.
 
-Y dado que ya están ordenados en el orden que necesitamos, solo tomamos el primer valor que encontramos para el género y la calificación promedio.
+Y dado que ya están ordenados en el orden que necesitamos, solo tomamos el primer valor que encontramos para el género y la calificación promedio `average_rating`.
 
-Luego terminamos con un $ sort para asegurarnos de que sean devueltos y el orden que queremos.
+Luego terminamos con un `$sort` para asegurarnos de que sean devueltos y en el orden que queremos.
 
 A ver si funciona.
+
+```sh
+MongoDB Enterprise > db.movies.aggregate([
+...   {
+...     "$match": {
+...       "imdb.rating": { "$gt": 0 },
+...       "year": { "$gte": 2010, "$lte": 2015 },
+...       "runtime": { "$gte": 90 }
+...     }
+...   },
+...   {
+...     "$unwind": "$genres"
+...   },
+...   {
+...     "$group": {
+...       "_id": {
+...         "year": "$year",
+...         "genre": "$genres"
+...       },
+...       "average_rating": { "$avg": "$imdb.rating" }
+...     }
+...   },
+...   {
+...     "$sort": { "_id.year": -1, "average_rating": -1 }
+...   },
+...   {
+...     "$group": {
+...       "_id": "$_id.year",
+...       "genre": { "$first": "$_id.genre" },
+...       "average_rating": { "$first": "$average_rating" }
+...     }
+...   },
+...   {
+...     "$sort": { "_id": -1 }
+...   }
+... ])
+{ "_id" : 2015, "genre" : "Biography", "average_rating" : 7.423404255319149 }
+{ "_id" : 2014, "genre" : "Documentary", "average_rating" : 7.212587412587413 }
+{ "_id" : 2013, "genre" : "Documentary", "average_rating" : 7.158196721311475 }
+{ "_id" : 2012, "genre" : "Talk-Show", "average_rating" : 8.2 }
+{ "_id" : 2011, "genre" : "Documentary", "average_rating" : 7.262857142857143 }
+{ "_id" : 2010, "genre" : "News", "average_rating" : 7.65 }
+MongoDB Enterprise > 
+```
 
 Excelente.
 
 Un documento por año, con el género mejor calificado en ese año.
 
-Hemos visto cómo funciona $ unwind.
+Hemos visto cómo funciona `$unwind`.
 
-Ahora hay algunas cosas menos que cubrir.
+Ahora hay algunas cosas mas que cubrir.
 
-Hemos estado usando el formulario corto para $ unwind.
+<img src="images/m121/c3/4-4-short.png">
 
-Aquí está la forma larga de contraste.
+Hemos estado usando la forma corto para `$unwind`.
 
-En la forma larga, especificamos la matriz que queremos desenrollar proporcionando una expresión de ruta de campo al argumento de ruta.
+Aquí está la forma larga para contrastar.
 
-Podemos proporcionar una cadena para incluir ArrayIndex.
+En la forma larga, especificamos el array que queremos desenrollar (`unwind`) proporcionando un field path expression (expresión de ruta de campo) al argumento de path(ruta).
 
-Esto creará otro campo en el documento con cualquier nombre que especifiquemos, con el valor del índice del elemento en la matriz original.
+Podemos proporcionar un string para `includeArrayIndex`.
 
-Por último, podemos proporcionar un valor verdadero o falso para preservarNullAndEmptyArrays.
+Esto creará otro campo en el documento con cualquier nombre que especifiquemos, con el valor del índice del elemento en el  array original.
 
-True creará una entrada con una matriz vacía, con el valor especificado en la ruta como nulo, faltante o una matriz vacía.
+Por último, podemos proporcionar un valor verdadero o falso para `preserveNullAndEmptyArrays`.
+
+`true` creará una entrada con un array vacío, con el valor especificado en la ruta como nulo, faltante o un array vacío.
 
 Una cosa más de nota.
 
-Si los documentos en nuestra colección son muy grandes y necesitamos usar $ unwind, podemos exceder el límite de memoria predeterminado del marco de agregación.
+Si los documentos en nuestra colección son muy grandes y necesitamos usar `$unwind`, podemos exceder el límite de memoria predeterminado del aggregation framework.
 
-Como siempre, haga coincidir temprano, conserve solo la información necesaria con el proyecto y recuerde que podemos especificar permitir el uso del disco.
+Como siempre, haga coincidir temprano, conserve solo la información necesaria con el project y recuerde que podemos especificar permitir el uso del disco.
 
-Y eso cubre $ desenrollar Hemos aprendido mucho.
+Y eso cubre `$unwind` Hemos aprendido mucho.
 
 Recapitulemos algunas cosas.
 
-$ unwind solo funciona en una matriz de valores.
+<img src="images/m121/c3/4-4-resumen.png">
 
-Hay dos formas para relajarse, la forma corta y la forma larga.
+* `$unwind` solo funciona en un array de valores.
 
-Usar desenrollar en grandes colecciones con grandes documentos puede generar problemas de rendimiento.
+* Hay dos formas para unwind, la forma corta y la forma larga.
+
+* Usar unwind en grandes colecciones con grandes documentos puede generar problemas de rendimiento.
 
 ## 5. Laboratorio - `$unwind`
 
