@@ -2207,53 +2207,99 @@ This produces the following output
 
 A estas alturas, probablemente ya se haya dado cuenta de que MongoDB ofrece un modelo de datos flexible.
 
+<img src="images/m121/c3/3-9-1.png">
+
 Los documentos pueden tener diferentes formas y estar organizados de tal manera que reflejen tanto las estructuras de datos dinámicos de las aplicaciones como los requisitos de escalabilidad.
 
-Podemos tener campos muy planos, solo de nivel raíz en nuestros documentos, son esquemas bastante complejos y profundamente anidados que reflejan las necesidades de obligación de operaciones rápidas y lógica comercial.
+<img src="images/m121/c3/3-9-2.png">
+
+<img src="images/m121/c3/3-9-3.png">
+
+<img src="images/m121/c3/3-9-4.png">
+
+Podemos tener campos muy planos, solo de nivel raíz en nuestros documentos, 
+
+<img src="images/m121/c3/3-9-5.png">
+
+son esquemas bastante complejos y profundamente anidados que reflejan las necesidades de obligación de operaciones rápidas y lógica comercial.
+
+<img src="images/m121/c3/3-9-6.png">
 
 Un conjunto común de estructuras de datos que requieren niveles de anidamiento complejos y una capa de almacenamiento flexible tiende a ser un gráfico o un caso de uso de jerarquía de árbol.
 
+<img src="images/m121/c3/3-9-7.png">
+
 Los conjuntos de datos pueden ser tan simples como un almacén de datos de recursos humanos de la cadena de informes o estructuras de datos complejas que mapean rutas de viaje del aeropuerto o incluso redes sociales.
 
-El cambio de Telco, la taxonomía de enfermedades y la detección de fraude se encuentran entre varios casos de uso diferentes donde la capacidad de consulta de gráficos y la representación flexible de datos van de la mano.
+<img src="images/m121/c3/3-9-8.png">
+
+Telco switch, la taxonomía de enfermedades y la detección de fraude se encuentran entre varios casos de uso diferentes donde la capacidad de consulta de gráficos y la representación flexible de datos van de la mano.
 
 A diferencia de las bases de datos de gráficos específicos, MongoDB está diseñado para ser una base de datos de propósito general, lo que significa que queremos proporcionar una infraestructura muy buena para soportar casos de uso operativos y analíticos.
 
-Con MongoDB 3.4, estamos ampliando además las capacidades de consulta de MongoDB al ofrecer una búsqueda de gráficos en dólares.
+Con MongoDB 3.4, estamos ampliando además las capacidades de consulta de MongoDB al ofrecer `$graphLookup`.
 
-La búsqueda de gráficos permite a los desarrolladores combinar sus conjuntos de datos flexibles con operaciones gráficas o de tipo gráfico.
+<img src="images/m121/c3/3-9-9.png">
+
+La búsqueda de gráficos permite a los desarrolladores combinar sus conjuntos de datos flexibles con operaciones graph o graph-like.
 
 Esto permite que todos esos conjuntos de datos complejos se procesen, analicen y transformen utilizando una única fuente de datos.
 
 Al diseñar e implementar relaciones gráficas y diseñar sus consultas, generalmente necesitamos pensar en relaciones transitivas.
 
-Si a informa a b, y b informa a c, entonces a indirectamente informa a c.
+Si A informa a B, y B informa a C, entonces A indirectamente informa a C.
+
+<img src="images/m121/c3/3-9-10.png">
 
 En SQL estándar, estas consultas jerárquicas se implementan mediante expresiones de tabla comunes recursivas.
 
-En álgebra relacional, esto se llama cierre transitivo.
+<img src="images/m121/c3/3-9-11.png">
 
-La búsqueda de gráficos permite buscar de forma recursiva un conjunto de documentos con una relación definida con un documento inicial.
+En álgebra relacional, esto se llama cierre transitivo (transitive closure).
 
-La búsqueda de gráficos es muy similar a nuestro operador de búsqueda de dólares.
+<img src="images/m121/c3/3-9-12.png">
+
+Graph lookup permite buscar de forma recursiva un conjunto de documentos con una relación definida con un documento inicial.
+
+<img src="images/m121/c3/3-9-13.png">
+
+Graph lookup es muy similar a nuestro operador `$lookup`.
 
 Es otra búsqueda con algunas variaciones importantes.
 
-Tendremos desde el campo que especifica una colección de la que esta etapa recupera resultados, un campo startWith que especifica el valor o los valores de connectToField con los que deberíamos comenzar nuestra búsqueda recursiva.
+Tendremos el campo `from` que especifica una colección de la que esta etapa recupera resultados, 
+
+<img src="images/m121/c3/3-9-14.png">
+
+un campo `startWith` que especifica el valor o los valores de `connectToField` con los que deberíamos comenzar nuestra búsqueda recursiva.
+
+<img src="images/m121/c3/3-9-15.png">
 
 Tenemos un connectFromField que determina un campo en cada documento de la colección from que se utiliza para realizar la siguiente consulta recursiva.
 
-Y tenemos el campo Conectar a que establece el campo en cada documento de la colección from que se consulta en cada consulta recursiva.
+<img src="images/m121/c3/3-9-16.png">
 
-Como especifica un campo en el documento de salida al que se le asignará la matriz de resultados de esa búsqueda gráfica.
+Y tenemos el campo `connectFromField` que establece el campo en cada documento de la colección `from` que se consulta en cada consulta recursiva.
 
-maxDepth-- este es un campo opcional que especifica el número máximo de profundidad recursiva para la búsqueda de gráficos.
+<img src="images/m121/c3/3-9-17.png">
 
-depthField, también opcional, especifica el nombre del campo en el que el documento resultante se establecerá en la profundidad recursiva a la que se recuperó el documento.
+`as` especifica un campo en el documento de salida al que se le asignará el array de resultados de esa búsqueda gráfica.
+
+<img src="images/m121/c3/3-9-18.png">
+
+`maxDepth` este es un campo opcional que especifica el número máximo de profundidad recursiva para la búsqueda de gráficos.
+
+<img src="images/m121/c3/3-9-19.png">
+
+`depthField`, también opcional, especifica el nombre del campo en el que el documento resultante se establecerá en la profundidad recursiva a la que se recuperó el documento.
+
+<img src="images/m121/c3/3-9-20.png">
 
 Esto será 0 para la primera búsqueda.
 
-Y también tenemos restrictSearchWithMatch, otro campo opcional que especifica un filtro para aplicar cuando se realiza la búsqueda en la colección from.
+Y también tenemos `restrictSearchWithMatch`, otro campo opcional que especifica un filtro para aplicar cuando se realiza la búsqueda en la colección from.
+
+<img src="images/m121/c3/3-9-21.png">
 
 Se ve bien, ¿no?
 
