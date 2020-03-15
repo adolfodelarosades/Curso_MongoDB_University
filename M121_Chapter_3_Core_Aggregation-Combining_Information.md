@@ -1386,7 +1386,6 @@ Lastly, we `$sort` in descending order so the result with the greatest number of
 { "_id" : "John Wayne", "numFilms" : 107, "average" : 6.4 }
 ```
 
-
 ## 6. Tema: La etapa $lookup
 
 ### Notas de lectura
@@ -1395,93 +1394,662 @@ Página de documentación de [`$lookup`](https://docs.mongodb.com/manual/referen
 
 ### Transcripción
 
-Ahora es el momento de aprender sobre la búsqueda, una etapa poderosa que le permite combinar información de dos colecciones.
+<img src="images/m121/c3/3-6-titulo.png">
 
-Para aquellos con algún conocimiento de SQL, la búsqueda es efectivamente una combinación externa izquierda.
+Ahora es el momento de aprender sobre `lookup` (búsqueda), una etapa poderosa que le permite combinar información de dos colecciones.
+
+Para aquellos con algún conocimiento de SQL, `lookup` es efectivamente un left outer join.
 
 Si eso no tiene ningún sentido, no te preocupes.
 
 Vamos a desglosarlo.
 
+<img src="images/m121/c3/3-6-leftouterjoin.png">
+
 En términos de base de datos, una combinación externa izquierda combina todos los documentos o entradas de la izquierda con documentos o entradas coincidentes de la derecha.
 
-Entonces, un exterior izquierdo unido con B se vería así.
+Entonces, A left outer joined con B se vería así.
 
-La etapa de búsqueda tiene esta forma.
+La etapa `lookup` tiene esta forma.
 
-El campo de aquí es la colección de la que queremos buscar documentos.
+<img src="images/m121/c3/3-6-lookup.png">
 
-Tenga en cuenta que la colección que especifique en el campo desde no se puede fragmentar y debe existir en la misma base de datos.
+El campo `from` es la colección de la que queremos buscar documentos.
 
-LocalField aquí es un campo en la colección de trabajo donde expresamos el comando de agregación con el que queremos comparar.
+Tenga en cuenta que la colección que especifique en el campo `from` no se puede fragmentar y debe existir en la misma base de datos.
 
-ForeignField aquí, es el campo desde el que queremos comparar en la colección que especificamos.
+`localField` aquí es un campo en la colección de trabajo donde expresamos el comando de agregación con el que queremos comparar.
+
+`foreignField`, es el campo que queremos comparar en la colección `from` que especificamos.
 
 La búsqueda formará una comparación estricta de igualdad.
 
-Y el campo as aquí, es el nuevo nombre de campo que especificamos que aparecerá en nuestros documentos que contiene coincidencias entre localField y foreignField.
+Y el campo `as`, es el nuevo nombre de campo que especificamos que aparecerá en nuestros documentos que contiene coincidencias entre `localField` y `foreignField`.
 
-Todas las coincidencias se colocarán en una matriz en este campo.
+Todas las coincidencias se colocarán en un array en este campo.
 
-Si no hubo coincidencias, el campo contendrá una matriz vacía.
+Si no hubo coincidencias, el campo contendrá un array vacío.
 
 Visualicemos esto en un ejemplo.
 
-Supongamos que estamos agregando sobre la colección de una aerolínea y queremos obtener a qué alianza pertenece la aerolínea.
+<img src="images/m121/c3/3-6-example.png">
 
-Como el argumento de especificaría alianzas aéreas.
+Supongamos que estamos agregando sobre la colección de una aerolínea y queremos obtener a qué alianza(alliance) pertenece la aerolínea.
 
-A continuación, especificaríamos el nombre como argumento para localField, el valor con el que queremos comparar.
+El argumento `from` puede especificar `air alliances`.
 
-El argumento de un localField puede resolverse en una matriz o en un solo valor.
+<img src="images/m121/c3/3-6-example-2.png">
 
-Luego, especificamos a las aerolíneas como argumento para un ForeignField con el valor que queremos comparar.
+A continuación, especificaríamos `name` como argumento para `localField`, el valor con el que queremos comparar.
 
-El argumento de ForeignField también puede resolverse en una matriz o en un solo valor.
+<img src="images/m121/c3/3-6-example-3.png">
 
-Podemos ver que según el argumento hasta ahora, Penguin Air no coincidirá con nada.
+El argumento de un `localField` puede resolverse en un array o en un valor simple.
 
-Delta Airlines igualará a SkyTeam.
+Luego, especificamos `airlines` como argumento para un `foreignField` con el valor que queremos comparar.
 
-Y Lufthansa coincidirá con Star Alliance.
+<img src="images/m121/c3/3-6-example-4.png">
 
-Esos partidos se incorporaron al documento actual como alianza.
+El argumento de `foreignField` también puede resolverse en un array o en valor simple.
+
+Podemos ver que según el argumento hasta ahora, `Penguin Air` no coincidirá con nada.
+
+`Delta Air Lines` coincide con `SkyTeam`.
+
+Y `Lufthansa` coincidirá con `Star Alliance`.
+
+Esas coincidencias se incorporaron al documento actual como `alliance`.
+
+<img src="images/m121/c3/3-6-example-5.png">
 
 Podríamos haber dado cualquier valor de cadena que quisiéramos, pero tenga en cuenta que si especificamos un nombre que ya existe en el documento de trabajo, ese campo se sobrescribirá.
 
-Observe aquí que debido a que el documento se llamó Penguin Air y no tuvo ningún resultado, hay una matriz vacía.
+Observe que debido a que el documento se llamó `Penguin Air` y no tuvo ningún resultado, hay un array vacío.
 
-A menudo, después de una búsqueda, queremos seguirlo con una etapa de coincidencia para filtrar los documentos.
+A menudo, después de un `lookup`, queremos seguirlo con una etapa `match` para filtrar los documentos.
 
-Otra cosa que debe saber es que la búsqueda recupera todo el documento que coincide, no solo el campo que especificamos, el ForeignField.
+Otra cosa que debe saber es que `lookup` recupera todo el documento que coincide, no solo el campo que especificamos, el `foreignField`.
 
 Muy bien, veamos la búsqueda en el uso real.
 
-Combinemos la información de la colección de aerolíneas con la colección de alianzas aéreas, colocando toda la información de la aerolínea en el documento de la alianza.
+Combinemos la información de la colección `airlines` con la colección `air alliances`, colocando toda la información de la aerolínea en el documento `alliance`.
 
 Primero, veamos el esquema en nuestra colección de alianzas de aerolíneas.
 
-OK, los datos que necesitamos para localField están en el campo de la aerolínea.
+```sh
+MongoDB Enterprise > db.air_alliances.findOne()
+{
+	"_id" : ObjectId("5980bef9a39d0ba3c650ae9d"),
+	"name" : "OneWorld",
+	"airlines" : [
+		"Air Berlin",
+		"American Airlines",
+		"British Airways",
+		"Cathay Pacific",
+		"Finnair",
+		"Iberia Airlines",
+		"Japan Airlines",
+		"LATAM Chile",
+		"LATAM Brasil",
+		"Malasya Airlines",
+		"Canadian Airlines",
+		"Quantas",
+		"Qatar Airways",
+		"Royal Jordainian",
+		"SriLanka Airlines",
+		"S7 Airlines"
+	]
+}
+MongoDB Enterprise > 
 
-Veamos el esquema de la aerolínea, para saber qué valor usar como el ForeignField.
+```
+
+OK, los datos que necesitamos para `localField` están en el campo `airline`.
+
+Veamos el esquema de la aerolínea, para saber qué valor usar como el `foreignField`.
+
+```sh
+MongoDB Enterprise > db.air_airlines.findOne()
+{
+	"_id" : ObjectId("56e9b497732b6122f8790287"),
+	"airline" : 8,
+	"name" : "247 Jet Ltd",
+	"alias" : "",
+	"iata" : "TWF",
+	"icao" : "CLOUD RUNNER",
+	"active" : "N",
+	"country" : "United Kingdom",
+	"base" : "FLS"
+}
+MongoDB Enterprise > 
+```
 
 Muy bien, bastante fácil.
 
-Parece que la información que necesitamos para ForeignField está en el campo de nombre.
+Parece que la información que necesitamos para `foreignField` está en el campo `name`.
 
 Esa debería ser toda la información que necesitamos.
 
-Construyamos la tubería.
+Construyamos el pipeline.
 
-Muy bien, especificamos aerolíneas aéreas al campo desde, aerolíneas como el nombre localField como el ForeignField.
+```sh
+db.air_alliances
+  .aggregate([
+    {
+      "$lookup": {
+        "from": "air_airlines",
+        "localField": "airlines",
+        "foreignField": "name",
+        "as": "airlines"
+      }
+    }
+  ])
+  .pretty()
+```
 
-Y aquí elegimos sobrescribir el campo de las aerolíneas con la información que recibimos.
+Muy bien, especificamos `air_airlines` al campo from, `airlines` al campo `localField`, `name` para `foreignField`.
+
+Y en `as` elegimos sobrescribir el campo  `airlines` con la información que recibimos.
 
 Que tiene sentido.
 
 Reemplazaremos los nombres con documentos completos.
 
 Veamos el resultado.
+
+```sh
+MongoDB Enterprise > db.air_alliances.aggregate([
+...     {
+...       "$lookup": {
+...         "from": "air_airlines",
+...         "localField": "airlines",
+...         "foreignField": "name",
+...         "as": "airlines"
+...       }
+...     }]).pretty()
+{
+	"_id" : ObjectId("5980bef9a39d0ba3c650ae9d"),
+	"name" : "OneWorld",
+	"airlines" : [
+		{
+			"_id" : ObjectId("56e9b497732b6122f87908cd"),
+			"airline" : 1615,
+			"name" : "Canadian Airlines",
+			"alias" : "CP",
+			"iata" : "CDN",
+			"icao" : "CANADIAN",
+			"active" : "Y",
+			"country" : "Canada",
+			"base" : "LVI"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87907c8"),
+			"airline" : 1355,
+			"name" : "British Airways",
+			"alias" : "BA",
+			"iata" : "BAW",
+			"icao" : "SPEEDBIRD",
+			"active" : "Y",
+			"country" : "United Kingdom",
+			"base" : "VDA"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790297"),
+			"airline" : 24,
+			"name" : "American Airlines",
+			"alias" : "AA",
+			"iata" : "AAL",
+			"icao" : "AMERICAN",
+			"active" : "Y",
+			"country" : "United States",
+			"base" : "UEO"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87908a2"),
+			"airline" : 1572,
+			"name" : "British Airways",
+			"alias" : "",
+			"iata" : "XMS",
+			"icao" : "SANTA",
+			"active" : "N",
+			"country" : "United Kingdom",
+			"base" : "VQS"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790355"),
+			"airline" : 214,
+			"name" : "Air Berlin",
+			"alias" : "AB",
+			"iata" : "BER",
+			"icao" : "AIR BERLIN",
+			"active" : "Y",
+			"country" : "Germany",
+			"base" : "KTE"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879090e"),
+			"airline" : 1680,
+			"name" : "Cathay Pacific",
+			"alias" : "CX",
+			"iata" : "CPA",
+			"icao" : "CATHAY",
+			"active" : "Y",
+			"country" : "Hong Kong SAR of China",
+			"base" : "YQU"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790bac"),
+			"airline" : 2350,
+			"name" : "Finnair",
+			"alias" : "AY",
+			"iata" : "FIN",
+			"icao" : "FINNAIR",
+			"active" : "Y",
+			"country" : "Finland",
+			"base" : "JNZ"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790d83"),
+			"airline" : 2822,
+			"name" : "Iberia Airlines",
+			"alias" : "IB",
+			"iata" : "IBE",
+			"icao" : "IBERIA",
+			"active" : "Y",
+			"country" : "Spain",
+			"base" : "BRN"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790e28"),
+			"airline" : 2987,
+			"name" : "Japan Airlines",
+			"alias" : "JL",
+			"iata" : "JAL",
+			"icao" : "JAPANAIR",
+			"active" : "Y",
+			"country" : "Japan",
+			"base" : "TGR"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8791360"),
+			"airline" : 4329,
+			"name" : "S7 Airlines",
+			"alias" : "S7",
+			"iata" : "SBI",
+			"icao" : "SIBERIAN AIRLINES",
+			"active" : "Y",
+			"country" : "Russia",
+			"base" : "CED"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8791274"),
+			"airline" : 4091,
+			"name" : "Qatar Airways",
+			"alias" : "QR",
+			"iata" : "QTR",
+			"icao" : "QATARI",
+			"active" : "Y",
+			"country" : "Qatar",
+			"base" : "GCI"
+		}
+	]
+}
+{
+	"_id" : ObjectId("5980bef9a39d0ba3c650ae9b"),
+	"name" : "Star Alliance",
+	"airlines" : [
+		{
+			"_id" : ObjectId("56e9b497732b6122f87903ca"),
+			"airline" : 330,
+			"name" : "Air Canada",
+			"alias" : "AC",
+			"iata" : "ACA",
+			"icao" : "AIR CANADA",
+			"active" : "Y",
+			"country" : "Canada",
+			"base" : "TAL"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879056c"),
+			"airline" : 751,
+			"name" : "Air China",
+			"alias" : "CA",
+			"iata" : "CCA",
+			"icao" : "AIR CHINA",
+			"active" : "Y",
+			"country" : "China",
+			"base" : "PGV"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87909df"),
+			"airline" : 1889,
+			"name" : "Copa Airlines",
+			"alias" : "CM",
+			"iata" : "CMP",
+			"icao" : "COPA",
+			"active" : "Y",
+			"country" : "Panama",
+			"base" : "KGA"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87902d2"),
+			"airline" : 83,
+			"name" : "Adria Airways",
+			"alias" : "JP",
+			"iata" : "ADR",
+			"icao" : "ADRIA",
+			"active" : "Y",
+			"country" : "Slovenia",
+			"base" : "DHM"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879029b"),
+			"airline" : 28,
+			"name" : "Asiana Airlines",
+			"alias" : "OZ",
+			"iata" : "AAR",
+			"icao" : "ASIANA",
+			"active" : "Y",
+			"country" : "Republic of Korea",
+			"base" : "MZW"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87903c3"),
+			"airline" : 324,
+			"name" : "All Nippon Airways",
+			"alias" : "NH",
+			"iata" : "ANA",
+			"icao" : "ALL NIPPON",
+			"active" : "Y",
+			"country" : "Japan",
+			"base" : "CAL"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790a03"),
+			"airline" : 1925,
+			"name" : "Croatia Airlines",
+			"alias" : "OU",
+			"iata" : "CTN",
+			"icao" : "CROATIA",
+			"active" : "Y",
+			"country" : "Croatia",
+			"base" : "NAP"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87903d8"),
+			"airline" : 345,
+			"name" : "Air New Zealand",
+			"alias" : "NZ",
+			"iata" : "ANZ",
+			"icao" : "NEW ZEALAND",
+			"active" : "Y",
+			"country" : "New Zealand",
+			"base" : "KUL"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790879"),
+			"airline" : 1531,
+			"name" : "Brussels Airlines",
+			"alias" : "SN",
+			"iata" : "DAT",
+			"icao" : "BEE-LINE",
+			"active" : "Y",
+			"country" : "Belgium",
+			"base" : "XMS"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790f73"),
+			"airline" : 3320,
+			"name" : "Lufthansa",
+			"alias" : "LH",
+			"iata" : "DLH",
+			"icao" : "LUFTHANSA",
+			"active" : "Y",
+			"country" : "Germany",
+			"base" : "CYS"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790aa9"),
+			"airline" : 2091,
+			"name" : "EVA Air",
+			"alias" : "BR",
+			"iata" : "EVA",
+			"icao" : "EVA",
+			"active" : "Y",
+			"country" : "Taiwan",
+			"base" : "PHO"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879157b"),
+			"airline" : 4869,
+			"name" : "TAP Portugal",
+			"alias" : "TP",
+			"iata" : "TAP",
+			"icao" : "AIR PORTUGAL",
+			"active" : "Y",
+			"country" : "Portugal",
+			"base" : "OPO"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8791348"),
+			"airline" : 4305,
+			"name" : "South African Airways",
+			"alias" : "SA",
+			"iata" : "SAA",
+			"icao" : "SPRINGBOK",
+			"active" : "Y",
+			"country" : "South Africa",
+			"base" : "BDJ"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87913ca"),
+			"airline" : 4435,
+			"name" : "Singapore Airlines",
+			"alias" : "SQ",
+			"iata" : "SIA",
+			"icao" : "SINGAPORE",
+			"active" : "Y",
+			"country" : "Singapore",
+			"base" : "DGT"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8791479"),
+			"airline" : 4611,
+			"name" : "Shenzhen Airlines",
+			"alias" : "ZH",
+			"iata" : "CSZ",
+			"icao" : "SHENZHEN AIR",
+			"active" : "Y",
+			"country" : "China",
+			"base" : "AOQ"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8791446"),
+			"airline" : 4559,
+			"name" : "Swiss International Air Lines",
+			"alias" : "LX",
+			"iata" : "SWR",
+			"icao" : "SWISS",
+			"active" : "Y",
+			"country" : "Switzerland",
+			"base" : "YTS"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87915cc"),
+			"airline" : 4951,
+			"name" : "Turkish Airlines",
+			"alias" : "TK",
+			"iata" : "THY",
+			"icao" : "TURKAIR",
+			"active" : "Y",
+			"country" : "Turkey",
+			"base" : "MHG"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87916ca"),
+			"airline" : 5209,
+			"name" : "United Airlines",
+			"alias" : "UA",
+			"iata" : "UAL",
+			"icao" : "UNITED",
+			"active" : "Y",
+			"country" : "United States",
+			"base" : "ORD"
+		}
+	]
+}
+{
+	"_id" : ObjectId("5980bef9a39d0ba3c650ae9c"),
+	"name" : "SkyTeam",
+	"airlines" : [
+		{
+			"_id" : ObjectId("56e9b497732b6122f87902d9"),
+			"airline" : 90,
+			"name" : "Air Europa",
+			"alias" : "UX",
+			"iata" : "AEA",
+			"icao" : "EUROPA",
+			"active" : "Y",
+			"country" : "Spain",
+			"base" : "RPR"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879095a"),
+			"airline" : 1756,
+			"name" : "China Airlines",
+			"alias" : "CI",
+			"iata" : "CAL",
+			"icao" : "DYNASTY",
+			"active" : "Y",
+			"country" : "Taiwan",
+			"base" : "AGN"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879095c"),
+			"airline" : 1758,
+			"name" : "China Eastern Airlines",
+			"alias" : "MU",
+			"iata" : "CES",
+			"icao" : "CHINA EASTERN",
+			"active" : "Y",
+			"country" : "China",
+			"base" : "LUW"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87904d3"),
+			"airline" : 596,
+			"name" : "Alitalia",
+			"alias" : "AZ",
+			"iata" : "AZA",
+			"icao" : "ALITALIA",
+			"active" : "Y",
+			"country" : "Italy",
+			"base" : "TTA"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790308"),
+			"airline" : 137,
+			"name" : "Air France",
+			"alias" : "AF",
+			"iata" : "AFR",
+			"icao" : "AIRFRANS",
+			"active" : "Y",
+			"country" : "France",
+			"base" : "HDM"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790965"),
+			"airline" : 1767,
+			"name" : "China Southern Airlines",
+			"alias" : "CZ",
+			"iata" : "CSN",
+			"icao" : "CHINA SOUTHERN",
+			"active" : "Y",
+			"country" : "China",
+			"base" : "LKL"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790a18"),
+			"airline" : 1946,
+			"name" : "Czech Airlines",
+			"alias" : "OK",
+			"iata" : "CSA",
+			"icao" : "CSA-LINES",
+			"active" : "Y",
+			"country" : "Czech Republic",
+			"base" : "MXZ"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790a57"),
+			"airline" : 2009,
+			"name" : "Delta Air Lines",
+			"alias" : "DL",
+			"iata" : "DAL",
+			"icao" : "DELTA",
+			"active" : "Y",
+			"country" : "United States",
+			"base" : "RVK"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f879101c"),
+			"airline" : 3490,
+			"name" : "Middle East Airlines",
+			"alias" : "ME",
+			"iata" : "MEA",
+			"icao" : "CEDAR JET",
+			"active" : "Y",
+			"country" : "Lebanon",
+			"base" : "CGK"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790eb3"),
+			"airline" : 3126,
+			"name" : "Kenya Airways",
+			"alias" : "KQ",
+			"iata" : "KQA",
+			"icao" : "KENYA",
+			"active" : "Y",
+			"country" : "Kenya",
+			"base" : "JOL"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790ed7"),
+			"airline" : 3163,
+			"name" : "Korean Air",
+			"alias" : "KE",
+			"iata" : "KAL",
+			"icao" : "KOREANAIR",
+			"active" : "Y",
+			"country" : "Republic of Korea",
+			"base" : "MEH"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f8790c56"),
+			"airline" : 2520,
+			"name" : "Garuda Indonesia",
+			"alias" : "GA",
+			"iata" : "GIA",
+			"icao" : "INDONESIA",
+			"active" : "Y",
+			"country" : "Indonesia",
+			"base" : "OGX"
+		},
+		{
+			"_id" : ObjectId("56e9b497732b6122f87917d8"),
+			"airline" : 5484,
+			"name" : "Xiamen Airlines",
+			"alias" : "MF",
+			"iata" : "CXA",
+			"icao" : "XIAMEN AIR",
+			"active" : "Y",
+			"country" : "China",
+			"base" : "PPQ"
+		}
+	]
+}
+MongoDB Enterprise > 
+
+```
 
 Muy genial.
 
@@ -1493,17 +2061,19 @@ Pero por ahora, eso es suficiente.
 
 Hemos cubierto mucha información en esta lección.
 
-La búsqueda es una etapa poderosa que puede ayudar a reducir las solicitudes de red y combinar información de diferentes colecciones para un análisis poderoso y profundo.
+`lookup` es una etapa poderosa que puede ayudar a reducir las solicitudes de red y combinar información de diferentes colecciones para un análisis poderoso y profundo.
 
 Aquí hay algunas cosas a tener en cuenta.
 
-El campo de no se puede fragmentar.
+<img src="images/m121/c3/3-6-resumen.png">
 
-La colección from debe estar en la misma base de datos.
+* El campo **from** no se puede fragmentar.
 
-Los valores en localField y foreignField coinciden en igualdad.
+* La colección **from** debe estar en la misma base de datos.
 
-Y como puede ser cualquier nombre, pero si existe en el documento de trabajo, ese campo se sobrescribirá.
+* Los valores en **localField** y **foreignField** coinciden en igualdad.
+
+* **as** puede ser cualquier nombre, pero si existe en el documento de trabajo, ese campo se sobrescribirá.
 
 ## 7. Examen The $lookup Stage
 
