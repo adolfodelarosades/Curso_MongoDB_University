@@ -2619,26 +2619,64 @@ Check all answers that apply:
 
 Otro patrón que podemos aplicar será tener la referencia inversa.
 
+<img src="images/m121/c3/3-13-1.png">
+
 Digamos que en este caso, vamos a tener la definición de nuestro CEO, pero dentro de ese documento vamos a tener la referencia a todos sus informes directos, sus nodos hijos.
 
-Lo mismo para el CTO, podemos hacer referencia a todos sus informes inmediatos, y lo mismo en el futuro.
+Lo mismo para el CTO, podemos hacer referencia a todos sus informes inmediatos,
+
+<img src="images/m121/c3/3-13-2.png">
+
+y lo mismo en el futuro.
+ 
+<img src="images/m121/c3/3-13-3.png">
 
 Para hacer esto, solo necesitamos transformar nuestros documentos.
 
-En lugar de tener una referencia a sus padres, lo que vamos a tener es que cada referencia de documento es informes directos.
+```sh
+MongoDB Enterprise > db.child_reference.findOne({name:'Dev'})
+{
+	"_id" : 1,
+	"name" : "Dev",
+	"title" : "CEO",
+	"direct_reports" : [
+		"Eliot",
+		"Meagen",
+		"Carlos",
+		"Richard",
+		"Kristen"
+	]
+}
+MongoDB Enterprise > 
+```
 
-En este ejemplo aquí, podemos ver que Dave, con su título de CEO, tiene esta lista de informes directos, Eliot, Meagan, Carlos, Richard y Kristen.
+En lugar de tener una referencia a sus padres, lo que vamos a tener es que cada referencia de documento `direct_reports`.
+
+En este ejemplo, podemos ver que Dev, con su título de CEO, tiene esta lista de informes directos, Eliot, Meagan, Carlos, Richard y Kristen.
 
 Con esta estructura, conseguir hijos inmediatos se puede lograr con una sola operación.
 
-Si encuentro documentos donde el nombre es igual a Dave, obtengo de inmediato su lista completa de informes directos.
+Si encuentro documentos donde el nombre es igual a Dev, obtengo de inmediato su lista completa de informes directos.
 
-Así que un nivel por debajo de Dave.
+Así que un nivel por debajo de Dev.
 
 Pero llevar el árbol completo a su último elemento requiere algo más elaborado.
 
-Y nuevamente, $ graphLookup está aquí para el rescate con una sola operación.
+Y nuevamente, `$graphLookup` está aquí para el rescate con una sola operación.
 
+```sh
+MongoDB Enterprise > db.child_reference.aggregate(
+... [ {$match:{ name: 'Dev'}},
+...   { $graphLookup: {
+...     from: 'child_reference',
+...     startWith:'$direct_reports',
+...     connectFromField: 'direct_reports',
+...     connectToField: 'name',
+...     as: 'all_reports'}
+...   }
+... ]).pretty()
+```
+*********
 En este escenario, cambiamos el esquema del documento con las referencias secundarias inmediatas, nuevamente, en direct_reports.
 
 Y por lo tanto, si queremos obtener la lista completa de descendientes, tendremos que hacer lo siguiente.
