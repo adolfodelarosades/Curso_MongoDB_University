@@ -3213,37 +3213,51 @@ Una vez que haga esto, puedo tener la lista completa de todas las conexiones que
 
 ### Transcripción
 
-Así que ahora no te olvides de las restricciones subyacentes de ejecutar tuberías de agregación.
+Así que ahora no te olvides de las restricciones subyacentes de ejecutar aggregation pipelines.
 
 Lo primero que quiero llamar su atención es la asignación de memoria.
 
-La búsqueda del gráfico en dólares, debido a su naturaleza recursiva, y al hecho de que puede recuperar varios miles de megabytes de memoria solo en una sola consulta puede requerir una cantidad significativa de memoria para funcionar correctamente, no solo debido a la recursividad, sino también a la La complejidad de los documentos y la amplitud de sus consultas.
+<img src="images/m121/c3/3-17-1.png">
 
-Así que allowDiskUse será tu amigo.
+`$graphLookup`, debido a su naturaleza recursiva, y al hecho de que puede recuperar varios miles de megabytes de memoria solo en una sola consulta puede requerir una cantidad significativa de memoria para funcionar correctamente, no solo debido a la recursividad, sino también a la La complejidad de los documentos y la amplitud de sus consultas.
+
+Así que `allowDiskUse` será tu amigo.
+
+<img src="images/m121/c3/3-17-2.png">
 
 Otra cosa importante a tener en cuenta es el uso de índices.
 
+<img src="images/m121/c3/3-17-3.png">
+
 Ahora en MongoDB, como en cualquier otra base de datos, los índices acelerarán o podrían acelerar nuestras consultas.
 
-En el caso de la búsqueda de gráficos, tener nuestro connectToField, que es el campo en la colección frontal que vamos a utilizar en la consulta recursiva.
+En el caso de `$graphLookup`, tener nuestro `connectToField`, que es el campo en la colección frontal que vamos a utilizar en la consulta recursiva.
+
+<img src="images/m121/c3/3-17-4.png">
 
 Tener este campo particular indexado será algo bueno, bueno.
 
 Otro aspecto importante a tener en cuenta es el hecho de que nuestra colección no se puede fragmentar.
 
-Entonces, si está utilizando la etapa de búsqueda de gráficos, no podemos usar una colección de fragmentos en nuestra colección from.
+<img src="images/m121/c3/3-17-5.png">
 
-Además, las etapas de coincidencia no relacionadas no se transfieren antes de la búsqueda de gráficos en la tubería.
+Entonces, si está utilizando la etapa `$graphLookup`, no podemos usar una colección fragmentada en nuestra colección from.
 
-Por lo tanto, no se optimizarán si no están relacionados con el operador de búsqueda de gráficos en dólares.
+<img src="images/m121/c3/3-17-6.png">
 
-Así que tenlo en cuenta cuando construyas tu tubería.
+Además, las etapas `$match` no relacionadas no se transfieren antes de la `$graphLookup` en el pipeline.
 
-Ahora, y lo último importante, está dando su naturaleza de búsqueda recursiva, la búsqueda de gráficos en dólares hace que permita el uso de memoria sin derramar en el disco.
+<img src="images/m121/c3/3-17-7.png">
+
+Por lo tanto, no se optimizarán si no están relacionados con el operador `$graphLookup`.
+
+Así que tenlo en cuenta cuando construyas tu pipeline.
+
+Ahora, y lo último importante, está dando su naturaleza de búsqueda recursiva, la `$graphLookup` hace que permita el uso de memoria sin derramar en el disco.
 
 Toma eso en consideración.
 
-Aunque esté utilizando permitir el uso del disco, esto puede superar los 100 megabytes de memoria máxima permitida por canalización de agregación
+Aunque esté utilizando permitir el uso del disco, esto puede superar los 100 megabytes de memoria máxima permitida por aggregation pipeline.
 
 ## 18. Examen `$graphLookup`: General Considerations
 
