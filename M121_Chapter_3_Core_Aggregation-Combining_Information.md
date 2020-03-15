@@ -2317,9 +2317,9 @@ Check all answers that apply:
 
 * `$lookup` and `$graphLookup` stages require the exact same fields in their specification.
 
-* Provides MongoDB with graph or graph-like capabilities
+* Provides MongoDB with graph or graph-like capabilities :+1:
 
-* `$graphLookup` provides MongoDB a transitive closure implementation
+* `$graphLookup` provides MongoDB a transitive closure implementation :+1:
 
 * `$graphLookup` depends on `$lookup` operator. Cannot be used without `$lookup`
 
@@ -2329,81 +2329,203 @@ Check all answers that apply:
 
 Mientras modelamos estructuras de árbol, hay diferentes patrones que podemos seguir dependiendo de cómo deseamos hacer malabarismos con nuestros datos.
 
+<img src="images/m121/c3/3-11-1.png">
+
 Así que echemos un vistazo, por ejemplo, a un organigrama.
 
 Vamos a tener diferentes personas en la empresa, como por ejemplo, vamos a tener nuestro CEO.
 
-Y para nuestro CEO, él tendrá un montón de informes diferentes, como el CMO, CRO, CTO, servicios y CFO.
+Y para nuestro CEO, él tendrá un montón de informes diferentes, como el CMO, CRO, CTO, SVP Services y CFO.
 
 Todos ellos informan, obviamente, a este individuo en particular.
+
+<img src="images/m121/c3/3-11-2.png">
 
 Entonces vamos a tener una subcapa entre esto donde vamos a tener las diferentes personas que informan directamente al CTO.
 
 En este caso, vamos a tener el SVP de Ingeniería reportando directamente a ese CTO y también el VP de Producto también al CTO.
 
-Y más adelante, tendremos los diferentes informes de las diferentes áreas centrales, como por ejemplo, en educación, nube o incluso vicepresidente de Core.
+<img src="images/m121/c3/3-11-3.png">
+
+Y más adelante, tendremos los diferentes informes de las diferentes áreas centrales, como por ejemplo, en VP educación, VP Cloud o incluso vicepresidente de Core.
+
+<img src="images/m121/c3/3-11-4.png">
 
 Por lo tanto, al modelar dicho árbol en un documento o una estructura de documentos, podríamos tener un par de alternativas diferentes.
 
-Entonces, por ejemplo, en esta estructura particular, vamos a tener una referencia principal.
+Entonces, por ejemplo, en esta estructura particular, vamos a tener una `parent_reference`.
 
-Ahora, una referencia principal significa que para cada documento vamos a tener un atributo particular de campo que nos indicará a quién informamos, quién es nuestro principal en la estructura de árbol, o en este caso, el organigrama que están definiendo
+```sh
+MongoDB Enterprise > db.parent_reference.find()
+{ "_id" : 9, "name" : "Shannon", "title" : "VP Education", "reports_to" : 5 }
+{ "_id" : 1, "name" : "Dev", "title" : "CEO" }
+{ "_id" : 6, "name" : "Ron", "title" : "VP PM", "reports_to" : 2 }
+{ "_id" : 7, "name" : "Elyse", "title" : "COO", "reports_to" : 2 }
+{ "_id" : 4, "name" : "Carlos", "title" : "CRO", "reports_to" : 1 }
+{ "_id" : 3, "name" : "Meagen", "title" : "CMO", "reports_to" : 1 }
+{ "_id" : 11, "name" : "Cailin", "title" : "VP Cloud Engineering", "reports_to" : 5 }
+{ "_id" : 5, "name" : "Andrew", "title" : "VP Eng", "reports_to" : 2 }
+{ "_id" : 2, "name" : "Eliot", "title" : "CTO", "reports_to" : 1 }
+{ "_id" : 10, "name" : "Dan", "title" : "VP Core Engineering", "reports_to" : 5 }
+{ "_id" : 8, "name" : "Richard", "title" : "VP PS", "reports_to" : 1 }
+MongoDB Enterprise > 
+```
 
-Entonces, por ejemplo, aquí podemos ver que Carlos, nuestro CRO, informa a 1.
+Ahora, una `parent_reference` significa que para cada documento vamos a tener un atributo particular de campo que nos indicará a quién informamos, quién es nuestro principal en la estructura de árbol, o en este caso, el organigrama que están definiendo
 
-Y 1 refiriéndome al _id, la clave principal, de Dave, que es nuestro CEO.
+Entonces, por ejemplo, podemos ver que Carlos, nuestro CRO, informa a 1.
 
-Así que vamos a tener una relación de 1 a n, donde cada documento apuntará a sus informes_a, que a su vez será el valor del campo _id del padre designado.
+Y 1 refiriéndome al `_id`, la clave principal, de "Dev", que es nuestro CEO.
+
+Así que vamos a tener una relación de 1 a n, donde cada documento apuntará a sus `reports_to`, que a su vez será el valor del campo `_id` del padre designado.
 
 Con este esquema, es bastante fácil navegar entre diferentes documentos.
 
-Entonces, si quiero ir de Carlos a sus informes_a, o a quién le informa, simplemente sigo esto y voy directamente a Dave, que es valor _id es igual a 1.
+Entonces, si quiero ir de Carlos a sus `reports_to`, o a quién le informa, simplemente sigo esto y voy directamente a Dav, que es valor `_id` es igual a 1.
 
-Por lo tanto, siempre hay un enlace entre reports_to y _id.
+Por lo tanto, siempre hay un enlace entre `reports_to` y `_id`.
 
 Ahora, ¿qué sucede si queremos saber la estructura de informes completa de, por ejemplo, Dave?
 
 Quiero conocer todos sus informes directos, pero también los informes de sus informes directos.
 
-Podemos ir a buscar, por ejemplo, el de Dave.
+Podemos ir a buscar, por ejemplo, el de Dev.
 
-Y sabemos que no informa a nadie, pero tenemos su _id.
+```sh
+MongoDB Enterprise > db.parent_reference.find({'name': 'Dev'})
+{ "_id" : 1, "name" : "Dev", "title" : "CEO" }
+MongoDB Enterprise > 
+```
 
-Entonces, si queremos saber exactamente quién informa directamente a Dave, podemos usar la referencia y el valor de su _id y encontrar todos sus informes directos.
+Y sabemos que no informa a nadie, pero tenemos su `_id`.
 
-Si queremos conocer la estructura completa de los informes, bueno, solo tendríamos que ir y venir para hacer la base de datos para comprender exactamente, para cada elemento o para cada documento que encontremos, verificar quién informa y hacer la consulta de nuevo, basado en su _id.
+Entonces, si queremos saber exactamente quién informa directamente a Dave, podemos usar la referencia y el valor de su `_id` y encontrar todos sus informes directos.
+
+```sh
+MongoDB Enterprise > db.parent_reference.find({'reports_to': 1})
+{ "_id" : 4, "name" : "Carlos", "title" : "CRO", "reports_to" : 1 }
+{ "_id" : 3, "name" : "Meagen", "title" : "CMO", "reports_to" : 1 }
+{ "_id" : 2, "name" : "Eliot", "title" : "CTO", "reports_to" : 1 }
+{ "_id" : 8, "name" : "Richard", "title" : "VP PS", "reports_to" : 1 }
+MongoDB Enterprise > 
+```
+
+Si queremos conocer la estructura completa de los informes, bueno, solo tendríamos que ir y venir para hacer la base de datos para comprender exactamente, para cada elemento o para cada documento que encontremos, verificar quién informa y hacer la consulta de nuevo, basado en su `_id`.
 
 Ahora este ping continuo de la base de datos es bastante ineficiente.
 
+```sh
+MongoDB Enterprise > db.parent_reference.find({'reports_to': 2})
+{ "_id" : 6, "name" : "Ron", "title" : "VP PM", "reports_to" : 2 }
+{ "_id" : 7, "name" : "Elyse", "title" : "COO", "reports_to" : 2 }
+{ "_id" : 5, "name" : "Andrew", "title" : "VP Eng", "reports_to" : 2 }
+MongoDB Enterprise > 
+```
+
 Para cada solicitud que recibamos, necesitamos hacer ping a la base de datos nuevamente.
 
-La alternativa a esta operación será utilizar nuestro nuevo operador graphLookup.
+La alternativa a esta operación será utilizar nuestro nuevo operador `graphLookup`.
 
-Entonces, en este ejemplo particular aquí, quiero conocer la estructura de informes completa que informa a nuestro CTO, Eliot.
+Entonces, en este ejemplo particular, quiero conocer la estructura de informes completa que informa a nuestro CTO, Eliot.
 
-Entonces, para hacer esto con graphLookup, necesitamos ejecutar una consulta similar a esta.
+```sh
+MongoDB Enterprise > db.parent_reference.aggregate(
+... [ {$match: { name: 'Eliot'}},
+...   { $graphLookup: {
+...     from: 'parent_reference',
+...     startWith:'$_id',
+...     connectFromField: '_id',
+...     connectToField: 'reports_to',
+...     as: 'all_reports'}
+...   }
+... ])
+MongoDB Enterprise > 
+```
 
-Comenzamos haciendo coincidir el documento que queremos comenzar a analizar con el operador de coincidencia.
+Entonces, para hacer esto con `graphLookup`, necesitamos ejecutar una consulta similar a esta.
 
-Entonces, en este caso, quiero encontrar la estructura de informes para Eliot, por lo tanto, voy a hacer coincidir todos los documentos que contienen este nombre en particular.
+Comenzamos haciendo coincidir el documento que queremos comenzar a analizar con el operador `$match`.
 
-Y luego tenemos el operador graphLookup que recuperará todos los documentos descendientes posteriores de la referencia principal.
+Entonces, en este caso, quiero encontrar la estructura de informes para Eliot, por lo tanto, voy a hacer coincidir todos los documentos que contienen este particular `name`.
+
+Y luego tenemos el operador `$graphLookup` que recuperará todos los documentos descendientes posteriores desde `parent_reference`.
 
 Así que esto será una auto búsqueda.
 
-Comenzando con el valor _id del documento anterior encontrado por primera vez, conectando desde el campo _id, este es el campo en el que buscaré los siguientes GraphLookups, pero vamos a utilizar el valor reports_to para que coincida, y usaremos ese para usar en las consultas posteriores.
+Comenzando(`startWith`) con el valor `_id` del documento anterior encontrado por primera vez, conectando desde el campo `_id`, este es el campo en el que buscaré los siguientes `graphLookups`, pero vamos a utilizar el valor `reports_to` para que coincida, y usaremos ese para usar en las consultas posteriores.
 
-Y luego almacenaré todos los documentos que encuentre desde el bloqueo como all_reports.
+Y luego almacenaré todos los documentos que encuentre desde el lookup como `all_reports`.
 
 Después de ejecutar esta consulta, encontraré el documento que quería, el que coincide con el nombre es igual a Eliot.
 
+```sh
+MongoDB Enterprise > db.parent_reference.aggregate(
+... [ {$match: { name: 'Eliot'}},
+...   { $graphLookup: {
+...     from: 'parent_reference',
+...     startWith:'$_id',
+...     connectFromField: '_id',
+...     connectToField: 'reports_to',
+...     as: 'all_reports'}
+...   }
+... ]).pretty()
+
+{
+	"_id" : 2,
+	"name" : "Eliot",
+	"title" : "CTO",
+	"reports_to" : 1,
+	"all_reports" : [
+		{
+			"_id" : 10,
+			"name" : "Dan",
+			"title" : "VP Core Engineering",
+			"reports_to" : 5
+		},
+		{
+			"_id" : 11,
+			"name" : "Cailin",
+			"title" : "VP Cloud Engineering",
+			"reports_to" : 5
+		},
+		{
+			"_id" : 6,
+			"name" : "Ron",
+			"title" : "VP PM",
+			"reports_to" : 2
+		},
+		{
+			"_id" : 9,
+			"name" : "Shannon",
+			"title" : "VP Education",
+			"reports_to" : 5
+		},
+		{
+			"_id" : 7,
+			"name" : "Elyse",
+			"title" : "COO",
+			"reports_to" : 2
+		},
+		{
+			"_id" : 5,
+			"name" : "Andrew",
+			"title" : "VP Eng",
+			"reports_to" : 2
+		}
+	]
+}
+MongoDB Enterprise > 
+```
+
 Puedo ver su título.
 
-Y luego puedo encontrar, gracias a graphLookup, todos sus informes descendientes.
+Y luego puedo encontrar, gracias a `graphLookup`, todos sus informes descendientes.
 
 En este caso, serán Cailin, luego Andrew, Ron, Shannon y Elyse.
 
 Ahora esto solo me dice a todos los descendientes debajo de Eliot.
+
+<img src="images/m121/c3/3-11-5.png">
 
 Entonces, en este caso, graphLookup me permitirá encontrar todos los nodos diferentes que están debajo de un nodo particular que estoy encontrando.
 
