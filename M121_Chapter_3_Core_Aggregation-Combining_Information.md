@@ -2605,11 +2605,11 @@ Which of the following statements is/are correct? *Check all that apply*.
 
 Check all answers that apply:
 
-* `connectToField` will be used on recursive find operations
+* `connectToField` will be used on recursive find operations :+1:
 
 * `as` determines a collection where `$graphLookup` will store the stage results
 
-* `connectFromField` value will be use to match `connectToField` in a recursive match
+* `connectFromField` value will be use to match `connectToField` in a recursive match :+1:
 
 * `startWith` indicates the index that should be use to execute the recursive match
 
