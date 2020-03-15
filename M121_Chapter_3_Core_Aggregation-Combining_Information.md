@@ -3056,29 +3056,96 @@ Check all answers that apply:
 
 ### Transcripción
 
-Hasta ahora hemos estado analizando la búsqueda de gráficos en las auto-búsquedas, lo que significa que encontramos un documento, luego implementamos la búsqueda de gráficos y luego encontramos documentos posteriores que coinciden con lo que pretendía.
+Hasta ahora hemos estado analizando graph lookup en las auto-búsquedas,  
 
-Y luego hago otra en la autounión, y así sucesivamente, lo cual es agradable y divertido, pero podemos hacer mucho más que eso.
+<img src="images/m121/c3/3-16-1.png">
 
-Como en cualquier otra búsqueda ordinaria, podemos comenzar desde una colección inicial y buscar otras colecciones, y hacer las búsquedas recursivas como mejor nos parezca.
+lo que significa que encontramos un documento, 
+
+<img src="images/m121/c3/3-16-2.png">
+
+luego implementamos graph lookup 
+
+<img src="images/m121/c3/3-16-3.png">
+
+y luego buscamos documentos subsecuentes que coinciden con lo que pretendía.
+
+<img src="images/m121/c3/3-16-4.png">
+
+Y luego hago otra one on the self-join, 
+
+<img src="images/m121/c3/3-16-5.png">
+
+y así sucesivamente, lo cual es agradable y divertido, pero podemos hacer mucho más que eso.
+
+<img src="images/m121/c3/3-16-6.png">
+
+Como en cualquier otra búsqueda ordinaria, 
+
+<img src="images/m121/c3/3-16-7.png">
+
+podemos comenzar desde una colección inicial 
+
+<img src="images/m121/c3/3-16-8.png">
+
+y buscar otras colecciones, 
+
+<img src="images/m121/c3/3-16-9.png">
+
+y hacer las búsquedas recursivas como mejor nos parezca.
+
+<img src="images/m121/c3/3-16-10.png">
 
 Obviamente, no necesitamos restringirnos a un solo documento original.
 
 Tenemos múltiples que seguirán siempre el mismo comportamiento.
 
-Para esta demostración en particular, voy a usar esta base de datos aérea que tengo aquí.
+Para esta demostración en particular, voy a usar la base de datos air.
 
-Entonces, en esta base de datos aérea, lo que tengo son dos colecciones, una de ellas son aerolíneas y otra son rutas.
+```sh
+MongoDB Enterprise > use air
+switched to db air
+MongoDB Enterprise > 
+```
+
+Entonces, en esta base de datos `air`, tengo dos colecciones, una de ellas son aerolíneas y otra son rutas.
+
+```sh
+MongoDB Enterprise > show collections
+airlines
+routes
+MongoDB Enterprise > 
+```
+
+Pero a mi me marco
+
+```sh
+MongoDB Enterprise > show collections
+Warning: unable to run listCollections, attempting to approximate collection names by parsing connectionStatus
+MongoDB Enterprise > 
+```
 
 En un documento de una aerolínea en particular, es un documento bastante plano, donde tengo toda la información que necesito para una aerolínea en particular.
 
-Su alias, su código iata, el país y la ubicación de la aerolínea en sí misma, básicamente dicen qué aeropuerto es la base de esta aerolínea de origen.
+<img src="images/m121/c3/3-16-11.png">
 
-En las rutas de recolección, lo que puedo encontrar es información sobre la aerolínea, de dónde sale el vuelo, el aeropuerto de origen, a dónde llega, el aeropuerto de destino y alguna otra información, como si es código compartido, sus paradas y el tipo del avión o el avión que realmente está operando esta ruta en particular.
+Su `alias`, su `iata code`, el `country` y la ubicación de la aerolínea en sí misma `base`, básicamente dicen qué aeropuerto es la base de esta aerolínea de origen.
+
+<img src="images/m121/c3/3-16-12.png">
+
+En colección `routes`, lo que puedo encontrar es información sobre la aerolínea, de dónde sale el vuelo, el aeropuerto de origen, a dónde llega, el aeropuerto de destino y alguna otra información, como si es código compartido, sus paradas y el tipo del avión o el avión que realmente está operando esta ruta en particular.
 
 Entonces, en este escenario, voy a tener información sobre aerolíneas e información sobre rutas.
 
-Entonces, si imagina este mapa del mundo muy esquemático, donde tenemos los puntos azules e identificamos los aeropuertos, y las rutas que conectan estos puntos, dando a una aerolínea que opera ciertas rutas, podemos intentar identificar eso desde un aeropuerto determinado, donde la aerolínea se basa, ¿a dónde puedo ir con un máximo, por ejemplo, de una escala?
+<img src="images/m121/c3/3-16-13.png">
+
+Entonces, si imagina este mapa del mundo muy esquemático, donde tenemos los puntos azules e identificamos los aeropuertos, 
+
+<img src="images/m121/c3/3-16-14.png">
+
+y las rutas que conectan estos puntos, dando a una aerolínea que opera ciertas rutas, podemos intentar identificar eso desde un aeropuerto determinado, donde la aerolínea se basa, ¿a dónde puedo ir con un máximo, por ejemplo, de una escala?
+
+<img src="images/m121/c3/3-16-15.png">
 
 Digamos que quiero ir desde este lugar en particular aquí, ¿por dónde puedo pasar?
 
@@ -3086,25 +3153,35 @@ Tengo al menos tres rutas diferentes que salen aquí.
 
 Pero a partir de esas rutas puedo tomar muchas otras formas, dependiendo de la cantidad de escalas que quiero hacer.
 
-Si quiero una lista de todas las conexiones, y restringiendo, por ejemplo, las escalas numéricas, o algo así, podemos hacerlo usando la búsqueda de gráficos.
+Si quiero una lista de todas las conexiones, y restringiendo, por ejemplo, las escalas numéricas, o algo así, podemos usar graph lookup.
 
-De nuevo, si quiero comenzar con TAP Portugal, encontrar su propio aeropuerto base y conocer cada destino, independientemente de la aerolínea, que puedo ir desde su aeropuerto base, en este caso, Portugal, mi ciudad natal, muy encantadora ciudad: ¿a dónde puedo ir con un máximo de una conexión?
+<img src="images/m121/c3/3-16-16.png">
+
+De nuevo, si quiero comenzar con `TAP Portugal`, encontrar su propio aeropuerto base `$base` y conocer cada destino, independientemente de la aerolínea, que puedo ir desde su aeropuerto base, en este caso, Portugal, mi ciudad natal, muy encantadora ciudad: ¿a dónde puedo ir con un máximo de una conexión?
 
 La lista completa de los aeropuertos conectados estará dada por esta consulta.
 
 Puedo ver aquí que voy hasta Atenas pasando por el aeropuerto de Gatwick en Londres.
 
+<img src="images/m121/c3/3-16-17.png">
+
 Ahora, comparando maxDepth aquí, estamos usando uno en lugar de cero, es porque estamos comenzando desde las aerolíneas y buscando rutas.
 
-Y maxDepth solo restringirá el número de búsquedas recursivas en la colección frontal.
+<img src="images/m121/c3/3-16-18.png">
 
-Así que comencé a recopilar el documento correspondiente que quiero y luego solo voy a buscar, o en este caso, la búsqueda gráfica dos veces, la primera y otra, en la colección de la ruta.
+Y `maxDepth` solo restringirá el número de búsquedas recursivas en la colección frontal.
+
+Así que comencé a recopilar el documento correspondiente que quiero y luego solo voy a buscar, o en este caso, la graph lookup dos veces, la primera y otra, en la colección `routes`.
 
 Anteriormente, utilizamos el mismo valor para los dos niveles inferiores ya que estábamos haciendo una búsqueda auto recursiva.
 
 Pero digamos que, comenzar desde un aeropuerto en particular y conectarse a todos los demás aeropuertos, independientemente de las aerolíneas, no es realmente lo que pretendía.
 
+<img src="images/m121/c3/3-16-15.png">
+
 No solo quiero comenzar desde el aeropuerto base de una aerolínea determinada, también quiero asegurarme de que todos los vuelos con los que me conecto utilicen exactamente la misma aerolínea.
+
+<img src="images/m121/c3/3-16-18.png">
 
 Así que no quiero conectarme, por ejemplo, desde Oporto a Nueva York y luego el próximo salto para estar en una aerolínea diferente.
 
@@ -3114,11 +3191,13 @@ Quiero asegurarme de que siempre estoy usando el mismo operador en toda su red.
 
 Para hacerlo, también podemos restringir la búsqueda con una coincidencia.
 
+<img src="images/m121/c3/3-16-19.png">
+
 Y en este caso, quiero asegurarme de que las únicas búsquedas que recuperaría coincidan con el nombre de la aerolínea con el mismo que tenía la intención original, en este caso, TAP Portugal.
 
 ¿Entonces que estamos haciendo?
 
-Estamos haciendo coincidir las aerolíneas, encontrando que el documento de la aerolínea que coincide con el nombre es igual a TAP Portugal, vamos a graficar Búsqueda de rutas, configurando los valores en cadena, utilizando como valor inicial del aeropuerto base de estos documentos originales.
+Estamos haciendo coincidir las aerolíneas, encontrando que el documento de la aerolínea que coincide con el nombre es igual a TAP Portugal, vamos a `graphLookup` de rutas, configurando los valores en cadena, utilizando como valor inicial del aeropuerto base de estos documentos originales.
 
 Conectando el aeropuerto de destino con el aeropuerto de origen, por lo que el valor del aeropuerto de destino utilizará esta consulta recursiva sobre el aeropuerto de origen de campo con un máximo de un salto.
 
@@ -3127,6 +3206,8 @@ Así que solo quiero una escala.
 Pero siempre usando la misma aerolínea.
 
 Una vez que haga esto, puedo tener la lista completa de todas las conexiones que pretendía, siempre viajando dentro de la misma aerolínea.
+
+<img src="images/m121/c3/3-16-20.png">
 
 ## 17. Tema: `$graphLookup`: Consideraciones Generales
 
