@@ -61,7 +61,7 @@ Faceting es una capacidad de análisis popular que permite a los usuarios explor
 
 <img src="images/m121/c4/4-1-analitics.png">
 
-<img src="images/m121/c4/4-1-filtro.png">
+<img src="images/m121/c4/4-1-filtros.png">
 
 Usando este enfoque, una aplicación clasifica cada elemento de información a lo largo de múltiples dimensiones explícitas, llamadas facetas, lo que permite acceder a las clasificaciones en orden de múltiples maneras.
 
@@ -101,27 +101,41 @@ Bueno, ocupémonos de trabajar con facetas.
 
 ### Transcripción
 
-Entonces, comencemos a trabajar con facetas y exploremos esta nueva funcionalidad que trae [INAUDIBLE].
+Entonces, comencemos a trabajar con facetas y exploremos esta nueva funcionalidad que 3.4 trae.
 
 Ahora, para tener una mejor idea de lo que vamos a hacer, imaginemos el siguiente escenario.
+
+<img src="images/m121/c4/4-1-escenario-1.png">
 
 Imaginemos que tenemos una aplicación que tiene algún tipo de barra de búsqueda donde podemos buscar cosas como MongoDB, por ejemplo.
 
 Una vez que presionamos el botón Enter para buscar esta palabra clave o término en particular, generalmente recibimos una lista de resultados.
 
+<img src="images/m121/c4/4-1-escenario-2.png">
+
 Podríamos tener algunos atributos, alguna indicación de cosas relacionadas con este término dado el catálogo que estamos buscando.
+
+<img src="images/m121/c4/4-1-escenario-3.png">
 
 Pero también podríamos tener algún tipo de filtro o caracterización para este término de búsqueda en combinación con varias dimensiones diferentes que podría tener esta información que estamos almacenando en el catálogo de esta aplicación.
 
+<img src="images/m121/c4/4-1-escenario-4.png">
+
 Entonces, para explicar esto muy bien, vamos a utilizar un conjunto de datos muy querido para ustedes que hemos estado explorando a lo largo del curso.
 
-El conjunto de datos que analizaremos es el conjunto de datos de Empresas que puede encontrar en nuestra base de datos de startups.
+El conjunto de datos que analizaremos es el conjunto de datos de `companies` que puede encontrar en nuestra base de datos de `startups`.
+
+<img src="images/m121/c4/4-1-sh-1.png">
 
 Con esto, exploraremos este conjunto de datos como un catálogo de compañías y cómo podemos organizar, buscar y encontrar información y obtener facetas de los datos almacenados en esa colección en particular.
 
 Entonces, comencemos mirando un solo documento dentro de este conjunto de datos de Empresas.
 
+<img src="images/m121/c4/4-1-sh-2.png">
+
 Como de costumbre, puede encontrar un montón de información de enlaces externos a premios, hitos y adquisiciones, y un montón de otra información relacionada con una sola compañía que figura en este conjunto de datos.
+
+<img src="images/m121/c4/4-1-sh-3.png">
 
 Ahora, lo que podríamos tener es la necesidad de buscar en un montón de diferentes dimensiones.
 
@@ -129,13 +143,25 @@ Y para eso, se utilizarán términos de búsqueda muy sencillos, como por ejempl
 
 Para expresar dicha consulta, vamos a crear un índice de texto en la descripción y descripción general.
 
-Y si desea encontrar las empresas que tienen la palabra clave "redes" en su campo, ya sea en la descripción o en la descripción general, podemos usarla simplemente emitiendo la consulta donde las empresas pueden agregar y combinar etiquetas en la búsqueda de términos "red". " Una vez que hacemos esto, obtenemos una lista de resultados.
+<img src="images/m121/c4/4-1-sh-5.png">
+
+Y si desea encontrar las empresas que tienen la palabra clave "redes" en su campo, ya sea en la descripción o en la descripción general, podemos usarla simplemente emitiendo la consulta donde las empresas pueden agregar y combinar etiquetas en la búsqueda de términos "red". " 
+
+<img src="images/m121/c4/4-1-sh-6.png">
+
+Una vez que hacemos esto, obtenemos una lista de resultados.
+
+<img src="images/m121/c4/4-1-sh-7.png">
 
 Ahora, supongamos que la aplicación de nuestro edificio, nuestro catálogo corporativo, no solo quiere darle al usuario final el conjunto de resultados, sino también presentar una faceta que describa el código de categoría.
+
+<img src="images/m121/c4/4-1-sh-8.png">
 
 Ahora, este es un campo que nos dirá el tipo de empresa o sector en el que opera esta empresa en particular.
 
 Básicamente, para esa funcionalidad particular, ahora podemos usar SortByCounts.
+
+<img src="images/m121/c4/4-1-sh-9.png">
 
 SortByCount nos permitirá crear la faceta por categoría en la lista de resultados que proporcionará la etapa anterior, coincidencia.
 
