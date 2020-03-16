@@ -23,17 +23,40 @@ Lecciones
 
 Muchos de estos casos requieren la capacidad de manipular, inspeccionar y analizar datos en múltiples dimensiones.
 
-Además de esto, estos casos de uso a menudo requerían que esta categorización de datos cumpla con aplicaciones estrictas, así como acuerdos de nivel de servicio (SLA), para permitir interfaces receptivas En MongoDB 3.4, presentamos soporte para navegación por facetas que permite a los desarrolladores crear rápidamente una interfaz que caracteriza los resultados de la consulta a través de múltiples dimensiones o facetas.
+<img src="images/m121/c4/4-1-caracteristicas.png">
+
+<img src="images/m121/c4/4-1-multi.png">
+
+Además de esto, estos casos de uso a menudo requerían que esta categorización de datos cumpla con aplicaciones estrictas, así como acuerdos de nivel de servicio (SLA), 
+
+<img src="images/m121/c4/4-1-sla.png">
+
+<img src="images/m121/c4/4-1-fast.png">
+
+para permitir interfaces receptivas En MongoDB 3.4, presentamos soporte para navegación por facetas que permite a los desarrolladores crear rápidamente una interfaz que caracteriza los resultados de la consulta a través de múltiples dimensiones o facetas.
+
+<img src="images/m121/c4/4-1-faceting.png">
 
 Los usuarios de la aplicación pueden reducir sus resultados de consulta seleccionando un valor de faceta como un filtro posterior que proporciona una interfaz intuitiva para explorar un conjunto de datos.
 
-La navegación Facetf se usa mucho para navegar por catálogos de datos y agrupar los datos en casos de uso de análisis.
+<img src="images/m121/c4/4-1-cono.png">
 
-La combinación de la navegación por facetas con la funcionalidad del marco de agregación MongoDB proporciona una forma poderosa de manipular datos y analizarlos.
+La navegación Facets se usa mucho para navegar por catálogos de datos y agrupar los datos en casos de uso de análisis.
+
+<img src="images/m121/c4/4-1-cubo.png">
+
+La combinación de la navegación por facetas con la funcionalidad del agregation framework MongoDB proporciona una forma poderosa de manipular datos y analizarlos.
 
 Extender el uso de MongoDB a una gama más amplia de aplicaciones con una sobrecarga mínima.
 
-¿Qué es facetar?
+<img src="images/m121/c4/4-1-wider.png">
+
+<img src="images/m121/c4/4-1-mini.png">
+
+¿Qué es faceting?
+
+<img src="images/m121/c4/4-1-interrogacion.png">
+
 
 Faceting es una capacidad de análisis popular que permite a los usuarios explorar datos mediante la aplicación de múltiples filtros y caracterizaciones.
 
