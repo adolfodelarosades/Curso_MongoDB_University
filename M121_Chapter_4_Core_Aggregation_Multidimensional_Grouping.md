@@ -57,12 +57,19 @@ Extender el uso de MongoDB a una gama más amplia de aplicaciones con una sobrec
 
 <img src="images/m121/c4/4-1-interrogacion.png">
 
-
 Faceting es una capacidad de análisis popular que permite a los usuarios explorar datos mediante la aplicación de múltiples filtros y caracterizaciones.
+
+<img src="images/m121/c4/4-1-analitics.png">
+
+<img src="images/m121/c4/4-1-filtro.png">
 
 Usando este enfoque, una aplicación clasifica cada elemento de información a lo largo de múltiples dimensiones explícitas, llamadas facetas, lo que permite acceder a las clasificaciones en orden de múltiples maneras.
 
+<img src="images/m121/c4/4-1-access.png">
+
 Por ejemplo, consideremos un catálogo de usuarios para una red social popular; en este ejemplo, sitios como LinkedIn, hagamos una búsqueda en el catálogo.
+
+<img src="images/m121/c4/4-1-likeli.png">
 
 Esta búsqueda está buscando usuarios con el término MongoDB en algún lugar de su perfil.
 
@@ -72,9 +79,17 @@ La ubicación y las facetas actuales de la empresa se pueden utilizar para reduc
 
 Por ejemplo, si un usuario elige limitar los conjuntos de resultados a solo usuarios en los Estados Unidos, entonces el conjunto de resultados se reducirá a cerca de 62k usuarios.
 
-Las facetas en MongoDB se implementan utilizando el marco de agregación y comprenden algunas etapas diferentes.
+Las facetas en MongoDB se implementan utilizando el aggregation framework y comprenden algunas etapas diferentes.
+
+<img src="images/m121/c4/4-1-framework.png">
 
 Cubriremos consultas de una sola faceta, manual, bucketing automático y renderización de múltiples facetas.
+
+<img src="images/m121/c4/4-1-single.png">
+
+<img src="images/m121/c4/4-1-manual.png">
+
+<img src="images/m121/c4/4-1-rendering.png">
 
 Bueno, ocupémonos de trabajar con facetas.
 
