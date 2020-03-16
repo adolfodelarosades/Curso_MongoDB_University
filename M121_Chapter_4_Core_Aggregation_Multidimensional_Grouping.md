@@ -119,8 +119,6 @@ Podríamos tener algunos atributos, alguna indicación de cosas relacionadas con
 
 Pero también podríamos tener algún tipo de filtro o caracterización para este término de búsqueda en combinación con varias dimensiones diferentes que podría tener esta información que estamos almacenando en el catálogo de esta aplicación.
 
-<img src="images/m121/c4/4-1-escenario-4.png">
-
 Entonces, para explicar esto muy bien, vamos a utilizar un conjunto de datos muy querido para ustedes que hemos estado explorando a lo largo del curso.
 
 El conjunto de datos que analizaremos es el conjunto de datos de `companies` que puede encontrar en nuestra base de datos de `startups`.
@@ -159,41 +157,49 @@ Ahora, supongamos que la aplicación de nuestro edificio, nuestro catálogo corp
 
 Ahora, este es un campo que nos dirá el tipo de empresa o sector en el que opera esta empresa en particular.
 
-Básicamente, para esa funcionalidad particular, ahora podemos usar SortByCounts.
+Básicamente, para esa funcionalidad particular, ahora podemos usar `$sortByCount`.
 
 <img src="images/m121/c4/4-1-sh-9.png">
 
-SortByCount nos permitirá crear la faceta por categoría en la lista de resultados que proporcionará la etapa anterior, coincidencia.
+`$sortByCount` nos permitirá crear la faceta por categoría en la lista de resultados que proporcionará la etapa anterior, coincidencia.
 
-Entonces, para todas las compañías que incluirán palabras clave de "red" en su descripción o descripción general, se canalizarán en un SortByCount donde agruparemos el código de categoría.
+Entonces, para todas las compañías que incluirán palabras clave de "network" en su descripción o descripción general, se canalizarán en un `$sortByCount` donde agruparemos el código de categoría `$category_code`.
 
 Una vez que ejecutamos esto, tenemos una lista completa con su recuento y ordenado de los sectores de actividad donde podemos encontrar empresas.
 
+<img src="images/m121/c4/4-1-sh-10.png">
+
 En este caso, vamos a tener web con 788 compañías listadas, software con 463, y así sucesivamente.
 
-Por lo tanto, SortByCount agrupa los documentos entrantes que provienen de nuestra consulta de coincidencia en función de su expresión especificada, "buscar red", y luego calcula el recuento de los documentos en qué grupo distinto.
+Por lo tanto, `$sortByCount` agrupa los documentos entrantes que provienen de nuestra consulta de coincidencia en función de su expresión especificada, `'$search': 'network'`, y luego calcula el recuento de los documentos en qué grupo distinto.
 
 Y ordenar por su cuenta.
 
-Cada grupo es un documento con dos campos, un _id que especifica el valor por el cual estamos agrupando, y las cuentas, que determinan la cantidad de documentos que coinciden con ese grupo.
+Cada grupo es un documento con dos campos, un `_id` que especifica el valor por el cual estamos agrupando, y las cuentas, que determinan la cantidad de documentos que coinciden con ese grupo.
 
-Si queremos el mismo resultado, pero digamos que en lugar de tener el desglose por categoría, lo queremos para la ubicación de la oficina, la ciudad, algo así, podríamos ejecutar el-- una tubería de agregación que es un poco más elaborada que esto uno simple
+Si queremos el mismo resultado, pero digamos que en lugar de tener el desglose por categoría, lo queremos para la ubicación de la oficina, la ciudad, algo así, podríamos ejecutar el-- aggregation pipeline que es un poco más elaborada que esto uno simple
 
-Digamos, por ejemplo, lo que queremos es seguir buscando todas las empresas que tienen palabras clave de "red" en su descripción o descripción general, pero dado que las oficinas son una variedad de ubicaciones diferentes que podríamos tener, queremos desconectar esa matriz en particular y luego emparejar las oficinas que tienen una ciudad.
+Digamos, por ejemplo, lo que queremos es seguir buscando todas las empresas que tienen palabras clave de "network" en su descripción o descripción general, pero dado que las oficinas son una variedad de ubicaciones diferentes que podríamos tener, queremos desconectar ese array en particular y luego emparejar las oficinas que tienen una ciudad.
+
+<img src="images/m121/c4/4-1-sh-11.png">
 
 Entonces tienen este valor de ciudad diferente a vacío.
 
-Por todo eso, clasifiquemos SortByCount en los diferentes valores de office.city que encontramos.
+Por todo eso, clasifiquemos `$sortByCount` en los diferentes valores de `office.city` que encontramos.
 
 Entonces ahí vamos.
+
+<img src="images/m121/c4/4-1-sh-12.png">
 
 Ahora tenemos una lista de documentos que especifican el valor de la ciudad de la oficina, en este caso, por ejemplo, San Francisco con un recuento de 245.
 
 Nueva York tendrá 218: Londres, Los Ángeles, Palo Alto, etc.
 
-Así que esto también es para demostrar que podemos tener tuberías elaboradas que filtren proyecto, coincidencia, grupo, determinar la lista de documentos que luego puede usar para ordenar y contar dado uno de los atributos que viene con el conjunto de resultados para este último etapa de la tubería.
+<img src="images/m121/c4/4-1-sh-13.png">
 
-En esencia, con esta consulta de agregación, podemos tener el desglose de las empresas por ciudad que coinciden con las redes, o en este caso, "red", en su descripción general.
+Así que esto también es para demostrar que podemos tener pipelines elaboradas que filtren project, match, group, determinar la lista de documentos que luego puede usar para ordenar y contar dado uno de los atributos que viene con el conjunto de resultados para este último etapa del pipeline.
+
+En esencia, con esta consulta de agregación, podemos tener el desglose de las empresas por ciudad que coinciden con las redes, o en este caso, "network", en su descripción general.
 
 ## 3. Examen Facets: Single Facet Query
 
@@ -203,7 +209,7 @@ Which of the following aggregation pipelines are single facet queries?
 
 Check all answers that apply:
 
-1)
+1) :+1:
 ```sh
 [
   {"$match": { "$text": {"$search": "network"}}},
@@ -211,7 +217,7 @@ Check all answers that apply:
 ]
 ```
 
-2)
+2) :+1:
 ```sh
 [
   {"$unwind": "$offices"},
@@ -230,6 +236,45 @@ Check all answers that apply:
   {"$sort": {"_id":-1}}
 ]
 ```
+
+### See detailed answer
+
+Single query facets are supported by the new aggregation pipeline stage `$sortByCount`.
+
+As like any other aggregation pipelines, except for `$out`, we can use the output of this stage, as input for downstream stages and operators, manipulating the dataset accordingly.
+
+The **correct** answers are:
+
+```sh
+[
+  {"$match": { "$text": {"$search": "network"}}},
+  {"$sortByCount": "$offices.city"}
+]
+```
+
+and
+
+```sh
+[
+  {"$unwind": "$offices"},
+  {"$project": { "_id": "$name", "hq": "$offices.city"}},
+  {"$sortByCount": "$hq"},
+  {"$sort": {"_id":-1}},
+  {"$limit": 100}
+]
+```
+
+The pipeline
+
+```sh
+[
+  {"$match": { "$text": {"$search": "network"}}},
+  {"$unwind": "$offices"},
+  {"$sort": {"_id":-1}}
+]
+```
+
+is **not** a single query **facet** since it does not group any particular data dimension. It simply unwinds an array field and sorts that result set.
 
 ## 4. Tema: La Etapa `$bucket`
 
