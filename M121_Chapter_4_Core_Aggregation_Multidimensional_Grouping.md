@@ -284,6 +284,8 @@ is **not** a single query **facet** since it does not group any particular data 
 
 ### Transcripción
 
+<img src="images/m121/c4/4-4-titulo.png">
+
 Aprendamos sobre otras etapas poderosas de análisis de datos y agrupaciones dentro del marco de agregación.
 
 En esta lección, aprenderemos sobre bucket, bucketAuto y sortByCount.
