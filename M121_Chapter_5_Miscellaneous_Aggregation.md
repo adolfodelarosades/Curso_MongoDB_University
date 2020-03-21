@@ -739,7 +739,27 @@ Choose the best answer:
 
 * If a pipeline with `$out` errors, you must delete the collection specified to the `$out` stage.
 
-* `$out` will overwrite an existing collection if specified.
+* `$out` will overwrite an existing collection if specified. :+1:
+
+### See detailed answer
+
+* The correct choice is:
+
+   * `$out` will overwrite an existing collection if specified.
+
+* The following choices are incorrect:
+
+   * Using `$out` within many sub-piplines of a `$facet` stage is a quick way to generate many differently shaped collections.
+
+* `$out` must be the last stage in a pipeline, and is not allowed within a $facet stage.
+
+   * `$out` removes all indexes when it overwrites a collection.
+   
+* This is incorrect. All indexes on an existing collection are rebuilt when `$out` overwrites the collection, so **must** be honored.
+
+   * If a pipeline with `$out` errors, you must delete the collection specified to the `$out` stage.
+   
+This is incorrect. `$out` will not create a new collection or overwrite an existing collection if the pipeline errors.
 
 ## 4. Tema: Vistas
 
