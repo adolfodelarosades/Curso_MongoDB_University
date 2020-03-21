@@ -671,17 +671,27 @@ Recuerde, si un usuario tiene acceso para realizar una agregación en una colecc
 
 ### Transcripción
 
-Aprendamos sobre una etapa útil para persistir los resultados de una agregación, la etapa $ out.
+<img src="images/m121/c5/5-2-1.png">
 
-La etapa $ out tiene la siguiente forma.
+Aprendamos sobre una etapa útil para persistir los resultados de una agregación, la etapa `$out`.
+
+La etapa `$out` tiene la siguiente forma.
+
+```sh
+{ $out: "output_collection" }
+```
 
 Especificamos el nombre de la colección de salida que queremos.
 
-La etapa de salida debe ser la última etapa en la tubería.
+La etapa `output` debe ser la última etapa en el pipeline.
 
-Como tal, no se puede usar dentro de una faceta.
+<img src="images/m121/c5/5-2-2.png">
+
+Como tal, no se puede usar dentro de una **facet**.
 
 MongoDB creará la colección con el nombre especificado si no existe ninguno.
+
+<img src="images/m121/c5/5-2-3.png">
 
 De lo contrario, sobrescribirá una colección existente si se especifica un nombre de colección existente.
 
@@ -693,23 +703,27 @@ Si se reemplaza una colección existente, los índices que existían en la colec
 
 Si la canalización falla, no creará ni sobrescribirá una colección.
 
-Esto también significa que la salida de out debe cumplir las restricciones de índice, como los índices únicos, puede incluir el campo _id.
+Esto también significa que la salida desde out debe cumplir las restricciones de índice, como los índices únicos, puede incluir el campo `_id`.
 
-Entonces, esta agregación aquí donde hacemos coincidir cada documento, realizamos alguna operación de agrupación, nos desenrollamos para crear muchos documentos y luego intentamos que una salida a una nueva colección fallara porque daría como resultado muchos documentos con el mismo valor _id.
+Entonces, esta agregación de la imagen donde hacemos coincidir cada documento, realizamos alguna operación de agrupación `group`, nos desenrollamos `unwind` para crear muchos documentos y luego intentamos que una salida `out` a una nueva colección fallara porque daría como resultado muchos documentos con el mismo valor `_id`.
 
-Y eso cubre la etapa de $ out.
+<img src="images/m121/c5/5-2-4.png">
+
+Y eso cubre la etapa de `$out`.
 
 Esta etapa es muy útil para realizar una agregación contra los datos existentes para realizar una migración, sembrar una colección con datos útiles o distribuir instantáneas de datos para su análisis.
 
-Aquí hay algunas cosas para recordar sobre la etapa $ out.
+Aquí hay algunas cosas para recordar sobre la etapa `$out`.
 
-Creará una nueva colección o sobrescribirá una colección existente si se especifica.
+<img src="images/m121/c5/5-2-5.png">
 
-Honra los índices en colecciones existentes.
+* Creará una nueva colección o sobrescribirá una colección existente si se especifica.
 
-No creará ni sobrescribirá datos si hay errores en la tubería.
+* Honra los índices en colecciones existentes.
 
-Y crea colecciones en la misma base de datos que la colección de origen.
+* No creará ni sobrescribirá datos si hay errores en el pipeline.
+
+* Y crea colecciones en la misma base de datos que la colección de origen.
 
 ## 3. Examen The $out Stage
 
