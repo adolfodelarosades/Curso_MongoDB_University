@@ -16,57 +16,75 @@ Página de documentación de [`$redact`](https://docs.mongodb.com/manual/referen
 
 ### Transcripción
 
-Aprendamos sobre una de las etapas del marco de agregación que puede ayudarnos a proteger la información del acceso no autorizado, la etapa de redacción.
+<img src="images/m121/c5/5-1.png">
 
-La etapa de redacción tiene la siguiente forma.
+Aprendamos sobre una de las etapas del aggregation framework que puede ayudarnos a proteger la información del acceso no autorizado, la etapa **redact**.
 
-La expresión puede ser cualquier expresión o combinación de expresiones, pero finalmente debe resolverse a uno de los tres valores, descender, podar y mantener.
+La etapa **redact** tiene la siguiente forma.
+
+```sh
+{ $redact: <expression> }
+```
+
+La expresión puede ser cualquier expresión o combinación de expresiones, pero finalmente debe resolverse a uno de los tres valores **descend**, **prune** y **keep**.
+
+<img src="images/m121/c5/5-2.png">
 
 Bien, al principio estos parecen bastante crípticos.
 
 Así que examinemos qué hace cada uno de ellos.
 
-Primero, veamos podar y mantener.
+Primero, veamos **prune** y **keep**.
 
-Podar y mantener son inversos entre sí.
+<img src="images/m121/c5/5-3.png">
 
-Prune excluirá todos los campos en el nivel de documento actual sin inspección adicional, mientras que keep retendrá todos los campos en el nivel de documento actual sin inspección adicional.
+**prune** y **keep** son inversos entre sí.
+
+**prune** excluirá todos los campos en el nivel de documento actual sin inspección adicional, mientras que **keep** retendrá todos los campos en el nivel de documento actual sin inspección adicional.
 
 Entonces, ¿qué entendemos por inspección adicional?
 
-Veamos este documento de ejemplo de la colección de empleados.
+Veamos este documento de ejemplo de la colección **employees**.
+
+<img src="images/m121/c5/5-4.png">
 
 Cada cuadrado de color representa un nivel de documento.
 
-Al especificar mantener o podar en cualquier nivel de documento dado, se realizará la acción asociada y se aplicará automáticamente a todos los niveles del documento.
-
-Veamos este documento de ejemplo de la colección de empleados.
-
-Cada cuadrado de color representa un nivel de documento.
-
-Al especificar mantener o podar en cualquier nivel de documento dado, se realizará la acción asociada y se aplicará automáticamente a todos los niveles de documentos por debajo del nivel especificado.
+Al especificar **keep** o **prune** en cualquier nivel de documento dado, se realizará la acción asociada y se aplicará automáticamente a todos los niveles de documentos por debajo del nivel especificado.
 
 Bien, veamos descender.
 
-Descender conserva el campo en el nivel de documento actual que se está evaluando, excepto los subdocumentos y las matrices de documentos.
+<img src="images/m121/c5/5-5.png">
+
+Descender conserva el campo en el nivel de documento actual que se está evaluando, excepto los subdocumentos y los arrays  de documentos.
 
 En su lugar, atravesará hacia abajo, evaluando cada nivel.
 
-Visualicemos cómo operaría descend sobre este documento, dada esta expresión condicional, determinando si el valor de acceso del usuario está en la matriz ACL.
+Visualicemos cómo operaría **descend** sobre este documento, dada esta expresión condicional `$cond`, determinando si el valor de acceso del usuario `userAccess` está en el array **$acl**.
 
-Comenzamos con todo el documento y comparamos si la administración está en ACL.
+<img src="images/m121/c5/5-6.png">
+
+Comenzamos con todo el documento y comparamos si la administración está en ACL `$in: ["Management", "$acl"]`.
+
+<img src="images/m121/c5/5-7.png">
 
 Como es, desciende al subdocumento en compensación de empleados, aquí.
+
+<img src="images/m121/c5/5-8.png">
 
 Ahora evaluamos si la administración está en ACL, que es.
 
 Entonces descendemos más.
 
-En este nivel, después de la evaluación, se devuelve la poda, porque la ACL en este nivel no incluye la administración.
+<img src="images/m121/c5/5-9.png">
+
+En este nivel, después de la evaluación, se devuelve la poda `$$PRUNE`, porque la ACL en este nivel no incluye `Management`.
 
 Este nivel y cualquier nivel posterior, si hubiera alguno, no se devolverían.
 
 Para el usuario, es como si este campo no existiera en absoluto.
+
+<img src="images/m121/c5/5-10.png">
 
 Miremos esto en acción.
 
