@@ -92,13 +92,566 @@ Configuramos nuestra variable de acceso de usuario y luego la canalización, ase
 
 Excelente.
 
-Podemos ver que de hecho solo estamos recuperando los niveles de documentos donde la administración estaba en la matriz de ACL.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> var userAccess = "Management"
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.employees.aggregate([
+... {
+... $redact: { $cond: [{ $in: [userAccess, "$acl"] }, "$$DESCEND", "$$PRUNE"] }
+... }
+... ]
+... ).pretty()
+{
+	"_id" : ObjectId("59d288690e3733b153a9396c"),
+	"employee_ID" : "08905606-e8e0-43ef-ad9e-6bcfc7f6c5b3",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 150832,
+		"stock_award" : 2312
+	},
+	"employee_grade" : 1,
+	"team" : "Yellow",
+	"age" : 63,
+	"first_name" : "Lucile",
+	"last_name" : "Sharpe",
+	"gender" : "female",
+	"phone" : "+1 (829) 527-2881",
+	"address" : "127 Maple Street, Rosewood, Arizona, 87080"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9396d"),
+	"employee_ID" : "1d320cd5-2410-4876-9f84-6eb3521326c8",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 150805,
+		"stock_award" : 2837
+	},
+	"employee_grade" : 1,
+	"team" : "Red",
+	"age" : 30,
+	"first_name" : "Rowena",
+	"last_name" : "Mccarthy",
+	"gender" : "female",
+	"phone" : "+1 (836) 563-3168",
+	"address" : "460 Navy Walk, Fingerville, Nebraska, 37381"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9396e"),
+	"employee_ID" : "d988de52-daf0-4bc7-ab6d-36aef266dadd",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 122869,
+		"stock_award" : 1636
+	},
+	"employee_grade" : 3,
+	"team" : "Orange",
+	"age" : 30,
+	"first_name" : "Cheryl",
+	"last_name" : "Garcia",
+	"gender" : "female",
+	"phone" : "+1 (896) 575-3288",
+	"address" : "466 Sharon Street, Irwin, Arkansas, 78322"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9396f"),
+	"employee_ID" : "67708991-7f75-4d81-a813-910f6157b93b",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 108955,
+		"stock_award" : 4368
+	},
+	"employee_grade" : 3,
+	"team" : "Blue",
+	"age" : 35,
+	"first_name" : "Powell",
+	"last_name" : "Hooper",
+	"gender" : "male",
+	"phone" : "+1 (926) 480-2166",
+	"address" : "759 Orange Street, Riviera, Kentucky, 61632"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93970"),
+	"employee_ID" : "22d4d4a4-2003-4978-bed4-0e6e5ae4a575",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 101450,
+		"stock_award" : 3835
+	},
+	"employee_grade" : 1,
+	"team" : "Violet",
+	"age" : 42,
+	"first_name" : "Sonya",
+	"last_name" : "Buchanan",
+	"gender" : "female",
+	"phone" : "+1 (822) 566-3511",
+	"address" : "320 Boerum Street, Vincent, Connecticut, 10860"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93971"),
+	"employee_ID" : "f8bc1ea5-5acf-4d00-b9b6-253de4091792",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 120907,
+		"stock_award" : 4336
+	},
+	"employee_grade" : 2,
+	"team" : "Red",
+	"age" : 62,
+	"first_name" : "Lila",
+	"last_name" : "Goodman",
+	"gender" : "female",
+	"phone" : "+1 (875) 491-2686",
+	"address" : "425 Hale Avenue, Brandywine, Michigan, 88171"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93972"),
+	"employee_ID" : "55884535-7c2c-4bf1-b974-d26c642d38c3",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 128722,
+		"stock_award" : 2074
+	},
+	"employee_grade" : 2,
+	"team" : "Indigo",
+	"age" : 30,
+	"first_name" : "Castillo",
+	"last_name" : "Barber",
+	"gender" : "male",
+	"phone" : "+1 (927) 537-2001",
+	"address" : "484 Fuller Place, Efland, New Mexico, 14661"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93973"),
+	"employee_ID" : "8793efae-2189-477f-a309-c572697da63c",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 143357,
+		"stock_award" : 1858
+	},
+	"employee_grade" : 1,
+	"team" : "Blue",
+	"age" : 22,
+	"first_name" : "Jewel",
+	"last_name" : "Swanson",
+	"gender" : "female",
+	"phone" : "+1 (888) 566-3895",
+	"address" : "864 Baycliff Terrace, Bluffview, Oklahoma, 56789"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93974"),
+	"employee_ID" : "7a18d418-48df-4015-9ccf-8b6c9f2cef6b",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 111355,
+		"stock_award" : 1586
+	},
+	"employee_grade" : 2,
+	"team" : "Red",
+	"age" : 26,
+	"first_name" : "Elise",
+	"last_name" : "Wiley",
+	"gender" : "female",
+	"phone" : "+1 (956) 560-2870",
+	"address" : "212 Rost Place, Disautel, Georgia, 50464"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93975"),
+	"employee_ID" : "a0bc70d3-068d-49ef-b323-7cd8c4a6205c",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 115027,
+		"stock_award" : 2460
+	},
+	"employee_grade" : 1,
+	"team" : "Red",
+	"age" : 19,
+	"first_name" : "Glenna",
+	"last_name" : "Jefferson",
+	"gender" : "female",
+	"phone" : "+1 (935) 526-2851",
+	"address" : "660 Newel Street, Terlingua, Tennessee, 38965"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93976"),
+	"employee_ID" : "f9bcd479-978f-47ec-85e5-2ae768ee5d85",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 115889,
+		"stock_award" : 3903
+	},
+	"employee_grade" : 3,
+	"team" : "Orange",
+	"age" : 53,
+	"first_name" : "Angie",
+	"last_name" : "Lawson",
+	"gender" : "female",
+	"phone" : "+1 (853) 447-3461",
+	"address" : "663 Hinckley Place, Torboy, Texas, 65474"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93977"),
+	"employee_ID" : "d8282d2b-7703-4dd4-a838-5779e82c4460",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 100316,
+		"stock_award" : 3600
+	},
+	"employee_grade" : 1,
+	"team" : "Yellow",
+	"age" : 55,
+	"first_name" : "Etta",
+	"last_name" : "Noel",
+	"gender" : "female",
+	"phone" : "+1 (817) 557-2538",
+	"address" : "533 Voorhies Avenue, Alden, New York, 27190"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93978"),
+	"employee_ID" : "3c39a95b-8f89-4ca8-8656-882c7ab40b21",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 103550,
+		"stock_award" : 2391
+	},
+	"employee_grade" : 3,
+	"team" : "Green",
+	"age" : 42,
+	"first_name" : "Janell",
+	"last_name" : "Hammond",
+	"gender" : "female",
+	"phone" : "+1 (808) 583-3646",
+	"address" : "737 Pleasant Place, Sugartown, Maryland, 80908"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a93979"),
+	"employee_ID" : "3b2f9818-d0ab-4173-bf37-b8466aa8638d",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 112298,
+		"stock_award" : 1303
+	},
+	"employee_grade" : 2,
+	"team" : "Red",
+	"age" : 56,
+	"first_name" : "Pugh",
+	"last_name" : "Serrano",
+	"gender" : "male",
+	"phone" : "+1 (873) 526-3223",
+	"address" : "744 Anna Court, Rockhill, Kansas, 55247"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9397a"),
+	"employee_ID" : "beccd8e5-66c5-4e22-88df-7a4f771d8a21",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 149920,
+		"stock_award" : 1795
+	},
+	"employee_grade" : 2,
+	"team" : "Indigo",
+	"age" : 54,
+	"first_name" : "Mcclure",
+	"last_name" : "Anderson",
+	"gender" : "male",
+	"phone" : "+1 (986) 456-3555",
+	"address" : "184 Brooklyn Avenue, Juntura, Alabama, 17829"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9397b"),
+	"employee_ID" : "11004c95-ecb7-4104-a8fe-da123dfced92",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 143056,
+		"stock_award" : 1844
+	},
+	"employee_grade" : 1,
+	"team" : "Blue",
+	"age" : 40,
+	"first_name" : "Joseph",
+	"last_name" : "Whitfield",
+	"gender" : "male",
+	"phone" : "+1 (830) 445-2420",
+	"address" : "371 Union Street, Ticonderoga, California, 78185"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9397c"),
+	"employee_ID" : "a1bd75c5-18b3-4284-bb8e-831b5c5f5c55",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 137635,
+		"stock_award" : 2052
+	},
+	"employee_grade" : 1,
+	"team" : "Green",
+	"age" : 42,
+	"first_name" : "Ford",
+	"last_name" : "Head",
+	"gender" : "male",
+	"phone" : "+1 (980) 434-3557",
+	"address" : "785 Ingraham Street, Shasta, Louisiana, 97136"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9397d"),
+	"employee_ID" : "8300fa6d-5f5d-4d34-be95-0e5b5ba2b230",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 126567,
+		"stock_award" : 1281
+	},
+	"employee_grade" : 3,
+	"team" : "Green",
+	"age" : 47,
+	"first_name" : "Maribel",
+	"last_name" : "Burks",
+	"gender" : "female",
+	"phone" : "+1 (973) 471-2516",
+	"address" : "613 Cortelyou Road, Oneida, North Carolina, 12515"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9397e"),
+	"employee_ID" : "0847ed10-c442-4997-9af0-400706d36f38",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 158216,
+		"stock_award" : 1509
+	},
+	"employee_grade" : 2,
+	"team" : "Orange",
+	"age" : 22,
+	"first_name" : "Joyce",
+	"last_name" : "Carter",
+	"gender" : "female",
+	"phone" : "+1 (938) 468-2922",
+	"address" : "698 Nevins Street, Kiskimere, Nevada, 95135"
+}
+{
+	"_id" : ObjectId("59d288690e3733b153a9397f"),
+	"employee_ID" : "7d735016-4f9e-4322-87cf-54a313038caf",
+	"acl" : [
+		"HR",
+		"Management",
+		"Finance",
+		"Executive"
+	],
+	"employee_compensation" : {
+		"acl" : [
+			"Management",
+			"Finance",
+			"Executive"
+		],
+		"salary" : 122519,
+		"stock_award" : 4880
+	},
+	"employee_grade" : 3,
+	"team" : "Blue",
+	"age" : 50,
+	"first_name" : "Brown",
+	"last_name" : "Christian",
+	"gender" : "male",
+	"phone" : "+1 (927) 508-3083",
+	"address" : "564 Powers Street, Waumandee, Virgin Islands, 58090"
+}
+Type "it" for more
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-La etapa de redacción puede ser útil para implementar listas de control de acceso, aunque no es la única forma de limitar el acceso a la información, como lo veremos más adelante en el curso.
+Podemos ver que de hecho solo estamos recuperando los niveles de documentos donde `management` estaba en el array de ACL.
+
+La etapa **redact** puede ser útil para implementar listas de control de acceso, aunque no es la única forma de limitar el acceso a la información, como lo veremos más adelante en el curso.
 
 Cualquier usuario que tenga acceso a una colección para realizar este tipo de agregación también puede realizar otras operaciones de lectura.
 
-Por lo tanto, la etapa de redacción no es suficiente para las restricciones de recopilación y nivel de campo.
+Por lo tanto, la etapa **redact** no es suficiente para las restricciones de recopilación y nivel de campo.
 
 Por último, si se compara con un campo en el documento, el campo debe estar presente en cada nivel de uso descendente, o la expresión debe explicar y decidir qué hacer si falta el campo.
 
@@ -106,11 +659,11 @@ Si no tomamos ninguna de estas precauciones, es probable que la redacción tenga
 
 Resumamos algunos puntos clave.
 
-Mantener y podar se aplica automáticamente a todos los niveles por debajo del nivel evaluado.
+<img src="images/m121/c5/5-11.png">
 
-Descender conserva el nivel actual y evalúa el siguiente nivel hacia abajo.
-
-Y redact no es para restringir el acceso a una colección.
+* `$$KEEP` y `$$PRUNE` se aplica automáticamente a todos los niveles por debajo del nivel evaluado.
+* `$$DESCEND` conserva el nivel actual y evalúa el siguiente nivel hacia abajo.
+* `$redact` no es para restringir el acceso a una colección.
 
 Recuerde, si un usuario tiene acceso para realizar una agregación en una colección, tiene acceso para leer esa colección.
 
