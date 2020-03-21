@@ -1418,10 +1418,27 @@ Which of the following statements are true regarding MongoDB Views?
 
 Choose the best answer:
 
-* View performance can be increased by creating the appropriate indexes on the source collection.
+* View performance can be increased by creating the appropriate indexes on the source collection. :+1:
 
 * Inserting data into a view is slow because MongoDB must perform the pipeline in reverse.
 
 * A view cannot be created that contains both horizontal and vertical slices.
 
 * Views should be used cautiously because the documents they contain can grow incredibly large.
+
+### See detailed answer
+
+The following statements are incorrect:
+
+* Views should be used cautiously because the documents they contain can grow incredibly large.
+
+Views contain no documents, they are stored aggregations that run when queried.
+
+* Inserting data into a view is slow because MongoDB must perform the pipeline in reverse.
+
+Views are read-only and contain no information themselves. The documents "in" a view are simply the result of the definining pipeline being executed.
+
+* A view cannot be created that contains both horizontal and vertical slices.
+
+This is definitely **not** correct. Shaping and filtering stages can can be mixed together in an aggregation pipeline.
+
