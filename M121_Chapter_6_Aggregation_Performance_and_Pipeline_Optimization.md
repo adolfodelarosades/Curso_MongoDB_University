@@ -14,6 +14,138 @@
 
 ### Transcripción
 
+En esta lección, hablaremos sobre el rendimiento de la agregación.
+
+Y específicamente, vamos a discutir cómo podemos utilizar índices cuando ejecutamos consultas de agregación.
+
+Y también vamos a discutir algunas de las restricciones de memoria que se aplican a la agregación en MongoDB.
+
+Antes de entrar en estos diferentes temas, primero quiero señalar que hay dos categorías de alto nivel de consultas de agregación.
+
+En primer lugar, hay consultas de procesamiento en tiempo real y luego hay consultas procesadas por lotes.
+
+"tiempo real" está entre comillas aquí porque nunca se puede tener un procesamiento en tiempo real.
+
+Siempre habrá algún tipo de retraso entre cuando se ejecuta una consulta y cuando esa consulta responde.
+
+El procesamiento en tiempo real es para que podamos proporcionar datos a las aplicaciones.
+
+Esto significa que el rendimiento es más importante.
+
+Un usuario va a realizar algún tipo de acción, la acción va a desencadenar una consulta de agregación, y luego los resultados de esa consulta deben devolverse al usuario en un período de tiempo razonable.
+
+Con el procesamiento por lotes, por otro lado, generalmente estamos hablando de hacer agregación para proporcionar análisis.
+
+Y dado que proporcionamos análisis, eso significa que estos trabajos generalmente se ejecutan de forma periódica.
+
+Y los resultados no se inspeccionan hasta minutos, horas o incluso días después de cuando se ejecutó esa consulta.
+
+Esto significa que el rendimiento de la consulta es menos importante que con el procesamiento en tiempo real.
+
+A lo largo de esta lección, nos centraremos en el primer tipo, el procesamiento en tiempo real.
+
+Ahora, algunos de estos principios también se aplicarán a la categoría de procesamiento por lotes.
+
+Pero en su mayor parte discutiremos estrategias para optimizar el rendimiento de agregación para el procesamiento en tiempo real.
+
+Ahora con eso fuera del camino, sigamos adelante y discutamos la carne de esta lección, indexe el uso para consultas de agregación.
+
+Ahora, a medida que aprende en este curso, los índices son una parte vital del buen rendimiento de las consultas.
+
+Y esta misma idea se aplica a las consultas de agregación.
+
+Básicamente, queremos asegurarnos de que nuestras consultas de agregación puedan usar índices tanto como sea posible.
+
+Ahora, naturalmente, dado que la agregación es un poco diferente a la consulta de búsqueda típica, determinar el uso del índice también es un poco diferente.
+
+Con una consulta de agregación, formamos una tubería de diferentes operadores de agregación, que transforman nuestros datos en el formato que deseamos.
+
+Ahora, algunos de estos operadores de agregación pueden usar índices, y otros no.
+
+Pero lo que es más importante, dado que los datos se mueven a través de nuestra canalización desde el primer operador hasta el último, una vez que el servidor encuentra una etapa que no puede usar índices, todas las etapas siguientes ya no podrán usar índices.
+
+Afortunadamente para nosotros, el optimizador de consultas hace todo lo posible para detectar cuándo se puede avanzar una etapa para que se puedan utilizar los índices.
+
+Pero si comprende los principios subyacentes de cómo funciona esto, puede tener más confianza en el rendimiento de su consulta y tendrá que confiar menos en el optimizador de consultas.
+
+Para que podamos determinar cómo se ejecutan las consultas de agregación y si se utilizan o no los índices, podemos pasar el documento de explicación verdadera como una opción al método de agregación.
+
+Esto producirá una salida de explicación similar a la que estamos acostumbrados a ver con find.
+
+Ahora, para el resto de estos ejemplos, nos ocuparemos de esta colección de pedidos hipotéticos.
+
+Y vamos a seguir adelante y asumir que tenemos un índice de identificación del cliente.
+
+Como era de esperar, el operador $ match puede utilizar índices.
+
+Esto es especialmente cierto si está al comienzo de una tubería.
+
+Verá un tema natural aquí: queremos ver operadores que usan índices al frente de nuestras tuberías.
+
+Del mismo modo, siempre vamos a querer poner las etapas de clasificación lo más cerca posible del frente.
+
+Con las consultas de búsqueda vimos la gravedad de la degradación de nuestro rendimiento cuando la clasificación no puede utilizar un índice.
+
+Por esta razón, queremos asegurarnos de que nuestras etapas de clasificación se realicen antes de cualquier tipo de transformaciones para asegurarnos de que utilizamos índices para la clasificación.
+
+Si está haciendo un límite y está haciendo una clasificación, debe asegurarse de que estén cerca el uno del otro y al frente de la tubería.
+
+Cuando esto sucede, el servidor puede hacer una clasificación de top-k.
+
+Esto es cuando el servidor solo puede asignar memoria para el número final de documentos, en este caso, 10.
+
+Esto puede suceder incluso sin índices.
+
+Esta es una de las situaciones sin índice de mayor rendimiento en las que puede estar.
+
+Optimizaciones como esta son realizadas por el optimizador de consultas siempre que sea posible.
+
+Pero si existe la posibilidad de que esta optimización pueda cambiar el resultado que resulta, entonces el motor de consulta no realizará este tipo de optimización.
+
+Por eso es importante comprender estos principios subyacentes.
+
+Ahora esas son las optimizaciones de agregación básicas que puede hacer.
+
+Ahora analicemos algunas de las restricciones de memoria que debe tener en cuenta al realizar la agregación.
+
+Primero que nada, tus resultados******están sujetos al límite de documentos de 16 megabytes que existe en MongoDB.
+
+La agregación generalmente genera un único documento, y ese único documento será susceptible a este límite.
+
+Ahora este límite no se aplica a los documentos a medida que fluyen a través de la tubería.
+
+A medida que transforma los documentos, en realidad pueden superar el límite de 16 megabytes, pero todo lo que se devuelva seguirá estando por debajo del límite de 16 megabytes.
+
+La mejor manera de mitigar este problema es mediante el uso de $ limit y $ project para reducir el tamaño del documento resultante.
+
+Otra limitación de la que querrá tener en cuenta es que para cada etapa de nuestra cartera, hay un límite de uso de RAM de 100 megabytes.
+
+Ahora, la mejor manera absoluta de mitigar esto es garantizar que sus etapas más grandes puedan utilizar índices.
+
+Esto reducirá sus requisitos de memoria, ya que los índices son generalmente mucho más pequeños que los documentos a los que hacen referencia.
+
+Además, con la clasificación, reducen drásticamente los requisitos de memoria, ya que no es necesario asignar memoria adicional para esa clasificación.
+
+Ahora, si todavía se encuentra con este límite de 100 megabytes, incluso si usa índices, entonces hay una forma adicional de evitarlo.
+
+Y eso es especificando allowDiskUse true en su consulta de agregación.
+
+Esto le permitirá verterse en el disco, en lugar de hacer todo en la memoria.
+
+Ahora, es importante comprender que esta es una medida absoluta de último recurso.
+
+El acceso a los discos duros es miles de veces más lento que el de la memoria, por lo que al dividirse en disco, verá una grave degradación del rendimiento.
+
+En algunas situaciones, esto es necesario, pero debe tener en cuenta que esto disminuirá seriamente el rendimiento.
+
+Dado que allowDiskUse true afectará seriamente el rendimiento, lo verá con más frecuencia en el tipo de trabajos de procesamiento por lotes, en lugar del procesamiento en tiempo real.
+
+Y lo último que quiero señalar aquí es que permitir el uso del disco no funciona con $ graphLookup, y eso es porque $ graphLookup actualmente no admite la división en disco.
+
+Recapitulemos lo que hemos aprendido.
+
+Entonces, en esta lección, discutimos algunas de las diferentes estrategias de optimización para utilizar índices con sus consultas de agregación, y también discutimos algunas de las restricciones de los miembros que se aplican a la agregación, y cómo puede mitigar y solucionar esos problemas.
+
 ## 2. Examen Aggregation Performance
 
 **Problem:**
@@ -40,6 +172,88 @@ Puede obtener más información sobre la agregación en un clúster fragmentado 
 
 ### Transcripción
 
+En esta lección, vamos a hablar sobre la tubería de agregación en un clúster fragmentado.
+
+Específicamente vamos a discutir cómo funciona, dónde se completan las operaciones, y también veremos cómo se optimizan las tuberías para que funcionen bien en grupos fragmentados.
+
+Avancemos y hablemos sobre cómo funciona la agregación en un clúster fragmentado.
+
+Cuando ejecutamos consultas de agregación en un conjunto de réplica o MongoDB independiente, es mucho más fácil para el servidor razonar porque todos los datos se encuentran en un solo lugar.
+
+En un clúster fragmentado, dado que nuestros datos se dividen en diferentes fragmentos, esto se vuelve un poco más difícil.
+
+Afortunadamente, MongoDB tiene algunos buenos trucos bajo la manga para abordar estos problemas.
+
+Por ejemplo, aquí tenemos la consulta de agregación simple donde estoy usando match para encontrar todos los restaurantes en el estado de Nueva York.
+
+Luego estoy usando grupo a grupo por cada estado y luego promedio la cantidad de estrellas para ese estado dado.
+
+Como mi clave de fragmento está en estado, todos los restaurantes en Nueva York estarán en el mismo fragmento.
+
+Esto significa que el servidor puede simplemente enrutar la consulta agregada a ese fragmento, donde puede ejecutar la agregación y devolver los resultados al Mongo S y luego al cliente.
+
+Muy sencillo
+
+Ahora mira este ejemplo.
+
+He cambiado ligeramente la consulta para que ya no usemos la etapa de coincidencia.
+
+Así que ahora estamos hablando de todos los documentos en nuestra colección fragmentada.
+
+Ahora, dado que estos documentos se extienden a través de múltiples fragmentos, vamos a necesitar hacer algunos cálculos en cada fragmento, pero luego también tendremos que obtener de alguna manera todos esos resultados en un solo lugar, donde podamos fusionar los resultados juntos.
+
+En este caso, nuestra tubería necesita ser dividida.
+
+El servidor determinará qué etapas deben ejecutarse en cada fragmento, y luego qué etapas deben ejecutarse en un solo fragmento donde los resultados de los otros fragmentos se fusionarán.
+
+En general, la fusión ocurrirá en un fragmento aleatorio, pero hay ciertas circunstancias en las que este no es el caso.
+
+Este no es el caso cuando usamos $ out o $ facet o $ lookup o $ graphLookup.
+
+Para estas consultas, el fragmento primario hará el trabajo de fusionar nuestros resultados.
+
+Y esto es importante de entender porque si ejecutamos estas operaciones con mucha frecuencia, uno de nuestros fragmentos, el fragmento primario, estará bajo mucha más carga que el resto de nuestro clúster, lo que degradará los beneficios de nuestro escalado horizontal.
+
+En estas circunstancias específicas, puede mitigar este problema utilizando una máquina con más recursos para su fragmento primario.
+
+También hay algunas optimizaciones interesantes que el servidor intentará realizar que debe tener en cuenta.
+
+La mayoría de estos también se aplicarán cuando no esté fragmentando, pero aún así son útiles para saber.
+
+Toma este ejemplo.
+
+Aquí tenemos una especie seguida de un partido.
+
+Ahora el optimizador de consultas moverá la coincidencia delante del orden para reducir la cantidad de documentos que deben ordenarse.
+
+Esto es particularmente útil en clústeres fragmentados cuando tenemos una división en nuestra tubería y cuando desea reducir la cantidad de datos que se transfieren por cable a nuestro fragmento de fusión.
+
+Del mismo modo, podemos reducir la cantidad de documentos que necesitamos examinar moviendo el límite después de un salto delante de él.
+
+Observe que el planificador de consultas actualiza los valores en consecuencia para admitir esta optimización.
+
+Además de mover etapas, el servidor también puede combinar ciertas etapas juntas.
+
+Aquí veremos dónde combinamos dos límites en uno.
+
+Lo mismo con saltar.
+
+Y finalmente, estamos viendo lo mismo con el partido.
+
+Ahora todas estas optimizaciones serán intentadas automáticamente por el optimizador de consultas.
+
+Dicho esto, creo que es importante señalar estas optimizaciones para que pueda considerar más cuidadosamente sus propios canales de agregación y las implicaciones de rendimiento.
+
+Y eso debería darle una buena visión general de la tubería de agregación en un clúster fragmentado.
+
+Recapitulemos lo que aprendimos.
+
+Discutimos cómo funciona la canalización de agregación en un entorno fragmentado.
+
+Y específicamente vimos dónde ocurren las diferentes operaciones cuando usamos sharding.
+
+Y finalmente, observamos algunas optimizaciones que el servidor intentará hacer cuando ejecute consultas de agregación.
+
 ## 4. Examen Aggregation Pipeline on a Sharded Cluster
 
 **Problem:**
@@ -56,19 +270,333 @@ Check all answers that apply:
 
 ## 5. Tema: Pipeline Optimization - Parte 1
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
 ### Transcripción
+
+Hablemos de la optimización de tuberías.
+
+Ya hemos aprendido sobre el uso temprano de las etapas de coincidencia y clasificación, y el uso de índices que utilizan las etapas de límite y clasificación para producir los mejores resultados de K, y cómo permitir el uso de más de 100 megabytes de memoria.
+
+Vamos a sumergirnos más y mirar las tuberías en sí mismas y cómo podrían optimizarse.
+
+Consideremos la siguiente agregación que da la duración de los títulos de películas que comienzan con vocales y las ordena por frecuencia.
+
+Entonces comenzamos con nuestra etapa de emparejamiento, buscando títulos que comiencen con una vocal, ignorando el caso.
+
+Luego proyectamos el tamaño de nuestro título, componiendo el tamaño y dividiéndolo juntos, y dividiendo el título en espacios.
+
+En nuestra etapa de grupo, estamos agrupando documentos similares según el tamaño del título que acabamos de calcular y obteniendo un recuento.
+
+Finalmente, vamos a ordenar en dirección descendente.
+
+Entonces, la frecuencia más alta debería volver primero.
+
+Ejecutemos esto para tener una idea de los resultados.
+
+Podemos ver que la longitud más común para el título de una película parece ser de tres palabras y hubo 1,450 documentos que cayeron en este grupo.
+
+También podemos ver que la longitud más poco común para un título de película es de 17 palabras, con solo un documento en este grupo.
+
+Examinemos ahora la información de explicación para esta agregación.
+
+Entonces tenemos la misma tubería que antes.
+
+Pero esta vez estamos agregando explicar true para obtener la salida de explicación.
+
+Echemos un vistazo a los resultados.
+
+Hay mucha información interesante aquí.
+
+Podemos ver cuál fue nuestra consulta, los campos que se guardaron, que resultaron ser title y _id, y luego el planificador de consultas.
+
+Un poco más abajo, también podemos ver el plan ganador que utilizó una etapa de búsqueda seguida de un escaneo de índice.
+
+Probablemente podamos hacerlo un poco mejor que esto, porque sabemos que tenemos un índice que debería admitir esta consulta.
+
+También podemos ver las etapas que se ejecutaron.
+
+Aquí está nuestra etapa de proyecto convertida donde vemos _id verdadero-- esto está implícito, recuerde-- el tamaño del título donde calculamos el tamaño de nuestro título, y luego podemos ver nuestro grupo y nuestra clasificación junto con la clave de clasificación; Información bastante interesante.
+
+Entonces, veamos si podemos hacerlo mejor.
+
+Nuestro objetivo es intentar que esto sea una consulta cubierta, lo que significa que no hay una etapa de recuperación.
+
+Entonces, esta tubería de agregación es casi idéntica a la primera que teníamos, excepto que me estoy deshaciendo explícitamente del campo _id.
+
+Recuerde, la etapa del proyecto lo mantiene implícitamente a menos que le indiquemos que no lo haga.
+
+Veamos si obtenemos los mismos resultados.
+
+Y, de hecho, obtenemos los mismos resultados que antes, donde parece que las películas con una longitud de tres palabras son las más frecuentes con 1.450 documentos.
+
+OKAY.
+
+Verificamos los mismos resultados.
+
+Verifiquemos el resultado de la explicación para ver si hemos mejorado el rendimiento de nuestra consulta.
+
+Nuevamente, la misma canalización que acabamos de usar también proyectaba _id, simplemente agregando la opción de explicación verdadera a la función de agregación.
+
+Y mirando el plan de explicación, vemos nuevamente que tenemos la misma consulta en el cursor.
+
+Esta vez los campos son diferentes.
+
+Mantendremos el título y proyectaremos lejos _id.
+
+Sigamos adelante y bajemos al plan ganador para ver si evitamos esa etapa de recuperación.
+
+Muy bien, así que mirando nuestro plan ganador, podemos ver que es mucho mejor.
+
+Puedo ver que no hay etapa de recuperación.
+
+Así que nuestra etapa de partido estaba cubierta.
+
+Cuando vemos una etapa de recuperación, significa que MongoDB tuvo que ir al documento para obtener más información, en lugar de usar solo la información del índice.
+
+De cierto interés aquí, también podemos ver que _id ahora se proyectaba como falso.
+
+Esto se debe a que proporcionamos explícitamente esa información.
+
+Entonces, veamos si podemos hacerlo aún mejor.
+
+Así que aquí está nuestra nueva tubería modificada, donde tenemos la misma etapa de coincidencia.
+
+Sin embargo, esta vez no tenemos etapa de proyecto.
+
+En cambio, realizamos la lógica que necesitamos dentro del grupo y luego ordenamos esos resultados.
+
+Vamos a verlo en acción.
+
+Muy bien, muy bien.
+
+Obtuvimos los mismos resultados, tres palabras, recuento de 1.450 documentos.
+
+Verifiquemos la salida de explicación para ver la diferencia entre esta tubería y nuestra tubería anterior.
+
+Muy bien, veamos el resultado de la explicación.
+
+Podemos ver que la consulta es la misma.
+
+Podemos ver que los campos también son los mismos: título 1, _id es 0.
+
+¿Cómo sabía el marco de agregación hacer esto cuando no especificamos una etapa del proyecto?
+
+Cubramos eso en un momento.
+
+En nuestro plan ganador, podemos ver que no hubo una etapa de recuperación, lo que significa que esta es una consulta cubierta.
+
+Si nos desplazamos hasta el final para ver el resto de nuestras etapas de canalización, podemos ver la siguiente etapa después de que nuestra consulta sea grupal, luego nuestra clasificación y listo.
+
+Una conclusión clave aquí es evitar proyectos innecesarios.
+
+Como vimos, el marco de agregación asumió que sabíamos lo que estábamos haciendo con cada proyecto.
+
+Sin embargo, si el marco de agregación puede determinar la forma del documento final basándose solo en la entrada inicial, internamente proyectará campos innecesarios.
+
+Eso fue un bocado.
+
+Así que déjenme explicarlo con un poco más de detalle.
+
+En la primera etapa del partido, el único f********El campo que nos importaba era el título.
+
+En la etapa grupal, nuevamente, el único campo que nos importa es el título.
+
+Usamos esta composición de expresiones para obtener el número de palabras en el título.
+
+Pero podemos hacerlo en línea evaluando primero dividir el título de los espacios en una matriz y luego obtener el tamaño de la matriz.
+
+No hay necesidad de una etapa de proyecto intermediario, porque podemos calcular ese valor en línea aquí.
+
+Esta es una característica muy poderosa.
+
+Siempre debemos esforzarnos por dejar que el optimizador trabaje para nosotros.
+
+Además, esto elimina una etapa que finalmente agrega tiempo a la tubería.
+
+Pensemos en eso.
+
+Digamos que tenemos 100,000 documentos en nuestra colección de películas.
+
+En el partido, filtramos hasta 10,000.
+
+Ahora en el grupo, tenemos 10,000 documentos que nos llegan.
+
+Y en especie, tenemos quizás 15.
+
+Bueno, con esa etapa de proyecto intermediario que realmente no necesitábamos, recibimos 100,000, luego tenemos 10,000, y enviamos todos los 10,000 a través de ese proyecto intermediario antes de que llegaran a la etapa grupal.
+
+Eso es 10,000 iteraciones adicionales que acabamos de evitar.
+
+Por lo tanto, como regla general, no proyecte a menos que esté haciendo un trabajo real en esta etapa.
+
+Y recuerde que agregar campos está disponible.
+
+Bien, una última nota antes de continuar, podríamos reemplazar el grupo y ordenar por ordenar por conteo.
+
+Realmente es lo mismo bajo el capó.
+
+Simplemente nos ahorra al escribir.
+
+Ten eso en mente.
 
 ## 6. Tema: Pipeline Optimization - Parte 2
 
-### Notas de lectura
-
-Página de documentación de [``]().
-
 ### Transcripción
+
+Muy bien, ahora analicemos otra operación común que los desarrolladores encuentran cuando usan un patrón de extremo a extremo, como el atributo o los patrones de subconjunto, como las acciones negociadas en un momento dado o las 20 mejores reseñas de clientes para un producto.
+
+¿Cómo trabajamos eficientemente con esos datos si nos gustaría realizar un análisis de marco de agregación?
+
+Imaginemos que estamos trabajando con documentos de este esquema, que es el seguimiento de todas las transacciones de compra y venta en nuestra plataforma de negociación.
+
+Nos gustaría analizar cuántas transacciones totales tenemos, así como cuántas compras y ventas se realizaron por marca de tiempo, y luego usar estos datos más adelante en nuestra cartera.
+
+En otras palabras, queremos agrupar datos en el documento, no entre documentos.
+
+Echemos un vistazo a la colección y pensemos cómo podríamos lograr esto.
+
+OK, entonces tenemos nuestra marca de tiempo, y luego tenemos nuestra matriz de intercambios con muchos, muchos documentos.
+
+OK, este podría ser nuestro primer enfoque, donde desenrollamos la matriz de operaciones y luego agrupamos en el tiempo y la acción, cuenta [INAUDIBLE].
+
+Y luego agrupe nuevamente, justo a tiempo, y empuje la acción y tenga en cuenta ese tipo de acción en una matriz, y luego obtenga el número total de acciones que realizamos por esa marca de tiempo.
+
+Por lo tanto, deberíamos obtener acciones totales por documento con los números individuales de acciones de compra y venta.
+
+Probémoslo.
+
+OK, podemos ver que es la misma tubería que la de la diapositiva anterior.
+
+Desenrollamos la matriz de operaciones, agrupamos en la marca de tiempo y la acción, y luego agrupamos nuevamente solo en la marca de tiempo.
+
+Hemos agregado esta etapa de clasificación aquí, solo para asegurarnos de obtener pedidos consistentes para la comparación más adelante.
+
+Muy bien, nos da los resultados que esperábamos: acciones totales y el número de acciones de compra y venta por documento.
+
+Esta es una representación visual de la tubería anterior.
+
+Los cuadrados negros son nuestros documentos.
+
+Si comenzamos con cuatro documentos y desenrollamos un campo con solo tres entradas por documento, ahora tenemos 12 documentos.
+
+Luego agrupamos nuestros documentos dos veces para producir los resultados deseados, terminando con la misma cantidad de documentos con los que comenzamos.
+
+Esto debería comenzar a sentirse terriblemente ineficiente.
+
+Lamentablemente, empeora.
+
+Examinemos cómo esta ineficiencia impacta las operaciones en el entorno Shard D.
+
+Cada fragmento realiza el desenrollado.
+
+El procesamiento inicial para la primera etapa de grupo se realizará en los fragmentos.
+
+Pero la agrupación final tiene que suceder en una sola ubicación.
+
+Cualquier otra etapa, incluida la totalidad del segundo grupo, tendría lugar en ese lugar.
+
+Imagínese si siguieran otras tres o cuatro etapas.
+
+Cuando no se agrupa entre documentos, esto genera una sobrecarga innecesaria en el tráfico de red y hace que [INAUDIBLE] ,, después del grupo, se ejecute en la ubicación de la fusión, en lugar de permanecer distribuido.
+
+Aquí, se nos muestra que la agrupación está ocurriendo en el fragmento A.
+
+En realidad, podría ocurrir en cualquier lugar al azar en nuestro grupo.
+
+Por lo tanto, realmente necesitamos una forma de iterar sobre la matriz y realizar nuestra lógica deseada dentro del documento.
+
+Afortunadamente, tenemos las expresiones de mapa, reducción, filtro y acumulador disponibles en la etapa del proyecto para remediar este problema.
+
+Examinemos esta tubería.
+
+Obtendremos el tamaño de las matrices resultantes filtrando para eliminar la acción que no queremos para ese campo.
+
+En este caso, solo permitimos documentos que tengan la acción de compra; aquí, la acción de venta.
+
+Por último, solo obtendremos el tamaño de la matriz de intercambios para obtener la cantidad total de intercambios que tuvimos.
+
+Ahora, esto parece casi demasiado simple, así que veámoslo en acción.
+
+Nuevamente, esta es la misma tubería que en la diapositiva anterior.
+
+La etapa de clasificación se agrega solo para garantizar que obtengamos resultados consistentes, de modo que podamos hacer comparaciones más adelante.
+
+Impresionante: resultados funcionalmente idénticos.
+
+Y diría que este formato es más fácil de razonar.
+
+Veamos el resultado anterior para comparar.
+
+Y aquí están los resultados de esa tubería anterior donde usamos el grupo doble.
+
+Podemos ver que la información que aún queremos está incrustada en esta matriz de acciones.
+
+Esta es una visualización de nuestra nueva tubería.
+
+Nuestra nueva tubería produjo resultados funcionalmente idénticos, pero visualmente, podemos ver en la ejecución, es muy diferente.
+
+En lugar de realizar un trabajo innecesario y posiblemente mover y colapsar nuestra tubería a una sola ubicación, lo que provoca una desaceleración en el uso adicional de la red, conservamos la misma cantidad de documentos que realizan el trabajo de manera específica y en su lugar.
+
+Y en el entorno de fragmentos, los beneficios también son tangibles.
+
+Hemos mantenido todo el trabajo distribuido entre los fragmentos.
+
+Está bien, pero espera ... pero espera.
+
+Todo eso está bien para la entrada esencialmente binaria, cuando queremos contar la ocurrencia de algo.
+
+Pero, ¿qué pasa si queremos hacer algo más significativo?
+
+¿Qué pasaría si quisiéramos saber cuántas veces se compró, vendió una acción específica y cuál fue el precio total de cada una?
+
+Busquemos esa información para las acciones de MongoDB.
+
+Nuevamente, las expresiones de mapa, reducción, filtro y acumulador disponibles en la etapa del proyecto son herramientas increíbles.**************Así que este es un ejemplo de canalización que produciría esos resultados para nosotros.
+
+Primero, especificamos la expresión reducida.
+
+Como matriz de entrada, seguiremos adelante y filtraremos la matriz de operaciones, filtrando cualquier ticker de acciones que no sea igual a MongoDB.
+
+El valor inicial y el valor que se utilizará como el valor del acumulador, valor dólar-dólar-- vamos a especificar este documento, con dos claves-- comprar y vender-- que son documentos, con claves de conteo total y valor total.
+
+Aquí, una entrada es nuestra lógica.
+
+Comenzamos con esta expresión condicional, donde verificamos si esta acción de punto es igual a comprar.
+
+Recuerde, dólar-dólar esto se refiere al elemento actual de la matriz de entrada.
+
+Recuerde, filtramos eso, por lo que sabemos que solo obtendremos documentos que tengan MDB como símbolo de ticker.
+
+Entonces, si se trata de una acción de compra, modificamos el recuento total agregando uno al valor dólar-dólar, punto de compra, recuento total de puntos.
+
+Recuerde, el valor dólar-dólar se refiere al acumulador, que inicialmente configuramos como este valor aquí.
+
+También modificamos el valor total agregando este precio de punto al valor dólar-dólar, punto de compra, valor total de punto.
+
+Y si esta fue una acción de compra, no modificamos la venta de ninguna manera.
+
+Simplemente lo reasignamos a sí mismo.
+
+Si se trata de una acción de venta, esencialmente hacemos lo mismo, agregando uno al número total de ventas y agregando el precio de esta acción al valor total de ventas, y finalmente reasignando la recompra a sí mismo, porque esta fue una venta .
+
+Podemos ver que, basado solo en MongoDB, el recuento total de compras fue de 10, y el recuento total de ventas fue de cinco para este documento específico.
+
+También podemos ver el valor en dólares asociado con todas las transacciones.
+
+Nuevamente, vemos 22 y 19 y el valor asociado.
+
+Muy bien, hemos cubierto mucha información en esta lección.
+
+Avancemos y resumamos de lo que hablamos.
+
+Primero, evite etapas innecesarias.
+
+El marco de agregación puede proyectar campos automáticamente si la forma final del documento de salida se puede determinar a partir de la entrada inicial.
+
+En segundo lugar, use expresiones de acumulador, así como expresiones de mapa de dólar, reducción de dólar y filtro de dólar, en las etapas del proyecto antes de un desenrollado, si es posible.
+
+Nuevamente, esto solo se aplica si necesita agrupar dentro de un documento, no entre sus documentos.
+
+Por último, cada función de matriz de alto orden se puede implementar con dollar-reduce si las expresiones proporcionadas no satisfacen sus necesidades.
 
 ## 7. Examen Pipeline Optimization - Part 2
 
