@@ -765,11 +765,13 @@ This is incorrect. `$out` will not create a new collection or overwrite an exist
 
 ### Transcripción
 
+<img src="images/m121/c5/5-4-1.png">
+
 Analicemos ahora una característica poderosa de MongoDB-- Vistas.
 
-MongoDB habilita vistas no materializadas, lo que significa que se calculan cada vez que se realiza una operación de tasa en esa vista.
+MongoDB habilita vistas no materializadas, lo que significa que se calculan cada vez que se realiza una operación en esa vista.
 
-Hay una manera de utilizar una canalización de agregación como colección.
+Hay una manera de utilizar aggregation pipeline como una colección.
 
 Desde la perspectiva del usuario, las vistas se perciben como colecciones, con algunas diferencias clave que veremos más adelante en la lección.
 
@@ -785,6 +787,8 @@ Asignaremos un nivel diferente a cada oficina regional.
 
 Esta es una muestra de un registro de nuestra colección de clientes.
 
+<img src="images/m121/c5/5-4-2.png">
+
 Como podemos ver, hay información sensible y potencialmente sesgada a la que no queremos permitir el acceso.
 
 Las vistas nos permiten crear cortes verticales y horizontales de nuestra colección.
@@ -795,35 +799,47 @@ El corte vertical se realiza mediante el uso de una etapa de proyecto y otras et
 
 Aquí hemos cortado verticalmente nuestro documento para retener solo el campo accountType.
 
+<img src="images/m121/c5/5-4-3.png">
+
 Los sectores verticales cambiarán la forma que se devuelve, pero no la cantidad de documentos que se devuelven.
 
-El corte horizontal se realiza mediante el uso de etapas de partido.
+El corte horizontal se realiza mediante el uso de etapas `match`.
+
+<img src="images/m121/c5/5-4-4.png">
 
 Seleccionamos solo un subconjunto de documentos según algunos criterios.
 
-Aquí, dividimos horizontalmente nuestra colección con el valor del tipo de cuenta.
+Aquí, dividimos horizontalmente nuestra colección con el valor del tipo de cuenta `accountType`.
 
 De hecho, los documentos que están atenuados no serían operados en absoluto en la siguiente etapa del proyecto.
 
 Podríamos dividir aún más estos datos horizontalmente, seleccionando solo las cuentas que tenían un saldo mínimo especificado, y están dentro de un rango de edad deseado, y, se entiende la idea.
 
-Incluso puede ser necesario usar una etapa de modelado intermedia para calcular un valor en el que deseamos filtrar los documentos.
+Incluso puede ser necesario usar una etapa de `shaping` intermedia para calcular un valor en el que deseamos filtrar los documentos.
 
 Los cortes horizontales afectarán la cantidad de documentos devueltos, no su forma.
 
 Veamos otro ejemplo de esto, con documentos que tienen el siguiente esquema.
 
+<img src="images/m121/c5/5-4-5.png">
+
 Me gustaría dividir verticalmente los documentos para eliminar información confidencial, así como poner a disposición la información de nombre y género, pero presentarla en un formato más formal para los empleados del centro de llamadas.
+
+<img src="images/m121/c5/5-4-6.png">
 
 También me gustaría dividir horizontalmente nuestra colección, filtrando documentos que no tienen un tipo de cuenta de bronce.
 
+<img src="images/m121/c5/5-4-7.png">
+
 Aquí hay un ejemplo de creación de una vista que realiza cortes horizontales y verticales.
+
+<img src="images/m121/c5/5-4-8.png">
 
 Para que los datos estén disponibles para el centro de llamadas, vamos a asignar miembros de nivel bronce.
 
 Especificamos el nombre de la vista, la colección de origen y luego la canalización que se almacenará para calcular esta vista.
 
-Dentro de la tubería, realizamos nuestro corte horizontal inicial con una etapa de coincidencia, seleccionando solo miembros de nivel de bronce.
+Dentro del pipeline, realizamos nuestro corte horizontal inicial con una etapa de coincidencia, seleccionando solo miembros de nivel de bronce.
 
 Luego, dentro de la etapa del proyecto, realizamos nuestro corte vertical, reteniendo los campos que queramos y reasignando el campo de nombre con un nombre con un formato más formal.
 
@@ -831,99 +847,568 @@ Puede ver esta vista en acción usted mismo.
 
 Ejecutemos el comando para obtener información de recopilación para la base de datos actual.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.getCollectionInfos()
+[
+	{
+		"name" : "air_airlines",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("a332d755-0952-4c41-bc18-5e7bcb40ddf1")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.air_airlines"
+		}
+	},
+	{
+		"name" : "air_alliances",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("8733bbc2-98a0-4b50-aca2-fee780052ec8")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.air_alliances"
+		}
+	},
+	{
+		"name" : "air_routes",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("4b51a274-ffc1-45d4-8122-3f9b41ecd40d")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.air_routes"
+		}
+	},
+	{
+		"name" : "bronze_banking",
+		"type" : "view",
+		"options" : {
+			"viewOn" : "customers",
+			"pipeline" : [
+				{
+					"$match" : {
+						"accountType" : "bronze"
+					}
+				},
+				{
+					"$project" : {
+						"_id" : 0,
+						"name" : {
+							"$concat" : [
+								{
+									"$cond" : [
+										{
+											"$eq" : [
+												"$gender",
+												"female"
+											]
+										},
+										"Miss",
+										"Mr."
+									]
+								},
+								" ",
+								"$name.first",
+								" ",
+								"$name.last"
+							]
+						},
+						"phone" : 1,
+						"email" : 1,
+						"address" : 1,
+						"account_ending" : {
+							"$substr" : [
+								"$accountNumber",
+								7,
+								-1
+							]
+						}
+					}
+				}
+			]
+		},
+		"info" : {
+			"readOnly" : true
+		}
+	},
+	{
+		"name" : "child_reference",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("845022c6-d7d3-4f93-8989-90830aa1a539")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.child_reference"
+		}
+	},
+	{
+		"name" : "customers",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("25d0ae8b-e90d-471f-97c3-6f21015cdfc0")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.customers"
+		}
+	},
+	{
+		"name" : "employees",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("4a378f3f-f2ff-418d-8601-c3bc52696750")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.employees"
+		}
+	},
+	{
+		"name" : "exoplanets",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("88879a02-0e01-4fbe-a1a2-f9cc86008084")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.exoplanets"
+		}
+	},
+	{
+		"name" : "gold_banking",
+		"type" : "view",
+		"options" : {
+			"viewOn" : "customers",
+			"pipeline" : [
+				{
+					"$match" : {
+						"accountType" : "gold"
+					}
+				},
+				{
+					"$project" : {
+						"_id" : 0,
+						"name" : {
+							"$concat" : [
+								{
+									"$cond" : [
+										{
+											"$eq" : [
+												"$gender",
+												"female"
+											]
+										},
+										"Miss",
+										"Mr."
+									]
+								},
+								" ",
+								"$name.first",
+								" ",
+								"$name.last"
+							]
+						},
+						"phone" : 1,
+						"email" : 1,
+						"address" : 1,
+						"account_ending" : {
+							"$substr" : [
+								"$accountNumber",
+								7,
+								-1
+							]
+						}
+					}
+				}
+			]
+		},
+		"info" : {
+			"readOnly" : true
+		}
+	},
+	{
+		"name" : "icecream_data",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("528ff2ca-718d-458b-8119-bd85c2b4947d")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.icecream_data"
+		}
+	},
+	{
+		"name" : "movies",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("af67b95f-c8eb-4835-8ac7-dfb7504d5ea3")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.movies"
+		}
+	},
+	{
+		"name" : "nycFacilities",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("7d1cda1b-4ec2-4085-9f20-5f4b7cee4a22")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.nycFacilities"
+		}
+	},
+	{
+		"name" : "parent_reference",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("b8c051fc-f2d1-4174-98c4-83175d93db9a")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.parent_reference"
+		}
+	},
+	{
+		"name" : "silver_banking",
+		"type" : "view",
+		"options" : {
+			"viewOn" : "customers",
+			"pipeline" : [
+				{
+					"$match" : {
+						"accountType" : "silver"
+					}
+				},
+				{
+					"$project" : {
+						"_id" : 0,
+						"name" : {
+							"$concat" : [
+								{
+									"$cond" : [
+										{
+											"$eq" : [
+												"$gender",
+												"female"
+											]
+										},
+										"Miss",
+										"Mr."
+									]
+								},
+								" ",
+								"$name.first",
+								" ",
+								"$name.last"
+							]
+						},
+						"phone" : 1,
+						"email" : 1,
+						"address" : 1,
+						"account_ending" : {
+							"$substr" : [
+								"$accountNumber",
+								7,
+								-1
+							]
+						}
+					}
+				}
+			]
+		},
+		"info" : {
+			"readOnly" : true
+		}
+	},
+	{
+		"name" : "solarSystem",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("05bdcf98-68f5-40c8-8bae-e3bc1969e44b")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.solarSystem"
+		}
+	},
+	{
+		"name" : "stocks",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("c58dcb0a-4e10-4d67-b66a-5c5f497432fc")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.stocks"
+		}
+	},
+	{
+		"name" : "system.profile",
+		"type" : "collection",
+		"options" : {
+			"capped" : true,
+			"size" : 1048576
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("6ca08fbb-ccec-4681-bc92-2f6b3d7242da")
+		}
+	},
+	{
+		"name" : "system.views",
+		"type" : "collection",
+		"options" : {
+			
+		},
+		"info" : {
+			"readOnly" : false,
+			"uuid" : UUID("ffa6d65f-36f7-4d59-904a-1deb04705146")
+		},
+		"idIndex" : {
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "aggregations.system.views"
+		}
+	}
+]
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Aquí, vemos información sobre cada colección.
 
-Ya he creado tres vistas: banca de bronce, banca de plata y banca de oro.
+Ya he creado tres vistas: `bronze_banking`, `silver_banking` y `gold_banking`.
 
 Podemos ver que se muestran como colecciones, excepto que su tipo es view.
 
-Y luego, en las opciones, podemos ver la vista en la que se encuentran y la tubería que los financia.
+Y luego, en las opciones, podemos ver la vista en la que se encuentran y el pipeline que los financia.
 
 No podrá crear vistas en el clúster de atlas de clase.
 
-Si desea ver estas vistas en acción y cuán restrictivas pueden ser, junto con un control de acceso adecuado basado en roles, las credenciales de inicio de sesión se encuentran en el folleto de esta lección.
+Si desea ver estas vistas en acción y cuán restrictivas pueden ser, junto con un control de acceso adecuado basado en roles, las credenciales de inicio de sesión se encuentran en el handout de esta lección.
 
 Si desea obtener más información sobre el control de acceso basado en roles, consulte nuestro curso de seguridad, que está vinculado debajo de este video.
 
 Las vistas se pueden crear de dos maneras diferentes.
 
-Tenemos el método de ayuda de shell, db.createView, que ya vimos, y el método createCollection aquí.
+<img src="images/m121/c5/5-4-9.png">
 
-Una vista consiste en el nombre, una colección de origen, una canalización de agregación y, si es necesario, una clasificación específica.
+Tenemos el método shell helper, `db.createView`, que ya vimos, y el método `createCollection`.
 
-En esencia, se llamaría una vista y se ejecutará la canalización de agregación que se utiliza para definir la vista.
+Una view consiste en el nombre, una colección de origen, un aggregation pipeline y, si es necesario, una clasificación específica.
 
-La nueva metainformación para incluir la canalización que calcula la vista se almacena en la colección system.views.
+En esencia, se llamaría una vista y se ejecutará la aggregation pipeline que se utiliza para definir la vista.
+
+La nueva metainformación para incluir el pipeline que calcula la vista se almacena en la colección `system.views`.
 
 Miremos esta información.
 
-Nuevamente, podemos ver la misma información que vimos antes con el comando get collection info, pero ahora solo para nuestras vistas.
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.system.views.find().pretty()
+Error: error: {
+	"operationTime" : Timestamp(1584813037, 14),
+	"ok" : 0,
+	"errmsg" : "not authorized on aggregations to execute command { find: \"system.views\", filter: {}, lsid: { id: UUID(\"8a0ae58f-2147-4067-881a-dc04c708b582\") }, $clusterTime: { clusterTime: Timestamp(1584813024, 1), signature: { hash: BinData(0, 91E35B5F4084231C9818E6540839180114F613BA), keyId: 6763648209215553537 } }, $db: \"aggregations\" }",
+	"code" : 13,
+	"codeName" : "Unauthorized",
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1584813037, 14),
+		"signature" : {
+			"hash" : BinData(0,"a9ivCU/2a/K3iAwfoLrOvLKakHk="),
+			"keyId" : NumberLong("6763648209215553537")
+		}
+	}
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
-Con suerte, esto ilustra que la única información almacenada sobre una vista es el nombre, la colección de origen, la canalización que la define y, opcionalmente, la recopilación.
+<img src="images/m121/c5/5-4-10.png">
+
+Nuevamente, podemos ver la misma información que vimos antes con el comando `db.getCollectionInfos()`, pero ahora solo para nuestras vistas.
+
+Con suerte, esto ilustra que la única información almacenada sobre una vista es el nombre, la colección de origen, el pipeline que la define y, opcionalmente, la collation.
 
 Todas las operaciones de lectura de colección están disponibles como vistas.
 
+<img src="images/m121/c5/5-4-11.png">
+
+
 Y sí, también podemos realizar agregaciones en las vistas.
 
-Las vistas tienen algunas restricciones: no hay operaciones de escritura.
+Las vistas tienen algunas restricciones: 
+
+<img src="images/m121/c5/5-4-12.png">
+
+No hay operaciones de escritura.
 
 Las vistas son de solo lectura y se calculan cuando emitimos una operación de tasa contra ellas.
 
-Son un reflejo de la agregación definida en la colección de origen.
+Son un reflection de la agregación definida en la colección de origen.
 
-Sin operaciones de índice: s******Dado que las vistas utilizan la colección de origen para obtener sus datos, las operaciones de índice deben realizarse en esa colección de origen.
+Sin operaciones de índice -- ya que las vistas utilizan la colección de origen para obtener sus datos, las operaciones de índice deben realizarse en esa colección de origen.
 
 Las vistas utilizarán los índices de las colecciones de origen durante su creación.
 
 Sin cambio de nombre: los nombres de las vistas son inmutables, por lo que no se pueden renombrar.
 
-Dicho esto, siempre podemos soltar una vista y crearla nuevamente, con una nueva tubería, sin afectar la E / S del servidor.
+Dicho esto, siempre podemos soltar una vista y crearla nuevamente, con una nueva pipeline, sin afectar la E/S del servidor.
 
-Sin texto en dólares: el operador de consulta de texto solo se puede usar en la primera etapa de una canalización de agregación.
+No $text: el operador de consulta de texto solo se puede usar en la primera etapa de una aggregation pipeline.
 
-Y una vista ejecutará primero la canalización definida.
+Y una vista ejecutará primero el pipeline definido.
 
 Este operador de consulta no se puede usar en una vista.
 
-Sin geoNear o la etapa geoNear.
+Sin `geoNear` o la etapa `geoNear`.
 
-Al igual que con la prueba, se requiere que junior sea la primera etapa de nuestra cartera.
+Al igual que con la prueba, se requiere que junior sea la primera etapa de nuestro pipeline.
 
-Restricciones de clasificación: las vistas tienen restricciones de clasificación, como las vistas que no heredan la clasificación predeterminada de la colección de origen como se especifica.
+Restricciones de Collation: las vistas tienen restricciones de collation, como las vistas que no heredan la clasificación predeterminada de la colección de origen como se especifica.
 
 Existen otras inquietudes específicas sobre colaciones que puede leer siguiendo el enlace debajo de este video.
 
 Por último, no se permiten operaciones de búsqueda con los siguientes operadores de proyección.
 
-Se permite eliminar y retener campos, pero fallará intentar utilizar cualquiera de estos operadores.
+Se permite eliminar y retener campos, pero fallará intentar utilizar cualquiera de los operadores en la imagen.
+
+<img src="images/m121/c5/5-4-13.png">
 
 Las definiciones de vistas son públicas.
 
-Cualquier rol que pueda enumerar colecciones en una base de datos puede ver una definición de vista como vimos anteriormente.
+Cualquier role que pueda enumerar colecciones en una base de datos puede ver una definición de vista como vimos anteriormente.
 
-Evite referirse a información confidencial dentro de la tubería de definición.
+Evite referirse a información confidencial dentro del pipeline de definición.
 
 Todo bien.
 
-Eso resume Vistas.
+Esto resume Vistas.
+
+<img src="images/m121/c5/5-4-14.png">
 
 Aquí hay algunas cosas para recordar.
 
-Las vistas no contienen datos por sí mismas.
+* Las vistas no contienen datos por sí mismas. Se crean a pedido y reflejan los datos en la colección de origen.
 
-Se crean a pedido y reflejan los datos en la colección de origen.
+* Las vistas son de solo lectura. Escribir operaciones en Vistas producirá un error.
 
-Las vistas son de solo lectura.
+* Las vistas tienen algunas restricciones. Deben cumplir con las reglas del aggregation Framework y no pueden contener el  operadores de proyección `find()`.
 
-Escribir operaciones en Vistas producirá un error.
+* El corte horizontal se realiza con la etapa `$match`, lo que reduce la cantidad de documentos que se devuelven.
 
-Las vistas tienen algunas restricciones.
-
-Deben cumplir con las reglas del marco de agregación y no pueden contener operadores de proyección de búsqueda.
-
-El corte horizontal se realiza con la etapa coincidente, lo que reduce la cantidad de documentos que se devuelven.
-
-El corte vertical se realiza con un proyecto u otra etapa de configuración, modificando documentos individuales.
+* El corte vertical se realiza con un `$project` u otra etapa `shaping`, modificando documentos individuales.
 
 ## 5. Examen Views
 
