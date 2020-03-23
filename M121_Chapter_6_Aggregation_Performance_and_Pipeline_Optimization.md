@@ -374,19 +374,47 @@ Yes.
 
 ### Transcripción
 
-Hablemos de la optimización de tuberías.
+Hablemos de la optimización de Pipeline.
 
-Ya hemos aprendido sobre el uso temprano de las etapas de coincidencia y clasificación, y el uso de índices que utilizan las etapas de límite y clasificación para producir los mejores resultados de K, y cómo permitir el uso de más de 100 megabytes de memoria.
+<img src="images/m121/c6/6-5-1.png">
 
-Vamos a sumergirnos más y mirar las tuberías en sí mismas y cómo podrían optimizarse.
+Ya hemos aprendido sobre el uso temprano de las etapas de match y sort, y el uso de índices que utilizan las etapas limit y sort para producir los mejores resultados de top K, y cómo permitir el uso de más de 100 megabytes de memoria.
+
+<img src="images/m121/c6/6-5-2.png">
+
+Vamos a sumergirnos más y mirar las pipelines en sí mismas y cómo podrían optimizarse.
 
 Consideremos la siguiente agregación que da la duración de los títulos de películas que comienzan con vocales y las ordena por frecuencia.
 
-Entonces comenzamos con nuestra etapa de emparejamiento, buscando títulos que comiencen con una vocal, ignorando el caso.
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      title: /^[aeiou]/i
+    }
+  },
+  {
+    $project: {
+      title_size: { $size: { $split: ["$title", " "] } }
+    }
+  },
+  {
+    $group: {
+      _id: "$title_size",
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { count: -1 }
+  }
+])
+```
+
+Entonces comenzamos con nuestra etapa match, buscando títulos que comiencen con una vocal, ignorando el case.
 
 Luego proyectamos el tamaño de nuestro título, componiendo el tamaño y dividiéndolo juntos, y dividiendo el título en espacios.
 
-En nuestra etapa de grupo, estamos agrupando documentos similares según el tamaño del título que acabamos de calcular y obteniendo un recuento.
+En nuestra etapa group, estamos agrupando documentos similares según el tamaño del título que acabamos de calcular y obteniendo un count.
 
 Finalmente, vamos a ordenar en dirección descendente.
 
@@ -394,49 +422,396 @@ Entonces, la frecuencia más alta debería volver primero.
 
 Ejecutemos esto para tener una idea de los resultados.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     $match: {
+...       title: /^[aeiou]/i
+...     }
+...   },
+...   {
+...     $project: {
+...       title_size: { $size: { $split: ["$title", " "] } }
+...     }
+...   },
+...   {
+...     $group: {
+...       _id: "$title_size",
+...       count: { $sum: 1 }
+...     }
+...   },
+...   {
+...     $sort: { count: -1 }
+...   }
+... ])
+{ "_id" : 3, "count" : 1450 }
+{ "_id" : 2, "count" : 1372 }
+{ "_id" : 1, "count" : 1200 }
+{ "_id" : 4, "count" : 1166 }
+{ "_id" : 5, "count" : 647 }
+{ "_id" : 6, "count" : 285 }
+{ "_id" : 7, "count" : 149 }
+{ "_id" : 8, "count" : 85 }
+{ "_id" : 9, "count" : 39 }
+{ "_id" : 10, "count" : 21 }
+{ "_id" : 11, "count" : 17 }
+{ "_id" : 12, "count" : 6 }
+{ "_id" : 15, "count" : 4 }
+{ "_id" : 14, "count" : 3 }
+{ "_id" : 13, "count" : 2 }
+{ "_id" : 17, "count" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
 Podemos ver que la longitud más común para el título de una película parece ser de tres palabras y hubo 1,450 documentos que cayeron en este grupo.
 
 También podemos ver que la longitud más poco común para un título de película es de 17 palabras, con solo un documento en este grupo.
 
+Examinemos ahora la explain information para esta agregación.
+
+```sh
+db.movies.aggregate(
+  [
+    {
+      $match: {
+        title: /^[aeiou]/i
+      }
+    },
+    {
+      $project: {
+        title_size: { $size: { $split: ["$title", " "] } }
+      }
+    },
+    {
+      $group: {
+        _id: "$title_size",
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    }
+  ],
+  { explain: true }
+)
+```
+
 Examinemos ahora la información de explicación para esta agregación.
 
-Entonces tenemos la misma tubería que antes.
+Entonces tenemos la misma pipeline que antes.
 
-Pero esta vez estamos agregando explicar true para obtener la salida de explicación.
+Pero esta vez estamos agregando explain true para obtener la salida explain.
 
 Echemos un vistazo a los resultados.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate(
+...   [
+...     {
+...       $match: {
+...         title: /^[aeiou]/i
+...       }
+...     },
+...     {
+...       $project: {
+...         title_size: { $size: { $split: ["$title", " "] } }
+...       }
+...     },
+...     {
+...       $group: {
+...         _id: "$title_size",
+...         count: { $sum: 1 }
+...       }
+...     },
+...     {
+...       $sort: { count: -1 }
+...     }
+...   ],
+...   { explain: true }
+... )
+{
+	"stages" : [
+		{
+			"$cursor" : {
+				"query" : {
+					"title" : /^[aeiou]/i
+				},
+				"fields" : {
+					"title" : 1,
+					"_id" : 1
+				},
+				"queryPlanner" : {
+					"plannerVersion" : 1,
+					"namespace" : "aggregations.movies",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"title" : {
+							"$regex" : "^[aeiou]",
+							"$options" : "i"
+						}
+					},
+					"winningPlan" : {
+						"stage" : "FETCH",
+						"inputStage" : {
+							"stage" : "IXSCAN",
+							"filter" : {
+								"title" : {
+									"$regex" : "^[aeiou]",
+									"$options" : "i"
+								}
+							},
+							"keyPattern" : {
+								"title" : 1,
+								"year" : 1
+							},
+							"indexName" : "title_1_year_1",
+							"isMultiKey" : false,
+							"multiKeyPaths" : {
+								"title" : [ ],
+								"year" : [ ]
+							},
+							"isUnique" : false,
+							"isSparse" : false,
+							"isPartial" : false,
+							"indexVersion" : 2,
+							"direction" : "forward",
+							"indexBounds" : {
+								"title" : [
+									"[\"\", {})",
+									"[/^[aeiou]/i, /^[aeiou]/i]"
+								],
+								"year" : [
+									"[MinKey, MaxKey]"
+								]
+							}
+						}
+					},
+					"rejectedPlans" : [
+						{
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"filter" : {
+									"title" : {
+										"$regex" : "^[aeiou]",
+										"$options" : "i"
+									}
+								},
+								"keyPattern" : {
+									"title" : 1
+								},
+								"indexName" : "title_1",
+								"isMultiKey" : false,
+								"multiKeyPaths" : {
+									"title" : [ ]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"title" : [
+										"[\"\", {})",
+										"[/^[aeiou]/i, /^[aeiou]/i]"
+									]
+								}
+							}
+						},
+						{
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"filter" : {
+									"title" : {
+										"$regex" : "^[aeiou]",
+										"$options" : "i"
+									}
+								},
+								"keyPattern" : {
+									"title" : 1,
+									"imdb.rating" : 1
+								},
+								"indexName" : "title_1_imdb.rating_1",
+								"isMultiKey" : false,
+								"multiKeyPaths" : {
+									"title" : [ ],
+									"imdb.rating" : [ ]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"title" : [
+										"[\"\", {})",
+										"[/^[aeiou]/i, /^[aeiou]/i]"
+									],
+									"imdb.rating" : [
+										"[MinKey, MaxKey]"
+									]
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"title_size" : {
+					"$size" : [
+						{
+							"$split" : [
+								"$title",
+								{
+									"$const" : " "
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"$group" : {
+				"_id" : "$title_size",
+				"count" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			}
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"count" : -1
+				}
+			}
+		}
+	],
+	"serverInfo" : {
+		"host" : "cluster0-shard-00-00-jxeqq.mongodb.net",
+		"port" : 27017,
+		"version" : "4.0.16",
+		"gitVersion" : "2a5433168a53044cb6b4fa8083e4cfd7ba142221"
+	},
+	"ok" : 1,
+	"operationTime" : Timestamp(1584967337, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1584967337, 1),
+		"signature" : {
+			"hash" : BinData(0,"WFTM8FrdxLe3N8o8bVD++C7UpFQ="),
+			"keyId" : NumberLong("6763648209215553537")
+		}
+	}
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Hay mucha información interesante aquí.
 
-Podemos ver cuál fue nuestra consulta, los campos que se guardaron, que resultaron ser title y _id, y luego el planificador de consultas.
+Podemos ver cuál fue nuestra consulta, los campos que se guardaron, que resultaron ser `title` y `_id`, y luego el planificador de consultas.
 
-Un poco más abajo, también podemos ver el plan ganador que utilizó una etapa de búsqueda seguida de un escaneo de índice.
+Un poco más abajo, también podemos ver el plan ganador `winningPlan` que utilizó una etapa `FETCH` seguida de un escaneo de índice `IXSCAN`.
 
 Probablemente podamos hacerlo un poco mejor que esto, porque sabemos que tenemos un índice que debería admitir esta consulta.
 
 También podemos ver las etapas que se ejecutaron.
 
-Aquí está nuestra etapa de proyecto convertida donde vemos _id verdadero-- esto está implícito, recuerde-- el tamaño del título donde calculamos el tamaño de nuestro título, y luego podemos ver nuestro grupo y nuestra clasificación junto con la clave de clasificación; Información bastante interesante.
+Nuestra etapa `$project` convertida donde vemos `_id` true-- esto está implícito, recuerde-- el tamaño del título `title_size` donde calculamos el tamaño de nuestro título, y luego podemos ver nuestro `$group` y nuestra `$sort` junto con la sort key; Información bastante interesante.
 
 Entonces, veamos si podemos hacerlo mejor.
 
 Nuestro objetivo es intentar que esto sea una consulta cubierta, lo que significa que no hay una etapa de recuperación.
 
-Entonces, esta tubería de agregación es casi idéntica a la primera que teníamos, excepto que me estoy deshaciendo explícitamente del campo _id.
+Entonces, esta aggregation pipeline es casi idéntica a la primera que teníamos, excepto que me estoy deshaciendo explícitamente del campo `_id`.
 
-Recuerde, la etapa del proyecto lo mantiene implícitamente a menos que le indiquemos que no lo haga.
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      title: /^[aeiou]/i
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      title_size: { $size: { $split: ["$title", " "] } }
+    }
+  },
+  {
+    $group: {
+      _id: "$title_size",
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { count: -1 }
+  }
+])
+```
+
+Recuerde, la etapa project lo mantiene implícitamente a menos que le indiquemos que no lo haga.
 
 Veamos si obtenemos los mismos resultados.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     $match: {
+...       title: /^[aeiou]/i
+...     }
+...   },
+...   {
+...     $project: {
+...       _id: 0,
+...       title_size: { $size: { $split: ["$title", " "] } }
+...     }
+...   },
+...   {
+...     $group: {
+...       _id: "$title_size",
+...       count: { $sum: 1 }
+...     }
+...   },
+...   {
+...     $sort: { count: -1 }
+...   }
+... ])
+{ "_id" : 3, "count" : 1450 }
+{ "_id" : 2, "count" : 1372 }
+{ "_id" : 1, "count" : 1200 }
+{ "_id" : 4, "count" : 1166 }
+{ "_id" : 5, "count" : 647 }
+{ "_id" : 6, "count" : 285 }
+{ "_id" : 7, "count" : 149 }
+{ "_id" : 8, "count" : 85 }
+{ "_id" : 9, "count" : 39 }
+{ "_id" : 10, "count" : 21 }
+{ "_id" : 11, "count" : 17 }
+{ "_id" : 12, "count" : 6 }
+{ "_id" : 15, "count" : 4 }
+{ "_id" : 14, "count" : 3 }
+{ "_id" : 13, "count" : 2 }
+{ "_id" : 17, "count" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+
+```
+
 Y, de hecho, obtenemos los mismos resultados que antes, donde parece que las películas con una longitud de tres palabras son las más frecuentes con 1.450 documentos.
 
-OKAY.
+OK.
 
 Verificamos los mismos resultados.
 
 Verifiquemos el resultado de la explicación para ver si hemos mejorado el rendimiento de nuestra consulta.
 
-Nuevamente, la misma canalización que acabamos de usar también proyectaba _id, simplemente agregando la opción de explicación verdadera a la función de agregación.
+Nuevamente, la misma pipeline que acabamos de usar también proyectaba `_id`, simplemente agregando la opción explain true a la función de agregación.
 
 Y mirando el plan de explicación, vemos nuevamente que tenemos la misma consulta en el cursor.
 
