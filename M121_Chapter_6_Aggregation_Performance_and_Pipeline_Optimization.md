@@ -1698,11 +1698,62 @@ Obtendremos el tamaño de los arrays resultantes filtrando para eliminar la acci
 
 En este caso, solo permitimos documentos que tengan la acción de compra; `"$$this.action", "buy"`, y la acción de venta `"$$this.action", "sell"`.
 
-Por último, solo obtendremos el tamaño de la matriz de intercambios para obtener la cantidad total de intercambios que tuvimos.
+Por último, solo obtendremos el tamaño del array de intercambios (trades) para obtener la cantidad total de intercambios que tuvimos.
 
 Ahora, esto parece casi demasiado simple, así que veámoslo en acción.
 
-Nuevamente, esta es la misma tubería que en la diapositiva anterior.
+```sh
+MongoDB Enterprise > db.stocks.aggregate([
+...   {
+...     $project: {
+...       buy_actions: {
+...         $size: {
+...           $filter: {
+...             input: "$trades",
+...             cond: { $eq: ["$$this.action", "buy"] }
+...           }
+...         }
+...       },
+...       sell_actions: {
+...         $size: {
+...           $filter: {
+...             input: "$trades",
+...             cond: { $eq: ["$$this.action", "sell"] }
+...           }
+...         }
+...       },
+...       total_trades: { $size: "$trades" }
+...     }
+...   },
+...   {
+...     $sort: { total_trades: -1 }
+...   }
+... ])
+{ "_id" : ObjectId("59de66b90e3733b1538628db"), "buy_actions" : 244, "sell_actions" : 255, "total_trades" : 499 }
+{ "_id" : ObjectId("59de66b90e3733b15386295b"), "buy_actions" : 244, "sell_actions" : 255, "total_trades" : 499 }
+{ "_id" : ObjectId("59de66b90e3733b1538629ee"), "buy_actions" : 255, "sell_actions" : 243, "total_trades" : 498 }
+{ "_id" : ObjectId("59de66b90e3733b1538628d2"), "buy_actions" : 251, "sell_actions" : 246, "total_trades" : 497 }
+{ "_id" : ObjectId("59de66b90e3733b1538628d7"), "buy_actions" : 228, "sell_actions" : 269, "total_trades" : 497 }
+{ "_id" : ObjectId("59de66b90e3733b1538628fb"), "buy_actions" : 222, "sell_actions" : 272, "total_trades" : 494 }
+{ "_id" : ObjectId("59de66b90e3733b1538629c0"), "buy_actions" : 222, "sell_actions" : 272, "total_trades" : 494 }
+{ "_id" : ObjectId("59de66b90e3733b153862a7b"), "buy_actions" : 266, "sell_actions" : 226, "total_trades" : 492 }
+{ "_id" : ObjectId("59de66b90e3733b15386294d"), "buy_actions" : 238, "sell_actions" : 252, "total_trades" : 490 }
+{ "_id" : ObjectId("59de66b90e3733b1538629a4"), "buy_actions" : 237, "sell_actions" : 252, "total_trades" : 489 }
+{ "_id" : ObjectId("59de66b90e3733b1538629b4"), "buy_actions" : 240, "sell_actions" : 244, "total_trades" : 484 }
+{ "_id" : ObjectId("59de66b90e3733b1538628fe"), "buy_actions" : 237, "sell_actions" : 245, "total_trades" : 482 }
+{ "_id" : ObjectId("59de66b90e3733b153862940"), "buy_actions" : 247, "sell_actions" : 235, "total_trades" : 482 }
+{ "_id" : ObjectId("59de66b90e3733b153862938"), "buy_actions" : 245, "sell_actions" : 237, "total_trades" : 482 }
+{ "_id" : ObjectId("59de66b90e3733b1538628d4"), "buy_actions" : 246, "sell_actions" : 235, "total_trades" : 481 }
+{ "_id" : ObjectId("59de66b90e3733b1538629c6"), "buy_actions" : 227, "sell_actions" : 254, "total_trades" : 481 }
+{ "_id" : ObjectId("59de66b90e3733b153862a54"), "buy_actions" : 234, "sell_actions" : 246, "total_trades" : 480 }
+{ "_id" : ObjectId("59de66b90e3733b15386294f"), "buy_actions" : 218, "sell_actions" : 261, "total_trades" : 479 }
+{ "_id" : ObjectId("59de66b90e3733b1538628e2"), "buy_actions" : 239, "sell_actions" : 239, "total_trades" : 478 }
+{ "_id" : ObjectId("59de66b90e3733b153862924"), "buy_actions" : 246, "sell_actions" : 230, "total_trades" : 476 }
+Type "it" for more
+MongoDB Enterprise > 
+```
+
+Nuevamente, esta es la misma pipeline que en la diapositiva anterior.
 
 La etapa de clasificación se agrega solo para garantizar que obtengamos resultados consistentes, de modo que podamos hacer comparaciones más adelante.
 
@@ -1712,21 +1763,27 @@ Y diría que este formato es más fácil de razonar.
 
 Veamos el resultado anterior para comparar.
 
-Y aquí están los resultados de esa tubería anterior donde usamos el grupo doble.
+Y aquí están los resultados de esa pipeline anterior donde usamos el grupo doble.
 
-Podemos ver que la información que aún queremos está incrustada en esta matriz de acciones.
+Podemos ver que la información que aún queremos está incrustada en este array de acciones.
 
-Esta es una visualización de nuestra nueva tubería.
+Esta es una visualización de nuestra nueva pipeline.
 
-Nuestra nueva tubería produjo resultados funcionalmente idénticos, pero visualmente, podemos ver en la ejecución, es muy diferente.
+<img src="images/m121/c6/6-6-9.png">
 
-En lugar de realizar un trabajo innecesario y posiblemente mover y colapsar nuestra tubería a una sola ubicación, lo que provoca una desaceleración en el uso adicional de la red, conservamos la misma cantidad de documentos que realizan el trabajo de manera específica y en su lugar.
+Nuestra nueva pipeline produjo resultados funcionalmente idénticos, pero visualmente, podemos ver en la ejecución, es muy diferente.
+
+En lugar de realizar un trabajo innecesario y posiblemente mover y colapsar nuestra pipeline a una sola ubicación, lo que provoca una desaceleración en el uso adicional de la red, conservamos la misma cantidad de documentos que realizan el trabajo de manera específica y en su lugar.
 
 Y en el entorno de fragmentos, los beneficios también son tangibles.
 
 Hemos mantenido todo el trabajo distribuido entre los fragmentos.
 
+<img src="images/m121/c6/6-6-10.png">
+
 Está bien, pero espera ... pero espera.
+
+<img src="images/m121/c6/6-6-11.png">
 
 Todo eso está bien para la entrada esencialmente binaria, cuando queremos contar la ocurrencia de algo.
 
@@ -1736,35 +1793,153 @@ Pero, ¿qué pasa si queremos hacer algo más significativo?
 
 Busquemos esa información para las acciones de MongoDB.
 
-Nuevamente, las expresiones de mapa, reducción, filtro y acumulador disponibles en la etapa del proyecto son herramientas increíbles.**************Así que este es un ejemplo de canalización que produciría esos resultados para nosotros.
+Nuevamente, las expresiones de mapa, reducción, filtro y acumulador disponibles en la etapa del proyecto son herramientas increíbles. Así que este es un ejemplo de pipeline que produciría esos resultados para nosotros.
+
+```sh
+db.stocks.aggregate([
+  {
+    $project: {
+      _id: 0,
+      mdb_only: {
+        $reduce: {
+          input: {
+            $filter: {
+              input: "$trades",
+              cond: { $eq: ["$$this.ticker", "MDB"] }
+            }
+          },
+          initialValue: {
+            buy: { total_count: 0, total_value: 0 },
+            sell: { total_count: 0, total_value: 0 }
+          },
+          in: {
+            $cond: [
+              { $eq: ["$$this.action", "buy"] },
+              {
+                buy: {
+                  total_count: { $add: ["$$value.buy.total_count", 1] },
+                  total_value: {
+                    $add: ["$$value.buy.total_value", "$$this.price"]
+                  }
+                },
+                sell: "$$value.sell"
+              },
+              {
+                sell: {
+                  total_count: { $add: ["$$value.sell.total_count", 1] },
+                  total_value: {
+                    $add: ["$$value.sell.total_value", "$$this.price"]
+                  }
+                },
+                buy: "$$value.buy"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+])
+
+```
 
 Primero, especificamos la expresión reducida.
 
-Como matriz de entrada, seguiremos adelante y filtraremos la matriz de operaciones, filtrando cualquier ticker de acciones que no sea igual a MongoDB.
+Como array de entrada, seguiremos adelante y filtraremos el array de operaciones, filtrando cualquier ticker de acciones que no sea igual a MongoDB.
 
-El valor inicial y el valor que se utilizará como el valor del acumulador, valor dólar-dólar-- vamos a especificar este documento, con dos claves-- comprar y vender-- que son documentos, con claves de conteo total y valor total.
+El valor inicial y el valor que se utilizará como el valor del acumulador, valor dólar-dólar-- vamos a especificar este documento, con dos claves-- buy y sell-- que son documentos, con claves de conteo total y valor total.
 
-Aquí, una entrada es nuestra lógica.
+Aquí, in es nuestra entrada lógica.
 
-Comenzamos con esta expresión condicional, donde verificamos si esta acción de punto es igual a comprar.
+Comenzamos con esta expresión condicional, donde verificamos si esta acción de punto es igual a buy.
 
-Recuerde, dólar-dólar esto se refiere al elemento actual de la matriz de entrada.
+Recuerde, `$$this` se refiere al elemento actual del array de entrada.
 
 Recuerde, filtramos eso, por lo que sabemos que solo obtendremos documentos que tengan MDB como símbolo de ticker.
 
-Entonces, si se trata de una acción de compra, modificamos el recuento total agregando uno al valor dólar-dólar, punto de compra, recuento total de puntos.
+Entonces, si se trata de una acción de compra, modificamos el recuento total agregando uno al valor `"$$value.buy.total_count"`.
 
 Recuerde, el valor dólar-dólar se refiere al acumulador, que inicialmente configuramos como este valor aquí.
 
-También modificamos el valor total agregando este precio de punto al valor dólar-dólar, punto de compra, valor total de punto.
+También modificamos el valor total agregando este precio de punto al `"$$value.buy.total_value"`.
 
-Y si esta fue una acción de compra, no modificamos la venta de ninguna manera.
+Y si esta fue una acción de compra buy, no modificamos la venta de ninguna manera.
 
 Simplemente lo reasignamos a sí mismo.
 
 Si se trata de una acción de venta, esencialmente hacemos lo mismo, agregando uno al número total de ventas y agregando el precio de esta acción al valor total de ventas, y finalmente reasignando la recompra a sí mismo, porque esta fue una venta .
 
 Podemos ver que, basado solo en MongoDB, el recuento total de compras fue de 10, y el recuento total de ventas fue de cinco para este documento específico.
+
+```sh
+MongoDB Enterprise > db.stocks.aggregate([
+...   {
+...     $project: {
+...       _id: 0,
+...       mdb_only: {
+...         $reduce: {
+...           input: {
+...             $filter: {
+...               input: "$trades",
+...               cond: { $eq: ["$$this.ticker", "MDB"] }
+...             }
+...           },
+...           initialValue: {
+...             buy: { total_count: 0, total_value: 0 },
+...             sell: { total_count: 0, total_value: 0 }
+...           },
+...           in: {
+...             $cond: [
+...               { $eq: ["$$this.action", "buy"] },
+...               {
+...                 buy: {
+...                   total_count: { $add: ["$$value.buy.total_count", 1] },
+...                   total_value: {
+...                     $add: ["$$value.buy.total_value", "$$this.price"]
+...                   }
+...                 },
+...                 sell: "$$value.sell"
+...               },
+...               {
+...                 sell: {
+...                   total_count: { $add: ["$$value.sell.total_count", 1] },
+...                   total_value: {
+...                     $add: ["$$value.sell.total_value", "$$this.price"]
+...                   }
+...                 },
+...                 buy: "$$value.buy"
+...               }
+...             ]
+...           }
+...         }
+...       }
+...     }
+...   }
+... ])
+{ "mdb_only" : { "sell" : { "total_count" : 15, "total_value" : NumberDecimal("381.62") }, "buy" : { "total_count" : 9, "total_value" : NumberDecimal("227.97") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 10, "total_value" : NumberDecimal("255.95") }, "sell" : { "total_count" : 5, "total_value" : NumberDecimal("127.77") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 44, "total_value" : NumberDecimal("1122.76") }, "sell" : { "total_count" : 54, "total_value" : NumberDecimal("1380.83") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 17, "total_value" : NumberDecimal("433.47") }, "sell" : { "total_count" : 14, "total_value" : NumberDecimal("355.74") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 37, "total_value" : NumberDecimal("944.49") }, "sell" : { "total_count" : 37, "total_value" : NumberDecimal("941.25") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 22, "total_value" : NumberDecimal("559.88") }, "sell" : { "total_count" : 19, "total_value" : NumberDecimal("482.45") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 13, "total_value" : NumberDecimal("332.32") }, "sell" : { "total_count" : 11, "total_value" : NumberDecimal("279.01") } } }
+{ "mdb_only" : { "sell" : { "total_count" : 50, "total_value" : NumberDecimal("1273.78") }, "buy" : { "total_count" : 57, "total_value" : NumberDecimal("1453.00") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 40, "total_value" : NumberDecimal("1020.32") }, "sell" : { "total_count" : 38, "total_value" : NumberDecimal("968.87") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 14, "total_value" : NumberDecimal("356.31") }, "sell" : { "total_count" : 3, "total_value" : NumberDecimal("76.86") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 19, "total_value" : NumberDecimal("483.18") }, "sell" : { "total_count" : 26, "total_value" : NumberDecimal("664.59") } } }
+{ "mdb_only" : { "sell" : { "total_count" : 19, "total_value" : NumberDecimal("483.77") }, "buy" : { "total_count" : 23, "total_value" : NumberDecimal("586.48") } } }
+{ "mdb_only" : { "sell" : { "total_count" : 50, "total_value" : NumberDecimal("1276.67") }, "buy" : { "total_count" : 41, "total_value" : NumberDecimal("1048.92") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 31, "total_value" : NumberDecimal("792.58") }, "sell" : { "total_count" : 29, "total_value" : NumberDecimal("741.58") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 30, "total_value" : NumberDecimal("764.75") }, "sell" : { "total_count" : 39, "total_value" : NumberDecimal("997.22") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 14, "total_value" : NumberDecimal("357.06") }, "sell" : { "total_count" : 13, "total_value" : NumberDecimal("331.05") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 27, "total_value" : NumberDecimal("689.15") }, "sell" : { "total_count" : 29, "total_value" : NumberDecimal("740.31") } } }
+{ "mdb_only" : { "sell" : { "total_count" : 30, "total_value" : NumberDecimal("766.35") }, "buy" : { "total_count" : 20, "total_value" : NumberDecimal("510.81") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 35, "total_value" : NumberDecimal("890.59") }, "sell" : { "total_count" : 34, "total_value" : NumberDecimal("869.90") } } }
+{ "mdb_only" : { "buy" : { "total_count" : 37, "total_value" : NumberDecimal("943.01") }, "sell" : { "total_count" : 41, "total_value" : NumberDecimal("1047.52") } } }
+Type "it" for more
+MongoDB Enterprise > 
+
+```
 
 También podemos ver el valor en dólares asociado con todas las transacciones.
 
@@ -1774,15 +1949,13 @@ Muy bien, hemos cubierto mucha información en esta lección.
 
 Avancemos y resumamos de lo que hablamos.
 
-Primero, evite etapas innecesarias.
+<img src="images/m121/c6/6-6-12.png">
 
-El marco de agregación puede proyectar campos automáticamente si la forma final del documento de salida se puede determinar a partir de la entrada inicial.
+* Primero, evite etapas innecesarias. El marco de agregación puede proyectar campos automáticamente si la forma final del documento de salida se puede determinar a partir de la entrada inicial.
 
-En segundo lugar, use expresiones de acumulador, así como expresiones de mapa de dólar, reducción de dólar y filtro de dólar, en las etapas del proyecto antes de un desenrollado, si es posible.
+* En segundo lugar, use expresiones de acumulador, así como expresiones `$map`, `$reduce` y `$filter`, en las etapas del proyecto antes de un `$unwind`, si es posible. Nuevamente, esto solo se aplica si necesita agrupar dentro de un documento, no entre sus documentos.
 
-Nuevamente, esto solo se aplica si necesita agrupar dentro de un documento, no entre sus documentos.
-
-Por último, cada función de matriz de alto orden se puede implementar con dollar-reduce si las expresiones proporcionadas no satisfacen sus necesidades.
+* Por último, cada función de array de alto orden se puede implementar con `$reduce` si las expresiones proporcionadas no satisfacen sus necesidades.
 
 ## 7. Examen Pipeline Optimization - Part 2
 
@@ -1799,3 +1972,9 @@ Check all answers that apply:
 * Causing a merge in a sharded deployment will cause all subsequent pipeline stages to be performed in the same location as the merge
 
 * The Aggregation Framework can automatically project fields if the shape of the final document is only dependent upon those fields in the input document.
+
+
+### See detailed answer
+
+All options are correct!
+
