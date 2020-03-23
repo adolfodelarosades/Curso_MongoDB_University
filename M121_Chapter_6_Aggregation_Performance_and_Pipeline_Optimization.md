@@ -200,9 +200,27 @@ Check all answers that apply:
 
 * Passing `allowDiskUsage` to your aggregation queries will seriously increase their performance
 
-* When `$limit` and `$sort` are close together a very performant top-k sort can be performed
+* When `$limit` and `$sort` are close together a very performant top-k sort can be performed :+1:
 
-* Transforming data in a pipeline stage prevents us from using indexes in the stages that follow
+* Transforming data in a pipeline stage prevents us from using indexes in the stages that follow :+1:
+
+### See detailed answer
+
+* **You can increase index usage by moving $match stages to the end of your pipeline**
+
+No, you should move `$match` stages to the beginning of your pipelines!
+
+* **Passing `allowDiskUsage` to your aggregation queries will seriously increase their performance**
+
+No, `allowDiskUsage` will decrease query performance, but it will be necessary to circumvent the 100MB per stage limit.
+
+* **When `$limit` and `$sort` are close together a very performant top-k sort can be performed**
+
+Yes, this is true!
+
+* **Transforming data in a pipeline stage prevents us from using indexes in the stages that follow**
+
+Yes, this is true. That's why it's important to put all your index using operators at the front of your pipelines!
 
 ## 3. Tema: Aggregation Pipeline en un Sharded Cluster
 
