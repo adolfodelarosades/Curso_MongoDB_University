@@ -1965,13 +1965,13 @@ Which of the following statements is/are true?
 
 Check all answers that apply:
 
-* The query in a `$match` stage can be entirely covered by an index
+* The query in a `$match` stage can be entirely covered by an index :+1:
 
-* The Aggregation Framework will automatically reorder stages in certain conditions
+* The Aggregation Framework will automatically reorder stages in certain conditions :+1:
 
-* Causing a merge in a sharded deployment will cause all subsequent pipeline stages to be performed in the same location as the merge
+* Causing a merge in a sharded deployment will cause all subsequent pipeline stages to be performed in the same location as the merge :+1:
 
-* The Aggregation Framework can automatically project fields if the shape of the final document is only dependent upon those fields in the input document.
+* The Aggregation Framework can automatically project fields if the shape of the final document is only dependent upon those fields in the input document. :+1:
 
 
 ### See detailed answer
