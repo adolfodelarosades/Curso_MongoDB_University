@@ -236,11 +236,15 @@ En esta lección, vamos a hablar sobre la aggregation pipeline en un sharded clu
 
 <img src="images/m121/c6/6-3-1.png">
 
-Específicamente vamos a discutir cómo funciona, dónde se completan las operaciones, y también veremos cómo se optimizan las tuberías para que funcionen bien en grupos fragmentados.
+Específicamente vamos a discutir cómo funciona, dónde se completan las operaciones, y también veremos cómo se optimizan los pipelines para que funcionen bien en grupos fragmentados.
+
+<img src="images/m121/c6/6-3-2.png">
 
 Avancemos y hablemos sobre cómo funciona la agregación en un clúster fragmentado.
 
-Cuando ejecutamos consultas de agregación en un conjunto de réplica o MongoDB independiente, es mucho más fácil para el servidor razonar porque todos los datos se encuentran en un solo lugar.
+Cuando ejecutamos consultas de agregación en un replica set o MongoDB independiente, es mucho más fácil para el servidor razonar porque todos los datos se encuentran en un solo lugar.
+
+<img src="images/m121/c6/6-3-3.png">
 
 En un clúster fragmentado, dado que nuestros datos se dividen en diferentes fragmentos, esto se vuelve un poco más difícil.
 
@@ -248,9 +252,11 @@ Afortunadamente, MongoDB tiene algunos buenos trucos bajo la manga para abordar 
 
 Por ejemplo, aquí tenemos la consulta de agregación simple donde estoy usando match para encontrar todos los restaurantes en el estado de Nueva York.
 
-Luego estoy usando grupo a grupo por cada estado y luego promedio la cantidad de estrellas para ese estado dado.
+<img src="images/m121/c6/6-3-4.png">
 
-Como mi clave de fragmento está en estado, todos los restaurantes en Nueva York estarán en el mismo fragmento.
+Luego estoy usando group para agrupar por cada estado y luego promedio la cantidad de estrellas para ese estado dado.
+
+Como mi clave de fragmento (shard key) está en estado, todos los restaurantes en Nueva York estarán en el mismo fragmento.
 
 Esto significa que el servidor puede simplemente enrutar la consulta agregada a ese fragmento, donde puede ejecutar la agregación y devolver los resultados al Mongo S y luego al cliente.
 
@@ -258,19 +264,23 @@ Muy sencillo
 
 Ahora mira este ejemplo.
 
+<img src="images/m121/c6/6-3-5.png">
+
 He cambiado ligeramente la consulta para que ya no usemos la etapa de coincidencia.
 
 Así que ahora estamos hablando de todos los documentos en nuestra colección fragmentada.
 
 Ahora, dado que estos documentos se extienden a través de múltiples fragmentos, vamos a necesitar hacer algunos cálculos en cada fragmento, pero luego también tendremos que obtener de alguna manera todos esos resultados en un solo lugar, donde podamos fusionar los resultados juntos.
 
-En este caso, nuestra tubería necesita ser dividida.
+En este caso, nuestro pipeline necesita ser dividida.
 
 El servidor determinará qué etapas deben ejecutarse en cada fragmento, y luego qué etapas deben ejecutarse en un solo fragmento donde los resultados de los otros fragmentos se fusionarán.
 
 En general, la fusión ocurrirá en un fragmento aleatorio, pero hay ciertas circunstancias en las que este no es el caso.
 
-Este no es el caso cuando usamos $ out o $ facet o $ lookup o $ graphLookup.
+Este no es el caso cuando usamos `$out` o `$facet` o `$lookup` o `$graphLookup`.
+
+<img src="images/m121/c6/6-3-6.png">
 
 Para estas consultas, el fragmento primario hará el trabajo de fusionar nuestros resultados.
 
@@ -278,19 +288,27 @@ Y esto es importante de entender porque si ejecutamos estas operaciones con much
 
 En estas circunstancias específicas, puede mitigar este problema utilizando una máquina con más recursos para su fragmento primario.
 
+<img src="images/m121/c6/6-3-7.png">
+
 También hay algunas optimizaciones interesantes que el servidor intentará realizar que debe tener en cuenta.
+
+<img src="images/m121/c6/6-3-8.png">
 
 La mayoría de estos también se aplicarán cuando no esté fragmentando, pero aún así son útiles para saber.
 
 Toma este ejemplo.
 
-Aquí tenemos una especie seguida de un partido.
+<img src="images/m121/c6/6-3-9.png">
+
+Aquí tenemos un sort seguida de un match.
 
 Ahora el optimizador de consultas moverá la coincidencia delante del orden para reducir la cantidad de documentos que deben ordenarse.
 
-Esto es particularmente útil en clústeres fragmentados cuando tenemos una división en nuestra tubería y cuando desea reducir la cantidad de datos que se transfieren por cable a nuestro fragmento de fusión.
+Esto es particularmente útil en clústeres fragmentados cuando tenemos una división en nuestro pipeline y cuando desea reducir la cantidad de datos que se transfieren por cable a nuestro fragmento de fusión.
 
 Del mismo modo, podemos reducir la cantidad de documentos que necesitamos examinar moviendo el límite después de un salto delante de él.
+
+<img src="images/m121/c6/6-3-10.png">
 
 Observe que el planificador de consultas actualiza los valores en consecuencia para admitir esta optimización.
 
@@ -298,23 +316,31 @@ Además de mover etapas, el servidor también puede combinar ciertas etapas junt
 
 Aquí veremos dónde combinamos dos límites en uno.
 
-Lo mismo con saltar.
+<img src="images/m121/c6/6-3-11.png">
 
-Y finalmente, estamos viendo lo mismo con el partido.
+Lo mismo con skip.
+
+<img src="images/m121/c6/6-3-12.png">
+
+Y finalmente, estamos viendo lo mismo con match.
+
+<img src="images/m121/c6/6-3-13.png">
 
 Ahora todas estas optimizaciones serán intentadas automáticamente por el optimizador de consultas.
 
 Dicho esto, creo que es importante señalar estas optimizaciones para que pueda considerar más cuidadosamente sus propios canales de agregación y las implicaciones de rendimiento.
 
-Y eso debería darle una buena visión general de la tubería de agregación en un clúster fragmentado.
+Y eso debería darle una buena visión general del aggregation pipeline en un clúster fragmentado.
 
 Recapitulemos lo que aprendimos.
 
-Discutimos cómo funciona la canalización de agregación en un entorno fragmentado.
+<img src="images/m121/c6/6-3-14.png">
 
-Y específicamente vimos dónde ocurren las diferentes operaciones cuando usamos sharding.
+* Discutimos cómo funciona aggregation pipeline en un entorno fragmentado.
 
-Y finalmente, observamos algunas optimizaciones que el servidor intentará hacer cuando ejecute consultas de agregación.
+* Y específicamente vimos dónde ocurren las diferentes operaciones cuando usamos sharding.
+
+* Y finalmente, observamos algunas optimizaciones que el servidor intentará hacer cuando ejecute consultas de agregación.
 
 ## 4. Examen Aggregation Pipeline on a Sharded Cluster
 
@@ -326,9 +352,23 @@ Check all answers that apply:
 
 * `$group`
 
-* `$lookup`
+* `$lookup` :+1:
+
+* `$out` :+1:
+
+### See detailed answer
 
 * `$out`
+
+Yes.
+
+* `$group`
+
+No, `$group` can potentially cause a merge stage, but a random shard will be selected for the merging.
+
+* `$lookup`
+
+Yes.
 
 ## 5. Tema: Pipeline Optimization - Parte 1
 
