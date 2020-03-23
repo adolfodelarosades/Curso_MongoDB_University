@@ -1644,16 +1644,17 @@ MongoDB Enterprise > db.stocks.aggregate([
 }
 Type "it" for more
 MongoDB Enterprise > 
-
 ```
 
-Muy bien, nos da los resultados que esperábamos: acciones totales y el número de acciones de compra y venta por documento.
+Muy bien, nos da los resultados que esperábamos: acciones totales `total_traes` y el número de acciones de compra y venta por documento.
 
-Esta es una representación visual de la tubería anterior.
+Esta es una representación visual del pipeline anterior.
+
+<img src="images/m121/c6/6-6-4.png">
 
 Los cuadrados negros son nuestros documentos.
 
-Si comenzamos con cuatro documentos y desenrollamos un campo con solo tres entradas por documento, ahora tenemos 12 documentos.
+Si comenzamos con cuatro documentos y unwind un campo con solo tres entradas por documento, ahora tenemos 12 documentos.
 
 Luego agrupamos nuestros documentos dos veces para producir los resultados deseados, terminando con la misma cantidad de documentos con los que comenzamos.
 
@@ -1663,9 +1664,13 @@ Lamentablemente, empeora.
 
 Examinemos cómo esta ineficiencia impacta las operaciones en el entorno Shard D.
 
-Cada fragmento realiza el desenrollado.
+<img src="images/m121/c6/6-6-5.png">
+
+Cada fragmento realiza el desenrollado (unwind).
 
 El procesamiento inicial para la primera etapa de grupo se realizará en los fragmentos.
+
+<img src="images/m121/c6/6-6-6.png">
 
 Pero la agrupación final tiene que suceder en una sola ubicación.
 
@@ -1679,15 +1684,19 @@ Aquí, se nos muestra que la agrupación está ocurriendo en el fragmento A.
 
 En realidad, podría ocurrir en cualquier lugar al azar en nuestro grupo.
 
-Por lo tanto, realmente necesitamos una forma de iterar sobre la matriz y realizar nuestra lógica deseada dentro del documento.
+Por lo tanto, realmente necesitamos una forma de iterar sobre el array y realizar nuestra lógica deseada dentro del documento.
 
 Afortunadamente, tenemos las expresiones de mapa, reducción, filtro y acumulador disponibles en la etapa del proyecto para remediar este problema.
 
-Examinemos esta tubería.
+<img src="images/m121/c6/6-6-7.png">
 
-Obtendremos el tamaño de las matrices resultantes filtrando para eliminar la acción que no queremos para ese campo.
+Examinemos este pipeline.
 
-En este caso, solo permitimos documentos que tengan la acción de compra; aquí, la acción de venta.
+<img src="images/m121/c6/6-6-8.png">
+
+Obtendremos el tamaño de los arrays resultantes filtrando para eliminar la acción que no queremos para ese campo.
+
+En este caso, solo permitimos documentos que tengan la acción de compra; `"$$this.action", "buy"`, y la acción de venta `"$$this.action", "sell"`.
 
 Por último, solo obtendremos el tamaño de la matriz de intercambios para obtener la cantidad total de intercambios que tuvimos.
 
