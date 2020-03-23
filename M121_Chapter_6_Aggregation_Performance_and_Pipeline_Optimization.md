@@ -232,7 +232,9 @@ Puede obtener más información sobre la agregación en un clúster fragmentado 
 
 ### Transcripción
 
-En esta lección, vamos a hablar sobre la tubería de agregación en un clúster fragmentado.
+En esta lección, vamos a hablar sobre la aggregation pipeline en un sharded cluster (clúster fragmentado).
+
+<img src="images/m121/c6/6-3-1.png">
 
 Específicamente vamos a discutir cómo funciona, dónde se completan las operaciones, y también veremos cómo se optimizan las tuberías para que funcionen bien en grupos fragmentados.
 
