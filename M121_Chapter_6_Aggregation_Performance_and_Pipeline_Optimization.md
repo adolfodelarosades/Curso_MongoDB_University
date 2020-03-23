@@ -800,7 +800,6 @@ MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
 { "_id" : 13, "count" : 2 }
 { "_id" : 17, "count" : 1 }
 MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
-
 ```
 
 Y, de hecho, obtenemos los mismos resultados que antes, donde parece que las películas con una longitud de tres palabras son las más frecuentes con 1.450 documentos.
@@ -813,35 +812,310 @@ Verifiquemos el resultado de la explicación para ver si hemos mejorado el rendi
 
 Nuevamente, la misma pipeline que acabamos de usar también proyectaba `_id`, simplemente agregando la opción explain true a la función de agregación.
 
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate(
+...   [
+...     {
+...       $match: {
+...         title: /^[aeiou]/i
+...       }
+...     },
+...     {
+...       $project: {
+...         title_size: { $size: { $split: ["$title", " "] } }
+...       }
+...     },
+...     {
+...       $group: {
+...         _id: "$title_size",
+...         count: { $sum: 1 }
+...       }
+...     },
+...     {
+...       $sort: { count: -1 }
+...     }
+...   ],
+...   { explain: true }
+... )
+{
+	"stages" : [
+		{
+			"$cursor" : {
+				"query" : {
+					"title" : /^[aeiou]/i
+				},
+				"fields" : {
+					"title" : 1,
+					"_id" : 1
+				},
+				"queryPlanner" : {
+					"plannerVersion" : 1,
+					"namespace" : "aggregations.movies",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"title" : {
+							"$regex" : "^[aeiou]",
+							"$options" : "i"
+						}
+					},
+					"winningPlan" : {
+						"stage" : "FETCH",
+						"inputStage" : {
+							"stage" : "IXSCAN",
+							"filter" : {
+								"title" : {
+									"$regex" : "^[aeiou]",
+									"$options" : "i"
+								}
+							},
+							"keyPattern" : {
+								"title" : 1,
+								"year" : 1
+							},
+							"indexName" : "title_1_year_1",
+							"isMultiKey" : false,
+							"multiKeyPaths" : {
+								"title" : [ ],
+								"year" : [ ]
+							},
+							"isUnique" : false,
+							"isSparse" : false,
+							"isPartial" : false,
+							"indexVersion" : 2,
+							"direction" : "forward",
+							"indexBounds" : {
+								"title" : [
+									"[\"\", {})",
+									"[/^[aeiou]/i, /^[aeiou]/i]"
+								],
+								"year" : [
+									"[MinKey, MaxKey]"
+								]
+							}
+						}
+					},
+					"rejectedPlans" : [
+						{
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"filter" : {
+									"title" : {
+										"$regex" : "^[aeiou]",
+										"$options" : "i"
+									}
+								},
+								"keyPattern" : {
+									"title" : 1
+								},
+								"indexName" : "title_1",
+								"isMultiKey" : false,
+								"multiKeyPaths" : {
+									"title" : [ ]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"title" : [
+										"[\"\", {})",
+										"[/^[aeiou]/i, /^[aeiou]/i]"
+									]
+								}
+							}
+						},
+						{
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"filter" : {
+									"title" : {
+										"$regex" : "^[aeiou]",
+										"$options" : "i"
+									}
+								},
+								"keyPattern" : {
+									"title" : 1,
+									"imdb.rating" : 1
+								},
+								"indexName" : "title_1_imdb.rating_1",
+								"isMultiKey" : false,
+								"multiKeyPaths" : {
+									"title" : [ ],
+									"imdb.rating" : [ ]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"title" : [
+										"[\"\", {})",
+										"[/^[aeiou]/i, /^[aeiou]/i]"
+									],
+									"imdb.rating" : [
+										"[MinKey, MaxKey]"
+									]
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"title_size" : {
+					"$size" : [
+						{
+							"$split" : [
+								"$title",
+								{
+									"$const" : " "
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"$group" : {
+				"_id" : "$title_size",
+				"count" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			}
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"count" : -1
+				}
+			}
+		}
+	],
+	"serverInfo" : {
+		"host" : "cluster0-shard-00-00-jxeqq.mongodb.net",
+		"port" : 27017,
+		"version" : "4.0.16",
+		"gitVersion" : "2a5433168a53044cb6b4fa8083e4cfd7ba142221"
+	},
+	"ok" : 1,
+	"operationTime" : Timestamp(1584969527, 1),
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1584969527, 1),
+		"signature" : {
+			"hash" : BinData(0,"p/w2C9rZP+BVo+9dBWxWM/MfHi0="),
+			"keyId" : NumberLong("6763648209215553537")
+		}
+	}
+}
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
+
 Y mirando el plan de explicación, vemos nuevamente que tenemos la misma consulta en el cursor.
 
 Esta vez los campos son diferentes.
 
-Mantendremos el título y proyectaremos lejos _id.
+Mantendremos el título y proyectaremos lejos `_id`.
 
-Sigamos adelante y bajemos al plan ganador para ver si evitamos esa etapa de recuperación.
+Sigamos adelante y bajemos al plan ganador `winningPlan` para ver si evitamos esa etapa de recuperación.
 
 Muy bien, así que mirando nuestro plan ganador, podemos ver que es mucho mejor.
 
-Puedo ver que no hay etapa de recuperación.
+Puedo ver que no hay etapa fetch.
 
-Así que nuestra etapa de partido estaba cubierta.
+Así que nuestra etapa match estaba cubierta.
 
-Cuando vemos una etapa de recuperación, significa que MongoDB tuvo que ir al documento para obtener más información, en lugar de usar solo la información del índice.
+Cuando vemos una etapa fetch, significa que MongoDB tuvo que ir al documento para obtener más información, en lugar de usar solo la información del índice.
 
-De cierto interés aquí, también podemos ver que _id ahora se proyectaba como falso.
+De cierto interés en `$project`, también podemos ver que `_id` ahora se proyectaba como `false`.
 
 Esto se debe a que proporcionamos explícitamente esa información.
 
 Entonces, veamos si podemos hacerlo aún mejor.
 
-Así que aquí está nuestra nueva tubería modificada, donde tenemos la misma etapa de coincidencia.
+Así que aquí está nuestra nueva pipeline modificada, donde tenemos la misma etapa match.
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      title: /^[aeiou]/i
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      title_size: { $size: { $split: ["$title", " "] } }
+    }
+  },
+  {
+    $group: {
+      _id: "$title_size",
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { count: -1 }
+  }
+])
+```
 
 Sin embargo, esta vez no tenemos etapa de proyecto.
 
 En cambio, realizamos la lógica que necesitamos dentro del grupo y luego ordenamos esos resultados.
 
 Vamos a verlo en acción.
+
+```sh
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> db.movies.aggregate([
+...   {
+...     $match: {
+...       title: /^[aeiou]/i
+...     }
+...   },
+...   {
+...     $project: {
+...       _id: 0,
+...       title_size: { $size: { $split: ["$title", " "] } }
+...     }
+...   },
+...   {
+...     $group: {
+...       _id: "$title_size",
+...       count: { $sum: 1 }
+...     }
+...   },
+...   {
+...     $sort: { count: -1 }
+...   }
+... ])
+{ "_id" : 3, "count" : 1450 }
+{ "_id" : 2, "count" : 1372 }
+{ "_id" : 1, "count" : 1200 }
+{ "_id" : 4, "count" : 1166 }
+{ "_id" : 5, "count" : 647 }
+{ "_id" : 6, "count" : 285 }
+{ "_id" : 7, "count" : 149 }
+{ "_id" : 8, "count" : 85 }
+{ "_id" : 9, "count" : 39 }
+{ "_id" : 10, "count" : 21 }
+{ "_id" : 11, "count" : 17 }
+{ "_id" : 12, "count" : 6 }
+{ "_id" : 15, "count" : 4 }
+{ "_id" : 14, "count" : 3 }
+{ "_id" : 13, "count" : 2 }
+{ "_id" : 17, "count" : 1 }
+MongoDB Enterprise Cluster0-shard-0:PRIMARY> 
+```
 
 Muy bien, muy bien.
 
