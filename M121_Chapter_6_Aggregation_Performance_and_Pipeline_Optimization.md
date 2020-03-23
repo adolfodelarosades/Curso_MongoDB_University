@@ -1232,33 +1232,420 @@ Ten eso en mente.
 
 ### Transcripción
 
-Muy bien, ahora analicemos otra operación común que los desarrolladores encuentran cuando usan un patrón de extremo a extremo, como el atributo o los patrones de subconjunto, como las acciones negociadas en un momento dado o las 20 mejores reseñas de clientes para un producto.
+<img src="images/m121/c6/6-6-1.png">
+
+Muy bien, ahora analicemos otra operación común que los desarrolladores encuentran cuando usan un patrón one-to-end, como el atributo o los patrones de subconjunto, como las acciones negociadas en un momento dado o las 20 mejores reseñas de clientes para un producto.
 
 ¿Cómo trabajamos eficientemente con esos datos si nos gustaría realizar un análisis de marco de agregación?
 
 Imaginemos que estamos trabajando con documentos de este esquema, que es el seguimiento de todas las transacciones de compra y venta en nuestra plataforma de negociación.
 
-Nos gustaría analizar cuántas transacciones totales tenemos, así como cuántas compras y ventas se realizaron por marca de tiempo, y luego usar estos datos más adelante en nuestra cartera.
+<img src="images/m121/c6/6-6-2.png">
+
+Nos gustaría analizar cuántas transacciones totales tenemos, así como cuántas compras y ventas se realizaron por marca de tiempo, y luego usar estos datos más adelante en nuestra pipeline.
 
 En otras palabras, queremos agrupar datos en el documento, no entre documentos.
 
 Echemos un vistazo a la colección y pensemos cómo podríamos lograr esto.
 
-OK, entonces tenemos nuestra marca de tiempo, y luego tenemos nuestra matriz de intercambios con muchos, muchos documentos.
+```sh
+MongoDB Enterprise > db.stocks.findOne()
+{
+	"_id" : ObjectId("59de66b90e3733b1538628ce"),
+	"id" : ISODate("3919-02-08T01:48:37Z"),
+	"trades" : [
+		{
+			"action" : "sell",
+			"ticker" : "MDB",
+			"price" : NumberDecimal("25.96")
+		},
+		{
+			"action" : "buy",
+			"ticker" : "GOOG",
+			"price" : NumberDecimal("25.94")
+		},
+		{
+			"action" : "sell",
+			"ticker" : "IBM",
+			"price" : NumberDecimal("25.03")
+		},
+		{
+			"action" : "sell",
+			"ticker" : "AAPL",
+			"price" : NumberDecimal("25.82")
+		},
+		{
+			"action" : "buy",
+			"ticker" : "IBM",
+			"price" : NumberDecimal("25.87")
+		},
+...
+```
 
-OK, este podría ser nuestro primer enfoque, donde desenrollamos la matriz de operaciones y luego agrupamos en el tiempo y la acción, cuenta [INAUDIBLE].
+OK, entonces tenemos nuestra `time stamp`, y luego tenemos nuestro array de intercambios con muchos, muchos documentos.
 
-Y luego agrupe nuevamente, justo a tiempo, y empuje la acción y tenga en cuenta ese tipo de acción en una matriz, y luego obtenga el número total de acciones que realizamos por esa marca de tiempo.
+OK, este podría ser nuestro primer enfoque, donde unwind el array de operaciones y luego agrupamos en el tiempo y la acción, obtenemos la suma.
+
+<img src="images/m121/c6/6-6-3.png">
+
+Y luego agrupe nuevamente, justo a tiempo, y empuje la acción y tenga en cuenta ese tipo de acción en un array, y luego obtenga el número total de acciones que realizamos por esa marca de tiempo.
 
 Por lo tanto, deberíamos obtener acciones totales por documento con los números individuales de acciones de compra y venta.
 
 Probémoslo.
 
-OK, podemos ver que es la misma tubería que la de la diapositiva anterior.
+OK, podemos ver que es la misma pipeline que la de la diapositiva anterior.
 
-Desenrollamos la matriz de operaciones, agrupamos en la marca de tiempo y la acción, y luego agrupamos nuevamente solo en la marca de tiempo.
+```sh
+db.stocks.aggregate([
+  {
+    $unwind: "$trades"
+  },
+  {
+    $group: {
+      _id: {
+        time: "$id",
+        action: "$trades.action"
+      },
+      trades: { $sum: 1 }
+    }
+  },
+  {
+    $group: {
+      _id: "$_id.time",
+      actions: {
+        $push: {
+          type: "$_id.action",
+          count: "$trades"
+        }
+      },
+      total_trades: { $sum: "$trades" }
+    }
+  },
+  {
+    $sort: { total_trades: -1 }
+  }
+])
+```
 
-Hemos agregado esta etapa de clasificación aquí, solo para asegurarnos de obtener pedidos consistentes para la comparación más adelante.
+Unwind el array de operaciones, agrupamos en la time stamp y la acción, y luego agrupamos nuevamente solo en time stamp.
+
+Hemos agregado la etapa de sort aquí, solo para asegurarnos de obtener pedidos consistentes para la comparación más adelante.
+
+```sh
+MongoDB Enterprise > db.stocks.aggregate([
+...   {
+...     $unwind: "$trades"
+...   },
+...   {
+...     $group: {
+...       _id: {
+...         time: "$id",
+...         action: "$trades.action"
+...       },
+...       trades: { $sum: 1 }
+...     }
+...   },
+...   {
+...     $group: {
+...       _id: "$_id.time",
+...       actions: {
+...         $push: {
+...           type: "$_id.action",
+...           count: "$trades"
+...         }
+...       },
+...       total_trades: { $sum: "$trades" }
+...     }
+...   },
+...   {
+...     $sort: { total_trades: -1 }
+...   }
+... ]).pretty()
+{
+	"_id" : ISODate("41628-09-13T05:21:57Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 244
+		},
+		{
+			"type" : "sell",
+			"count" : 255
+		}
+	],
+	"total_trades" : 499
+}
+{
+	"_id" : ISODate("7087-12-23T11:35:17Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 255
+		},
+		{
+			"type" : "buy",
+			"count" : 244
+		}
+	],
+	"total_trades" : 499
+}
+{
+	"_id" : ISODate("78704-07-11T21:21:57Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 255
+		},
+		{
+			"type" : "sell",
+			"count" : 243
+		}
+	],
+	"total_trades" : 498
+}
+{
+	"_id" : ISODate("6137-04-25T06:15:17Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 228
+		},
+		{
+			"type" : "sell",
+			"count" : 269
+		}
+	],
+	"total_trades" : 497
+}
+{
+	"_id" : ISODate("3602-03-20T08:01:57Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 251
+		},
+		{
+			"type" : "sell",
+			"count" : 246
+		}
+	],
+	"total_trades" : 497
+}
+{
+	"_id" : ISODate("16277-09-16T23:08:37Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 222
+		},
+		{
+			"type" : "sell",
+			"count" : 272
+		}
+	],
+	"total_trades" : 494
+}
+{
+	"_id" : ISODate("66979-09-10T11:35:17Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 222
+		},
+		{
+			"type" : "sell",
+			"count" : 272
+		}
+	],
+	"total_trades" : 494
+}
+{
+	"_id" : ISODate("118949-03-22T23:08:37Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 266
+		},
+		{
+			"type" : "sell",
+			"count" : 226
+		}
+	],
+	"total_trades" : 492
+}
+{
+	"_id" : ISODate("38776-09-18T13:21:57Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 252
+		},
+		{
+			"type" : "buy",
+			"count" : 238
+		}
+	],
+	"total_trades" : 490
+}
+{
+	"_id" : ISODate("60958-10-31T09:48:37Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 252
+		},
+		{
+			"type" : "buy",
+			"count" : 237
+		}
+	],
+	"total_trades" : 489
+}
+{
+	"_id" : ISODate("65395-04-03T18:41:57Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 244
+		},
+		{
+			"type" : "buy",
+			"count" : 240
+		}
+	],
+	"total_trades" : 484
+}
+{
+	"_id" : ISODate("31805-03-12T06:15:17Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 237
+		},
+		{
+			"type" : "buy",
+			"count" : 245
+		}
+	],
+	"total_trades" : 482
+}
+{
+	"_id" : ISODate("17228-05-16T04:28:37Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 237
+		},
+		{
+			"type" : "sell",
+			"count" : 245
+		}
+	],
+	"total_trades" : 482
+}
+{
+	"_id" : ISODate("34974-01-24T16:01:57Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 247
+		},
+		{
+			"type" : "sell",
+			"count" : 235
+		}
+	],
+	"total_trades" : 482
+}
+{
+	"_id" : ISODate("5503-07-17T18:41:57Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 235
+		},
+		{
+			"type" : "buy",
+			"count" : 246
+		}
+	],
+	"total_trades" : 481
+}
+{
+	"_id" : ISODate("68247-03-30T10:41:57Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 227
+		},
+		{
+			"type" : "sell",
+			"count" : 254
+		}
+	],
+	"total_trades" : 481
+}
+{
+	"_id" : ISODate("104055-07-08T03:35:17Z"),
+	"actions" : [
+		{
+			"type" : "buy",
+			"count" : 234
+		},
+		{
+			"type" : "sell",
+			"count" : 246
+		}
+	],
+	"total_trades" : 480
+}
+{
+	"_id" : ISODate("39093-08-08T07:08:37Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 261
+		},
+		{
+			"type" : "buy",
+			"count" : 218
+		}
+	],
+	"total_trades" : 479
+}
+{
+	"_id" : ISODate("9939-12-19T03:35:17Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 239
+		},
+		{
+			"type" : "buy",
+			"count" : 239
+		}
+	],
+	"total_trades" : 478
+}
+{
+	"_id" : ISODate("79972-01-28T20:28:37Z"),
+	"actions" : [
+		{
+			"type" : "sell",
+			"count" : 249
+		},
+		{
+			"type" : "buy",
+			"count" : 227
+		}
+	],
+	"total_trades" : 476
+}
+Type "it" for more
+MongoDB Enterprise > 
+
+```
 
 Muy bien, nos da los resultados que esperábamos: acciones totales y el número de acciones de compra y venta por documento.
 
