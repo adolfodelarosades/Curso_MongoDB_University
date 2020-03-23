@@ -14,27 +14,37 @@
 
 ### Transcripción
 
+<img src="images/m121/c6/6-1-1.png">
+
 En esta lección, hablaremos sobre el rendimiento de la agregación.
 
 Y específicamente, vamos a discutir cómo podemos utilizar índices cuando ejecutamos consultas de agregación.
 
 Y también vamos a discutir algunas de las restricciones de memoria que se aplican a la agregación en MongoDB.
 
+<img src="images/m121/c6/6-1-2.png">
+
 Antes de entrar en estos diferentes temas, primero quiero señalar que hay dos categorías de alto nivel de consultas de agregación.
 
-En primer lugar, hay consultas de procesamiento en tiempo real y luego hay consultas procesadas por lotes.
+<img src="images/m121/c6/6-1-3.png">
 
-"tiempo real" está entre comillas aquí porque nunca se puede tener un procesamiento en tiempo real.
+En primer lugar, hay consultas de procesamiento en tiempo real ("Realtime" Processing) y luego hay consultas procesadas por lotes (Batch Processing).
+
+"real time" está entre comillas aquí porque nunca se puede tener un procesamiento en tiempo real.
 
 Siempre habrá algún tipo de retraso entre cuando se ejecuta una consulta y cuando esa consulta responde.
 
-El procesamiento en tiempo real es para que podamos proporcionar datos a las aplicaciones.
+Real time es para que podamos proporcionar datos a las aplicaciones.
 
 Esto significa que el rendimiento es más importante.
+
+<img src="images/m121/c6/6-1-4.png">
 
 Un usuario va a realizar algún tipo de acción, la acción va a desencadenar una consulta de agregación, y luego los resultados de esa consulta deben devolverse al usuario en un período de tiempo razonable.
 
 Con el procesamiento por lotes, por otro lado, generalmente estamos hablando de hacer agregación para proporcionar análisis.
+
+<img src="images/m121/c6/6-1-5.png">
 
 Y dado que proporcionamos análisis, eso significa que estos trabajos generalmente se ejecutan de forma periódica.
 
@@ -48,7 +58,9 @@ Ahora, algunos de estos principios también se aplicarán a la categoría de pro
 
 Pero en su mayor parte discutiremos estrategias para optimizar el rendimiento de agregación para el procesamiento en tiempo real.
 
-Ahora con eso fuera del camino, sigamos adelante y discutamos la carne de esta lección, indexe el uso para consultas de agregación.
+Ahora con eso fuera del camino, sigamos adelante y discutamos la carne de esta lección, el uso de index para consultas de agregación.
+
+<img src="images/m121/c6/6-1-6.png">
 
 Ahora, a medida que aprende en este curso, los índices son una parte vital del buen rendimiento de las consultas.
 
@@ -58,7 +70,9 @@ Básicamente, queremos asegurarnos de que nuestras consultas de agregación pued
 
 Ahora, naturalmente, dado que la agregación es un poco diferente a la consulta de búsqueda típica, determinar el uso del índice también es un poco diferente.
 
-Con una consulta de agregación, formamos una tubería de diferentes operadores de agregación, que transforman nuestros datos en el formato que deseamos.
+Con una consulta de agregación, formamos un pipeline de diferentes operadores de agregación, que transforman nuestros datos en el formato que deseamos.
+
+<img src="images/m121/c6/6-1-7.png">
 
 Ahora, algunos de estos operadores de agregación pueden usar índices, y otros no.
 
@@ -68,29 +82,39 @@ Afortunadamente para nosotros, el optimizador de consultas hace todo lo posible 
 
 Pero si comprende los principios subyacentes de cómo funciona esto, puede tener más confianza en el rendimiento de su consulta y tendrá que confiar menos en el optimizador de consultas.
 
-Para que podamos determinar cómo se ejecutan las consultas de agregación y si se utilizan o no los índices, podemos pasar el documento de explicación verdadera como una opción al método de agregación.
+Para que podamos determinar cómo se ejecutan las consultas de agregación y si se utilizan o no los índices, podemos pasar el documento de explicación (explain) verdadera como una opción al método de agregación.
+
+<img src="images/m121/c6/6-1-8.png">
 
 Esto producirá una salida de explicación similar a la que estamos acostumbrados a ver con find.
 
 Ahora, para el resto de estos ejemplos, nos ocuparemos de esta colección de pedidos hipotéticos.
 
-Y vamos a seguir adelante y asumir que tenemos un índice de identificación del cliente.
+<img src="images/m121/c6/6-1-9.png">
 
-Como era de esperar, el operador $ match puede utilizar índices.
+Y vamos a seguir adelante y asumir que tenemos un índice de ID del cliente.
 
-Esto es especialmente cierto si está al comienzo de una tubería.
+Como era de esperar, el operador `$match` puede utilizar índices.
 
-Verá un tema natural aquí: queremos ver operadores que usan índices al frente de nuestras tuberías.
+<img src="images/m121/c6/6-1-10.png">
+
+Esto es especialmente cierto si está al comienzo de un pipeline.
+
+Verá un tema natural aquí: queremos ver operadores que usan índices al frente de nuestras pipelines.
 
 Del mismo modo, siempre vamos a querer poner las etapas de clasificación lo más cerca posible del frente.
 
+<img src="images/m121/c6/6-1-11.png">
+
 Con las consultas de búsqueda vimos la gravedad de la degradación de nuestro rendimiento cuando la clasificación no puede utilizar un índice.
 
-Por esta razón, queremos asegurarnos de que nuestras etapas de clasificación se realicen antes de cualquier tipo de transformaciones para asegurarnos de que utilizamos índices para la clasificación.
+Por esta razón, queremos asegurarnos de que nuestras etapas de ordenación se realicen antes de cualquier tipo de transformaciones para asegurarnos de que utilizamos índices para la clasificación.
 
-Si está haciendo un límite y está haciendo una clasificación, debe asegurarse de que estén cerca el uno del otro y al frente de la tubería.
+Si está haciendo un límite y está haciendo una clasificación, debe asegurarse de que estén cerca el uno del otro y al frente del pipeline.
 
-Cuando esto sucede, el servidor puede hacer una clasificación de top-k.
+<img src="images/m121/c6/6-1-12.png">
+
+Cuando esto sucede, el servidor puede hacer una ordenación de top-k.
 
 Esto es cuando el servidor solo puede asignar memoria para el número final de documentos, en este caso, 10.
 
@@ -108,25 +132,39 @@ Ahora esas son las optimizaciones de agregación básicas que puede hacer.
 
 Ahora analicemos algunas de las restricciones de memoria que debe tener en cuenta al realizar la agregación.
 
-Primero que nada, tus resultados******están sujetos al límite de documentos de 16 megabytes que existe en MongoDB.
+<img src="images/m121/c6/6-1-13.png">
+
+Primero que nada, tus resultados están sujetos al límite de documentos de 16 megabytes que existe en MongoDB.
+
+<img src="images/m121/c6/6-1-14.png">
 
 La agregación generalmente genera un único documento, y ese único documento será susceptible a este límite.
 
-Ahora este límite no se aplica a los documentos a medida que fluyen a través de la tubería.
+Ahora este límite no se aplica a los documentos a medida que fluyen a través del pipeline.
+
+<img src="images/m121/c6/6-1-15.png">
 
 A medida que transforma los documentos, en realidad pueden superar el límite de 16 megabytes, pero todo lo que se devuelva seguirá estando por debajo del límite de 16 megabytes.
 
-La mejor manera de mitigar este problema es mediante el uso de $ limit y $ project para reducir el tamaño del documento resultante.
+La mejor manera de mitigar este problema es mediante el uso de `$limit` y `$project` para reducir el tamaño del documento resultante.
 
-Otra limitación de la que querrá tener en cuenta es que para cada etapa de nuestra cartera, hay un límite de uso de RAM de 100 megabytes.
+<img src="images/m121/c6/6-1-16.png">
+
+Otra limitación de la que querrá tener en cuenta es que para cada etapa de nuestro pipeline, hay un límite de uso de RAM de 100 megabytes.
+
+<img src="images/m121/c6/6-1-17.png">
 
 Ahora, la mejor manera absoluta de mitigar esto es garantizar que sus etapas más grandes puedan utilizar índices.
+
+<img src="images/m121/c6/6-1-18.png">
 
 Esto reducirá sus requisitos de memoria, ya que los índices son generalmente mucho más pequeños que los documentos a los que hacen referencia.
 
 Además, con la clasificación, reducen drásticamente los requisitos de memoria, ya que no es necesario asignar memoria adicional para esa clasificación.
 
 Ahora, si todavía se encuentra con este límite de 100 megabytes, incluso si usa índices, entonces hay una forma adicional de evitarlo.
+
+<img src="images/m121/c6/6-1-19.png">
 
 Y eso es especificando allowDiskUse true en su consulta de agregación.
 
@@ -140,9 +178,13 @@ En algunas situaciones, esto es necesario, pero debe tener en cuenta que esto di
 
 Dado que allowDiskUse true afectará seriamente el rendimiento, lo verá con más frecuencia en el tipo de trabajos de procesamiento por lotes, en lugar del procesamiento en tiempo real.
 
-Y lo último que quiero señalar aquí es que permitir el uso del disco no funciona con $ graphLookup, y eso es porque $ graphLookup actualmente no admite la división en disco.
+Y lo último que quiero señalar aquí es que permitir el uso del disco no funciona con `$graphLookup`, y eso es porque `$graphLookup` actualmente no admite la división en disco.
+
+<img src="images/m121/c6/6-1-20.png">
 
 Recapitulemos lo que hemos aprendido.
+
+<img src="images/m121/c6/6-1-21.png">
 
 Entonces, en esta lección, discutimos algunas de las diferentes estrategias de optimización para utilizar índices con sus consultas de agregación, y también discutimos algunas de las restricciones de los miembros que se aplican a la agregación, y cómo puede mitigar y solucionar esos problemas.
 
