@@ -1121,59 +1121,83 @@ Muy bien, muy bien.
 
 Obtuvimos los mismos resultados, tres palabras, recuento de 1.450 documentos.
 
-Verifiquemos la salida de explicación para ver la diferencia entre esta tubería y nuestra tubería anterior.
+Verifiquemos la salida de explicación para ver la diferencia entre esta pipeline y nuestra pipeline anterior.
 
 Muy bien, veamos el resultado de la explicación.
 
 Podemos ver que la consulta es la misma.
 
-Podemos ver que los campos también son los mismos: título 1, _id es 0.
+Podemos ver que los campos también son los mismos: `"title": 1`, `"_id": 0`.
 
-¿Cómo sabía el marco de agregación hacer esto cuando no especificamos una etapa del proyecto?
+¿Cómo sabía el aggregation framework hacer esto cuando no especificamos una etapa project?
 
 Cubramos eso en un momento.
 
-En nuestro plan ganador, podemos ver que no hubo una etapa de recuperación, lo que significa que esta es una consulta cubierta.
+En nuestro plan ganador `winningPlan`, podemos ver que no hubo una etapa de recuperación, lo que significa que esta es una consulta cubierta.
 
-Si nos desplazamos hasta el final para ver el resto de nuestras etapas de canalización, podemos ver la siguiente etapa después de que nuestra consulta sea grupal, luego nuestra clasificación y listo.
+Si nos desplazamos hasta el final para ver el resto de nuestras etapas del pipeline, podemos ver la siguiente etapa después de que nuestra consulta sea group, luego nuestra sort y listo.
 
-Una conclusión clave aquí es evitar proyectos innecesarios.
+Una conclusión clave aquí es evitar project innecesarios.
 
-Como vimos, el marco de agregación asumió que sabíamos lo que estábamos haciendo con cada proyecto.
+Como vimos, el aggregation pipeline asumió que sabíamos lo que estábamos haciendo con cada proyecto.
 
-Sin embargo, si el marco de agregación puede determinar la forma del documento final basándose solo en la entrada inicial, internamente proyectará campos innecesarios.
+Sin embargo, si el aggregation pipeline puede determinar la forma del documento final basándose solo en la entrada inicial, internamente proyectará campos innecesarios.
 
 Eso fue un bocado.
 
 Así que déjenme explicarlo con un poco más de detalle.
 
-En la primera etapa del partido, el único f********El campo que nos importaba era el título.
+```sh
+db.movies.aggregate(
+  [
+    {
+      $match: {
+        title: /^[aeiou]/i
+      }
+    },
+    {
+      $group: {
+        _id: {
+          $size: { $split: ["$title", " "] }
+        },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { count: -1 }
+    }
+  ],
+  { explain: true }
+)
+```
 
-En la etapa grupal, nuevamente, el único campo que nos importa es el título.
+En la primera etapa match, el único campo que nos importaba era `title`.
+
+En la etapa group, nuevamente, el único campo que nos importa es `title`.
 
 Usamos esta composición de expresiones para obtener el número de palabras en el título.
 
-Pero podemos hacerlo en línea evaluando primero dividir el título de los espacios en una matriz y luego obtener el tamaño de la matriz.
+Pero podemos hacerlo en línea evaluando primero dividir el título de los espacios en un array y luego obtener el tamaño del array.
 
-No hay necesidad de una etapa de proyecto intermediario, porque podemos calcular ese valor en línea aquí.
+No hay necesidad de una etapa de project intermedia, porque podemos calcular ese valor en línea aquí.
 
 Esta es una característica muy poderosa.
 
 Siempre debemos esforzarnos por dejar que el optimizador trabaje para nosotros.
 
-Además, esto elimina una etapa que finalmente agrega tiempo a la tubería.
+Además, esto elimina una etapa que finalmente agrega tiempo al pipeline.
 
 Pensemos en eso.
 
 Digamos que tenemos 100,000 documentos en nuestra colección de películas.
 
-En el partido, filtramos hasta 10,000.
+En el match, filtramos hasta 10,000.
 
-Ahora en el grupo, tenemos 10,000 documentos que nos llegan.
+Ahora en el group, tenemos 10,000 documentos que nos llegan.
 
-Y en especie, tenemos quizás 15.
+Y en sort, tenemos quizás 15.
 
-Bueno, con esa etapa de proyecto intermediario que realmente no necesitábamos, recibimos 100,000, luego tenemos 10,000, y enviamos todos los 10,000 a través de ese proyecto intermediario antes de que llegaran a la etapa grupal.
+Bueno, con esa etapa intermedia project que realmente no necesitábamos, recibimos 100,000, luego tenemos 10,000, y enviamos todos los 10,000 a través de ese project intermediario antes de que llegaran a la etapa grupal.
 
 Eso es 10,000 iteraciones adicionales que acabamos de evitar.
 
@@ -1181,11 +1205,26 @@ Por lo tanto, como regla general, no proyecte a menos que esté haciendo un trab
 
 Y recuerde que agregar campos está disponible.
 
-Bien, una última nota antes de continuar, podríamos reemplazar el grupo y ordenar por ordenar por conteo.
+Bien, una última nota antes de continuar, podríamos reemplazar group y sort por ordenar por conteo (sort by count).
 
 Realmente es lo mismo bajo el capó.
 
 Simplemente nos ahorra al escribir.
+
+```sh
+db.movies.aggregate([
+  {
+    $match: {
+      title: /^[aeiou]/i
+    }
+  },
+  {
+    $sortByCount: {
+      $size: { $split: ["$title", " "] }
+    }
+  }
+])
+```
 
 Ten eso en mente.
 
