@@ -616,3 +616,310 @@ does not satisfy the query requirements.
 
 The last 2 queries are doing a `$match` on `mean` before it is calculated, making them also invalid.
 
+## Final: Question 6
+
+**Problem:**
+
+Consider the following people collection:
+
+```sh
+db.people.find().limit(5)
+{ "_id" : 0, "name" : "Iva Estrada", "age" : 95, "state" : "WA", "phone" : "(739) 557-2576", "ssn" : "901-34-4492" }
+{ "_id" : 1, "name" : "Roger Walton", "age" : 92, "state" : "ID", "phone" : "(948) 527-2370", "ssn" : "498-61-9106" }
+{ "_id" : 2, "name" : "Isaiah Norton", "age" : 26, "state" : "FL", "phone" : "(344) 479-5646", "ssn" : "052-49-6049" }
+{ "_id" : 3, "name" : "Tillie Salazar", "age" : 88, "state" : "ND", "phone" : "(216) 414-5981", "ssn" : "708-26-3486" }
+{ "_id" : 4, "name" : "Cecelia Wells", "age" : 16, "state" : "SD", "phone" : "(669) 809-9128", "ssn" : "977-00-7372" }
+```
+
+And the corresponding people_contacts view:
+
+```sh
+db.people_contacts.find().limit(5)
+{ "_id" : 6585, "name" : "Aaron Alvarado", "phone" : "(631)*********", "ssn" : "********8014" }
+{ "_id" : 8510, "name" : "Aaron Barnes", "phone" : "(944)*********", "ssn" : "********6820" }
+{ "_id" : 6441, "name" : "Aaron Barton", "phone" : "(234)*********", "ssn" : "********1937" }
+{ "_id" : 8180, "name" : "Aaron Coleman", "phone" : "(431)*********", "ssn" : "********7559" }
+{ "_id" : 9738, "name" : "Aaron Fernandez", "phone" : "(578)*********", "ssn" : "********0211" }
+```
+
+Which of the of the following commands generates this people_contacts view?
+
+Choose the best answer:
+
+1)
+```sh
+var pipeline = [
+  {
+    "$sort": {"name": 1}
+  },
+  {
+    "$project": {"name":1,
+    "phone": {
+      "$concat": [
+        {"$arrayElemAt": [{"$split": ["$phone", " "]}, 0]} ,
+        "*********"  ]
+      },
+    "ssn": {
+      "$concat": [
+        "********",
+        {"$arrayElemAt": [{"$split": ["$ssn", "-"]}, 2]}
+      ]
+    }
+  }
+}
+];
+db.createView("people", "people_contacts" pipeline);
+```
+
+2)
+```sh
+var pipeline = [
+  {
+    "$sort": {"state": 1}
+  },
+  {
+    "$project": {"name":1,
+    "phone": {
+      "$concat": [
+        {"$arrayElemAt": [{"$split": ["$phone", " "]}, 0]} ,
+        "*********"  ]
+      },
+    "ssn": {
+      "$concat": [
+        "********",
+        {"$arrayElemAt": [{"$split": ["$ssn", "-"]}, 2]}
+      ]
+    }
+  }
+}
+];
+db.runCommand({
+  "create": "people",
+  "viewOn":"people",
+  "pipeline": pipeline})
+```
+
+3)
+```sh
+var pipeline = [
+  {
+    "$project": {"name":1,
+    "phone": {
+      "$concat": [
+        {"$arrayElemAt": [{"$split": ["$phone", " "]}, 0]} ,
+        "*********"  ]
+      },
+    "ssn": {
+      "$concat": [
+        "********",
+        {"$arrayElemAt": [{"$split": ["$ssn", "-"]}, 2]}
+      ]
+    }
+  }
+}
+];
+db.runCommand({
+  "create": "people_contacts",
+  "viewOn":"people",
+  "pipeline": pipeline})
+```
+
+4) :+1:
+```sh
+var pipeline = [
+  {
+    "$sort": {"name": 1}
+  },
+  {
+    "$project": {"name":1,
+    "phone": {
+      "$concat": [
+        {"$arrayElemAt": [{"$split": ["$phone", " "]}, 0]} ,
+        "*********"  ]
+      },
+    "ssn": {
+      "$concat": [
+        "********",
+        {"$arrayElemAt": [{"$split": ["$ssn", "-"]}, 2]}
+      ]
+    }
+  }
+}
+];
+db.createView("people_contacts", "people", pipeline);
+```
+
+### See detailed answer
+
+The correct answer is:
+
+```sh
+var pipeline = [
+  {
+    "$sort": {"name": 1}
+  },
+  {
+    "$project": {"name":1,
+    "phone": {
+      "$concat": [
+        {"$arrayElemAt": [{"$split": ["$phone", " "]}, 0]} ,
+        "*********"  ]
+      },
+    "ssn": {
+      "$concat": [
+        "********",
+        {"$arrayElemAt": [{"$split": ["$ssn", "-"]}, 2]}
+      ]
+    }
+  }
+}
+];
+db.createView("people_contacts", "people", pipeline);
+```
+
+**people_contacts** view was created using an initial `$sort` stage. We can see this when comparing the `find` results between **people** collection and the view.
+
+After sorting the results the **people_contacts** presents the documents with two computed (redacted) fields, `phone` and `ssn`.
+
+```sh
+{
+  "$project": {"name":1,
+  "phone": {
+    "$concat": [
+      {"$arrayElemAt": [{"$split": ["$phone", " "]}, 0]} ,
+      "*********"  ]
+    },
+  "ssn": {
+    "$concat": [
+      "********",
+      {"$arrayElemAt": [{"$split": ["$ssn", "-"]}, 2]}
+    ]
+  }
+}
+```
+
+And finally, to create the view using command `createView`
+
+```sh
+db.createView("people_contacts", "people", pipeline);
+```
+
+All other options are incorrect, either because they do not use the correct pipeline or due to the fact that the view creation command is incorrect.
+
+
+## Final: Question 7
+
+**Problem:**
+
+Using the `air_alliances` and `air_routes` collections, find which **alliance** has the most unique carriers(airlines) operating between the airports **JFK** and **LHR**, in either directions.
+
+Names are distinct, i.e. `Delta != Delta Air Lines`
+
+`src_airport` and `dst_airport` contain the originating and terminating airport information.
+
+Choose the best answer:
+
+* Star Alliance, with 6 carriers
+
+* OneWorld, with 4 carriers :+1:
+
+* OneWorld, with 8 carriers
+
+* SkyTeam, with 4 carriers
+
+### See detailed answer
+
+The correct answer is **OneWorld, with 4 carriers**
+
+A pipeline that can be used to get these results is
+
+```sh
+db.air_routes.aggregate([
+  {
+    $match: {
+      src_airport: { $in: ["LHR", "JFK"] },
+      dst_airport: { $in: ["LHR", "JFK"] }
+    }
+  },
+  {
+    $lookup: {
+      from: "air_alliances",
+      foreignField: "airlines",
+      localField: "airline.name",
+      as: "alliance"
+    }
+  },
+  {
+    $match: { alliance: { $ne: [] } }
+  },
+  {
+    $addFields: {
+      alliance: { $arrayElemAt: ["$alliance.name", 0] }
+    }
+  },
+  {
+    $group: {
+      _id: "$airline.id",
+      alliance: { $first: "$alliance" }
+    }
+  },
+  {
+    $sortByCount: "$alliance"
+  }
+])
+```
+
+We begin with a `$match` stage and fetch routes that originate or end at either **LHR** and **JFK**
+
+```sh
+{
+  $match: {
+    src_airport: { $in: ["LHR", "JFK"] },
+    dst_airport: { $in: ["LHR", "JFK"] }
+  }
+},
+```
+
+We then `$lookup` into the `air_alliances` collection, matching member airline names in the `airlines` field to the local `airline.name` field in the route
+
+```sh
+{
+  $lookup: {
+    from: "air_alliances",
+    foreignField: "airlines",
+    localField: "airline.name",
+    as: "alliance"
+  }
+},
+```
+
+We follow with a `$match` stage to remove routes that are not members of an alliance. We use `$addFields` to cast just the name of the alliance and extract a single element in one go
+
+```sh
+{
+  $addFields: {
+    alliance: { $arrayElemAt: ["$alliance.name", 0] }
+  }
+},
+```
+
+Lastly, we `$group` on the `airline.id`, since we don't want to count the same airline twice. We take the `$first` alliance name to avoid duplicates. Then, we use `$sortByCount` to get our answer from the results
+
+```sh
+{
+  $group: {
+    _id: "$airline.id",
+    alliance: { $first: "$alliance" }
+  }
+},
+{
+  $sortByCount: "$alliance"
+}
+```
+
+This produces the following output
+
+```sh
+{ "_id": "OneWorld", "count": 4 }
+{ "_id": "SkyTeam", "count": 2 }
+```
